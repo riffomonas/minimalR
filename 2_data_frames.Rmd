@@ -1,0 +1,92 @@
+## Visualizing metadata in a scatter plot
+
+Metadata are the data about the data. For the dataset we worked with in the last section we might think about the people's diagnosis, BMI, race, smoking status, and so forth. This information is critical to understanding the structure in our data. I intimated this earlier, but we could imagine picking plotting symbols based on diagnosis or coloring our points based on the patient's sampling center or their BMI. Before we can do all these cool things, we need to learn how to work with our metadata.
+
+
+
+
+metadata <- read.table(file="data/baxter.metadata.tsv", header=T, sep='\t')
+
+# what do you think is happening here?
+
+# metadata is a variable that holds a 'data.frame'. This is a container that is
+# a table where the rows represent an entity and the columns represent its
+# characteristics.
+
+
+summary(metadata)
+# What do you notice about the data? (list 3 things...)
+# * Some things are counted and some are quartiled
+# * The presence of NAs
+# * Some things are being treated like numbers but are really cat variables
+# * Some values are obviously wrong (e.g. min Height is 0)
+
+
+str(metadata)
+# What do you notice about the data? (list 3 things...)
+# * different data types: 'int', 'Factor', 'num'
+# * Commonly used types: 'int'/'num', 'Factor', 'logical', 'chr'
+# * Some things are improperly typed (e.g. sample)
+
+
+# We can pull out values of a data frame by several methods. The first we'll talk about is to retrieve columns using a `$`.
+
+metadata$sample
+
+# This is a `vector` of the subject sample ids. When we used the `str` function, what type of variable was this? Let's make it a `character` vector:
+
+metadata$sample <- as.character(metadata$sample)
+summary(metadata)
+str(metadata)
+
+# How has it changed? Let's use the `as.logical` function to change the `Hx_Prev` column:
+
+metadata$Hx_Prev <- as.logical(metadata$Hx_Prev)
+summary(metadata)
+str(metadata)
+
+
+# Another method of retrieving a column is to use square bracket notation
+
+metadata[, "Smoke"] <- as.logical(metadata[,"Smoke"])
+summary(metadata)
+str(metadata)
+
+
+# We can even mix and match them...
+
+metadata$Diabetic <- as.logical(metadata[,"Diabetic"])
+summary(metadata)
+str(metadata)
+
+# But that's probably an awful idea that we don't want to do too much because it will make our code hard to read. Go ahead and use the following lines of code to get you started in correcting the `Hx_Fam_CRC`, `NSAID`, and `Diabetes_Med` columns.
+
+metadata[, "Hx_Fam_CRC"] <- as.logical(metadata[,""])
+metadata$ <- as.logical(metadata$NSAID)
+metadata <- metadata
+
+metadata[, "Hx_Fam_CRC"] <- as.logical(metadata[,"Hx_Fam_CRC"])
+metadata$NSAID <- as.logical(metadata$NSAID)
+metadata$Diabetes_Med <- metadata$Diabetes_Med
+
+# The final column of the data.frame, `stage` indicates the subject's cancer stage from 0 to 4. What type of variable does it currently use? What do you think it should be? Write the command below to make this happen.
+
+#metadata$stage <- as.factor(metadata$stage)
+
+
+#At this point, `str` and `summary` output should look like this:
+
+summary(metadata)
+str(metadata)
+
+
+
+So that's a good introduction on how to work with columns in a data frame. What about rows? Remember we can get someone's height by doing `metadata[, "Height"]`. Well we can also do this:
+
+metadata[,13]
+
+Of course, it's a pain to keep track of the column number of variables we want to use and it's far easier to use the columns name. Well, we can use a number to retrieve a row...
+
+metadata[5,]
+
+You can also name your rows and retrieve a row the same way that we did for the columns, but that can cause more problems than it solves, so we'll skip that for now.
