@@ -176,13 +176,6 @@ plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",
 
 You can see that we used the `alpha` function to generate a color for the `col` option. Here we took `red` and made it 25% opaque. If four or more points were stacked up on each other, the overlapping region would be solid red. Go ahead and change the opacity to be 50%.
 
-```{r}
-plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",
-		xlim=c(-0.5, 0.5), ylim=c(-0.6, 0.4), pch=16, col=alpha("red", alpha=0.5),
-		lwd=2, cex=1, main="PCoA of ThetaYC Distances Between Stool Samples")
-```
-
-
 
 ### Activity 5
 Can you alter the transparency of the plotting symbol to reflect the position of each point in the third dimension? You will need to scale the points to fall between 0.0 and 1.0.
