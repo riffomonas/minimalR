@@ -288,3 +288,7 @@ plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",
 * Change the plotting symbols to use a different plotting symbol for each diagnosis
 * Color the points for the male and female patients separately
 * Create a color and symbol scheme of your own choosing
+
+
+### Activity 6
+At the end of the last session, you thought about scatter plots that you would use in your own research. You made a freehand sketch of what the plot would look like. The final question in that activity was, "What more do you need to learn to make the plot for your own data?" Update your list of things you need to learn. Are you ready to make your plot?
