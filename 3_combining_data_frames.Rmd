@@ -1,0 +1,241 @@
+# Learning goals
+* Combining datasets safely
+* More with scatter plots
+
+
+Do you ever have those moments where you worry that you forgot to turn off the stove after you left on vacation? These moments happen in data analysis too! I'm afraid we have one of those moments right now - *gulp*. In the previous session we generated a plot where we changed the colors and shapes of plotting symbols based on the data in a second file. We assumed that the PCoA and metadata data frames were in the same order. Did you check to make sure they were in the same order? I didn't. How do we know if the files were in the right order? We could certainly go through the two files manually and check. considering there were about 500 lines in each file, manually checking both files would be tedious and error prone. Let's check it out with R. Here's a strategy that we can use that will review some of the concepts from the previous sessions:
+
+* read in both files
+* extract the relevant columns from both data frames
+* determine whether the two columns are the same
+
+```{r}
+# Read in both files
+pcoa <- read.table(file="data/baxter.thetayc.pcoa.axes", header=T)
+metadata <- read.table(file="data/baxter.metadata.tsv", header=T, sep='\t')
+metadata$sample <- as.character(metadata$sample)
+
+# Extract relevant columns and compare
+pcoa$group == metadata$sample
+```
+
+Phew! The lines in our `pcoa` and `metadata` data frames line up. If they had disagreed, then one or more of the `TRUE` values in the output would have been a `FALSE`. Again, with 490 samples, it can still be tedious to see whether any of the values were FALSE. Here are two strategies to make sure that everything is `TRUE`. First, we can exploit the fact that numerical value of `TRUE` is 1 and we can use the `sum` command.
+
+```{r}
+sum(pcoa$group != metadata$sample)
+```
+
+Get that? by using `!=` we look for rows where the values are not the same. We then sum up all the values and see that they were all `FALSE`. Ergo, our names agree. A second approach can use the `stopifnot` function. This will complain if the expression it is given is not `TRUE`.
+
+```{r}
+stopifnot(pcoa$group == metadata$sample)
+```
+
+No output is a good sign. Great, I'm glad we got that figured out.
+
+For the activities in this session we're going to plot a continuous variable (e.g. diversity) against a categorical variable to create a bar plot. We have a bunch of alpha-diversity data in the file called `data/baxter.groups.ave-std.summary`. These are the alpha-diversity values for the samples that we looked at in the scatter plot exercises. We could imagine wanting to know whether the Shannon diversity varied between the three states of normal, adenoma, and cancer. Go ahead and read it in and take a look around.
+
+```{r}
+alpha <- read.table(file="data/baxter.groups.ave-std.summary", header=T)
+```
+
+Notice anything? Again, because the sample names (or `group` names) are numerical, they are read in as integers, not as characters. We can take care of this. Also, there's a `method` column. Because these data are the product of rarefying a data to 10,530 sequences, we have the mean (ave) and standard deviation (std) for each metric and sample. All we really want from this are the rows with "ave" in the `method` column. See if you can do this with out looking below. Name the new data frame `alpha_mean` - it should have 491 rows and 12 columns.
+
+```{r}
+alpha$group <- as.character(alpha$group)
+alpha_mean <- alpha[alpha$method == 'ave', ]
+```
+
+Having learned our lesson before after getting lucky, let's double check that our data frames are in the same order:
+
+```{r}
+stopifnot(alpha_mean$group == metadata$sample)
+```
+
+Ruh roh. There are two problems: the values aren't all `TRUE` and one vector is shorter than the other. Perhaps you noticed that `alpha_mean` had 491 rows but our `metadata` data frame had 490. What's the difference? There are a number of commands that you can use to compare the composition of two vectors (see `?setdiff`). The `setdiff` command tells us which elements are different between the two vectors.
+
+```{r}
+setdiff(alpha_mean$group, metadata$sample)
+```
+
+Aha, there's one extra element, "3561655" in the `alpha_mean` data_frame. Although we might be interested in figuring out why we don't have metadata for this subject, we perhaps remember that this individual forgot to return their survey when they dropped off their sample so the sample should be excluded. At this point, we could do several steps to remove this sample and make sure the rows are all in the same order. Since this is a common problem, a set of functions have been developed as part of the `dplyr` package. Go ahead and install this package and load the library.
+
+```{r}
+install.packages("dplyr")
+library("dplyr")
+```
+
+The dplyr package has a few functions that we can use to merge different data frames. We can do an "inner join", which will merge the data frames using the rows that are shared between the two data frames. Alternatively, a "left join" or "right join" will merge the data frames using the rows found in the left or right data frame being joined. There is also a "full join", which produces a data frame where the samples from both data frames are represented. Let's do a couple of examples to demonstrate these joins. First we'll define two new data frames. We can do this by giving the `data.frame` function a series of vectors that will be used to create the columns
+
+```{r}
+a <- data.frame(x1=c("A", "B", "C"), x2=1:3, stringsAsFactors=F)
+a
+
+b <- data.frame(x1=c("A", "B", "D"), x3=c(T, F, T), stringsAsFactors=F)
+b
+```
+
+We'll do a "left join" ...
+
+```{r}
+left_join(a, b, by="x1")
+```
+
+... a "right join" ...
+
+```{r}
+right_join(a, b, by="x1")
+```
+
+... a "full join" ...
+
+```{r}
+full_join(a, b, by="x1")
+```
+
+... and finally an "inner join"
+
+```{r}
+inner_join(a, b, by="x1")
+```
+
+You should have noticed two things. First, the left, right, and full joins insert `NA` values into the data frame to fill the in the data frame. In contrast, the inner join, only uses those rows that are shared between the two. Second, we used the `x1` column in each matrix to complete the join. Pretend we had these data frames and wanted to perform a join...
+
+```{r}
+a <- data.frame(a1=c("A", "B", "C"), a2=1:3, stringsAsFactors=F)
+a
+
+b <- data.frame(b1=c("A", "B", "D"), b3=c(T, F, T), stringsAsFactors=F)
+b
+```
+
+We see that the column names are all different, but we'd like to merge the two data frames using columns `a1` and `b1`. Here's how we can merge the data frames
+
+```{r}
+inner_join(a, b, by=c("a1"="b1"))
+```
+
+#### Activity 1
+What happens in these cases when we switch the `a` and `b` data frames in the `inner_join` function call?
+
+
+#### Activity 2
+Let's get back to our data. When we were using the `$` to pull columns out of our files we used `alpha_mean$group` and `metadata$sample`. Based on what we did with the `a` and `b` data frames, how would we merge the `alpha_mean` and `metadata` data frames? Which join should we use? Which data frame do we want to go first? Does it matter?
+
+```{r}
+meta_alpha <- inner_join(metadata, alpha_mean, by=c("sample"="group"))
+```
+
+
+Excellent! We have safely merged our metadata and alpha diversity data into a single data frame and we are more confident now that the data from the correct samples were merged together. Let's plot the relationship between a patient's Shannon index and their BMI.
+
+```{r}
+plot(meta_alpha$BMI, meta_alpha$shannon, xlab="Body Mass Index", ylab="Shannon Diversity Index", xlim=c(0,60))
+```
+
+#### Activity 3
+Based on what we learned in the earlier exercises let's make some improvements.
+* Alter the limits of the x-axis to go from 0 to 60 and have the y-axis go from 0 to 5.
+* Color the points by diagnosis
+
+```{r}
+colors <- c(normal="black", adenoma="blue", carcinoma="red")
+plot(meta_alpha$BMI, meta_alpha$shannon, xlim=c(0,60), ylim=c(0,5), xlab="Body Mass Index", ylab="Shannon Diversity Index", col=colors[meta_alpha$dx], pch=19)
+```
+
+Let's take a brief aside to re-factor our plotting code. Take a look at what we have here
+
+```{r}
+plot(meta_alpha$shannon~meta_alpha$BMI, xlim=c(0,60), ylim=c(0,5), xlab="Body Mass Index", ylab="Shannon Diversity Index", col=colors[meta_alpha$dx], pch=19)
+```
+
+There's a subtle change here, do you see it? The output is the same, but in this code we used a `~`. Numerous commands in R will allow us to use the `~`. This should be read as "shannon is explained by BMI" or "our y-axis variable is explained by our x-axis variable". The significance isn't so obvious in this example. By doing this, however, we can use the `data` argument to simplify our code.
+
+```{r}
+plot(shannon~BMI, data=meta_alpha, xlim=c(0,60), ylim=c(0,5), xlab="Body Mass Index", ylab="Shannon Diversity Index", col=colors[dx], pch=19)
+```
+
+Again, we've got the same output, but simpler code.
+
+#### Activity 4
+Generate a new plot where you plot each patient's number of observed OTUs (Sobs) as a function of the fit result. Color each point by their gender and select the plotting symbol based on whether they smoke. Use the `~` approach with the `data` argument.
+
+```{r}
+colors <- c(m="red", f="blue")
+symbol <- c(17, 19)
+plot(sobs~fit_result, data=meta_alpha, xlim=c(0,3000), ylim=c(0, 400), xlab="Fit Result", ylab="Number of OTUs", col=colors[Gender], pch=symbol[Smoke+1])
+```
+
+
+Now we've got a couple colors and a couple plotting symbols. Our readers might like to know what these points represent! Let's make a legend. We do this with the legend command. To build a legend, we'll need to figure out a few things. First, we need to generate different plotting symbol and color combinations. Second, we need to connect those combinations to a description. Finally, we need to find a good place to put the legend. Unfortunately, as we tinker, we will need to rebuild the plot and place a new legend on top of it. Let's get going.
+
+```{r}
+colors <- c(m="red", f="blue")
+symbol <- c(17, 19)
+plot(sobs~fit_result, data=meta_alpha, xlim=c(0,3000), ylim=c(0, 400), xlab="Fit Result", ylab="Number of OTUs", col=colors[Gender], pch=symbol[Smoke+1])
+legend("bottomright", legend=c('Female smoker','Male smoker', 'Female non-smoker', 'Male non-smoker'))
+```
+
+Cool - we have the start of a legend! We have tentatively placed the legend in the "bottomright" and have added the legend text. Try replacing "bottomright" with "bottom", "bottomleft", "left", "topleft", "top", "topright", "right", or "center". Alternatively we could give the `legend` function x and y coordinates for the top left corner of the legend box.
+
+```{r}
+colors <- c(m="red", f="blue")
+symbol <- c(17, 19)
+plot(sobs~fit_result, data=meta_alpha, xlim=c(0,3000), ylim=c(0, 400), xlab="Fit Result", ylab="Number of OTUs", col=colors[Gender], pch=symbol[Smoke+1])
+legend(x=1000, y=100, legend=c('Female smoker','Male smoker', 'Female non-smoker', 'Male non-smoker'))
+```
+
+A useful function for selecting a location is the `locator` function. Run `locator(1)` and then go to the plotting window. You'll notice cross hairs, which look like an addition sign. Go ahead and click anywhere on your plot. Back in the terminal console you'll see x and y coordinates outputted. If you run `locator(2)` you can click twice to get two points. Go ahead and use the locator function to specify where you want the legend.
+
+Alright, we know where we want the legend and what the text in the legend should say, now we need the plotting symbols and colors. Here we will use a `col` and `pch` vectors to specify the color and plotting symbol so that their order corresponds to the text in the legend.
+
+```{r}
+colors <- c(m="red", f="blue")
+symbol <- c(17, 19)
+plot(sobs~fit_result, data=meta_alpha, xlim=c(0,3000), ylim=c(0, 400), xlab="Fit Result", ylab="Number of OTUs", col=colors[Gender], pch=symbol[Smoke+1])
+legend(x=2000, y=100, legend=c('Female smoker','Male smoker', 'Female non-smoker', 'Male non-smoker'), pch=c(19,19,17,17), col=c("blue", "red","blue","red"))
+```
+
+We can make the legend text smaller or the plotting symbol larger by altering the pt.cex and cex values.
+
+```{r}
+colors <- c(m="red", f="blue")
+symbol <- c(17, 19)
+plot(sobs~fit_result, data=meta_alpha, xlim=c(0,3000), ylim=c(0, 400), xlab="Fit Result", ylab="Number of OTUs", col=colors[Gender], pch=symbol[Smoke+1])
+legend(x=2000, y=100, legend=c('Female smoker','Male smoker', 'Female non-smoker', 'Male non-smoker'), pch=c(19,19,17,17), col=c("blue", "red","blue","red"), pt.cex=1.5, cex=0.8)
+```
+
+#### Activity 5
+Revisit the ordination plot you generated in Activity 5 from Session 2 and generate a legend to accompany the plot.
+
+
+Sometimes our plots have points that are well spread across the plotting window and it's impossible to find a clean place to put the legend. Putting the legend in the plotting window would cover your data or could confuse the viewer into thinking that the plotting symbols in the legend were data. This is why many favor putting the legend outside of the plotting window. To do this, we need to learn a little about how the space around the plot is formatted. Have you noticed that in our plots without a main title there is a lot of space at the top of the window? That's the margin. If we call `par()$mar` we can see the margin values. These seem a bit cryptic, but represent the number of lines between the axis and the edge of the window. The numbers start on the x-axis and go clockwise. We can call `par(mar=c(1,1,1,1))` to set all the margins to one line or we could call `par(mar=c(5,5,1,10))` to have a wide margin on the right side. Let's give this a shot.
+
+```{r}
+default <- par()["mar"]
+par(mar=c(5,5,1,10))
+colors <- c(m="red", f="blue")
+symbol <- c(17, 19)
+plot(sobs~fit_result, data=meta_alpha, xlim=c(0,3000), ylim=c(0, 400), xlab="Fit Result", ylab="Number of OTUs", col=colors[Gender], pch=symbol[Smoke+1])
+legend(x=2000, y=100, legend=c('Female smoker','Male smoker', 'Female non-smoker', 'Male non-smoker'), pch=c(19,19,17,17), col=c("blue", "red","blue","red"), pt.cex=1.5, cex=0.8)
+par(mar=default)
+```
+
+Great. You'll notice that we saved the default value before changing the margins and then reset the values at the end of the code chunk. This is helpful to keep our settings consistent. Now let's use the `locator` function that we learned about to find a good place to put the legend in the right side margin. You'll see that the x values continue beyond the x-axis labels and that the y values are consistent with the y-axis values. To get this to work, we'll need to add the `xpd` argument to our legend command. This allows us to plot information outside of the normal plotting window.
+
+```{r}
+default <- par()["mar"]
+par(mar=c(5,5,1,10))
+colors <- c(m="red", f="blue")
+symbol <- c(17, 19)
+plot(sobs~fit_result, data=meta_alpha, xlim=c(0,3000), ylim=c(0, 400), xlab="Fit Result", ylab="Number of OTUs", col=colors[Gender], pch=symbol[Smoke+1])
+legend(x=3300, y=300, legend=c('Female smoker','Male smoker', 'Female non-smoker', 'Male non-smoker'), pch=c(19,19,17,17), col=c("blue", "red","blue","red"), pt.cex=1.5, cex=0.8, xpd=TRUE)
+par(mar=default)
+```
+
+#### Activity 6
+Revisiting the figure from Activity 5, go ahead and put the legend in the right hand margin of the plotting window.
+
+
+#### Activity 7
+Through the previous two sessions you've been developing your own scatter plot idea. At this point, you should know everything you need to plot your own data. Go for it!
