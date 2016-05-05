@@ -247,4 +247,8 @@ Revisiting the figure from Activity 5, go ahead and put the legend in the right 
 
 
 #### Activity 7
+Plot the relationship between each person's height and weight. What is the correlation between the two variables?
+
+
+#### Activity 8
 Through the previous two sessions you've been developing your own scatter plot idea. At this point, you should know everything you need to plot your own data. Go for it!
