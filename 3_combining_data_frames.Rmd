@@ -233,6 +233,15 @@ legend(x=3300, y=300, legend=c('Female smoker','Male smoker', 'Female non-smoker
 par(mar=default)
 ```
 
+Before we leave this analysis, it would be nice to know whether the number of OTUs is correlated with the fit result. In R, we can use a Pearson, Spearman, or Kendall correlation analysis. We can do the correlation using either the `cor` or `cor.test` functions. We'll use the `cor.test` function because it has more interesting output. We'll also use the Spearman correlation because FIT result data are not normally distributed
+
+```{r}
+cor.test(meta_alpha$fit_result, meta_alpha$sobs, method="spearman")
+```
+
+We see that our correlation is `r c_t <- cor.test(meta_alpha$fit_result, meta_alpha$sobs, method="spearman"); format(c_t$estimate, digits=2)` and the P-value is `r format(c_t$p.value, digits=2)`, which is not significant. If we wanted to use the Pearson or Kendall correlations we would replace "spearman" with "pearson" (the default) or "kendall".
+
+
 #### Activity 6
 Revisiting the figure from Activity 5, go ahead and put the legend in the right hand margin of the plotting window.
 
