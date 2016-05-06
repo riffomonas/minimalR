@@ -1,8 +1,6 @@
 missing...
 * models / plotting fits
 * Xapply functions
-* if ... else
-* ifelse()
 
 
 0	Introduction to R and RStudio
