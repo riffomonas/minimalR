@@ -1,0 +1,157 @@
+# Learning goals
+* Sourcing files
+* Functions
+* Logicals
+* Aggregating data by a categorical variable
+* Representing categorical data with a bar plot
+
+
+We're making some pretty good progress so far, well done! Over the last three sessions, we've gotten pretty good at merging our metadata and diversity data. It's kind of a pain every time we close R and come back that we have to remember what series of commands to execute to get things back to how they were before. Surely we're going to make some mistakes. Let's streamline things by putting our code into another file. First, let's create a folder in our project called `code` and we'll create a file called `baxter.R`. Within this file copy and paste the following commands...
+
+```{r}
+library("dplyr")
+
+metadata <- read.table(file="data/baxter.metadata.tsv", header=T, sep='\t')
+metadata$sample <- as.character(metadata$sample)
+metadata$Hx_Prev <- as.logical(metadata$Hx_Prev)
+metadata$Smoke <- as.logical(metadata$Smoke)
+metadata$Diabetic <- as.logical(metadata$Diabetic)
+metadata$Hx_Fam_CRC <- as.logical(metadata$Hx_Fam_CRC)
+metadata$Hx_of_Polyps <- as.logical(metadata$Hx_of_Polyps)
+
+metadata$NSAID <- as.logical(metadata$NSAID)
+metadata$Diabetes_Med <- as.logical(metadata$Diabetes_Med)
+metadata$stage <- as.factor(metadata$stage)
+
+metadata[metadata$Height == 0 & !is.na(metadata$Height), "Height"] <- NA
+metadata[metadata$Weight == 0 & !is.na(metadata$Weight), "Weight"] <- NA
+
+alpha <- read.table(file="data/baxter.groups.ave-std.summary", header=T)
+alpha$group <- as.character(alpha$group)
+alpha_mean <- alpha[alpha$method == 'ave', ]
+
+meta_alpha <- inner_join(metadata, alpha_mean, by=c("sample"="group"))
+```
+
+Now we can then load this code into R by running `source("code/baxter.R")` whenever we want to load the `meta_alpha` data frame. You might recall that in Sessions 1 and 2 we also made data frames where we had PCoA data. What would we do to make a `meta_pcoa` data frame? Well, we could tack code on to the end of our `baxter.R` file or we could make a new file for the PCoA data. Neither of these are super attractive. The first option is less desirable because I might not want to load both the PCoA and alpha diversity data. I would like to have more control. The second option is not desirable because I'm going to end up repeating a lot of code making things difficult to maintain. In cases where you need to reduce code repetition or want to make your code more modular, we would like to create a function.
+
+The syntax you use to create a function looks like this.
+
+```{r}
+my_killer_function <- function(argument1, argument2){
+
+	... special sauce ...
+
+}
+```
+
+We'll get back to creating a function to generate `meta_alpha` and `meta_pcoa` in a moment, but let's play a bit with some functions to drive home some concepts. I'd like to create a function that tells me whether a number is even or odd.
+
+```{r}
+get_even_odd <- function(number){
+	result <- ifelse(number %% 2 == 0, 'even', 'odd')
+	return(result)
+}
+```
+
+The syntax is essentially what we had in the template, the only difference is the inclusion of the special sauce that gives the function its utility. Here we see two new functions `%%` and `ifelse`. The `%%` is the modulus operator that tells us the remainder of dividing our number by another number - in this case 2. If we have `4 %% 2`, then the result will be `0` and if we have `23 %% 2`, then the result will be `1`. The `ifelse` function takes three arguments: a operation that returns `TRUE` or `FALSE` values and the value that the variable will take if the operation returns a `TRUE` or a `FALSE`. If we give `even_odd` `4`, then we should get back `"even"`. If we give `get_even_odd` `23`, then we should get back `odd`. Give it a shot. This will also work if we give `even_odd` a vector of values. Try this
+
+```{r}
+get_even_odd(1:10)
+```
+
+The current version of `get_even_odd` is pretty explicit about what's going on. It takes the argument `number`, generates a variable `result` and `return`s the value from the function. Strictly speaking the `return` function is not necessary and the `result <-` isn't either. This is because a function automatically returns the last value that is generated.
+
+```{r}
+get_even_odd <- function(number){
+	ifelse(number %% 2 == 0, 'even', 'odd')
+}
+```
+
+Go ahead and give this leaner version of the function a spin to show yourself that it works as expected. Why would you prefer one version of the function over another? As your functions get more complex, code like the first version is a bit more readable. But it is also more verbose and requires more typing relative to the second version.
+
+#### Activity 1
+To calculate a person's body mass index you need to know their weight in kilograms and height in meters
+
+```{r}
+bmi <- weight_kg / height_m ^ 2
+```
+
+Write a function that takes both parameters and returns the BMI. Use an online BMI calculator like the one at the [NIH](http://www.nhlbi.nih.gov/health/educational/lose_wt/BMI/bmi-m.htm) to double check your values. Try it out on the data in `meta_alpha` to generate a `bmi` column in the data frame.
+
+
+
+We would also like to have a BMI category column in our data frame so that we can partition our data. Let's make a function! We can use the thresholds defined at the NIH site to create our categories. And we can probably get by using the `ifelse` command by nesting additional `ifelse` commands within the `FALSE` argument of the `ifelse` statement.
+
+```{r}
+get_bmi_category <- function(bmi){
+	ifelse(bmi >= 30, "obese", ifelse(bmi >= 25, "overweight", ifelse(bmi >= 18.5, "normal", "underweight")))
+}
+
+get_bmi_category(c(10, 15, 20, 25, 30, 35, 40))
+```
+
+Let's step through this assuming we have a BMI of 17. The first question is whether 17 is greater than or equal to 30. Nope. Next, is 17 greater than 25? Nope. Is 17 greater than 18.5? Nope. Then we return `"underweight"`. Alternatively, if the comparison were true at a previously step, we would have stopped and returned the `TRUE` value. You can probably appreciate that `ifelse` statement is a beast. It works, but is pretty hard to read and figure out what is going on. We can convert the `ifelse` statement into an `if... else if ... else` statement instead.
+
+```{r}
+get_bmi_category <- function(bmi){
+	category <- NA
+
+	if(bmi >= 30){
+ 		category <- "obese"
+	} else if(bmi >= 25){
+		category <- "overweight"
+	} else if(bmi >= 18.5){
+		category <- "normal"
+	} else {
+		category <- "underweight"
+	}
+
+	return(category)
+}
+
+get_bmi_category(c(10, 15, 20, 25, 30, 35, 40))
+```
+
+Nice. As a small point of style, we like to give our variables names that are names and our functions that are verbs. That way it is easier to understand what is going on when we read our code.
+
+
+#### Activity 2
+Generate a function `is_obese` that takes in a person's `bmi` and returns a `TRUE` or `FALSE` value indicating whether the person is obese.
+
+
+#### Activity 3
+* Convert the code in `baxter.R` into a function that we'll call `get_meta_alpha`. Don't include the `library(dplyr)` statement in the new function (leave it at line 1 of the file). The `get_meta_alpha` function won't take any arguments.
+* Create a second function in `baxter.R` that we'll call `get_meta_pcoa`. Again, this won't take any arguments, but will return a single data frame analogous to that of `meta_alpha`
+* What do you notice about these two functions? Can you solve this problem by creating a third function - `get_meta` - that you call in `get_meta_alpha` and `get_meta_pcoa`?
+* Add `get_bmi`, `get_bmi_category`, and `is_obese` to `baxter.R`. Call these functions in `get_meta` to add three new columns: BMI, BMIcat, and is_obese to the data frame.
+* Restart R and run
+
+```{r}
+source("code/baxter.R")
+meta_alpha <- get_meta_alpha()
+```
+
+Let's pause and think about what we've been able to do with functions in this session. First, we've reduced the amount of duplicate code in our analysis. If I want the "Stage" column to be numerical instead of a factor, I only need to change one line and run one function. Similarly, if the guidelines for BMI thresholds change, I have those conversions in a single location that I can update without having to hunt for all of the places where I go from BMI to a category. Second, we've created a resource that others might find useful. Your future projects may need to generate BMI values and categories. Instead of trying to figure out how to code it up and test it, you can use your code from this project. Finally, we've put all of these functions into a file that will allow us to `source` it so that those features can persist long after our current session.
+
+
+
+
+
+
+
+```{r}
+gender_shannon <- meta_alpha %>% group_by(Gender) %>% summarize(mean=mean(shannon))
+
+gender_dx_shannon <- meta_alpha %>% group_by(Gender, dx) %>% summarize(mean=mean(shannon))
+
+
+gender_dx_shannon_mat <- matrix(gender_dx_shannon$mean, ncol=3, byrow=T)
+rownames(gender_dx_shannon_mat) <- c("Male", "Female")
+colnames(gender_dx_shannon_mat) <- c("Adenoma", "Carcinoma", "Normal")
+
+barplot(gender_dx_shannon_mat, beside=T, ylim=c(0,5))
+barplot(t(gender_dx_shannon_mat), beside=T, ylim=c(0,5))
+
+anova(lm(shannon~Gender + dx, data=meta_alpha))
+```
