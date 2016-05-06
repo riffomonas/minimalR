@@ -132,29 +132,29 @@ meta_alpha <- inner_join(metadata, alpha_mean, by=c("sample"="group"))
 Excellent! We have safely merged our metadata and alpha diversity data into a single data frame and we are more confident now that the data from the correct samples were merged together. Let's plot the relationship between a patient's Shannon index and their age.
 
 ```{r}
-plot(meta_alpha$Age, meta_alpha$shannon, xlab="Age (years)", ylab="Shannon Diversity Index", xlim=c(0,60))
+plot(meta_alpha$Age, meta_alpha$shannon, xlab="Age (years)", ylab="Shannon Diversity Index")
 ```
 
 #### Activity 3
 Based on what we learned in the earlier exercises let's make some improvements.
-* Alter the limits of the x-axis to go from 0 to 60 and have the y-axis go from 0 to 5.
+* Alter the limits of the x-axis to go from 0 to 90 and have the y-axis go from 0 to 5.
 * Color the points by diagnosis
 
 ```{r}
 colors <- c(normal="black", adenoma="blue", carcinoma="red")
-plot(meta_alpha$Age, meta_alpha$shannon, xlim=c(0,60), ylim=c(0,5), xlab="Age (years)", ylab="Shannon Diversity Index", col=colors[meta_alpha$dx], pch=19)
+plot(meta_alpha$Age, meta_alpha$shannon, xlim=c(0,90), ylim=c(0,5), xlab="Age (years)", ylab="Shannon Diversity Index", col=colors[meta_alpha$dx], pch=19)
 ```
 
 Let's take a brief aside to re-factor our plotting code. Take a look at what we have here
 
 ```{r}
-plot(meta_alpha$shannon~meta_alpha$Age, xlim=c(0,60), ylim=c(0,5), xlab="Age (years)", ylab="Shannon Diversity Index", col=colors[meta_alpha$dx], pch=19)
+plot(meta_alpha$shannon~meta_alpha$Age, xlim=c(0,90), ylim=c(0,5), xlab="Age (years)", ylab="Shannon Diversity Index", col=colors[meta_alpha$dx], pch=19)
 ```
 
 There's a subtle change here, do you see it? The output is the same, but in this code we used a `~`. Numerous commands in R will allow us to use the `~`. This should be read as "shannon is explained by age" or "our y-axis variable is explained by our x-axis variable". The significance isn't so obvious in this example. By doing this, however, we can use the `data` argument to simplify our code.
 
 ```{r}
-plot(shannon~Age, data=meta_alpha, xlim=c(0,60), ylim=c(0,5), xlab="Age (years)", ylab="Shannon Diversity Index", col=colors[dx], pch=19)
+plot(shannon~Age, data=meta_alpha, xlim=c(0,90), ylim=c(0,5), xlab="Age (years)", ylab="Shannon Diversity Index", col=colors[dx], pch=19)
 ```
 
 Again, we've got the same output, but simpler code.
