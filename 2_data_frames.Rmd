@@ -180,7 +180,7 @@ metadata <- metadata
 ```{r}
 metadata[, "Hx_Fam_CRC"] <- as.logical(metadata[,"Hx_Fam_CRC"])
 metadata$NSAID <- as.logical(metadata$NSAID)
-metadata$Diabetes_Med <- metadata$Diabetes_Med
+metadata$Diabetes_Med <- as.logical(metadata$Diabetes_Med)
 ```
 
 The final column of the data.frame, `stage` indicates the subject's cancer stage from 0 to 4. What type of variable does it currently use? What do you think it should be? Write the command below to make this happen.
