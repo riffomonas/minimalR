@@ -1,5 +1,6 @@
 ## Learning goals
 * Manipulate data frames
+* Creating functions
 * Incorporate metadata into scatter plots
 * Read in data from various file formats
 
@@ -243,10 +244,11 @@ metadata[metadata$Dx_Bin == "High Risk Normal" | is.na(metadata$Diabetic),]
 
 ### Activity 4
 * Create a data frame that contains only individuals from Dana Farber
-* Create a data frame that contains individuals that have a BMI greater than 30
+* Create a data frame that contains individuals that have a FIT result greater than 100
+* Create a data frame that contains individuals are 50 years old and younger
 
 
-You perhaps noticed that the minimum height, weight, and BMI were 0.00. We can safely assume that these are missing data. In R, missing data are denoted by `NA`,  which is itself a special value. Let's change these values to `NA`. I'll show you how to do it for the Height columns, you do it for the Weight and BMI columns
+You perhaps noticed that the minimum height and weight were 0.00. We can safely assume that these are missing data. In R, missing data are denoted by `NA`,  which is itself a special value. Let's change these values to `NA`. I'll show you how to do it for the Height column, you do it for the Weight column.
 
 ```{r}
 metadata[metadata$Height == 0 & !is.na(metadata$Height), "Height"] <- NA
