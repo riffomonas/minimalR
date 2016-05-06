@@ -1,6 +1,8 @@
 # Learning goals
 * Combining datasets safely
 * More with scatter plots
+* Correlation analysis
+
 
 
 Do you ever have those moments where you worry that you forgot to turn off the stove after you left on vacation? These moments happen in data analysis too! I'm afraid we have one of those moments right now - *gulp*. In the previous session we generated a plot where we changed the colors and shapes of plotting symbols based on the data in a second file. We assumed that the PCoA and metadata data frames were in the same order. Did you check to make sure they were in the same order? I didn't. How do we know if the files were in the right order? We could certainly go through the two files manually and check. considering there were about 500 lines in each file, manually checking both files would be tedious and error prone. Let's check it out with R. Here's a strategy that we can use that will review some of the concepts from the previous sessions:
