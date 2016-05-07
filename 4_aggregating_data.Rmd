@@ -1,9 +1,12 @@
 # Learning goals
 * Sourcing files
 * Functions
-* Logicals
+* Logicals (ifelse)
+* Factors
+* Matrices
 * Aggregating data by a categorical variable
 * Representing categorical data with a bar plot
+* Error bars
 
 
 We're making some pretty good progress so far, well done! Over the last three sessions, we've gotten pretty good at merging our metadata and diversity data. It's kind of a pain every time we close R and come back that we have to remember what series of commands to execute to get things back to how they were before. Surely we're going to make some mistakes. Let's streamline things by putting our code into another file. First, let's create a folder in our project called `code` and we'll create a file called `baxter.R`. Within this file copy and paste the following commands...
