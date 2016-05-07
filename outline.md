@@ -1,4 +1,29 @@
 missing...
+* if ... else if ... else
+
+We can convert the `ifelse` statement into an `if... else if ... else` statement instead.
+
+```{r}
+get_bmi_category <- function(bmi){
+	category <- NA
+
+	if(bmi >= 30){
+ 		category <- "obese"
+	} else if(bmi >= 25){
+		category <- "overweight"
+	} else if(bmi >= 18.5){
+		category <- "normal"
+	} else {
+		category <- "underweight"
+	}
+
+	return(category)
+}
+
+get_bmi_category(c(10, 15, 20, 25, 30, 35, 40))
+```
+
+Nice.
 * models / plotting fits
 * Xapply functions
 
@@ -24,6 +49,9 @@ missing...
 * Calculating correlations
 
 4	Plotting continuous by categorical data
+* Functions
+* Sourcing R scripts
+* Controlling flow with `ifelse`
 * Aggregating function
 * Matrices
 * Barplots - Legends; from Vectors, Matrices, t(Matrices)
