@@ -23,7 +23,12 @@ get_bmi_category <- function(bmi){
 get_bmi_category(c(10, 15, 20, 25, 30, 35, 40))
 ```
 
-Nice.
+Lists
+Here we find a new type of data structure - "List". A list is similar to a data frame in that it can hold many different types of data, however, the length of each entity in the list is not the same. Here we see there is a value `breaks` that is a vector of length 21 while the length of `counts` is 20 and `xname` is a character with one value. Do you recall in our discussion of functions that you can only return one variable? That sounds like a significant limitation, but really it isn't. So far we've seen functions that have returned a vector (e.g. `mean` and `summary`), a data frame (e.g. `aggregate`), or a matrix (e.g. `hist`). Although we haven't discussed it, we've seen other functions that return lists (e.g. `aov` and `summary`). Returning a list allows us to have a function that returns multiple data types contained within one variable.
+
+
+
+
 * models / plotting fits
 * Xapply functions
 
@@ -58,8 +63,9 @@ Nice.
 * Error bar - standard deviation
 
 5 Working with random data
-* Sourcing files
 * Histograms - are data normally distributed?
+* Density plots
+* Points
 * Transforming data
 * Generate random data
 * Saving plots
@@ -74,6 +80,7 @@ Nice.
 * Drawing - making a mouse model
 
 7	Strip charts
+* dplyr workflow
 * Continuous by categorical variables
 * Over plotting line for median
 * Violin plots
