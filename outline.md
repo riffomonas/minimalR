@@ -74,7 +74,6 @@ Here we find a new type of data structure - "List". A list is similar to a data 
 * Box plots
 * Custom box plot (building your own plots)
 * Polygons
-* Arrows
 * Segments
 * Functions
 * Drawing - making a mouse model
