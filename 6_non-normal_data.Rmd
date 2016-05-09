@@ -1,0 +1,93 @@
+6	Plotting non-normal data
+* Box plots
+* Custom box plot (building your own plots)
+* Polygons
+* Segments
+* Functions
+* Drawing - making a mouse model
+
+
+```{r}
+source("code/baxter.R")
+meta_alpha <- get_meta_alpha()
+```
+
+In the last two sessions we've seen a couple ways to represent continuous data that are aggregated by categorical variables. We've also looked at how to represent the variation in those data using error bars to represent the standard error and histograms or density plots to represent the full distribution of values. There are a few issues with these approaches. As we've already discussed calculating and comparing means and their standard errors assumes that the data are normally distributed. With the error bar on a bar plot, depending on the color of the bar, it can be difficult to see the error bar that is below the mean if it is plotted. This type of presentation also assumes that the error bars are symmetrical about the mean, which would be the case if the data are normally distributed. A difficulty with the histograms and even the density plots is that it can become difficult to compare multiple categories. In this session and the next we'll explore two other ways to compare data that are not normally distributed. We'll start with box blots. Box plots typically represent the intraquartile range (i.e. the values at the 25th and 75% percentiles or the 50% confidence interval) by a box and the median with a line through that box. The "whiskers" are then drawn to represent a wider range of the data such as the 95% confidence interval or the minimum and maximum values of the observed values.
+
+```{r}
+normal_shannon <- meta_alpha[meta_alpha$dx == "normal", "shannon"]
+adenoma_shannon <- meta_alpha[meta_alpha$dx == "adenoma", "shannon"]
+cancer_shannon <- meta_alpha[meta_alpha$dx == "cancer", "shannon"]
+
+
+boxplot(shannon ~ dx, data=meta_alpha, ylab="Shannon Diversity Index", ylim=c(0, 5.0))
+```
+
+As we saw earlier, many of the plotting arguments that we've seen previously can be used for other plotting functions as well. Using the `colors` and `dx_convert` vectors we've used previously, can you recolor the box plots (`col`) and re-label the categories along the x-axis (`names`)?
+
+```{r}
+colors <- c(normal='white', adenoma='blue', cancer='red')
+dx_convert <- c(normal="Normal", adenoma="Adenoma", cancer="Cancer")
+
+boxplot(shannon ~ dx, data=meta_alpha, ylab="Shannon Diversity Index", ylim=c(0, 5.0), col=colors, names=dx_convert)
+```
+
+Previously, we saw how to specify the order of the categories (i.e. levels) in a factor. If we want to retrieve the order of those levels then we can do that with the `levels` function like this
+
+```{r}
+boxplot(shannon ~ dx, data=meta_alpha, ylab="Shannon Diversity Index", ylim=c(0, 5.0), col=colors[levels(meta_alpha$dx)], names=dx_convert[levels(meta_alpha$dx)], range=0)
+```
+
+This little adjustment will give us greater confidence that our colors and labels properly align with what we are plotting. By default the range on the whiskers is 1.5 times the intraquartile range (see `?boxplot.stats`). If we'd like to make these the minimum and maximum values, then we'd need to set the `range` argument to zero.
+
+```{r}
+boxplot(shannon ~ dx + Gender, data=meta_alpha, ylab="Shannon Diversity Index", ylim=c(0, 5.0), col=colors[levels(meta_alpha$dx)], names=dx_convert[levels(meta_alpha$dx)])
+```
+
+Well that didn't work. It is complaining that the number of boxes it wants to plot (6) is not the same as the number of labels (3). We need to repeat the names vector twice. We can do this using the `rep` function. For example, give these a shot
+
+```{r}
+rep(x="bark", times=3)
+rep(x=c("baarrrrrk", "bark"), times=3)
+rep(x=c("baarrrrrk", "bark"), each=3)
+```
+
+How can we apply that to repeating the vector we are giving to the `names` argument?
+
+```{r}
+boxplot(shannon ~ dx + Gender, data=meta_alpha, ylab="Shannon Diversity Index", ylim=c(0, 5.0), col=colors[levels(meta_alpha$dx)], names=rep(dx_convert[levels(meta_alpha$dx)], times=2) )
+```
+
+But now it isn't entirely clear which set of bars correspond to the female and male participants. We could use `levels(meta_alpha$Gender)` to get the order and see that the bars on the left are from females ("f") and those on the right are from males ("m"). We'd like to include this information on the plot. We can do this using the `mtext` function. You can think of this as "margin text".
+
+```{r}
+gender_map <- c(f="Female", m="Male")
+mtext(side=1, at=2, line=3, cex=1.5, text=gender_map[levels(meta_alpha$Gender)[1]])
+```
+
+Let's break this down a bit. If you recall our discussion of putting the legend in the right side margin, we mentioned that margins are indexed starting at the bottom axis and go clockwise. Here, we set the `side` argument to 1 to indicate the x-axis. If we wanted to put something on the right side, we'd set it to 4. Next, we have `at=2`, which tells R to put the text at 2 on the x-axis. What value of `at` would we use place "Male"? Now we have the `line` argument that tells R how many lines into the margin or away from the axis we should place the text. What do you think would happen if instead of using 3, we used -3? For the female/male category headers, we'd like them to be a bit larger. The `cex` argument tells R how much to expand the characters. Here we're making them 50% larger than normal text.
+
+#### Activity 1
+Write another `mtext` function call to add the label to indicate the Male box plots. Can you write a single `mtext` function call to produce both labels?
+
+```{r}
+boxplot(shannon ~ dx + Gender, data=meta_alpha, ylab="Shannon Diversity Index", ylim=c(0, 5.0), col=colors[levels(meta_alpha$dx)], names=rep(dx_convert[levels(meta_alpha$dx)], times=2) )
+
+mtext(side=1, at=2, line=3, cex=1.5, text=gender_map[levels(meta_alpha$Gender)[1]])
+mtext(side=1, at=5, line=3, cex=1.5, text=gender_map[levels(meta_alpha$Gender)[2]])
+
+
+boxplot(shannon ~ dx + Gender, data=meta_alpha, ylab="Shannon Diversity Index", ylim=c(0, 5.0), col=colors[levels(meta_alpha$dx)], names=rep(dx_convert[levels(meta_alpha$dx)], times=2) )
+
+mtext(side=1, at=c(2,5), line=3, cex=1.5, text=gender_map[levels(meta_alpha$Gender)])
+```
+
+The female and male box plots aren't super easy to distinguish. Let's try to separate them using the `subset`, `at`, and `add` arguments. The `subset` argument allows us to give `boxplot` a logical question (e.g. `Gender == "m"`) to pullout a specific set of data. The `at` argument allows us to tell `boxplot` where to put the boxes along the x-axis. We can call `boxplot` twice (once for females and once for males) and use the `add=TRUE` argument to combine the plots. Finally, we need to lengthen the default `xlim` settings.
+
+```{r}
+boxplot(shannon ~ dx, data=meta_alpha, subset=Gender=='f', ylab="Shannon Diversity Index", ylim=c(0, 5.0), col=colors[levels(meta_alpha$dx)], names=dx_convert[levels(meta_alpha$dx)], xlim=c(0.5,7.0))
+
+boxplot(shannon ~ dx, data=meta_alpha, subset=Gender=='m', at=seq(from=4.5,6.5,1), col=colors[levels(meta_alpha$dx)], names=dx_convert[levels(meta_alpha$dx)], add=T)
+
+mtext(side=1, at=c(2,5.5), line=3, cex=1.5, text=c("Female", "Male"))
+```
