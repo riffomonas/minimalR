@@ -1,36 +1,3 @@
-missing...
-* if ... else if ... else
-
-We can convert the `ifelse` statement into an `if... else if ... else` statement instead.
-
-```{r}
-get_bmi_category <- function(bmi){
-	category <- NA
-
-	if(bmi >= 30){
- 		category <- "obese"
-	} else if(bmi >= 25){
-		category <- "overweight"
-	} else if(bmi >= 18.5){
-		category <- "normal"
-	} else {
-		category <- "underweight"
-	}
-
-	return(category)
-}
-
-get_bmi_category(c(10, 15, 20, 25, 30, 35, 40))
-```
-
-Lists
-Here we find a new type of data structure - "List". A list is similar to a data frame in that it can hold many different types of data, however, the length of each entity in the list is not the same. Here we see there is a value `breaks` that is a vector of length 21 while the length of `counts` is 20 and `xname` is a character with one value. Do you recall in our discussion of functions that you can only return one variable? That sounds like a significant limitation, but really it isn't. So far we've seen functions that have returned a vector (e.g. `mean` and `summary`), a data frame (e.g. `aggregate`), or a matrix (e.g. `hist`). Although we haven't discussed it, we've seen other functions that return lists (e.g. `aov` and `summary`). Returning a list allows us to have a function that returns multiple data types contained within one variable.
-
-
-
-
-* models / plotting fits
-* Xapply functions
 
 
 0	Introduction to R and RStudio
@@ -77,6 +44,7 @@ Here we find a new type of data structure - "List". A list is similar to a data 
 * Over plotting line for median
 
 7	Line plots
+* Regular expressions - grep and gsub
 * Rarefaction curves
 * Loops
 
@@ -134,8 +102,11 @@ Diagrams
 
 
 * Polygons
-* Segments
-* Functions
 * Drawing - making a mouse model
 * dplyr workflow
-* abline
+* if ... else if ... else
+* models / plotting fits
+* Xapply functions
+
+Lists
+Here we find a new type of data structure - "List". A list is similar to a data frame in that it can hold many different types of data, however, the length of each entity in the list is not the same. Here we see there is a value `breaks` that is a vector of length 21 while the length of `counts` is 20 and `xname` is a character with one value. Do you recall in our discussion of functions that you can only return one variable? That sounds like a significant limitation, but really it isn't. So far we've seen functions that have returned a vector (e.g. `mean` and `summary`), a data frame (e.g. `aggregate`), or a matrix (e.g. `hist`). Although we haven't discussed it, we've seen other functions that return lists (e.g. `aov` and `summary`). Returning a list allows us to have a function that returns multiple data types contained within one variable.
