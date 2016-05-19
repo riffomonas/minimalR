@@ -75,8 +75,6 @@ Here we find a new type of data structure - "List". A list is similar to a data 
 * Custom box plot (building your own plots)
 *	Strip charts
 * Over plotting line for median
-* Violin plots
-
 
 7	Line plots
 * Rarefaction curves
