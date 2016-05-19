@@ -1,10 +1,7 @@
 6	Plotting non-normal data
 * Box plots
-* Custom box plot (building your own plots)
-* Polygons
+*	Strip charts
 * Segments
-* Functions
-* Drawing - making a mouse model
 
 
 ```{r}
