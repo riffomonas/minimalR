@@ -73,48 +73,46 @@ Here we find a new type of data structure - "List". A list is similar to a data 
 6	Plotting non-normal data
 * Box plots
 * Custom box plot (building your own plots)
-* Polygons
-* Segments
-* Functions
-* Drawing - making a mouse model
-
-7	Strip charts
-* dplyr workflow
-* Continuous by categorical variables
+*	Strip charts
 * Over plotting line for median
 * Violin plots
 
-8	Line plots
+
+7	Line plots
 * Rarefaction curves
 * Loops
 
-9 Area plots
+8 Area plots
 * Pie charts - otus by categorical variables
 * Stacked bar plots - otus by categorical variables
 * Back to back bar plot
 
-10 Text processing
+9 Text processing
 * Regular expressions
 * Italics
 * OTU strip charts
 * format / round
 
-11	Plotting OTU data
+10	Plotting OTU data
 * Wilcox-test
 * Bar plots
 * Strip charts
 * Point +/- std error
 
-12	Dot plots
+11	Dot plots
 * Percentage by categorical variables
 * Hacking
 
-13	Heat maps
+12	Heat maps
 * OTUs by categorical variables
 * Color palettes
 * Hacking
 
-14	Bi-plots (special case) - scatter plot w/ segments (perhaps use as an activity with arrows?)
+13	Putting it together: Simulations in R
+
+
+14	Putting it together: Bi-plots
+
 
 1X
 rentrez - Pulling down web data
@@ -135,3 +133,11 @@ Diagrams
 1X	googleViz
 
 1X	building a package
+
+
+* Polygons
+* Segments
+* Functions
+* Drawing - making a mouse model
+* dplyr workflow
+* abline
