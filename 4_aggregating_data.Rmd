@@ -82,7 +82,11 @@ bmi <- weight_kg / height_m ^ 2
 
 Write a function that takes both parameters and returns the BMI. Use an online BMI calculator like the one at the [NIH](http://www.nhlbi.nih.gov/health/educational/lose_wt/BMI/bmi-m.htm) to double check your values. Try it out on the data in `meta_alpha` to generate a `bmi` column in the data frame.
 
-
+```{r}
+get_bmi <- function(weight_kg, height_m){
+	weight_kg / height_m ^ 2
+}
+```
 
 We would also like to have a BMI category column in our data frame so that we can partition our data. Let's make a function! We can use the thresholds defined at the NIH site to create our categories. And we can probably get by using the `ifelse` command by nesting additional `ifelse` commands within the `FALSE` argument of the `ifelse` statement.
 
@@ -173,7 +177,13 @@ To label the actual bars, we need to use the `names.arg` argument. This argument
 barplot(height=shannon_colon_mean$shannon, ylim=c(0,5.5), ylab="Shannon Diversity Index", col=colors[shannon_colon_mean$dx], names.arg=shannon_colon_mean$dx)
 ```
 
-Nice, that's looking better. Two things stand out that we might like to fix about the formatting. First, we'd like to order the columns in order of disease severity, not alphabetically. Second, we'd like to format the categories so the first letter is capitalized. To take care of the first issue we need to learn a little about `factor`s. When you run `str` with `shannon_colon_mean`, you'll see that the `dx` column is a factor. We can define a factor to have specific levels and the order of those levels. Again looking at the output of `str` we see that the levels are alphabetical, as they appear in the bar plot. We can reorder the factors by using the `factor` command with the `levels` argument and add the following line to the `get_metadata` function in our baxter.R file after the line for `metadata$is_obese`. We'll re-`source` `baxter.R` and run `get_meta_alpha()`, and then rerun the commands from above to aggregate the data
+Nice, that's looking better. Two things stand out that we might like to fix about the formatting. First, we'd like to order the columns in order of disease severity, not alphabetically. Second, we'd like to format the categories so the first letter is capitalized. To take care of the first issue we need to learn a little about `factor`s. When you run `str` with `shannon_colon_mean`, you'll see that the `dx` column is a factor. We can define a factor to have specific levels and the order of those levels. Again looking at the output of `str` we see that the levels are alphabetical, as they appear in the bar plot. We can reorder the factors by using the `factor` command with the `levels` argument and add the following line to the `get_metadata` function in our baxter.R file after the line for `metadata$is_obese`.
+
+```{r}
+metadata$dx <- factor(metadata$dx, levels=c("normal", "adenoma", "cancer"))
+```
+
+We'll re-`source` `baxter.R` and run `get_meta_alpha()`, and then rerun the commands from above to aggregate the data
 
 ```{r}
 source("code/baxter.R")
