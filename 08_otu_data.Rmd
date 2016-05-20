@@ -3,12 +3,8 @@
 * Regular expressions - more complex patterns
 * Apply functions
 * if ... else
-* Pie charts - otus by categorical variables
-* Stacked bar plots - otus by categorical variables
 
-To this point our analysis has looked at alpha and beta diversity values for our samples. We'd like to start drilling into the data to get a better sense of the types of organisms that might differ between the three diagnosis groups. Some of the general methods presented in this session (e.g. string manipulation) are widely used analyzing microbiome data. It's also important to note that the graphics approaches are actually pretty dreadful. They are presented for didactic purposes and to motivate other methods of visualizing taxonomic data.
-
-What we'd like to do is to generate some pie charts and stacked bar charts to describe the biodiversity of the three diagnosis groups. One significant problem with pie and stacked bar charts is that the number of proportions you can represent *should* be rather limited. If we want to represent OTU data in a pie chart we would need hundreds of wedges. That would be a pain. To give a broad overview of the biodiversity, let's use the phylum-level abundances to build our plots. We'll need to manipulate the data in three steps. First, in the `data` folder there is a file called `baxter.cons.taxonomy` that contains the taxonomic information for each OTU that was observed when defining OTUs at a 3% distance cutoff. To build our plots we need to find the different phyla in that file. Second, we need to aggregate the data in the `baxter.shared` file by those phyla. Third, we will probably need to aggregate the data for each subject across individuals within a diagnosis group. Ready? Let's go!
+To this point our analysis has looked at alpha and beta diversity values for our samples. We'd like to start drilling into the data to get a better sense of the types of organisms that might differ between the three diagnosis groups. What we'd like to do is to generate plots to describe the biodiversity of the three diagnosis groups. In the next session we'll work with OTU data describing biodiversity at the phylum and OTU level. We'll need to manipulate the data in three steps. First, in the `data` folder there is a file called `baxter.cons.taxonomy` that contains the taxonomic information for each OTU that was observed when defining OTUs at a 3% distance cutoff. To build our plots we need to find the different phyla in that file. Second, we need to aggregate the data in the `baxter.subsample.shared` file by those phyla. Third, we will probably need to aggregate the data for each subject across individuals within a diagnosis group. Ready? Let's go!
 
 We'll start by reading in the data contained within `baxter.cons.taxonomy` to a data frame we'll call `taxonomy`.
 
@@ -95,8 +91,8 @@ tax_no_confidence <- gsub(pattern="\\(\\d*\\)", replacement="", x=taxonomy$Taxon
 Now we want to find the substring representing the phylum. Save the phylum names in a data frame called `otu_phylum` with columns `otu` and `phylum`
 
 ```{r}
-phylum <- gsub("Bacteria;([^;]*);.*", "\\1", tax)
-otu_phylum <- data.frame(otu = taxonomy$OTU, phylum = phylum)
+phylum <- gsub("Bacteria;([^;]*);.*", "\\1", tax_no_confidence)
+otu_phylum <- data.frame(otu = taxonomy$OTU, phylum = phylum, stringsAsFactors=F)
 ```
 
 ### Activity XXXXX
@@ -104,29 +100,45 @@ Can you think of alternative ways to go from the strings in `taxonomy$Taxonomy` 
 
 
 
-We've achieved step 1 - find the different phyla in the consensus taxonomy file. Next, we need to aggregate the columns in `baxter.shared` that come from the same phylum. Let's look at two ways of doing this and you can decide which you think is better.
+We've achieved step 1 - find the different phyla in the consensus taxonomy file. Next, we need to aggregate the columns in `baxter.subsample.shared` that come from the same phylum. Let's look at two ways of doing this and you can decide which you think is better.
 
 The first approach will use what are commonly called "apply" functions. We will read in the shared file, loop through each unique phylum name, get the OTUs from that phylum, extract those OTUs from the shared table, and sum their values together. Reading in the shared file the syntax will look pretty similar except that we are now going to assign row names using the second column (i.e. `row.names=2`) and then we're going to remove the `label` and `numOtus` columns.
 
 ```{r}
-shared <- read.table(file="data/baxter.shared", header=T, stringsAsFactors=F, row.names=2)
+shared <- read.table(file="data/baxter.subsample.shared", header=T, stringsAsFactors=F, row.names=2)
 shared <- shared[,-c(1,2)]
 ```
 
-To get the names of the unique phylum names in `otu_phylum$phylum` we can use the `levels` function that we used previously (see Session 4).
+Unfortunately, because we subsampled `baxter.shared` to `baxter.subsample.shared` a number of OTUs were removed from the shared file that were present in the `baxter.taxonomy` file. We need to remove the extra OTUs from the taxonomy data so that the same OTUs are present in both the taxonomy and shared files. We will do this using the `%in%` function. This is a function that is more like `+` than it is like `read.table`. Consider the following
 
 ```{r}
-unique_phyla <- levels(otu_phylum$phylum)
+letters_A <- c("A", "C", "E", "F")
+letters_B <- c("A", "B", "C", "D", "E", "F", "G")
+letters_B %in% letters_A
+letters_A %in% letters_B
+```
+
+As you can see `letters_A` is a subset of `letters_B`. Can you tell the difference between the last two lines of code? This example is analogous to what we want to do with our OTU data. The vector of OTUs in our shared data is analogous to `letters_A` and the vector of OTUs in our taxonomy data is analogous to `letters_B`. We want to use the first approach to select those rows from the taxonomy file that match the column names of the shared file.
+
+```{r}
+otu_phylum_overlap <- otu_phylum[otu_phylum$otu %in% colnames(shared), ]
+stopifnot(nrow(otu_phylum_overlap) == ncol(shared))
+```
+
+
+To get the names of the unique phylum names in `otu_phylum_overlap$phylum` we can use the `unique` function.
+
+```{r}
+unique_phyla <- unique(otu_phylum_overlap$phylum)
 ```
 
 Let's manually go through the steps of getting the counts for the Firmicutes. Again, we'll identify those OTUs that are affiliated with the Firmicutes, extract those columns from `shared`, and then sum the values across the columns. The approaches used for the first two steps we've seen before:
 
 ```{r}
-otus <- otu_phylum[otu_phylum$phylum == "Firmicutes", 'otu']
-sub_shared <- shared[,otus]
+otus <- otu_phylum_overlap[otu_phylum_overlap$phylum == "Firmicutes", 'otu']
 ```
 
-Now we have a new data frame with 490 rows and 6585 columns. To sum across a data frame like this we can use the `apply` function. See if you can figure out what the apply function is doing in these two cases. Which is what we want?
+Now we have a new data frame with 490 rows and 5450 columns. To sum across a data frame like this we can use the `apply` function. See if you can figure out what the apply function is doing in these two cases. Which is what we want?
 
 ```{r}
 approach_one <- apply(sub_shared, 1, sum)
@@ -136,7 +148,7 @@ approach_two <- apply(sub_shared, 2, sum)
 Great, now we have the number of sequences from the Firmicutes in each of our samples. We can repeat this for each of the other phyla. Let's think about how to keep this DRY. Here is the chunk of code we'd like to repeat for each phylum.
 
 ```{r}
-otus <- otu_phylum[otu_phylum$phylum == "Firmicutes", 'otu']
+otus <- otu_phylum_overlap[otu_phylum_overlap$phylum == "Firmicutes", 'otu']
 sub_shared <- shared[,otus]
 phylum_count <- apply(sub_shared, 1, sum)
 ```
@@ -152,7 +164,7 @@ count_phyla <- function(phylum, otu_counts, map){
 }
 ```
 
-If we run `count_phyla("Firmicutes", shared, otu_phylum)` we should get a vector of counts indicating the number of sequences in each sample that affiliated with the Firmicutes. We now need to loop this function over all of the phyla. To do this, we first need to initialize a new data frame that will hold the data.
+If we run `count_phyla("Firmicutes", shared, otu_phylum_overlap)` we should get a vector of counts indicating the number of sequences in each sample that affiliated with the Firmicutes. We now need to loop this function over all of the phyla. To do this, we first need to initialize a new data frame that will hold the data.
 
 ```{r}
 n_phyla <- length(unique_phyla)
@@ -166,7 +178,7 @@ That's a bit of a pain, but now we have a data frame that has row and column nam
 
 ```{r}
 for(phylum in unique_phyla){
-	phylum_shared[,phylum] <- count_phyla(phylum, shared, otu_phylum)
+	phylum_shared[,phylum] <- count_phyla(phylum, shared, otu_phylum_overlap)
 }
 ```
 
@@ -176,10 +188,10 @@ Did you get an error? Good! You should haves seen something like
 Error in apply(sub_shared, 1, sum) : dim(X) must have a positive length
 ```
 
-As we saw in the first session, `dim` returns the number of rows and columns in a data frame. We aren't quite sure what "positive length" means, but there seems to be a problem somewhere in our function. If we enter `phylum` at the terminal we'll get back "Chloroflexi". This tells us that the last value of `phylum` that was tried in our for loop was for the Chloroflexi. Now what we can do is to recreate the manual calculation like we did above for the "Firmicutes" and see if we find an error.
+As we saw in the first session, `dim` returns the number of rows and columns in a data frame. We aren't quite sure what "positive length" means, but there seems to be a problem somewhere in our function. If we enter `phylum` at the terminal we'll get back "Elusimicrobia". This tells us that the last value of `phylum` that was tried in our for loop was for the Elusimicrobia. Now what we can do is to recreate the manual calculation like we did above for the "Firmicutes" and see if we find an error.
 
 ```{r}
-otus <- otu_phylum[otu_phylum$phylum == "Chloroflexi", 'otu']
+otus <- otu_phylum_overlap[otu_phylum_overlap$phylum == "Elusimicrobia", 'otu']
 sub_shared <- shared[,otus]
 phylum_count <- apply(sub_shared, 1, sum)
 ```
@@ -204,7 +216,7 @@ If there is more than one OTU that match the phylum (i.e. `length(otus) > 1`) th
 
 ```{r}
 for(phylum in unique_phyla){
-	phylum_shared[,phylum] <- count_phyla(phylum, shared, otu_phylum)
+	phylum_shared[,phylum] <- count_phyla(phylum, shared, otu_phylum_overlap)
 }
 ```
 
@@ -213,19 +225,19 @@ Success! We think... How do we know we got the right values? We could select som
 ```{r}
 shared_sample_sum <- apply(shared, 1, sum)
 phylum_shared_sample_sum <- apply(phylum_shared, 1, sum)
-stopifnot(shared_sample_sum == phylum_shared_sample_sum
+stopifnot(shared_sample_sum == phylum_shared_sample_sum)
 ```
 
 Great! The use of a for loop here was a bit of a pain. We had to predefine the data frame and worry about how to index into the data frame. It wasn't much of an issue here, but for loops are widely regarded to be quite slow in R relative to some other options. R has optimized several types of for loops using the `sapply` function (if you `?sapply` you'll see other flavors of these functions). To run `sapply` we give the function a vector to loop over (`unique_phyla`), the function name (`count_phyla`), and then the arguments that the function needs.
 
 ```{r}
-phylum_shared_sapply <- sapply(X=unique_phyla, FUN=count_phyla, otu_counts=shared, map=otu_phylum)
+phylum_shared_sapply <- sapply(X=unique_phyla, FUN=count_phyla, otu_counts=shared, map=otu_phylum_overlap)
 stopifnot(phylum_shared_sapply == phylum_shared)
 ```
 
-The `stopifnot` function in that code block confirms for us that we get almost the same answer as when we used the for loop. Go ahead and run `str(phylum_shared_sapply)`, what do you notice that is different from `str(phylum_shared)`? How can we get the `str` output for `phylum_shared_sapply` to match that of `phylum_shared`? What about the other direction? Again the advantages are that we don't have to initialize `phylum_shared` and instead of using several lines of code, we just use one. Now we've achieved step two - aggregating the data in the `baxter.shared` file by the various phyla.
+The `stopifnot` function in that code block confirms for us that we get almost the same answer as when we used the for loop. Go ahead and run `str(phylum_shared_sapply)`, what do you notice that is different from `str(phylum_shared)`? How can we get the `str` output for `phylum_shared_sapply` to match that of `phylum_shared`? What about the other direction? Again the advantages are that we don't have to initialize `phylum_shared` and instead of using several lines of code, we just use one. Now we've achieved step two - aggregating the data in the `baxter.subsample.shared` file by the various phyla.
 
-To make a pie chart or stacked bar chart we need to do the third step of aggregating the data by subject within each diagnosis group. We first need to convert our sequence counts to relative abundances. We'll do this by generating the row sums and then divide the `phylum_shared` data frame by the number of sequences to generate a `rel_abund` object. See if you can get this to work. Confirm that yod did it correctly by running `apply(rel_abund, 1, sum)`.
+To visually represent our data, we need to do the third step of aggregating the data by subject within each diagnosis group. We first need to convert our sequence counts to relative abundances. We'll do this by generating the row sums and then divide the `phylum_shared` data frame by the number of sequences to generate a `rel_abund` object. See if you can get this to work. Confirm that yod did it correctly by running `apply(rel_abund, 1, sum)`.
 
 ```{r}
 n_seqs <- apply(phylum_shared_sapply, 1, sum)
@@ -233,11 +245,11 @@ rel_abund <- phylum_shared_sapply / n_seqs
 apply(rel_abund, 1, sum)
 ```
 
-Go ahead and look at the `rel_abund` matrix. To make it easier to look at, we'll order the columns by the average relative abundance across the subjects. Again, we'll start with the apply function. Then we'll use the `order` function to find the proper ordering. Finally, we'll reorder the matrix.
+Go ahead and look at the `rel_abund` matrix. To make it easier to look at, we'll order the columns by the median relative abundance across the subjects. Again, we'll start with the apply function. Then we'll use the `order` function to find the proper ordering. Finally, we'll reorder the matrix.
 
 ```{r}
-ave_rel_abund <- apply(rel_abund, 2, mean)
-decreasing_order <- order(ave_rel_abund, decreasing=T)
+median_rel_abund <- apply(rel_abund, 2, median)
+decreasing_order <- order(median_rel_abund, decreasing=T)
 rel_abund <- rel_abund[,decreasing_order]
 ```
 
@@ -254,42 +266,76 @@ stopifnot(metadata$sample == rownames(rel_abund))
 Previously we used the `aggregate` function where the alpha diversity and metadata were in the same data frame. This time, `rel_abund` is a matrix, and the diagnosis is in a separate data frame. We can still use `aggregate`, but the syntax is a bit different.
 
 ```{r}
-ave_phylum <- aggregate(rel_abund, by=list(metadata$dx), mean)
+mean_phylum <- aggregate(rel_abund, by=list(metadata$dx), mean)
 ```
 
-The key difference is that we tell `aggregate` explicitly what to aggregate by and this needs to be a `list` of values. The output is a data frame where the diagnoses are the rows and the phyla are the columns. We'd like to convert this to a matrix where the rows are the phyla are the rows and the diagnoses are the columns. We'll create `ave_phylum_matrix`, which is a matrix containing the transpose (`t`) of the `ave_phylum` data frame with out the `Group.1` column
+The key difference is that we tell `aggregate` explicitly what to aggregate by and this needs to be a `list` of values. The output is a data frame where the diagnoses are the rows and the phyla are the columns. We'd like to convert this to a matrix where the rows are the phyla are the rows and the diagnoses are the columns. We'll create `mean_phylum_matrix`, which is a matrix containing the transpose (`t`) of the `mean_phylum` data frame with out the `Group.1` column
 
 ```{r}
-ave_phylum_matrix <- as.matrix(t(ave_phylum[,-1]))
-colnames(ave_phylum_matrix) <- ave_phylum$Group.1
+mean_phylum_matrix <- as.matrix(t(mean_phylum[,-1]))
+colnames(mean_phylum_matrix) <- mean_phylum$Group.1
 ```
 
-Now we can make a pie chart for our data.
+We'd also like to know the 95% confidence interval around each mean relative abundance.
+
+### Activity XXXXX
+Collect the various chunks of code from above that went into creating the `mean_phylum_matrix` into one place. Make sure you got everything by quitting R, restarting it and running your code. Confirm that you had no errors. Modify the code to create a matrix called `median_phylum_matrix` that returns the median relative abundance and `sd_phylum_matrix` that returns the standard deviations of the relative abundances.
+
+
+### Activity XXXXX
+To this point we haven't done much to annotate what's happening in our code beyond trying to give meaningful variable and function names. Imagine handing your code to a colleague or coming back to the code 6 months from now. It might be difficult to understand what you were trying to do. To minimize these difficulties, we can comment our code by adding text that starts with a `#`. This symbol tells R to ignore anything that follows. Go through our code and add some comments. I've already started the process for you
 
 ```{r}
-pie(ave_phylum_matrix[,"normal"], col=rainbow(n=nrow(ave_phylum_matrix)))
-pie(ave_phylum_matrix[,"normal"], col=rainbow(n=nrow(ave_phylum_matrix)))
-pie(ave_phylum_matrix[,"normal"], col=rainbow(n=nrow(ave_phylum_matrix)))
+#Load useful utility functions for processing metadata and what not
+source("code/baxter.R")
+
+#Aggregate the number of times a specific phylum was seen in each sample
+count_phyla <- function(phylum, otu_counts, map){
+	otus <- map[map$phylum == phylum, 'otu'] #identify the otus that match phylum
+	sub_shared <- otu_counts[,otus] #subset out the relevant columns
+
+	if(length(otus) > 1){	#if sub_shared is a matrix, then...
+		phylum_count <- apply(sub_shared, 1, sum) #sum across the rows
+	} else {							#... otherwise ...
+		phylum_count <- sub_shared # return the vector of counts for the otu
+	}
+	return(phylum_count)
+}
+
+taxonomy <- read.table(file="data/baxter.cons.taxonomy", header=T, stringsAsFactors=F)
+tax_no_confidence <- gsub(pattern="\\(\\d*\\)", replacement="", x=taxonomy$Taxonomy)
+phylum <- gsub("Bacteria;([^;]*);.*", "\\1", tax_no_confidence)
+otu_phylum <- data.frame(otu = taxonomy$OTU, phylum = phylum, stringsAsFactors=F)
+
+shared <- read.table(file="data/baxter.subsample.shared", header=T, stringsAsFactors=F, row.names=2)
+shared <- shared[,-c(1,2)]
+
+otu_phylum_overlap <- otu_phylum[otu_phylum$otu %in% colnames(shared), ]
+stopifnot(nrow(otu_phylum_overlap) == ncol(shared))
+
+unique_phyla <- unique(otu_phylum_overlap$phylum)
+
+phylum_shared_sapply <- sapply(X=unique_phyla, FUN=count_phyla, otu_counts=shared, map=otu_phylum_overlap)
+
+n_seqs <- apply(phylum_shared_sapply, 1, sum)
+rel_abund <- phylum_shared_sapply / n_seqs
+
+median_rel_abund <- apply(rel_abund, 2, median)
+decreasing_order <- order(median_rel_abund, decreasing=T)
+rel_abund <- rel_abund[,decreasing_order]
+
+metadata <- get_meta()
+stopifnot(metadata$sample == rownames(rel_abund))
+
+mean_phylum <- aggregate(rel_abund, by=list(metadata$dx), mean)
+mean_phylum_matrix <- as.matrix(t(mean_phylum[,-1]))
+colnames(mean_phylum_matrix) <- mean_phylum$Group.1
+
+median_phylum <- aggregate(rel_abund, by=list(metadata$dx), median)
+median_phylum_matrix <- as.matrix(t(median_phylum[,-1]))
+colnames(median_phylum_matrix) <- median_phylum$Group.1
+
+sd_phylum <- aggregate(rel_abund, by=list(metadata$dx), sd)
+sd_phylum_matrix <- as.matrix(t(sd_phylum[,-1]))
+colnames(sd_phylum_matrix) <- sd_phylum$Group.1
 ```
-
-Let's see an alternative way to represent relative abundance data using relative areas - stacked barplots. We've previously seen how to generate bar plots when we were plotting alpha diversity data. When we used `barplot` previously, we used `beside=T` to plot the bars next to each other. If we instead use `beside=F`, which is the default, we get a stacked bar plot.
-
-```{r}
-barplot(ave_phylum_matrix, col=rainbow(n=nrow(ave_phylum_matrix)), names.arg=c("Normal", "Adenoma", "Cancer"), legend=T)
-```
-
-I don't want to spend a lot of time on the various parameters that are available for pie and stacked bar plots. They're a data visualization eyesore. If you run `?pie` You'll find the following gem in the Note section...
-
->      Pie charts are a very bad way of displaying information.  The eye
-     is good at judging linear measures and bad at judging relative
-     areas.  A bar chart or dot chart is a preferable way of displaying
-     this type of data.
->
-     Cleveland (1985), page 264: “Data that can be shown by pie charts
-     always can be shown by a dot chart.  This means that judgements of
-     position along a common scale can be made instead of the less
-     accurate angle judgements.” This statement is based on the
-     empirical investigations of Cleveland and McGill as well as
-     investigations by perceptual psychologists.
-
-That's a justification based on our ability to perceive areas. But what else is wrong with pie and stacked bar plots? As we can see, even for phylum-level data, there are way too many wedges/bars to represent with a small number of colors. This makes it difficult to pick contrasting colors. A bigger problem is the inability to represent the variation in the relative abundances. In the following sessions we'll cover better ways of comparing relative abundance data.

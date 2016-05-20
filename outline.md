@@ -49,20 +49,20 @@
 * Building plots
 * Loops
 
-8 Relative area plots
+8 Working with OTU data
 * String manipulations - strsplit and paste
 * Regular expressions - more complex patterns
 * Apply functions
 * if ... else
-* Pie charts - otus by categorical variables
-* Stacked bar plots - otus by categorical variables
 
 9	Plotting OTU data
-* Italics
+* Pie charts - otus by categorical variables
+* Stacked bar plots - otus by categorical variables
 * Wilcox-test
 * Bar plots
 * Strip charts
 * Point +/- std error
+* Italics
 
 10	Heat maps
 * OTUs by categorical variables
@@ -73,12 +73,11 @@
 * Percentage by categorical variables
 * Hacking
 
-
 12	Putting it together: Simulations in R
-
 
 13	Putting it together: Bi-plots
 
+1X Unit tests
 
 1X
 rentrez - Pulling down web data
@@ -86,6 +85,8 @@ Diagrams
 
 1X	Building interactivity
 * rgl
+
+1X	Writing
 * kable
 * xtable
 * citations
@@ -101,7 +102,7 @@ Diagrams
 1X	building a package
 
 
-* Polygons
+* Polygons ~ back to back plot?
 * Drawing - making a mouse model
 * dplyr workflow
 * models / plotting fits
