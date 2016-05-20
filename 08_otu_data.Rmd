@@ -339,3 +339,15 @@ sd_phylum <- aggregate(rel_abund, by=list(metadata$dx), sd)
 sd_phylum_matrix <- as.matrix(t(sd_phylum[,-1]))
 colnames(sd_phylum_matrix) <- sd_phylum$Group.1
 ```
+
+
+### Activity XXXXX
+In this session we focused on phylum-level data. Can you develop a function to replace these lines
+
+```
+tax_no_confidence <- gsub(pattern="\\(\\d*\\)", replacement="", x=taxonomy$Taxonomy)
+phylum <- gsub("Bacteria;([^;]*);.*", "\\1", tax_no_confidence)
+otu_phylum <- data.frame(otu = taxonomy$OTU, phylum = phylum, stringsAsFactors=F)
+```
+
+with a function that allows the user to use any taxonomic level? 
