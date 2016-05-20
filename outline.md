@@ -46,38 +46,37 @@
 7	Line plots
 * Regular expressions - grep and gsub
 * Rarefaction curves
+* Building plots
 * Loops
 
-8 Area plots
+8 Relative area plots
+* String manipulations - strsplit and paste
+* Regular expressions - more complex patterns
 * Pie charts - otus by categorical variables
 * Stacked bar plots - otus by categorical variables
 * Back to back bar plot
 
-9 Text processing
-* Regular expressions
+9	Plotting OTU data
 * Italics
-* OTU strip charts
-* format / round
-
-10	Plotting OTU data
 * Wilcox-test
 * Bar plots
 * Strip charts
 * Point +/- std error
 
-11	Dot plots
-* Percentage by categorical variables
-* Hacking
-
-12	Heat maps
+10	Heat maps
 * OTUs by categorical variables
 * Color palettes
 * Hacking
 
-13	Putting it together: Simulations in R
+11	Dot plots
+* Percentage by categorical variables
+* Hacking
 
 
-14	Putting it together: Bi-plots
+12	Putting it together: Simulations in R
+
+
+13	Putting it together: Bi-plots
 
 
 1X
@@ -107,6 +106,7 @@ Diagrams
 * if ... else if ... else
 * models / plotting fits
 * Xapply functions
+* format / round
 
 Lists
 Here we find a new type of data structure - "List". A list is similar to a data frame in that it can hold many different types of data, however, the length of each entity in the list is not the same. Here we see there is a value `breaks` that is a vector of length 21 while the length of `counts` is 20 and `xname` is a character with one value. Do you recall in our discussion of functions that you can only return one variable? That sounds like a significant limitation, but really it isn't. So far we've seen functions that have returned a vector (e.g. `mean` and `summary`), a data frame (e.g. `aggregate`), or a matrix (e.g. `hist`). Although we haven't discussed it, we've seen other functions that return lists (e.g. `aov` and `summary`). Returning a list allows us to have a function that returns multiple data types contained within one variable.
