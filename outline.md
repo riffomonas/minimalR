@@ -52,9 +52,10 @@
 8 Relative area plots
 * String manipulations - strsplit and paste
 * Regular expressions - more complex patterns
+* Apply functions
+* if ... else
 * Pie charts - otus by categorical variables
 * Stacked bar plots - otus by categorical variables
-* Back to back bar plot
 
 9	Plotting OTU data
 * Italics
@@ -103,9 +104,7 @@ Diagrams
 * Polygons
 * Drawing - making a mouse model
 * dplyr workflow
-* if ... else if ... else
 * models / plotting fits
-* Xapply functions
 * format / round
 
 Lists
