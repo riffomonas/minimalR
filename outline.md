@@ -61,13 +61,12 @@
 * Wilcox-test
 * Bar plots
 * Strip charts
-* Point +/- std error
-* Italics
 
 10	Heat maps
 * OTUs by categorical variables
 * Color palettes
 * Hacking
+* Italics
 
 11	Dot plots
 * Percentage by categorical variables
@@ -107,6 +106,3 @@ Diagrams
 * dplyr workflow
 * models / plotting fits
 * format / round
-
-Lists
-Here we find a new type of data structure - "List". A list is similar to a data frame in that it can hold many different types of data, however, the length of each entity in the list is not the same. Here we see there is a value `breaks` that is a vector of length 21 while the length of `counts` is 20 and `xname` is a character with one value. Do you recall in our discussion of functions that you can only return one variable? That sounds like a significant limitation, but really it isn't. So far we've seen functions that have returned a vector (e.g. `mean` and `summary`), a data frame (e.g. `aggregate`), or a matrix (e.g. `hist`). Although we haven't discussed it, we've seen other functions that return lists (e.g. `aov` and `summary`). Returning a list allows us to have a function that returns multiple data types contained within one variable.
