@@ -1,4 +1,4 @@
-8 Relative area plots
+8 Working with OTU data
 * String manipulations - strsplit and paste
 * Regular expressions - more complex patterns
 * Apply functions
@@ -97,6 +97,45 @@ otu_phylum <- data.frame(otu = taxonomy$OTU, phylum = phylum, stringsAsFactors=F
 
 ### Activity XXXXX
 Can you think of alternative ways to go from the strings in `taxonomy$Taxonomy` to `phylum`? Go ahead and implement the alternatives. Compare and contrast the implementations.
+
+Instead of parsing the phylum names, we want to retrieve the deepest taxonomy name for each OTU that isn't "unclassified".
+
+
+### Activity XXXXX
+Create one or more `gsub` function calls to retrieve the most specific taxonomic name for each OTU. For example, if this was the taxonomy:
+
+```
+Bacteria(100);Firmicutes(100);Clostridia(100);Clostridiales(100);Ruminococcaceae(100);unclassified(100);
+```
+
+The function should return the OTU number and "Ruminococcaceae". Here's some code to get you started...
+
+
+```{r}
+taxonomy <- read.table(file="data/baxter.cons.taxonomy", header=T, stringsAsFactors=F)
+tax_no_confidence <- gsub(pattern="\\(\\d*\\)", replacement="", x=taxonomy$Taxonomy)
+
+
+### Insert code here
+# best_taxonomy <- ??????
+
+otu_name <- best_taxonomy
+names(otu_name) <- taxonomy$OTU
+```
+
+
+Here's what I came up with
+
+```{r}
+taxonomy <- read.table(file="data/baxter.cons.taxonomy", header=T, stringsAsFactors=F)
+tax_no_confidence <- gsub(pattern="\\(\\d*\\)", replacement="", x=taxonomy$Taxonomy)
+
+no_unclassified <- gsub(pattern="unclassified;", replacement="", tax_no_confidence)
+best_taxonomy <- gsub(pattern=".*;(.*);", replacement="\\1", no_unclassified)
+
+otu_name <- best_taxonomy
+names(otu_name) <- taxonomy$OTU
+```
 
 
 
@@ -350,4 +389,4 @@ phylum <- gsub("Bacteria;([^;]*);.*", "\\1", tax_no_confidence)
 otu_phylum <- data.frame(otu = taxonomy$OTU, phylum = phylum, stringsAsFactors=F)
 ```
 
-with a function that allows the user to use any taxonomic level? 
+with a function that allows the user to use any taxonomic level? To prevent getting back "unclassified", could you write the function to instead return a more meaningful name?

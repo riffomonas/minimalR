@@ -55,12 +55,17 @@
 * Apply functions
 * if ... else
 
-9	Plotting OTU data
-* Pie charts - otus by categorical variables
-* Stacked bar plots - otus by categorical variables
-* Wilcox-test
+9	Plotting taxonomic data
+* Pie charts
+* Stacked bar plots
 * Bar plots
 * Strip charts
+
+10	Finding relevant OTUs to plot
+* Kruskal-Wallis test
+* Correcting for multiple hypotheses
+* Random forest
+* Plotting OTU data
 
 10	Heat maps
 * OTUs by categorical variables

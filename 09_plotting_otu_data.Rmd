@@ -1,6 +1,5 @@
 9	Plotting OTU data
 * Pie and stacked bar plots
-* Wilcox-test
 * Bar plots
 * Strip charts
 * Box plots
@@ -20,9 +19,10 @@ You could add the `col` argument to provide a different color scheme or aggregat
 Let's see an alternative way to represent relative abundance data using relative areas - stacked bar plots. We've previously seen how to generate bar plots when we were plotting alpha diversity data. When we used `barplot` previously, we used `beside=T` to plot the bars next to each other. If we instead use `beside=F`, which is the default, we get a stacked bar plot.
 
 ```{r}
-barplot(mean_phylum_matrix, col=rainbow(n=nrow(mean_phylum_matrix)), names.arg=c("Normal", "Adenoma", "Cancer"), legend=T, ylab="Relative Abundance")
+barplot(mean_phylum_matrix, beside=F, col=rainbow(n=nrow(mean_phylum_matrix)), ylab="Relative Abundance")
 box()
 ```
+
 
 I don't want to spend a lot of time on the various parameters that are available for pie and stacked bar plots. They're a data visualization eyesore that both suffer from the same problems. If you run `?pie` You'll find the following gem in the Note section...
 
@@ -41,374 +41,208 @@ I don't want to spend a lot of time on the various parameters that are available
 That's a justification based on our inability to perceive areas. But what else is wrong with pie and stacked bar plots? As we can see, even for phylum-level data, there are way too many wedges/bars to represent with a small number of colors. This makes it difficult to pick contrasting colors. A bigger problem is the inability to represent the variation in the relative abundances. In the following sessions we'll cover better ways of comparing relative abundance data.
 
 
-
-Let's now turn our attention to working with the actual OTU data in the subsampled shared file that we used before. Instead of parsing the phylum names, we want to retrieve the deepest taxonomy name for each OTU that isn't "unclassified".
-
-### Activity XXXXX
-Create one or more `gsub` function calls to retrieve the most specific taxonomic name for each OTU. For example, if this was the taxonomy:
-
-```
-Bacteria(100);Firmicutes(100);Clostridia(100);Clostridiales(100);Ruminococcaceae(100);unclassified(100);
-```
-
-The function should return the OTU number and "Ruminococcaceae". Here's some code to get you started...
-
+Let's start by making a bar plot but by plotting the bars next to each other. We'll use the same syntax as above, but use `beside=T`
 
 ```{r}
-taxonomy <- read.table(file="data/baxter.cons.taxonomy", header=T, stringsAsFactors=F)
-tax_no_confidence <- gsub(pattern="\\(\\d*\\)", replacement="", x=taxonomy$Taxonomy)
-
-
-### Insert code here
-# best_taxonomy <- ??????
-
-otu_name <- best_taxonomy
-names(otu_name) <- taxonomy$OTU
-```
-
-
-Here's what I came up with
-
-```{r}
-taxonomy <- read.table(file="data/baxter.cons.taxonomy", header=T, stringsAsFactors=F)
-tax_no_confidence <- gsub(pattern="\\(\\d*\\)", replacement="", x=taxonomy$Taxonomy)
-
-no_unclassified <- gsub(pattern="unclassified;", replacement="", tax_no_confidence)
-best_taxonomy <- gsub(pattern=".*;(.*);", replacement="\\1", no_unclassified)
-
-otu_name <- best_taxonomy
-names(otu_name) <- taxonomy$OTU
-```
-
-Now we need to get our shared and metadata files. Similar to how we sorted the phyla in the previous session, we'll sort our OTUs in the shared file.
-
-```{r}
-source("code/baxter.R")
-
-shared <- read.table(file="data/baxter.subsample.shared", header=T, stringsAsFactors=F, row.names=2)
-shared <- shared[,-c(1,2)]
-
-rel_abund <- shared / apply(shared, 1, sum)
-mean_rel_abund <- apply(rel_abund, 2, mean)
-otu_order <- order(mean_rel_abund, decreasing=T)
-rel_abund <- rel_abund[,otu_order]
-
-metadata <- get_meta()
-
-stopifnot(rownames(shared) == metadata$sample)
-```
-
-Here's a plan of analysis that I like using: 1) filter the shared data to only keep those OTUs that have an average relative abundance over 1%; 2) perform a statistical test to find OTUs that are differentially represented between treatment groups; 3) plot the relative abundances for those OTUs where there is a significant difference by diagnosis.
-
-First, we're going to filter our shared file. We do this for several reasons. Our shared file is very sparse with a lot of OTUs only appearing in a couple of samples or are generally very rare. We would never want to base some inference on OTUs that only appear a few times. Furthermore, by filtering to those more abundant OTUs, we limit the number of hypothesis tests we make reducing the likelihood of false negatives when we correct for multiple comparisons. There's nothing magical about this threshold. In some studies we calculate the average within each treatment group or instead require an OTU to appear in a set number or percentage of samples. We'll create a vector that contains the average relative abundance for each OTU across the samples, find those OTUs that have an average relative abundance over 0.1% (i.e. an average of about 10 sequences per sample), and subset shared object to the more abundant OTUs.
-
-```{r}
-mean_rel_abund <- apply(rel_abund, 2, mean)
-abundant <- mean_rel_abund > 0.001
-rel_abund_subset <- rel_abund[, abundant]
-```
-
-The resulting `rel_abund_subset` matrix represents 456 OTUs. You might wonder what fraction of the sequences are contained within this subset. We can again use the `apply` function across the columns for each sample and then use the `range` function to find the minimum and maximum relative abundance represented for each sample
-
-```{r}
-total_rel_abund <- apply(rel_abund_subset, 1, sum)
-range(total_rel_abund)
-```
-
-That represents between 52 and 99% of the data. I'll leave it to you to play with this further to come up with a better way of representing the overall relative abundance without getting bogged down in super rare sequences.
-
-In the second step we will apply a test to quantify differential effect of diagnosis on the relative abundance of our remaining OTUs. There are many options here. Some have been specifically developed for microbial ecology (e.g. metastats, lefse). Alternatively, you may choose to use a random forest approach to identify OTUs that provide the best discrimination between the groups. For demonstration purposes we'll perform a Kruskal-Wallis rank sum test using built in R functions. This works, because we have data that are not normally distributed and we have three groups. To run the test on our first OTU we would do the following
-
-```{r}
-otu_test <- kruskal.test(rel_abund_subset[,1] ~ metadata$dx)
-```
-
-Looking at the output of `otu_test` we get
-
-```
-
-	Kruskal-Wallis rank sum test
-
-data:  rel_abund_subset[, 1] by metadata$dx
-Kruskal-Wallis chi-squared = 4.6706, df = 2, p-value = 0.09678
-
-```
-
-The resulting p-value was 0.10. Let's take a closer look at `otu_test` because we'd like to find a way to extract the p-value from each of our tests. If we run `str(otu_test)` we get
-
-```
-List of 5
- $ statistic: Named num 4.67
-  ..- attr(*, "names")= chr "Kruskal-Wallis chi-squared"
- $ parameter: Named int 2
-  ..- attr(*, "names")= chr "df"
- $ p.value  : num 0.0968
- $ method   : chr "Kruskal-Wallis rank sum test"
- $ data.name: chr "rel_abund_subset[, 1] by metadata$dx"
- - attr(*, "class")= chr "htest"
-```
-
-We've hinted at lists before, but this is the first time that we really need to figure out what it's all about. A list is an object made of multiple types of data. The output above indicates that this list has seven objects within it. Clearly we want the value of `p.value`. To access values from the list we use the `$` like we might do to access a column from a data frame.
-
-```{r}
-otu_test$p.value
-```
-
-Bingo. We'd like to apply a function that returns the p-value for each column of `rel_abund_subset`. This should sound familiar from our discussion in the previous session.
-
-```{r}
-test <- function(rabund, diagnosis){
-	otu_test <- kruskal.test(rabund ~ diagnosis)
-	return(otu_test$p.value)
-}
-
-p_values <- apply(rel_abund_subset, 2, test, diagnosis=metadata$dx)
-```
-
-We can count the number of p-values that are smaller than 0.05 by calling `sum(p_values < 0.05)` to find 29 OTUs with a small p-value. Because we performed so many tests, thought, we must correct these p-value for performing multiple comparisons. We can do this using the `p.adjust` function. There are several methods for correcting the p-values, but my preference is the Benjimani-Hochberg approach. We can adjust our p-values like so
-
-```{r}
-p_values_adjusted <- p.adjust(p_values, method="BH")
-```
-
-Now if we do `sum(p_values_adjusted < 0.05)` we find that we have 5 OTUs that were differentially represented between the three groupings. We can retrieve the names of these OTUs and further subset the data as follows
-
-```{r}
-sig_otus <- names(p_values_adjusted[p_values_adjusted < 0.05])
-sig_relabund <- rel_abund_subset[ , sig_otus]
-```
-
-Great - now we have a matrix of OTUs that are differentially represented between individual with normal colons, adenomas, and cancer. Using these data we will now make bar, box, dot, and strip plots. We've already seen each of these plots when we analyzed the alpha and beta diversity data. Here we'll show how to use them to generate more complex visualizations. First off, we currently have the relative abundance calculated as a fraction, let's get the percent relative abundance by multiplying the values by 100
-
-```{r}
-sig_perabund <- sig_relabund * 100
-```
-
-Let's get plotting, we'll start with bar plots. We'd like to plot the median relative abundance plus the 95% confidence interval. We could calculate these values in one function call, but parsing the output is a pain. So we'll do it in three steps. To calculate the relative abundances at the 2.5 and 97.5 percentiles, we will create what's called an anonymous function. This is a fancy way of saying we'll create a function that doesn't have a name. See? Fancy.
-
-```{r}
-sig_perabund_median <- aggregate(sig_perabund, by=list(metadata$dx), median)
-sig_perabund_lci <- aggregate(sig_perabund, by=list(metadata$dx), function(x)quantile(x, prob=0.025))
-sig_perabund_uci <- aggregate(sig_perabund, by=list(metadata$dx), function(x)quantile(x, prob=0.975))
-```
-
-See how that worked? The `aggregate` function take a function in the third spot and because we also need to send `quantile` other arguments, we need to create a simple, one argument function that doesn't get named. Turning to the `barplot` function, you may recall that this takes a matrix as input. But `sig_relabund_mean` is a data frame. We can convert it to a matrix after removing the first column. We'll do this in one line
-
-```{r}
-barplot(as.matrix(sig_perabund_median[,-1]), beside=T, ylab="Relative Abundance (%)", legend.text=c("Normal", "Adenoma", "Cancer"))
-```
-
-Cool, eh? It turns out that this is probably a bad way to visualize these data since there are so many zeroes in the original shared file. It would be good to add the confidence interval to show the range of values for each diagnosis. Remember what we had to do to figure out where to plot the arrows along the x-axis?
-
-```{r}
-bp <- barplot(as.matrix(sig_perabund_median[,-1]), beside=T, ylab="Relative Abundance (%)", ylim=c(0,1), legend.text=c("Normal", "Adenoma", "Cancer"))
-arrows(x0=bp, x1=bp, y0=as.matrix(sig_perabund_median[,-1]), y1=as.matrix(sig_perabund_uci[,-1]), angle=90, length=0.1)
-arrows(x0=bp, x1=bp, y0=as.matrix(sig_perabund_median[,-1]), y1=as.matrix(sig_perabund_lci[,-1]), angle=90, length=0.1)
+barplot(mean_phylum_matrix, beside=T, col=rainbow(n=nrow(mean_phylum_matrix)), names.arg=c("Normal", "Adenoma", "Cancer"), legend=T, ylab="Relative Abundance")
 box()
 ```
 
-That's pretty ugly, we could change our y-axis limits so we can see the tops of the arrows, but this will wind up shoving the median values down to the axis. Again, for this particular dataset the OTUs were highly patchy and not normally distributed across individuals making a bar plot undesirable for this type of data. Instead, let's plot the 5 most abundant OTUs, even though they were not significant.
+In this plot we've grouped the bars by diagnosis, perhaps we'd like to instead highlight the differences between the diasnoses, rather than the phyla. If we transpose `mean_phylum_matrix` we can do this. To transpose a matrix we will use the `t` function like so
 
 ```{r}
-perabund <- 100 * rel_abund
-perabund_median <- aggregate(perabund, by=list(metadata$dx), median)
-perabund_lci <- aggregate(perabund, by=list(metadata$dx), function(x)quantile(x, prob=0.025))
-perabund_uci <- aggregate(perabund, by=list(metadata$dx), function(x)quantile(x, prob=0.975))
-
-bp <- barplot(as.matrix(perabund_median[,2:6]), beside=T, ylab="Relative Abundance (%)", ylim=c(0,20), legend.text=c("Normal", "Adenoma", "Cancer"))
-arrows(x0=bp, x1=bp, y0=as.matrix(perabund_median[,2:6]), y1=as.matrix(perabund_uci[,2:6]), angle=90, length=0.1)
-arrows(x0=bp, x1=bp, y0=as.matrix(perabund_median[,2:6]), y1=as.matrix(perabund_lci[,2:6]), angle=90, length=0.1)
+barplot(t(mean_phylum_matrix), beside=T, col=c("gray", "blue", "red"), ylab="Relative Abundance")
 box()
 ```
 
-
-
-A problem with bar plots is that they hide the true distribution of the data. As we've already seen, very few of our OTUs are found in many samples, so their mean or median will be very close to zero. To get a better sense of their distribution, we could use a box plot. Here's a set of box plots for the first significant OTU.
+That's better, but we have a number of phyla on there that really aren't very helpful because they were so rare. Let's remove anything that was below 2% relative abundance. Can you fill in the missing information below to limit the number of phyla we'll plot?
 
 ```{r}
-boxplot(sig_perabund[,1]~metadata$dx, col=c("gray", "blue", "red"), names=F)
+abundant <- apply(?????, ?????, mean) > ????
+mean_abundant_phylum_matrix <- mean_phylum_matrix[abundant, ]
+
+barplot(t(mean_abundant_phylum_matrix), beside=T, col=c("gray", "blue", "red"), ylab="Relative Abundance")
+box()
 ```
 
-We'd like to represent the 4 other OTUs in the same figure. We saw previously that we could add box plots using the `at` and `add` arguments. We need to do some planning first. We have 5 OTUs and three diagnosis groups. We'd also like a litte space between each set of OTUs. Let's plot the data at 1, 2, 3, 5, 6, 7, 9, 10, 11, etc. With this approach we'll need a plot where the x-axis goes from 1 to 17. Here we have a new argument - `axes=F`, which tell the `plot` function not to draw axes. We'll add these later.
+```{r}
+abundant <- apply(mean_phylum_matrix, 1, mean) > 0.02
+mean_abundant_phylum_matrix <- mean_phylum_matrix[abundant, ]
+
+barplot(t(mean_abundant_phylum_matrix), beside=T, col=c("gray", "blue", "red"), ylab="Relative Abundance")
+box()
+```
+
+Let's add some error bars to these and we'll plot the standard deviations that we calculated earlier and stored in `sd_phylum_matrix`. Eventually, we probably would rather use the 95% confidence interval, but we aren't quite ready for that yet and this will give us some immediate practice using the `arrows` function. Recall that we need to call `barplot` and assign the output to a variable so we get the x-axis positions. We'll see that the tips of the error bars go beyond the y-axis limits so go ahead and adjust those.
 
 ```{r}
-plot(NA, ylim=c(0,0.8), xlim=c(1,19), ylab="Relative Abundance (%)", xlab="", axes=F)
-boxplot(sig_perabund[,1]~metadata$dx, at=1:3, names=F, add=T, axes=F, col=c("gray", "blue", "red"))
-boxplot(sig_perabund[,2]~metadata$dx, at=5:7, names=F, add=T, axes=F, col=c("gray", "blue", "red"))
-boxplot(sig_perabund[,3]~metadata$dx, at=9:11, names=F, add=T, axes=F, col=c("gray", "blue", "red"))
-boxplot(sig_perabund[,4]~metadata$dx, at=13:15, names=F, add=T, axes=F, col=c("gray", "blue", "red"))
-boxplot(sig_perabund[,5]~metadata$dx, at=17:19, names=F, add=T, axes=F, col=c("gray", "blue", "red"))
-axis(1, labels=colnames(sig_perabund), at=c(2,6,10, 14,18), tick=F)
+abundant <- apply(mean_phylum_matrix, 1, mean) > 0.02
+mean_abundant_phylum_matrix <- mean_phylum_matrix[abundant, ]
+sd_abundant_phylum_matrix <- sd_phylum_matrix[abundant, ]
+
+bp <- barplot(t(mean_abundant_phylum_matrix), beside=T, col=c("gray", "blue", "red"), ylab="Relative Abundance", ylim=c(0,0.9))
+
+arrows(x0=bp, y0=t(mean_abundant_phylum_matrix), y1=t(mean_abundant_phylum_matrix+sd_abundant_phylum_matrix), angle=90, length=0.1)
+box()
+```
+
+Cool, eh? This is already far more informative than the pie or stacked bar plots that we had in the previous lesson. A problem with bar plots is that they hide the true distribution of the data. To get a better sense of their distribution, we could use a box plot. Here's a set of box plots for the first phylum.
+
+```{r}
+boxplot(rel_abund[,1]~metadata$dx, col=c("gray", "blue", "red"), names=F)
+```
+
+We'd like to represent the other in the same figure. We saw previously that we could add box plots using the `at` and `add` arguments. We need to do some planning first. We have 5 phyla and three diagnosis groups. We'd also like a little space between each set of bars. Let's plot the data at 1, 2, 3, 5, 6, 7, 9, 10, 11, etc. With this approach we'll need a plot where the x-axis goes from 1 to 17. Here we have a new argument - `axes=F`, which tell the `plot` function not to draw axes. We'll add these later.
+
+```{r}
+plot(NA, ylim=c(0,1), xlim=c(1,19), ylab="Relative Abundance", xlab="", axes=F)
+boxplot(rel_abund[,1]~metadata$dx, at=1:3, names=F, add=T, axes=F, col=c("gray", "blue", "red"))
+boxplot(rel_abund[,2]~metadata$dx, at=5:7, names=F, add=T, axes=F, col=c("gray", "blue", "red"))
+boxplot(rel_abund[,3]~metadata$dx, at=9:11, names=F, add=T, axes=F, col=c("gray", "blue", "red"))
+boxplot(rel_abund[,4]~metadata$dx, at=13:15, names=F, add=T, axes=F, col=c("gray", "blue", "red"))
+boxplot(rel_abund[,5]~metadata$dx, at=17:19, names=F, add=T, axes=F, col=c("gray", "blue", "red"))
+axis(1, labels=colnames(rel_abund)[1:5], at=c(2,6,10, 14,18), tick=F)
 axis(2)
 box()
 ```
 
-One cool trick we were able to use with this plot was to draw the axes separately from the original plot. This is a useful trick if you want to force certain tick marks or you want to have a specific formatting. For example, back on our rarefaction plot we may have wanted to use a "," to separate the thousands units. Here we would like to reformat our labels so that "Otu000113" shows up as "OTU 113". We can do this with `gsub`. Think you can figure it out?
+One cool trick we were able to use with this plot was to draw the axes separately from the original plot. This is a useful trick if you want to force certain tick marks or you want to have a specific formatting. For example, back on our rarefaction plot we may have wanted to use a "," to separate the thousands units. Here we would like to reformat our y-axis labels so that "0.2" shows up as "20" so we can express our relative abundances as a percentage rather than as a fraction. Think you can figure it out? One other thing to try is use `las=2` in your `axis(2, ...)` function call.
 
 ```{r}
-otu_labels <- gsub(pattern="Otu0*", "OTU ", colnames(sig_perabund))
-
-plot(NA, ylim=c(0,0.8), xlim=c(1,19), ylab="Relative Abundance (%)", xlab="", axes=F)
-boxplot(sig_perabund[,1]~metadata$dx, at=1:3, names=F, add=T, axes=F, col=c("gray", "blue", "red"))
-boxplot(sig_perabund[,2]~metadata$dx, at=5:7, names=F, add=T, axes=F, col=c("gray", "blue", "red"))
-boxplot(sig_perabund[,3]~metadata$dx, at=9:11, names=F, add=T, axes=F, col=c("gray", "blue", "red"))
-boxplot(sig_perabund[,4]~metadata$dx, at=13:15, names=F, add=T, axes=F, col=c("gray", "blue", "red"))
-boxplot(sig_perabund[,5]~metadata$dx, at=17:19, names=F, add=T, axes=F, col=c("gray", "blue", "red"))
-axis(1, labels=otu_labels, at=c(2,6,10, 14,18), tick=F)
-axis(2)
+plot(NA, ylim=c(0,1), xlim=c(1,19), ylab="Relative Abundance (%)", xlab="", axes=F)
+boxplot(rel_abund[,1]~metadata$dx, at=1:3, names=F, add=T, axes=F, col=c("gray", "blue", "red"))
+boxplot(rel_abund[,2]~metadata$dx, at=5:7, names=F, add=T, axes=F, col=c("gray", "blue", "red"))
+boxplot(rel_abund[,3]~metadata$dx, at=9:11, names=F, add=T, axes=F, col=c("gray", "blue", "red"))
+boxplot(rel_abund[,4]~metadata$dx, at=13:15, names=F, add=T, axes=F, col=c("gray", "blue", "red"))
+boxplot(rel_abund[,5]~metadata$dx, at=17:19, names=F, add=T, axes=F, col=c("gray", "blue", "red"))
+axis(1, labels=colnames(rel_abund)[1:5], at=c(2,6,10, 14,18), tick=F)
+axis(2, at=seq(0,1,0.2), label=seq(0,100, 20), las=2)
 box()
 ```
 
+
+
 ### Activity XXXXX
-Hopefully you're keyed into the fact that this code is not DRY. Rewrite the code to replace the five `boxplot` function calls with a single cal within a for loop.
+If you change the size of the window by dragging the lower right corner to the left, do you notice that some of our phylum names go away? This is less than ideal. We just saw how we could use the `las` argument to turn the labels 90 degrees. What happens when you use `las=2` in your `axis(1, ...)` function call? Modify the margins so that the names fit in the plotting window.
 
 ```{r}
-otu_labels <- gsub(pattern="Otu0*", "OTU ", colnames(sig_perabund))
+par(mar=c(8, 5, 0.5, 0.5))
+plot(NA, ylim=c(0,1), xlim=c(1,19), ylab="Relative Abundance (%)", xlab="", axes=F)
+boxplot(rel_abund[,1]~metadata$dx, at=1:3, names=F, add=T, axes=F, col=c("gray", "blue", "red"))
+boxplot(rel_abund[,2]~metadata$dx, at=5:7, names=F, add=T, axes=F, col=c("gray", "blue", "red"))
+boxplot(rel_abund[,3]~metadata$dx, at=9:11, names=F, add=T, axes=F, col=c("gray", "blue", "red"))
+boxplot(rel_abund[,4]~metadata$dx, at=13:15, names=F, add=T, axes=F, col=c("gray", "blue", "red"))
+boxplot(rel_abund[,5]~metadata$dx, at=17:19, names=F, add=T, axes=F, col=c("gray", "blue", "red"))
+axis(1, labels=colnames(rel_abund)[1:5], at=c(2,6,10, 14,18), tick=F, las=2)
+axis(2, at=seq(0,1,0.2), label=seq(0,100, 20), las=2)
+box()
+```
 
-plot(NA, ylim=c(0,0.8), xlim=c(1,19), ylab="Relative Abundance (%)", xlab="", axes=F)
+
+
+### Activity XXXXX
+Hopefully you're keyed into the fact that this code is not DRY. It also doesn't lend itself very well to incorporating new data or should we want to adjust our minimal threshold. Rewrite the code to replace the five `boxplot` function calls with a single cal within a for loop and filter the `rel_abund` matrix to those phyla whose average relative abundance is greater than 2%. Finally, add a legend to the plot.
+
+```{r}
+abundant <- apply(mean_phylum_matrix, 1, mean) > 0.02
+ab_rel_abund <- rel_abund[,abundant]
+
+plot(NA, ylim=c(0,1), xlim=c(1,19), ylab="Relative Abundance (%)", xlab="", axes=F)
 
 start <- 1
 end <- 3
 
-for(otu in 1:ncol(sig_perabund)){
-	boxplot(sig_perabund[,otu]~metadata$dx, at=start:end, names=F, add=T, axes=F, col=c("gray", "blue", "red"))
+for(otu in 1:ncol(ab_rel_abund)){
+	boxplot(ab_rel_abund[,otu]~metadata$dx, at=start:end, names=F, add=T, axes=F, col=c("gray", "blue", "red"))
 	start <- start + 4
 	end <- end + 4
 }
 
-axis(1, labels=otu_labels, at=c(2,6,10, 14,18), tick=F)
-axis(2)
+axis(1, labels=colnames(ab_rel_abund), at=c(2,6,10, 14,18), tick=F, las=2)
+axis(2, at=seq(0,1,0.2), label=seq(0,100, 20), las=2)
 box()
+
+legend(x=15, y=1, legend=c("Normal", "Adenoma", "Cancer"), fill=c("gray", "blue", "red"))
 ```
 
-### Activity XXXXX
-Adjust the margins so that we can have a legend in the right margin.
+A box plot is an effective way to show the shape of the distribution for each of your phyla if you have a lot of data. If you don't have a lot of points, it can be a bit deceiving. Also, the default whisker placement on the box plot is 1.5 times the size of the box, which represents the quartiles. I prefer to see my data, rather than mask it with boxes and whiskers. To do that we'll move to a strip chart. As we've already seen, the advantage of a strip chart is that we can show all of the data. The downside is that over plotting can obscure our sense of the true distribution of the data. Our syntax will be similar to what we've already done with the box plot.
 
 ```{r}
-par(mar=c(3,5,0.5,8))
-otu_labels <- gsub(pattern="Otu0*", "OTU ", colnames(sig_perabund))
+abundant <- apply(mean_phylum_matrix, 1, mean) > 0.02
+ab_rel_abund <- rel_abund[,abundant]
 
-plot(NA, ylim=c(0,0.8), xlim=c(1,19), ylab="Relative Abundance (%)", xlab="", axes=F)
+plot(NA, ylim=c(0,1), xlim=c(1,19), ylab="Relative Abundance (%)", xlab="", axes=F)
 
 start <- 1
 end <- 3
 
-for(otu in 1:ncol(sig_perabund)){
-	boxplot(sig_perabund[,otu]~metadata$dx, at=start:end, names=F, add=T, axes=F, col=c("gray", "blue", "red"))
+for(otu in 1:ncol(ab_rel_abund)){
+	stripchart(ab_rel_abund[,otu]~metadata$dx, at=start:end, add=T, vertical=T, method="jitter", jitter=0.3, axes=F, col=c("gray", "blue", "red"), pch=19)
 	start <- start + 4
 	end <- end + 4
 }
 
-axis(1, labels=otu_labels, at=c(2,6,10, 14,18), tick=F)
-axis(2)
+axis(1, labels=colnames(ab_rel_abund), at=c(2,6,10, 14,18), tick=F, las=2)
+axis(2, at=seq(0,1,0.2), label=seq(0,100, 20), las=2)
 box()
-legend(x=20, y=0.8, legend=c("Normal", "Adenoma", "Cancer"), fill=c("gray", "blue", "red"), xpd=T)
-```
 
-
-### Activity XXXXX
-One difficulty of plotting error bars on bar plots is that the color of the bar can obscure the bottom error bar. Using an approach similar to what we did with strip charts can you create a plot using the `points` function to draw a colored circle at the value of `perabund_median` and use error bars to represent the 95% confidence intervals.
-
-```{r}
-par(mar=c(3,5,0.5,8))
-otu_labels <- gsub(pattern="Otu0*", "OTU ", colnames(sig_perabund))
-
-plot(NA, ylim=c(0,8), xlim=c(1,19), ylab="Relative Abundance (%)", xlab="", axes=F)
-
-start <- 1
-end <- 3
-
-for(otu in 2:6){
-
-	arrows(x0=start:end,y0=perabund_median[,otu],y1=perabund_lci[,otu], angle=90, length=0.1)
-
-	arrows(x0=start:end,y0=perabund_median[,otu],y1=perabund_uci[,otu], angle=90, length=0.1)
-
-	points(x=start:end, y=perabund_median[,otu], col=c("gray", "blue", "red"), pch=19)
-
-	start <- start + 4
-	end <- end + 4
-}
-
-axis(1, labels=otu_labels, at=c(2,6,10, 14,18), tick=F)
-axis(2)
-box()
-legend(x=20, y=5, legend=c("Normal", "Adenoma", "Cancer"), fill=c("gray", "blue", "red"), xpd=T)
-```
-
-
-
-Even with all of these tweaks the plot still doesn't look very good, next we'll move to a strip chart. As we've already seen, the advantage of a strip chart is that we can show all of the data. The downside is that over plotting can obscure our sense of the true distribution of the data. Our syntax will be similar to what we've already done with the boxplot.
-
-```{r}
-par(mar=c(3,5,0.5,8))
-otu_labels <- gsub(pattern="Otu0*", "OTU ", colnames(sig_perabund))
-
-plot(NA, ylim=c(0,8), xlim=c(1,19), ylab="Relative Abundance (%)", xlab="", axes=F)
-
-start <- 1
-end <- 3
-
-for(otu in 1:5){
-	stripchart(sig_perabund[,otu]~metadata$dx, at=start:end, col=c("gray", "blue", "red"), pch=19, vertical=T, method='jitter', add=T)
-
-	start <- start + 4
-	end <- end + 4
-}
-
-axis(1, labels=otu_labels, at=c(2,6,10, 14,18), tick=F)
-axis(2)
-box()
-legend(x=20, y=5, legend=c("Normal", "Adenoma", "Cancer"), col=c("gray", "blue", "red"), pch=19, xpd=T)
+legend(x=15, y=1, legend=c("Normal", "Adenoma", "Cancer"), fill=c("gray", "blue", "red"))
 ```
 
 We can modify this code to add a line segment to indicate the median values.
 
 ```{r}
-par(mar=c(3,5,0.5,8))
-otu_labels <- gsub(pattern="Otu0*", "OTU ", colnames(sig_perabund))
+abundant <- apply(mean_phylum_matrix, 1, mean) > 0.02
+ab_rel_abund <- rel_abund[,abundant]
 
-plot(NA, ylim=c(0,8), xlim=c(1,19), ylab="Relative Abundance (%)", xlab="", axes=F)
+plot(NA, ylim=c(0,1), xlim=c(1,19), ylab="Relative Abundance (%)", xlab="", axes=F)
 
 start <- 1
 end <- 3
 
-for(otu in 1:5){
-	stripchart(sig_perabund[,otu]~metadata$dx, at=start:end, col=c("gray", "blue", "red"), pch=19, vertical=T, method='jitter', add=T)
+for(otu in 1:ncol(ab_rel_abund)){
+	stripchart(ab_rel_abund[,otu]~metadata$dx, at=start:end, add=T, vertical=T, method="jitter", jitter=0.3, axes=F, col=c("gray", "blue", "red"), pch=19)
 
-	segments(x0=(start:end)-0.3, x1=(start:end)+0.3, y0=sig_perabund_median[,otu+1], lwd=3)
+	segments(x0=(start:end)-0.4, x1=(start:end)+0.4, y0=mean_abundant_phylum_matrix[otu,], lwd=4)
 	start <- start + 4
 	end <- end + 4
 }
 
-axis(1, labels=otu_labels, at=c(2,6,10, 14,18), tick=F)
-axis(2)
+axis(1, labels=colnames(ab_rel_abund), at=c(2,6,10, 14,18), tick=F, las=2)
+axis(2, at=seq(0,1,0.2), label=seq(0,100, 20), las=2)
 box()
-legend(x=20, y=5, legend=c("Normal", "Adenoma", "Cancer"), col=c("gray", "blue", "red"), pch=19, xpd=T)
+
+legend(x=15, y=1, legend=c("Normal", "Adenoma", "Cancer"), fill=c("gray", "blue", "red"))
 ```
 
 ### Activity XXXXX
-Can you transpose the strip chart so the strips go from left to right? Note that you can rotate the y-axis labels 90 degrees using the `las=2` argument in the `axis` function. What happens if you set the y-axis limits from 19 to 1 instead of from 1 to 19?
+We frequently want to italicize taxonomic names. Journals vary in their styles, but the ASM journals ask that tall taxonomic names be italicized. In the `axis` function call that you used to generate the phylum names use the `font` argument and give it values of 1, 2, 3, and 4. What do you get for each? Which is the preferred value?
+
+
+### Activity XXXXX
+Sometimes it's easier to visualize a plot if it is rotated 90 degrees. Can you transpose the strip chart so the strips go from left to right? What happens if you set the y-axis limits from 19 to 1 instead of from 1 to 19?
 
 ```{r}
-par(mar=c(5,5,0.5,8))
-otu_labels <- gsub(pattern="Otu0*", "OTU ", colnames(sig_perabund))
+par(mar=c(5,8,0.5,0.5))
+abundant <- apply(mean_phylum_matrix, 1, mean) > 0.02
+ab_rel_abund <- rel_abund[,abundant]
 
-plot(NA, xlim=c(0,8), ylim=c(19,1), xlab="Relative Abundance (%)", ylab="", axes=F)
+plot(NA, xlim=c(0,1), ylim=c(19,1), xlab="Relative Abundance (%)", ylab="", axes=F)
 
 start <- 1
 end <- 3
 
-for(otu in 1:5){
-	stripchart(sig_perabund[,otu]~metadata$dx, at=start:end, col=c("gray", "blue", "red"), pch=19, vertical=F, method='jitter', add=T)
+for(otu in 1:ncol(ab_rel_abund)){
+	stripchart(ab_rel_abund[,otu]~metadata$dx, at=start:end, add=T, vertical=F, method="jitter", jitter=0.3, axes=F, col=c("gray", "blue", "red"), pch=19)
 
-	segments(y0=(start:end)-0.3, y1=(start:end)+0.3, x0=sig_perabund_median[,otu+1], lwd=3)
+	segments(y0=(start:end)-0.4, y1=(start:end)+0.4, x0=mean_abundant_phylum_matrix[otu,], lwd=4)
 	start <- start + 4
 	end <- end + 4
 }
 
-axis(2, labels=otu_labels, at=c(2,6,10, 14,18), tick=F, las=2)
-axis(1)
+axis(2, labels=colnames(ab_rel_abund), at=c(2,6,10, 14,18), tick=F, las=2)
+axis(1, at=seq(0,1,0.2), label=seq(0,100, 20), las=1)
 box()
-legend(x=9, y=10, legend=c("Normal", "Adenoma", "Cancer"), col=c("gray", "blue", "red"), pch=19, xpd=T)
+
+legend(y=15, x=0.7, legend=c("Normal", "Adenoma", "Cancer"), fill=c("gray", "blue", "red"))
 ```
