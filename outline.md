@@ -64,22 +64,25 @@
 10	Finding relevant OTUs to plot
 * Kruskal-Wallis test
 * Correcting for multiple hypotheses
-* Random forest
 * Plotting OTU data
+* Getting help
 
-10	Heat maps
+11	Classifying samples based on OTUs
+* Random forest
+
+11	Heat maps
 * OTUs by categorical variables
 * Color palettes
 * Hacking
 * Italics
 
-11	Dot plots
+12	Dot plots
 * Percentage by categorical variables
 * Hacking
 
-12	Putting it together: Simulations in R
+13	Putting it together: Simulations in R
 
-13	Putting it together: Bi-plots
+14	Putting it together: Bi-plots
 
 1X Unit tests
 
