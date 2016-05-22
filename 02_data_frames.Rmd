@@ -1,3 +1,9 @@
+---
+title: "Session 2"
+output:
+  html_document
+---
+
 ## Learning goals
 * Manipulate data frames
 * Creating functions
@@ -22,7 +28,7 @@ For you, this might beg the question, I have my metadata stored in a Microsoft E
 install.packages("openxlsx")
 library("openxlsx")
 
-metadata <- read.xlsx(file="data/baxter.metadata.xlsx")
+metadata <- read.xlsx(xlsx="data/baxter.metadata.xlsx")
 ```
 
 Nuts. That didn't work. Hmmm. Let's get some help. If there's a function you want to use but don't know or can't remember it's arguments, you can type `?read.xlsx`. The `?` tells R you want help. In this case we get a screen that looks like so...
@@ -171,11 +177,14 @@ But that's probably an awful idea that we don't want to do too much because it w
 ### Activity 3
 Go ahead and use the following lines of code to get you started in correcting the `Hx_Fam_CRC`, `NSAID`, and `Diabetes_Med` columns.
 
-```{r}
+```
 metadata[, "Hx_Fam_CRC"] <- as.logical(metadata[,""])
 metadata$ <- as.logical(metadata$NSAID)
 metadata <- metadata
 ```
+
+<input type=button class=hideshow style="margin-bottom: 20px"></input>
+<div style="display: none">
 
 ```{r}
 metadata[, "Hx_Fam_CRC"] <- as.logical(metadata[,"Hx_Fam_CRC"])
@@ -183,11 +192,18 @@ metadata$NSAID <- as.logical(metadata$NSAID)
 metadata$Diabetes_Med <- as.logical(metadata$Diabetes_Med)
 ```
 
+</div>
+
 The final column of the data.frame, `stage` indicates the subject's cancer stage from 0 to 4. What type of variable does it currently use? What do you think it should be? Write the command below to make this happen.
 
+<input type=button class=hideshow style="margin-bottom: 20px"></input>
+<div style="display: none">
+
 ```{r}
-#metadata$stage <- as.factor(metadata$stage)
+metadata$stage <- as.factor(metadata$stage)
 ```
+
+</div>
 
 At this point, `str` and `summary` output should look like this:
 
@@ -244,18 +260,58 @@ metadata[metadata$Dx_Bin == "High Risk Normal" | is.na(metadata$Diabetic),]
 
 ### Activity 4
 * Create a data frame that contains only individuals from Dana Farber
+
+<input type=button class=hideshow style="margin-bottom: 20px"></input>
+<div style="display: none">
+
+```{r}
+dana_farber <- metadata[metadata$Site == "Dana Farber",]
+```
+
+</div>
+
 * Create a data frame that contains individuals that have a FIT result greater than 100
+
+<input type=button class=hideshow style="margin-bottom: 20px"></input>
+<div style="display: none">
+
+```{r}
+high_fit <- metadata[metadata$fit_result > 100,]
+```
+
+</div>
+
 * Create a data frame that contains individuals are 50 years old and younger
+
+<input type=button class=hideshow style="margin-bottom: 20px"></input>
+<div style="display: none">
+
+```{r}
+fifty_and_under <- metadata[metadata$Age <= 50,]
+```
+
+</div>
 
 
 You perhaps noticed that the minimum height and weight were 0.00. We can safely assume that these are missing data. In R, missing data are denoted by `NA`,  which is itself a special value. Let's change these values to `NA`. I'll show you how to do it for the Height column, you do it for the Weight column.
 
-```{r}
+```
 metadata[metadata$Height == 0 & !is.na(metadata$Height), "Height"] <- NA
 metadata[metadata$ == 0 & !is.na(metadata$Weight), ""] <- NA
 
 summary(metadata)
 ```
+
+<input type=button class=hideshow style="margin-bottom: 20px"></input>
+<div style="display: none">
+
+```{r}
+metadata[metadata$Height == 0 & !is.na(metadata$Height), "Height"] <- NA
+metadata[metadata$Weight == 0 & !is.na(metadata$Weight), "Weight"] <- NA
+
+summary(metadata)
+```
+</div>
 
 Viola! There's more we could do to make the metadata file easier to work with, but for now let's move on and plot some data.
 
@@ -287,10 +343,53 @@ plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",
 ```
 
 ### Activity 5
-* Change the plotting symbols to use a different plotting symbol for each diagnosis
+* Change the plotting symbols to use a different plotting symbol for each diagnosis.
+
+<input type=button class=hideshow style="margin-bottom: 20px"></input>
+<div style="display: none">
+```{r}
+dx_pch <- c(normal=17, adenoma=18, cancer=19)
+
+plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",
+		 xlim=c(-0.5, 0.5), ylim=c(-0.6, 0.4), pch=dx_pch[metadata$dx],
+		 col=dx_color[metadata$dx], lwd=1, cex=1,
+		 main="PCoA of ThetaYC Distances Between Stool Samples")
+```
+</div>
+
 * Color the points for the male and female patients separately
+
+<input type=button class=hideshow style="margin-bottom: 20px"></input>
+<div style="display: none">
+```{r}
+sex_color <- c(f="red", m="blue")
+
+plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",
+		 xlim=c(-0.5, 0.5), ylim=c(-0.6, 0.4), pch=dx_pch[metadata$dx],
+		 col=sex_color[metadata$Gender], lwd=1, cex=1,
+		 main="PCoA of ThetaYC Distances Between Stool Samples")
+```
+</div>
+
 * Create a color and symbol scheme of your own choosing
 
 
 ### Activity 6
 At the end of the last session, you thought about scatter plots that you would use in your own research. You made a freehand sketch of what the plot would look like. The final question in that activity was, "What more do you need to learn to make the plot for your own data?" Update your list of things you need to learn. Are you ready to make your plot?
+
+<script>
+$( "input.hideshow" ).each( function ( index, button ) {
+  button.value = 'Show an answer';
+  $( button ).click( function () {
+    var target = this.nextSibling ? this : this.parentNode;
+    target = target.nextSibling.nextSibling;
+    if ( target.style.display == 'block' || target.style.display == '' ) {
+      target.style.display = 'none';
+      this.value = 'Show an answer';
+    } else {
+      target.style.display = 'block';
+      this.value = 'Hide answer';
+    }
+  } );
+} );
+</script>
