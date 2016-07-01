@@ -1,4 +1,11 @@
-8 Working with OTU data
+---
+title: "Session 8"
+output:
+  html_document
+---
+
+## Learning objectives
+
 * String manipulations - strsplit and paste
 * Regular expressions - more complex patterns
 * Apply functions
@@ -95,14 +102,13 @@ phylum <- gsub("Bacteria;([^;]*);.*", "\\1", tax_no_confidence)
 otu_phylum <- data.frame(otu = taxonomy$OTU, phylum = phylum, stringsAsFactors=F)
 ```
 
-### Activity XXXXX
+### Activity 3
 Can you think of alternative ways to go from the strings in `taxonomy$Taxonomy` to `phylum`? Go ahead and implement the alternatives. Compare and contrast the implementations.
 
-Instead of parsing the phylum names, we want to retrieve the deepest taxonomy name for each OTU that isn't "unclassified".
 
 
-### Activity XXXXX
-Create one or more `gsub` function calls to retrieve the most specific taxonomic name for each OTU. For example, if this was the taxonomy:
+### Activity 4
+Instead of parsing the phylum names, we want to retrieve the deepest taxonomy name for each OTU that isn't "unclassified". Create one or more `gsub` function calls to retrieve the most specific taxonomic name for each OTU. For example, if this was the taxonomy:
 
 ```
 Bacteria(100);Firmicutes(100);Clostridia(100);Clostridiales(100);Ruminococcaceae(100);unclassified(100);
@@ -111,7 +117,7 @@ Bacteria(100);Firmicutes(100);Clostridia(100);Clostridiales(100);Ruminococcaceae
 The function should return the OTU number and "Ruminococcaceae". Here's some code to get you started...
 
 
-```{r}
+```r
 taxonomy <- read.table(file="data/baxter.cons.taxonomy", header=T, stringsAsFactors=F)
 tax_no_confidence <- gsub(pattern="\\(\\d*\\)", replacement="", x=taxonomy$Taxonomy)
 
@@ -124,8 +130,8 @@ names(otu_name) <- taxonomy$OTU
 ```
 
 
-Here's what I came up with
-
+<input type=button class=hideshow style="margin-bottom: 20px"></input>
+<div style="display: none">
 ```{r}
 taxonomy <- read.table(file="data/baxter.cons.taxonomy", header=T, stringsAsFactors=F)
 tax_no_confidence <- gsub(pattern="\\(\\d*\\)", replacement="", x=taxonomy$Taxonomy)
@@ -136,7 +142,7 @@ best_taxonomy <- gsub(pattern=".*;(.*);", replacement="\\1", no_unclassified)
 otu_name <- best_taxonomy
 names(otu_name) <- taxonomy$OTU
 ```
-
+</div>
 
 
 We've achieved step 1 - find the different phyla in the consensus taxonomy file. Next, we need to aggregate the columns in `baxter.subsample.shared` that come from the same phylum. Let's look at two ways of doing this and you can decide which you think is better.
@@ -180,8 +186,8 @@ otus <- otu_phylum_overlap[otu_phylum_overlap$phylum == "Firmicutes", 'otu']
 Now we have a new data frame with 490 rows and 5450 columns. To sum across a data frame like this we can use the `apply` function. See if you can figure out what the apply function is doing in these two cases. Which is what we want?
 
 ```{r}
-approach_one <- apply(sub_shared, 1, sum)
-approach_two <- apply(sub_shared, 2, sum)
+approach_one <- apply(shared[,otus], 1, sum)
+approach_two <- apply(shared[,otus], 2, sum)
 ```
 
 Great, now we have the number of sequences from the Firmicutes in each of our samples. We can repeat this for each of the other phyla. Let's think about how to keep this DRY. Here is the chunk of code we'd like to repeat for each phylum.
@@ -215,7 +221,7 @@ colnames(phylum_shared) <- unique_phyla
 
 That's a bit of a pain, but now we have a data frame that has row and column names matching our samples and phyla, respectively. It is filled with zeroes and is ready to be filled using our `count_phyla` function and a for loop. Write the for loop to fill the data frame.
 
-```{r}
+```{r, error=TRUE}
 for(phylum in unique_phyla){
 	phylum_shared[,phylum] <- count_phyla(phylum, shared, otu_phylum_overlap)
 }
@@ -229,7 +235,7 @@ Error in apply(sub_shared, 1, sum) : dim(X) must have a positive length
 
 As we saw in the first session, `dim` returns the number of rows and columns in a data frame. We aren't quite sure what "positive length" means, but there seems to be a problem somewhere in our function. If we enter `phylum` at the terminal we'll get back "Elusimicrobia". This tells us that the last value of `phylum` that was tried in our for loop was for the Elusimicrobia. Now what we can do is to recreate the manual calculation like we did above for the "Firmicutes" and see if we find an error.
 
-```{r}
+```{r, error=TRUE}
 otus <- otu_phylum_overlap[otu_phylum_overlap$phylum == "Elusimicrobia", 'otu']
 sub_shared <- shared[,otus]
 phylum_count <- apply(sub_shared, 1, sum)
@@ -317,14 +323,70 @@ colnames(mean_phylum_matrix) <- mean_phylum$Group.1
 
 We'd also like to know the 95% confidence interval around each mean relative abundance.
 
-### Activity XXXXX
+### Activity 5
 Collect the various chunks of code from above that went into creating the `mean_phylum_matrix` into one place. Make sure you got everything by quitting R, restarting it and running your code. Confirm that you had no errors. Modify the code to create a matrix called `median_phylum_matrix` that returns the median relative abundance and `sd_phylum_matrix` that returns the standard deviations of the relative abundances.
 
+<input type=button class=hideshow style="margin-bottom: 20px"></input>
+<div style="display: none">
+```{r}
+source("code/baxter.R")
 
-### Activity XXXXX
+#Aggregate the number of times a specific phylum was seen in each sample
+count_phyla <- function(phylum, otu_counts, map){
+	otus <- map[map$phylum == phylum, 'otu'] #identify the otus that match phylum
+	sub_shared <- otu_counts[,otus] #subset out the relevant columns
+
+	if(length(otus) > 1){	#if sub_shared is a matrix, then...
+		phylum_count <- apply(sub_shared, 1, sum) #sum across the rows
+	} else {							#... otherwise ...
+		phylum_count <- sub_shared # return the vector of counts for the otu
+	}
+	return(phylum_count)
+}
+
+taxonomy <- read.table(file="data/baxter.cons.taxonomy", header=T, stringsAsFactors=F)
+tax_no_confidence <- gsub(pattern="\\(\\d*\\)", replacement="", x=taxonomy$Taxonomy)
+phylum <- gsub("Bacteria;([^;]*);.*", "\\1", tax_no_confidence)
+otu_phylum <- data.frame(otu = taxonomy$OTU, phylum = phylum, stringsAsFactors=F)
+
+shared <- read.table(file="data/baxter.subsample.shared", header=T, stringsAsFactors=F, row.names=2)
+shared <- shared[,-c(1,2)]
+
+otu_phylum_overlap <- otu_phylum[otu_phylum$otu %in% colnames(shared), ]
+stopifnot(nrow(otu_phylum_overlap) == ncol(shared))
+
+unique_phyla <- unique(otu_phylum_overlap$phylum)
+
+phylum_shared_sapply <- sapply(X=unique_phyla, FUN=count_phyla, otu_counts=shared, map=otu_phylum_overlap)
+
+n_seqs <- apply(phylum_shared_sapply, 1, sum)
+rel_abund <- phylum_shared_sapply / n_seqs
+
+median_rel_abund <- apply(rel_abund, 2, median)
+decreasing_order <- order(median_rel_abund, decreasing=T)
+rel_abund <- rel_abund[,decreasing_order]
+
+metadata <- get_meta()
+stopifnot(metadata$sample == rownames(rel_abund))
+
+mean_phylum <- aggregate(rel_abund, by=list(metadata$dx), mean)
+mean_phylum_matrix <- as.matrix(t(mean_phylum[,-1]))
+colnames(mean_phylum_matrix) <- mean_phylum$Group.1
+
+median_phylum <- aggregate(rel_abund, by=list(metadata$dx), median)
+median_phylum_matrix <- as.matrix(t(median_phylum[,-1]))
+colnames(median_phylum_matrix) <- median_phylum$Group.1
+
+sd_phylum <- aggregate(rel_abund, by=list(metadata$dx), sd)
+sd_phylum_matrix <- as.matrix(t(sd_phylum[,-1]))
+colnames(sd_phylum_matrix) <- sd_phylum$Group.1
+```
+</div>
+
+### Activity 1
 To this point we haven't done much to annotate what's happening in our code beyond trying to give meaningful variable and function names. Imagine handing your code to a colleague or coming back to the code 6 months from now. It might be difficult to understand what you were trying to do. To minimize these difficulties, we can comment our code by adding text that starts with a `#`. This symbol tells R to ignore anything that follows. Go through our code and add some comments. I've already started the process for you
 
-```{r}
+```r
 #Load useful utility functions for processing metadata and what not
 source("code/baxter.R")
 
@@ -380,7 +442,7 @@ colnames(sd_phylum_matrix) <- sd_phylum$Group.1
 ```
 
 
-### Activity XXXXX
+### Activity 2
 In this session we focused on phylum-level data. Can you develop a function to replace these lines
 
 ```
@@ -390,3 +452,22 @@ otu_phylum <- data.frame(otu = taxonomy$OTU, phylum = phylum, stringsAsFactors=F
 ```
 
 with a function that allows the user to use any taxonomic level? To prevent getting back "unclassified", could you write the function to instead return a more meaningful name?
+
+
+
+<script>
+$( "input.hideshow" ).each( function ( index, button ) {
+  button.value = 'Show an answer';
+  $( button ).click( function () {
+    var target = this.nextSibling ? this : this.parentNode;
+    target = target.nextSibling.nextSibling;
+    if ( target.style.display == 'block' || target.style.display == '' ) {
+      target.style.display = 'none';
+      this.value = 'Show an answer';
+    } else {
+      target.style.display = 'block';
+      this.value = 'Hide answer';
+    }
+  } );
+} );
+</script>

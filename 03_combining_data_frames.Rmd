@@ -5,6 +5,7 @@ output:
 ---
 
 ## Learning goals
+
 * Combining datasets safely
 * More with scatter plots
 * Correlation analysis
@@ -248,8 +249,8 @@ sex_color <- c(f="red", m="blue")
 dx_pch <- c(normal=17, adenoma=18, cancer=19)
 
 plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",
-		 xlim=c(-0.5, 0.5), ylim=c(-0.6, 0.4), pch=dx_pch[metadata$dx],
-		 col=sex_color[metadata$Gender], lwd=1, cex=1,
+		 xlim=c(-0.5, 0.5), ylim=c(-0.6, 0.4), pch=dx_pch[as.character(metadata$dx)],
+		 col=sex_color[as.character(metadata$Gender)], lwd=1, cex=1,
 		 main="PCoA of ThetaYC Distances Between Stool Samples")
 
 legend("bottomright", legend=c("Female, Normal", "Female, Adenoma", "Female, Cancer", "Male, Normal", "Male, Adenoma", "Male, Cancer"), pch=c(dx_pch, dx_pch), col=rep(sex_color, each=3))
@@ -297,8 +298,8 @@ dx_pch <- c(normal=17, adenoma=18, cancer=19)
 
 par(mar=c(5,5,2,10))
 plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",
-		 xlim=c(-0.5, 0.5), ylim=c(-0.6, 0.4), pch=dx_pch[metadata$dx],
-		 col=sex_color[metadata$Gender], lwd=1, cex=1,
+		 xlim=c(-0.5, 0.5), ylim=c(-0.6, 0.4), pch=dx_pch[as.character(metadata$dx)],
+		 col=sex_color[as.character(metadata$Gender)], lwd=1, cex=1,
 		 main="PCoA of ThetaYC Distances Between Stool Samples")
 
 legend(x=0.6, y=0.4, legend=c("Female, Normal", "Female, Adenoma", "Female, Cancer", "Male, Normal", "Male, Adenoma", "Male, Cancer"), pch=c(dx_pch, dx_pch), col=rep(sex_color, each=3), xpd=TRUE)

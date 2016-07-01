@@ -1,4 +1,11 @@
-10	Finding relevant OTUs to plot
+---
+title: "Session 10"
+output:
+  html_document
+---
+
+## Learning objectives
+
 * Kruskal-Wallis test
 * Correcting for multiple hypotheses
 * Plotting OTU data
@@ -107,9 +114,11 @@ sig_relabund <- rel_abund_subset[ , sig_otus]
 Great - now we have a matrix of OTUs that are differentially represented between individual with normal colons, adenomas, and cancer. Using these data we will now make a strip plot of the data. Let's get plotting!
 
 
-### Activity XXXXX
+### Activity 1
 Using the code from the previous session, generate a strip chart that represents the relative abundances of the differentially represented OTUs. Note that to draw the line segments you'll have to generate a variable called `median_sig_relabund`.
 
+<input type=button class=hideshow style="margin-bottom: 20px"></input>
+<div style="display: none">
 ```{r}
 median_sig_relabund <- aggregate(sig_relabund, by=list(metadata$dx), median)
 
@@ -133,6 +142,7 @@ box()
 
 legend(y=15, x=0.18, legend=c("Normal", "Adenoma", "Cancer"), col=c("gray", "blue", "red"), pch=19)
 ```
+</div>
 
 Fantastic. There's a few things we might not especially like about this plot. First, the relative abundance values are largely compressed against the x-axis. It would be good to have some spread to the data. Second, the OTU names are dreadful and not descriptive. Instead of "Otu000058", we'd probably prefer something like "*Pasteurellaceae* (OTU 58)". Let's see if we can make this happen.
 
@@ -270,9 +280,11 @@ otu_name <- gsub("_", " ", otu_name)
 names(otu_name) <- taxonomy$OTU
 ```
 
-### Activity XXXXXX
+### Activity 2
 Rewrite our `axis(2, ...)` function to use our new `otu_name` vector and italicize the names.
 
+<input type=button class=hideshow style="margin-bottom: 20px"></input>
+<div style="display: none">
 ```{r}
 fudge_factor <- 5e-5
 transformed <- sig_relabund + fudge_factor
@@ -300,25 +312,24 @@ legend(y=17, x=0.09, legend=c("Normal", "Adenoma", "Cancer"), col=c("gray", "blu
 
 abline(v=0.9e-4, col="gray")
 ```
+</div>
 
 From this plot we see that three of these OTUs are affiliated within the *Ruminococcaceae*. To get more specific, we'd like to tack on the OTU name inside parentheses. We will make the OTU names a bit more attractive, changing them from "Otu000058" to "OTU 58" and combine them with the taxonomic name.
 
 
---------
-
-### Activity XXXXXX
+### Activity 3
 Using your `gsub` skills, complete the following line of code:
 
 ```
 otus <- gsub(pattern="??????", replacement="?????", names(otu_name))
 ```
 
+<input type=button class=hideshow style="margin-bottom: 20px"></input>
+<div style="display: none">
 ```{r}
 otus <- gsub(pattern="Otu0*", replacement="OTU ", names(otu_name))
 ```
-
---------
-
+</div>
 
 Now we want to past the taxonomic name with the OTU name. We can do this using the `paste` function.
 
@@ -341,9 +352,11 @@ pretty_otus <- paste(otu_name, " (", otus, ")", sep="")
 names(pretty_otus) <- names(otu_name)
 ```
 
-### Activity XXXXXX
+### Activity 4
 Rewrite our `axis(2, ...)` function again to use our new `otu_name` vector and italicize the names.
 
+<input type=button class=hideshow style="margin-bottom: 20px"></input>
+<div style="display: none">
 ```{r}
 fudge_factor <- 5e-5
 transformed <- sig_relabund + fudge_factor
@@ -371,6 +384,7 @@ legend("bottomright", legend=c("Normal", "Adenoma", "Cancer"), col=c("gray", "bl
 
 abline(v=0.9e-4, col="gray")
 ```
+</div>
 
 Sweet! There's one small problem though - we want the name italicized, but not the parentheses and the OTU name. At this point I'm not really sure what to do to make it look like I want. Many people would take the plot and edit it in Illustrator or some other program. This is a pretty common problem for the work I do, so I'd prefer to figure it out. Also, If I decide to change a threshold or use a different correction for multiple comparisons, I'm going to have to re-edit the figure and that's going to get tedious. Illustrator is $$$ and I'm cheap. So, now what? google. But what do we google? What do we want to do? If you make your search too specific, you won't get anything, make it to vague and you'll get too much! So I google'd "r axis normal and italic". When I did the search, the top hit was:
 
@@ -444,3 +458,21 @@ abline(v=0.9e-4, col="gray")
 ```
 
 BOOM! Once you get it working, be sure to go back to your stackoverflow question and check the answer as being correct. Looking back at the answer I noticed the `bquote` function being called. I'd never heard of that before. I googled "Rstats bquote example" and got a great example that in hindsight was exactly what I wanted: https://blog.snap.uaf.edu/2012/11/29/an-r-bquote-example/.
+
+
+<script>
+$( "input.hideshow" ).each( function ( index, button ) {
+  button.value = 'Show an answer';
+  $( button ).click( function () {
+    var target = this.nextSibling ? this : this.parentNode;
+    target = target.nextSibling.nextSibling;
+    if ( target.style.display == 'block' || target.style.display == '' ) {
+      target.style.display = 'none';
+      this.value = 'Show an answer';
+    } else {
+      target.style.display = 'block';
+      this.value = 'Hide answer';
+    }
+  } );
+} );
+</script>

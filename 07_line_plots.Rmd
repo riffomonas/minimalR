@@ -1,4 +1,11 @@
-7	Line plots
+---
+title: "Session 7"
+output:
+  html_document
+---
+
+## Learning objectives
+
 * Rarefaction curves
 * Loops
 * Adding lines to plots
@@ -85,16 +92,26 @@ plot(ave_rarefy[,"2003650"]~numsampled, col=colors[metadata[metadata$sample=="20
 This chunk of code creates a vector of colors that we've seen before to give each diagnosis it's own color. Then we call the `plot` function. We ran this before, but this time we use `type="l"`. This is what tells the `plot` function to generate a line plot. Again we use the `xlab` and `ylab` arguments to label the two axes. How would we add the second column? If you recall Session 5, you might remember that we were able to add points to a plot using the `points` function. We'll do the same thing here, but again we'll use `type=l` to add a line to the plot
 
 ```{r}
+colors <- c(normal="black", adenoma="blue", cancer="red")
+
+plot(ave_rarefy[,"2003650"]~numsampled, col=colors[metadata[metadata$sample=="2003650", "dx"]], type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed")
 points(ave_rarefy[,"2005650"]~numsampled, col=colors[metadata[metadata$sample=="2005650", "dx"]], type="l")
 ```
 
 Can you add two or three more lines to the plot?
 
+<input type=button class=hideshow style="margin-bottom: 20px"></input>
+<div style="display: none">
 ```{r}
+colors <- c(normal="black", adenoma="blue", cancer="red")
+
+plot(ave_rarefy[,"2003650"]~numsampled, col=colors[metadata[metadata$sample=="2003650", "dx"]], type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed")
+points(ave_rarefy[,"2005650"]~numsampled, col=colors[metadata[metadata$sample=="2005650", "dx"]], type="l")
 points(ave_rarefy[,"2007660"]~numsampled, col=colors[metadata[metadata$sample=="2007660", "dx"]], type="l")
 points(ave_rarefy[,"2009650"]~numsampled, col=colors[metadata[metadata$sample=="2009650", "dx"]], type="l")
 points(ave_rarefy[,"2013660"]~numsampled, col=colors[metadata[metadata$sample=="2013660", "dx"]], type="l")
 ```
+</div>
 
 Jot down a few things you notice about the plot as well as several thoughts about the process of building this plot. First, we have a very broad x-axis scale ranging from 0 to over 400,000 even though our initial samples have fewer than 50,000 sequences. It would be nice to perhaps change the limit to only include the first 50,000 sequences. Second, we might notice that one of our lines has gone outside the vertical bounds of the plotting window. We need a better y-axis limit that we can set at the beginning. Let's see if we can't change these based on what we did previously with the scatter plots.
 
@@ -135,10 +152,11 @@ for(my_value in my_vector_of_values){
 
 The first time through the loop, `my_value` is the first value of `my_vector_of_values`. The second time through it's the second value, and so forth. The vector we put in `my_vector_of_values` can be a vector of any data type. We could put our vector of sample names in place of `my_vector_of_values` and replace `my_value` with `sample_name`.
 
-### Activity XXXXXX
+### Activity 1
 Write a for loop that runs the points function call from above on each value of `colnames(ave_rarefy)`
 
-
+<input type=button class=hideshow style="margin-bottom: 20px"></input>
+<div style="display: none">
 ```{r}
 colors <- c(normal="black", adenoma="blue", cancer="red")
 
@@ -148,6 +166,7 @@ for(sample_name in colnames(ave_rarefy)){
 	points(ave_rarefy[,sample_name]~numsampled, col=colors[metadata[metadata$sample==sample_name, "dx"]], type="l")
 }
 ```
+</div>
 
 Ugh, what a hideous mess! Let's replace our `ylim` argument in the `plot` function call with a better vector to spread the lines out a bit.
 
@@ -164,6 +183,14 @@ for(sample_name in colnames(ave_rarefy)){
 Goodness that's ugly. But, hey, you wanted rarefaction curves! One last thing we can do with this monstrosity is to indicate the number of sequences that we rarefied to for our alpha and beta-diversity comparisons. The data we worked with in the previous sessions were rarefied to 10,530 sequences. It would be great to draw a vertical line at 10,530 to indicate this point. We can do this with the `abline` function using the `v` argument
 
 ```{r}
+colors <- c(normal="black", adenoma="blue", cancer="red")
+
+plot(NA, type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed", xlim=c(0,50000), ylim=c(0,600))
+
+for(sample_name in colnames(ave_rarefy)){
+	points(ave_rarefy[,sample_name]~numsampled, col=colors[metadata[metadata$sample==sample_name, "dx"]], type="l")
+}
+
 abline(v=10530)
 ```
 
@@ -182,9 +209,11 @@ for(sample_name in colnames(ave_rarefy)[1:5]){
 }
 ```
 
-### Activity XXXXX
+### Activity 2
 We can make the lines a bit thicker. In the previous session we did this to alter the thickness of the segments indicating the average diversity values. Go ahead and modify the previous code chunk to give the lines a thickness of 3 units.
 
+<input type=button class=hideshow style="margin-bottom: 20px"></input>
+<div style="display: none">
 ```{r}
 plot(NA, type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed", xlim=c(0,40000), ylim=c(0,400))
 
@@ -192,6 +221,7 @@ for(sample_name in colnames(ave_rarefy)[c(1, 4, 7)]){
 	points(ave_rarefy[,sample_name]~numsampled, col=colors[metadata[metadata$sample==sample_name, "dx"]], type="l", lwd=3)
 }
 ```
+</div>
 
 
 Another modification we'd like to make is to change the way the lines are presented. Here they're presented as solid lines. But we can introduce various breaks to the lines using the `lty` argument (think Line TYpe). Here's a cheat sheet to help you select one of the six different `lty` values
@@ -204,11 +234,11 @@ segments(x0=1:7, y0=0, y1=1, lty=1:6)
 par(mar=orig_mar)
 ```
 
-### Activity XXXXX
+### Activity 3
 Select a different line type to represent each of the diagnoses.
 
-
-
+<input type=button class=hideshow style="margin-bottom: 20px"></input>
+<div style="display: none">
 ```{r}
 colors <- c(normal="black", adenoma="blue", cancer="red")
 line_types <- c(normal=1, adenoma=2, cancer=3)
@@ -219,6 +249,7 @@ for(sample_name in colnames(ave_rarefy)[c(1, 4, 7)]){
 	points(ave_rarefy[,sample_name]~numsampled, col=colors[metadata[metadata$sample==sample_name, "dx"]], type="l", lty=line_types[metadata[metadata$sample==sample_name, "dx"]],lwd=3)
 }
 ```
+</div>
 
 The last thing we'd like to include is a legend so people know what each line color and type represents. Again the syntax is very similar to what we saw previously. The exception is that we provide the appropriate `lty` values so it draws the lines in the legend
 
@@ -234,3 +265,22 @@ for(sample_name in colnames(ave_rarefy)[c(1, 4, 7)]){
 
 legend(x=25000, y=200, legend=c("Normal", "Adenoma", "Cancer"), col=colors, lty=line_types, lwd=3)
 ```
+
+
+
+<script>
+$( "input.hideshow" ).each( function ( index, button ) {
+  button.value = 'Show an answer';
+  $( button ).click( function () {
+    var target = this.nextSibling ? this : this.parentNode;
+    target = target.nextSibling.nextSibling;
+    if ( target.style.display == 'block' || target.style.display == '' ) {
+      target.style.display = 'none';
+      this.value = 'Show an answer';
+    } else {
+      target.style.display = 'block';
+      this.value = 'Hide answer';
+    }
+  } );
+} );
+</script>
