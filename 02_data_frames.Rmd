@@ -88,6 +88,7 @@ There you go, we now have our metadata in R. Let's see what we can do with it no
 
 ### Activity 1
 Open one of the spreadsheets where you keep the metadata for your project
+
 * What do you see in your spreadsheet that might cause problems?
 * How would you want to organize your metadata to make it easier to use with R?
 * Look at the formatting of your data. Are all of the dates consistently formatted? Do you use a consistent capitalization style? Do you use non-text information (e.g. color) to represent values?
