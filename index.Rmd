@@ -12,7 +12,7 @@ These are instructional materials that Pat Schloss uses to teach people to use R
 * Symbols and colors
 * Axis labels
 
-2	Plotting metadata as an attribute
+[2	Plotting metadata as an attribute](02_data_frames.html)
 
 * Reading data files
 * Survey of metadata
@@ -20,14 +20,14 @@ These are instructional materials that Pat Schloss uses to teach people to use R
 * Subsetting data
 * Plotting metadata on top of scatter data
 
-3	Plotting pairs of continuous data with scatter plots
+[3	Plotting pairs of continuous data with scatter plots](03_combining_data_frames.hml)
 
 * dplyr joins
 * Legends
 * Margins
 * Calculating correlations
 
-4	Plotting continuous by categorical data
+[4	Plotting continuous by categorical data](04_aggregating_data.html)
 
 * Functions
 * Sourcing R scripts
@@ -37,7 +37,7 @@ These are instructional materials that Pat Schloss uses to teach people to use R
 * Barplots - Legends; from Vectors, Matrices, t(Matrices)
 * Error bar - standard deviation
 
-5 Working with random data
+[5 Working with random data](05_random_data.html)
 
 * Histograms - are data normally distributed?
 * Density plots
@@ -46,35 +46,35 @@ These are instructional materials that Pat Schloss uses to teach people to use R
 * Generate random data
 * Saving plots
 
-6	Plotting non-normal data
+[6	Plotting non-normal data](06_non-normal_data.html)
 
 * Box plots
 * Custom box plot (building your own plots)
 *	Strip charts
 * Over plotting line for median
 
-7	Line plots
+[7	Line plots](07_line_plots.html)
 
 * Regular expressions - grep and gsub
 * Rarefaction curves
 * Building plots
 * Loops
 
-8 Working with OTU data
+[8 Working with OTU data](08_otu_data.html)
 
 * String manipulations - strsplit and paste
 * Regular expressions - more complex patterns
 * Apply functions
 * if ... else
 
-9	Plotting taxonomic data
+[9	Plotting taxonomic data](09_plotting_otu_data.html)
 
 * Pie charts
 * Stacked bar plots
 * Bar plots
 * Strip charts
 
-10	Finding relevant OTUs to plot
+[10	Finding relevant OTUs to plot](10_finding_relevant_otus.html)
 
 * Kruskal-Wallis test
 * Correcting for multiple hypotheses
