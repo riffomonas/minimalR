@@ -25,11 +25,16 @@ Take a look at this command, what do you think is happening here? How do you thi
 
 For you, this might beg the question, I have my metadata stored in a Microsoft Excel spreadsheet, how should I convert that to a text file? Previously we learned about DRY, another practice we want to develop is to leave raw data raw. All sorts of very bad things can happen when we start mucking with our raw data files. Once we've modified the metadata that our collaborators sent us we can't revert it to the original state very easily. So we can export a tsv or csv file from Excel or we can ask R to work directly with the Excel formatted file (`xlsx`). Here we'll introduce another great package - `openxlsx`
 
-```{r}
-install.packages("openxlsx")
+```{r, echo=FALSE, results=FALSE}
+install.packages("openxlsx", repos="https://cloud.r-project.org/")
+library("openxlsx")
+```
+
+```{r, eval=FALSE}
+install.packages("openxlsx", repos="https://cloud.r-project.org/")
 library("openxlsx")
 
-metadata <- read.xlsx(xlsx="data/baxter.metadata.xlsx")
+metadata <- read.xlsx(file="data/baxter.metadata.xlsx")
 ```
 
 Nuts. That didn't work. Hmmm. Let's get some help. If there's a function you want to use but don't know or can't remember it's arguments, you can type `?read.xlsx`. The `?` tells R you want help. In this case we get a screen that looks like so...

@@ -58,7 +58,7 @@ plot(x=pcoa$axis2, y=pcoa$axis3, xlab="PCo Axis 2", ylab="PCo Axis 3",
  			main="PCoA of ThetaYC Distances Between Stool Samples")
 ```
 </div>
-	
+
 ## Working with vectors
 In the plot we generated above we used a combination of vectors and scalars to hold numbers and strings. Our `ylim` value was `c(-1.0, 1.0)` is a funky looking vector that actually contains two values: -1.0 and 1.0. As you probably found changing these values changed the bounds on the ordination plot. In the plot command above there were several vectors that can take or or more values:  x, y, xlim, ylim, pch, col, and cex. You'll probably notice that some of these vectors only had one value. For example, pch, col, and cex only took a single value in this case. How do you think you'd change our original code to alternate between pch values of 1 and 19?
 
@@ -210,7 +210,7 @@ plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",
 Even with the increased contrast between plotting symbols that we get by putting a border on the plotting symbol there is a fair amount of over plotting going on here to make it difficult to differentiate our points. We'll use get an introduction to packages. One thing that makes R awesome is that anyone can create a package to extend the utility of the base package. This has resulted in a massive breadth of functionality. We'll see a number of packages as we go through these exercises. The package we're immediately interested in is called `scales` because it has a function called `alpha`, which modifies color opacity. We need to learn three things: how to install a package, how to load its library, and how to use alpha. Once you've installed a package, you can skip the `install.packages` step in all future R sessions; however, you need to use the `library` function whenever you reopen R in the future. Here we go...
 
 ```{r}
-install.packages('scales')
+install.packages('scales', repos="https://cloud.r-project.org/")
 library('scales')
 
 plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",

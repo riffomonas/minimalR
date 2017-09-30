@@ -68,7 +68,7 @@ setdiff(alpha_mean$group, metadata$sample)
 Aha, there's one extra element, "3561655" in the `alpha_mean` data_frame. Although we might be interested in figuring out why we don't have metadata for this subject, we perhaps remember that this individual forgot to return their survey when they dropped off their sample so the sample should be excluded. At this point, we could do several steps to remove this sample and make sure the rows are all in the same order. Since this is a common problem, a set of functions have been developed as part of the `dplyr` package. Go ahead and install this package and load the library.
 
 ```{r}
-install.packages("dplyr")
+install.packages("dplyr", repos="https://cloud.r-project.org/")
 library("dplyr")
 ```
 
@@ -204,7 +204,7 @@ colors <- c(m="red", f="blue")
 symbol <- c(17, 19)
 plot(sobs~fit_result, data=meta_alpha, xlim=c(0,3000), ylim=c(0, 400), xlab="Fit Result",
 		 ylab="Number of OTUs", col=colors[Gender], pch=symbol[Smoke+1])
-legend("bottomright", legend=c('Female smoker','Male smoker', 'Female non-smoker', 
+legend("bottomright", legend=c('Female smoker','Male smoker', 'Female non-smoker',
 															 'Male non-smoker'))
 ```
 
