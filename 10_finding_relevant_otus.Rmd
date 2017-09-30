@@ -13,7 +13,7 @@ output:
 
 The strategies we saw in the previous section were pretty effective at allowing us to compare the relative abundance of various taxa across different categories while allowing us to see the variation in the data. These are far superior to the widely used pie and stacked bar plots. Of course, we are rarely super interested in what's going on at the phylum level, we'd rather see what's going on at the genus or OTU level. In this section we'll develop a few methods that will allow us to select out interesting taxa for visualization.
 
-We need to get our shared and metadata files. Similar to how we sorted the phyla in the previous session, we'll sort our OTUs in the shared file (i.e. `code/baxter.subsample.shared`).
+We need to get our shared and metadata files. We need to get our shard data (i.e. `code/baxter.subsample.shared`) converted into a relative abundance table.
 
 ```{r}
 source("code/baxter.R")
@@ -22,10 +22,6 @@ shared <- read.table(file="data/baxter.subsample.shared", header=T, stringsAsFac
 shared <- shared[,-c(1,2)]
 
 rel_abund <- shared / apply(shared, 1, sum)
-mean_rel_abund <- apply(rel_abund, 2, mean)
-otu_order <- order(mean_rel_abund, decreasing=T)
-rel_abund <- rel_abund[,otu_order]
-
 metadata <- get_meta()
 
 stopifnot(rownames(shared) == metadata$sample)
@@ -53,7 +49,8 @@ That represents between 52 and 99% of the data. I'll leave it to you to play wit
 In the second step we will apply a test to quantify differential effect of diagnosis on the relative abundance of our remaining OTUs. There are many options here. Some have been specifically developed for microbial ecology (e.g. metastats, lefse). Alternatively, you may choose to use a random forest approach to identify OTUs that provide the best discrimination between the groups. For demonstration purposes we'll perform a Kruskal-Wallis rank sum test using built in R functions. This works, because we have data that are not normally distributed and we have three groups. To run the test on our first OTU we would do the following
 
 ```{r}
-otu_test <- kruskal.test(rel_abund_subset[,1] ~ metadata$dx)
+dx_ordinal <- factor(metadata$dx, levels=c("normal", "adenoma", "cancer"))
+otu_test <- kruskal.test(rel_abund_subset[,1] ~ dx_ordinal)
 ```
 
 Looking at the output of `otu_test` we get
@@ -62,12 +59,12 @@ Looking at the output of `otu_test` we get
 
 	Kruskal-Wallis rank sum test
 
-data:  rel_abund_subset[, 1] by metadata$dx
+data:  rel_abund_subset[, 1] by dx_ordinal
 Kruskal-Wallis chi-squared = 0.4699, df = 2, p-value = 0.7906
 
 ```
 
-The resulting p-value was 0.10. Let's take a closer look at `otu_test` because we'd like to find a way to extract the p-value from each of our tests. If we run `str(otu_test)` we get
+The resulting p-value was `r format(otu_test$p.value, digits=2)`. Let's take a closer look at `otu_test` because we'd like to find a way to extract the p-value from each of our tests. If we run `str(otu_test)` we get
 
 ```
 List of 5
@@ -77,7 +74,7 @@ List of 5
   ..- attr(*, "names")= chr "df"
  $ p.value  : num 0.791
  $ method   : chr "Kruskal-Wallis rank sum test"
- $ data.name: chr "rel_abund_subset[, 1] by metadata$dx"
+ $ data.name: chr "rel_abund_subset[, 1] by dx_ordinal"
  - attr(*, "class")= chr "htest"
 ```
 
@@ -95,7 +92,7 @@ test <- function(rabund, diagnosis){
 	return(otu_test$p.value)
 }
 
-p_values <- apply(rel_abund_subset, 2, test, diagnosis=metadata$dx)
+p_values <- apply(rel_abund_subset, 2, test, diagnosis=dx_ordinal)
 ```
 
 We can count the number of p-values that are smaller than 0.05 by calling `sum(p_values < 0.05)` to find 29 OTUs with a small p-value. Because we performed so many tests, thought, we must correct these p-value for performing multiple comparisons. We can do this using the `p.adjust` function. There are several methods for correcting the p-values, but my preference is the Benjimani-Hochberg approach. By doing `?p.adjust` you can find other methods for correcting the p-values. We can adjust our p-values like so
@@ -104,7 +101,7 @@ We can count the number of p-values that are smaller than 0.05 by calling `sum(p
 p_values_adjusted <- p.adjust(p_values, method="BH")
 ```
 
-Now if we do `sum(p_values_adjusted < 0.05)` we find that we have 5 OTUs that were differentially represented between the three groupings. We can retrieve the names of these OTUs and further subset the data as follows
+Now if we do `sum(p_values_adjusted < 0.05)` we find that we have `r sum(p_values_adjusted < 0.05)` OTUs that were differentially represented between the three groupings. We can retrieve the names of these OTUs and further subset the data as follows
 
 ```{r}
 sig_otus <- names(p_values_adjusted[p_values_adjusted < 0.05])
@@ -120,7 +117,7 @@ Using the code from the previous session, generate a strip chart that represents
 <input type=button class=hideshow style="margin-bottom: 20px"></input>
 <div style="display: none">
 ```{r}
-median_sig_relabund <- aggregate(sig_relabund, by=list(metadata$dx), median)
+median_sig_relabund <- aggregate(sig_relabund, by=list(dx_ordinal), median)
 
 par(mar=c(5,8,0.5,0.5))
 plot(NA, xlim=c(0,0.25), ylim=c(19,1), xlab="Relative Abundance (%)", ylab="", axes=F)
@@ -129,7 +126,7 @@ start <- 1
 end <- 3
 
 for(otu in 1:ncol(sig_relabund)){
-	stripchart(sig_relabund[,otu]~metadata$dx, at=start:end, add=T, vertical=F, method="jitter", jitter=0.3, axes=F, col=c("gray", "blue", "red"), pch=19)
+	stripchart(sig_relabund[,otu]~dx_ordinal, at=start:end, add=T, vertical=F, method="jitter", jitter=0.3, axes=F, col=dx_color[levels(dx_ordinal)], pch=19)
 
 	segments(y0=(start:end)-0.4, y1=(start:end)+0.4, x0=median_sig_relabund[,otu+1], lwd=4)
 	start <- start + 4
@@ -149,7 +146,7 @@ Fantastic. There's a few things we might not especially like about this plot. Fi
 We subsampled the data to 10,530 sequences, so the smallest non-zero relative abundance is close to 0.000095. We'd never see that on a linear scale. Let's see how we can plot the data on a log scale. Using the horizontal strip charts, we can add the `log=x` argument to our initial `plot` command.
 
 ```{r}
-median_sig_relabund <- aggregate(sig_relabund, by=list(metadata$dx), median)
+median_sig_relabund <- aggregate(sig_relabund, by=list(dx_ordinal), median)
 
 par(mar=c(5,8,0.5,0.5))
 plot(NA, xlim=c(0,0.25), ylim=c(19,1), xlab="Relative Abundance (%)", ylab="", axes=F, log="x")
@@ -158,7 +155,7 @@ start <- 1
 end <- 3
 
 for(otu in 1:ncol(sig_relabund)){
-	stripchart(sig_relabund[,otu]~metadata$dx, at=start:end, add=T, vertical=F, method="jitter", jitter=0.3, axes=F, col=c("gray", "blue", "red"), pch=19)
+	stripchart(sig_relabund[,otu]~dx_ordinal, at=start:end, add=T, vertical=F, method="jitter", jitter=0.3, axes=F, col=c("gray", "blue", "red"), pch=19)
 
 	segments(y0=(start:end)-0.4, y1=(start:end)+0.4, x0=median_sig_relabund[,otu+1], lwd=4)
 	start <- start + 4
@@ -185,7 +182,7 @@ This happens because we have zeroes in the dataset and when you do `log(0)` you 
 ```{r}
 fudge_factor <- 5e-5
 transformed <- sig_relabund + fudge_factor
-median_transformed <- aggregate(transformed, by=list(metadata$dx), median)
+median_transformed <- aggregate(transformed, by=list(dx_ordinal), median)
 
 par(mar=c(5,8,0.5,0.5))
 plot(NA, xlim=c(fudge_factor,0.25), ylim=c(19,1), xlab="Relative Abundance (%)", ylab="", axes=F, log="x")
@@ -194,7 +191,7 @@ start <- 1
 end <- 3
 
 for(otu in 1:ncol(sig_relabund)){
-	stripchart(transformed[,otu]~metadata$dx, at=start:end, add=T, vertical=F, method="jitter", jitter=0.3, axes=F, col=c("gray", "blue", "red"), pch=19)
+	stripchart(transformed[,otu]~dx_ordinal, at=start:end, add=T, vertical=F, method="jitter", jitter=0.3, axes=F, col=c("gray", "blue", "red"), pch=19)
 
 	segments(y0=(start:end)-0.4, y1=(start:end)+0.4, x0=median_transformed[,otu+1], lwd=4)
 	start <- start + 4
@@ -213,7 +210,7 @@ That looks good, eh? Let's adjust our x-axis labels
 ```{r}
 fudge_factor <- 5e-5
 transformed <- sig_relabund + fudge_factor
-median_transformed <- aggregate(transformed, by=list(metadata$dx), median)
+median_transformed <- aggregate(transformed, by=list(dx_ordinal), median)
 
 par(mar=c(5,8,0.5,0.5))
 plot(NA, xlim=c(fudge_factor,1), ylim=c(19,1), xlab="Relative Abundance (%)", ylab="", axes=F, log="x")
@@ -222,7 +219,7 @@ start <- 1
 end <- 3
 
 for(otu in 1:ncol(sig_relabund)){
-	stripchart(transformed[,otu]~metadata$dx, at=start:end, add=T, vertical=F, method="jitter", jitter=0.3, axes=F, col=c("gray", "blue", "red"), pch=19)
+	stripchart(transformed[,otu]~dx_ordinal, at=start:end, add=T, vertical=F, method="jitter", jitter=0.3, axes=F, col=c("gray", "blue", "red"), pch=19)
 
 	segments(y0=(start:end)-0.4, y1=(start:end)+0.4, x0=median_transformed[,otu+1], lwd=4)
 	start <- start + 4
@@ -241,7 +238,7 @@ One last thing we might do is to draw a vertical line to indicate which points w
 ```{r}
 fudge_factor <- 5e-5
 transformed <- sig_relabund + fudge_factor
-median_transformed <- aggregate(transformed, by=list(metadata$dx), median)
+median_transformed <- aggregate(transformed, by=list(dx_ordinal), median)
 
 par(mar=c(5,8,0.5,0.5))
 plot(NA, xlim=c(fudge_factor,1), ylim=c(19,1), xlab="Relative Abundance (%)", ylab="", axes=F, log="x")
@@ -250,7 +247,7 @@ start <- 1
 end <- 3
 
 for(otu in 1:ncol(sig_relabund)){
-	stripchart(transformed[,otu]~metadata$dx, at=start:end, add=T, vertical=F, method="jitter", jitter=0.3, axes=F, col=c("gray", "blue", "red"), pch=19)
+	stripchart(transformed[,otu]~dx_ordinal, at=start:end, add=T, vertical=F, method="jitter", jitter=0.3, axes=F, col=c("gray", "blue", "red"), pch=19)
 
 	segments(y0=(start:end)-0.4, y1=(start:end)+0.4, x0=median_transformed[,otu+1], lwd=4)
 	start <- start + 4
@@ -288,7 +285,7 @@ Rewrite our `axis(2, ...)` function to use our new `otu_name` vector and italici
 ```{r}
 fudge_factor <- 5e-5
 transformed <- sig_relabund + fudge_factor
-median_transformed <- aggregate(transformed, by=list(metadata$dx), median)
+median_transformed <- aggregate(transformed, by=list(dx_ordinal), median)
 
 par(mar=c(5,9,0.5,0.5))
 plot(NA, xlim=c(fudge_factor,1), ylim=c(19,1), xlab="Relative Abundance (%)", ylab="", axes=F, log="x")
@@ -297,7 +294,7 @@ start <- 1
 end <- 3
 
 for(otu in 1:ncol(sig_relabund)){
-	stripchart(transformed[,otu]~metadata$dx, at=start:end, add=T, vertical=F, method="jitter", jitter=0.3, axes=F, col=c("gray", "blue", "red"), pch=19)
+	stripchart(transformed[,otu]~dx_ordinal, at=start:end, add=T, vertical=F, method="jitter", jitter=0.3, axes=F, col=c("gray", "blue", "red"), pch=19)
 
 	segments(y0=(start:end)-0.4, y1=(start:end)+0.4, x0=median_transformed[,otu+1], lwd=4)
 	start <- start + 4
@@ -360,7 +357,7 @@ Rewrite our `axis(2, ...)` function again to use our new `otu_name` vector and i
 ```{r}
 fudge_factor <- 5e-5
 transformed <- sig_relabund + fudge_factor
-median_transformed <- aggregate(transformed, by=list(metadata$dx), median)
+median_transformed <- aggregate(transformed, by=list(dx_ordinal), median)
 
 par(mar=c(5,13,0.5,0.5))
 plot(NA, xlim=c(fudge_factor,1), ylim=c(19,1), xlab="Relative Abundance (%)", ylab="", axes=F, log="x")
@@ -369,7 +366,7 @@ start <- 1
 end <- 3
 
 for(otu in 1:ncol(sig_relabund)){
-	stripchart(transformed[,otu]~metadata$dx, at=start:end, add=T, vertical=F, method="jitter", jitter=0.3, axes=F, col=c("gray", "blue", "red"), pch=19)
+	stripchart(transformed[,otu]~dx_ordinal, at=start:end, add=T, vertical=F, method="jitter", jitter=0.3, axes=F, col=c("gray", "blue", "red"), pch=19)
 
 	segments(y0=(start:end)-0.4, y1=(start:end)+0.4, x0=median_transformed[,otu+1], lwd=4)
 	start <- start + 4
@@ -429,7 +426,7 @@ I'm not entirely sure what is going on here, but I think I know enough to scale 
 ```{r}
 fudge_factor <- 5e-5
 transformed <- sig_relabund + fudge_factor
-median_transformed <- aggregate(transformed, by=list(metadata$dx), median)
+median_transformed <- aggregate(transformed, by=list(dx_ordinal), median)
 
 par(mar=c(5,13,0.5,0.5))
 plot(NA, xlim=c(fudge_factor,1), ylim=c(19,1), xlab="Relative Abundance (%)", ylab="", axes=F, log="x")
@@ -438,7 +435,7 @@ start <- 1
 end <- 3
 
 for(otu in 1:ncol(sig_relabund)){
-	stripchart(transformed[,otu]~metadata$dx, at=start:end, add=T, vertical=F, method="jitter", jitter=0.3, axes=F, col=c("gray", "blue", "red"), pch=19)
+	stripchart(transformed[,otu]~dx_ordinal, at=start:end, add=T, vertical=F, method="jitter", jitter=0.3, axes=F, col=c("gray", "blue", "red"), pch=19)
 
 	segments(y0=(start:end)-0.4, y1=(start:end)+0.4, x0=median_transformed[,otu+1], lwd=4)
 	start <- start + 4

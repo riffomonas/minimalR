@@ -311,7 +311,8 @@ stopifnot(metadata$sample == rownames(rel_abund))
 Previously we used the `aggregate` function where the alpha diversity and metadata were in the same data frame. This time, `rel_abund` is a matrix, and the diagnosis is in a separate data frame. We can still use `aggregate`, but the syntax is a bit different.
 
 ```{r}
-mean_phylum <- aggregate(rel_abund, by=list(metadata$dx), mean)
+dx_ordinal <- factor(metadata$dx, level=c("normal", "adenoma", "cancer"))
+mean_phylum <- aggregate(rel_abund, by=list(dx_ordinal), mean)
 ```
 
 The key difference is that we tell `aggregate` explicitly what to aggregate by and this needs to be a `list` of values. The output is a data frame where the diagnoses are the rows and the phyla are the columns. We'd like to convert this to a matrix where the rows are the phyla are the rows and the diagnoses are the columns. We'll create `mean_phylum_matrix`, which is a matrix containing the transpose (`t`) of the `mean_phylum` data frame with out the `Group.1` column
@@ -369,15 +370,15 @@ rel_abund <- rel_abund[,decreasing_order]
 metadata <- get_meta()
 stopifnot(metadata$sample == rownames(rel_abund))
 
-mean_phylum <- aggregate(rel_abund, by=list(metadata$dx), mean)
+mean_phylum <- aggregate(rel_abund, by=list(dx_ordinal), mean)
 mean_phylum_matrix <- as.matrix(t(mean_phylum[,-1]))
 colnames(mean_phylum_matrix) <- mean_phylum$Group.1
 
-median_phylum <- aggregate(rel_abund, by=list(metadata$dx), median)
+median_phylum <- aggregate(rel_abund, by=list(dx_ordinal), median)
 median_phylum_matrix <- as.matrix(t(median_phylum[,-1]))
 colnames(median_phylum_matrix) <- median_phylum$Group.1
 
-sd_phylum <- aggregate(rel_abund, by=list(metadata$dx), sd)
+sd_phylum <- aggregate(rel_abund, by=list(dx_ordinal), sd)
 sd_phylum_matrix <- as.matrix(t(sd_phylum[,-1]))
 colnames(sd_phylum_matrix) <- sd_phylum$Group.1
 ```
@@ -428,15 +429,15 @@ rel_abund <- rel_abund[,decreasing_order]
 metadata <- get_meta()
 stopifnot(metadata$sample == rownames(rel_abund))
 
-mean_phylum <- aggregate(rel_abund, by=list(metadata$dx), mean)
+mean_phylum <- aggregate(rel_abund, by=list(dx_ordinal), mean)
 mean_phylum_matrix <- as.matrix(t(mean_phylum[,-1]))
 colnames(mean_phylum_matrix) <- mean_phylum$Group.1
 
-median_phylum <- aggregate(rel_abund, by=list(metadata$dx), median)
+median_phylum <- aggregate(rel_abund, by=list(dx_ordinal), median)
 median_phylum_matrix <- as.matrix(t(median_phylum[,-1]))
 colnames(median_phylum_matrix) <- median_phylum$Group.1
 
-sd_phylum <- aggregate(rel_abund, by=list(metadata$dx), sd)
+sd_phylum <- aggregate(rel_abund, by=list(dx_ordinal), sd)
 sd_phylum_matrix <- as.matrix(t(sd_phylum[,-1]))
 colnames(sd_phylum_matrix) <- sd_phylum$Group.1
 ```

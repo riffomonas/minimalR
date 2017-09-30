@@ -18,7 +18,7 @@ Go ahead and write the code to read the rarefaction file into a variable called 
 rarefy <- read.table(file="data/baxter.rarefaction", header=T, stringsAsFactors=F)
 ```
 
-That looks pretty ugly. The first column, `numsampled` has the number of sequences that have been sampled and it goes from 1 to 430213 in 100 sequence steps. The columns are displayed in sets of threes. For example, `X0.03.2003650 lci.2003650 hci.2003650`. The first column in the triplet is the average number of OTUs observed for that sample at the specified number of sequences sampled by the value in the `numsampled` column. The second and third columns in the triplet represent the lower (`lci`) and higher (`hci`) confidence interval. We don't want to mess with the `lci` and `hci` columns. There's 980 of these columns and so we can't manually remove these columns using the `-` operator like we've seen before. Instead, let's use a new function, `grep`. This allows us to search for a "REgular ExPression". There are two flavors of `grep`: `grep`, which gives us the vector index number of any values that match our regular expression and `grepl`, which gives us `TRUE` or `FALSE` depending on whether the regular expression was found. Let's do a brief aside to show some different regular expression patterns.
+If you look at the contents of `rarefy`, you'll see that it looks pretty ugly. The first column, `numsampled` has the number of sequences that have been sampled and it goes from 1 to 430213 in 100 sequence steps. The columns are displayed in sets of threes. For example, `X0.03.2003650 lci.2003650 hci.2003650`. The first column in the triplet is the average number of OTUs observed for that sample at the specified number of sequences sampled by the value in the `numsampled` column. The second and third columns in the triplet represent the lower (`lci`) and higher (`hci`) confidence interval. We don't want to mess with the `lci` and `hci` columns. There's 980 of these columns and so we can't manually remove these columns using the `-` operator like we've seen before. Instead, let's use a new function, `grep`. This allows us to search for a "REgular ExPression". There are two flavors of `grep`: `grep`, which gives us the vector index number of any values that match our regular expression and `grepl`, which gives us `TRUE` or `FALSE` depending on whether the regular expression was found. Let's do a brief aside to show some different regular expression patterns.
 
 ```{r}
 names <- c("Samntha", "Javier", "John", "Jon", "Maria", "Courtney", "Mary")
@@ -84,18 +84,14 @@ Check it out, how did we do?
 Now we're ready to think about how we'd like to plot the data! Let's generate a line plot for the sample in the first column, `2003650`.
 
 ```{r}
-colors <- c(normal="black", adenoma="blue", cancer="red")
-
-plot(ave_rarefy[,"2003650"]~numsampled, col=colors[metadata[metadata$sample=="2003650", "dx"]], type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed")
+plot(ave_rarefy[,"2003650"]~numsampled, col=dx_color[metadata[metadata$sample=="2003650", "dx"]], type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed")
 ```
 
 This chunk of code creates a vector of colors that we've seen before to give each diagnosis it's own color. Then we call the `plot` function. We ran this before, but this time we use `type="l"`. This is what tells the `plot` function to generate a line plot. Again we use the `xlab` and `ylab` arguments to label the two axes. How would we add the second column? If you recall Session 5, you might remember that we were able to add points to a plot using the `points` function. We'll do the same thing here, but again we'll use `type=l` to add a line to the plot
 
 ```{r}
-colors <- c(normal="black", adenoma="blue", cancer="red")
-
-plot(ave_rarefy[,"2003650"]~numsampled, col=colors[metadata[metadata$sample=="2003650", "dx"]], type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed")
-points(ave_rarefy[,"2005650"]~numsampled, col=colors[metadata[metadata$sample=="2005650", "dx"]], type="l")
+plot(ave_rarefy[,"2003650"]~numsampled, col=dx_color[metadata[metadata$sample=="2003650", "dx"]], type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed")
+points(ave_rarefy[,"2005650"]~numsampled, col=dx_color[metadata[metadata$sample=="2005650", "dx"]], type="l")
 ```
 
 Can you add two or three more lines to the plot?
@@ -103,25 +99,21 @@ Can you add two or three more lines to the plot?
 <input type=button class=hideshow style="margin-bottom: 20px"></input>
 <div style="display: none">
 ```{r}
-colors <- c(normal="black", adenoma="blue", cancer="red")
-
-plot(ave_rarefy[,"2003650"]~numsampled, col=colors[metadata[metadata$sample=="2003650", "dx"]], type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed")
-points(ave_rarefy[,"2005650"]~numsampled, col=colors[metadata[metadata$sample=="2005650", "dx"]], type="l")
-points(ave_rarefy[,"2007660"]~numsampled, col=colors[metadata[metadata$sample=="2007660", "dx"]], type="l")
-points(ave_rarefy[,"2009650"]~numsampled, col=colors[metadata[metadata$sample=="2009650", "dx"]], type="l")
-points(ave_rarefy[,"2013660"]~numsampled, col=colors[metadata[metadata$sample=="2013660", "dx"]], type="l")
+plot(ave_rarefy[,"2003650"]~numsampled, col=dx_color[metadata[metadata$sample=="2003650", "dx"]], type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed")
+points(ave_rarefy[,"2005650"]~numsampled, col=dx_color[metadata[metadata$sample=="2005650", "dx"]], type="l")
+points(ave_rarefy[,"2007660"]~numsampled, col=dx_color[metadata[metadata$sample=="2007660", "dx"]], type="l")
+points(ave_rarefy[,"2009650"]~numsampled, col=dx_color[metadata[metadata$sample=="2009650", "dx"]], type="l")
+points(ave_rarefy[,"2013660"]~numsampled, col=dx_color[metadata[metadata$sample=="2013660", "dx"]], type="l")
 ```
 </div>
 
 Jot down a few things you notice about the plot as well as several thoughts about the process of building this plot. First, we have a very broad x-axis scale ranging from 0 to over 400,000 even though our initial samples have fewer than 50,000 sequences. It would be nice to perhaps change the limit to only include the first 50,000 sequences. Second, we might notice that one of our lines has gone outside the vertical bounds of the plotting window. We need a better y-axis limit that we can set at the beginning. Let's see if we can't change these based on what we did previously with the scatter plots.
 
 ```{r}
-colors <- c(normal="black", adenoma="blue", cancer="red")
-
-plot(ave_rarefy[,"2003650"]~numsampled, col=colors[metadata[metadata$sample=="2003650", "dx"]], type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed", xlim=c(0,50000), ylim=c(0,max(ave_rarefy, na.rm=T)))
-points(ave_rarefy[,"2007660"]~numsampled, col=colors[metadata[metadata$sample=="2007660", "dx"]], type="l")
-points(ave_rarefy[,"2009650"]~numsampled, col=colors[metadata[metadata$sample=="2009650", "dx"]], type="l")
-points(ave_rarefy[,"2013660"]~numsampled, col=colors[metadata[metadata$sample=="2013660", "dx"]], type="l")
+plot(ave_rarefy[,"2003650"]~numsampled, col=dx_color[metadata[metadata$sample=="2003650", "dx"]], type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed", xlim=c(0,50000), ylim=c(0,max(ave_rarefy, na.rm=T)))
+points(ave_rarefy[,"2007660"]~numsampled, col=dx_color[metadata[metadata$sample=="2007660", "dx"]], type="l")
+points(ave_rarefy[,"2009650"]~numsampled, col=dx_color[metadata[metadata$sample=="2009650", "dx"]], type="l")
+points(ave_rarefy[,"2013660"]~numsampled, col=dx_color[metadata[metadata$sample=="2013660", "dx"]], type="l")
 ```
 
 That looks a bit better. One thing you'll notice is that the vector I assigned to the `ylim` argument included `max(ave_rarefy, na.rm=T)`. What happens if we call `max(ave_rarefy)` from the prompt? The `na.rm=T` argument tells the `max` function to remove any value that equals `NA`. You can use the same argument in the `min`, `median`, `mean`, `sd`, and many other functions. If I ever get an `NA` back from a function, I will check the function's documentation (using `?function_name`) to see what it does with `NA` values.
@@ -131,15 +123,13 @@ Great. What else did we notice about the process here? We've created a plot with
 First, we need to create an empty plot using the `plot` function
 
 ```{r}
-colors <- c(normal="black", adenoma="blue", cancer="red")
-
 plot(NA, type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed", xlim=c(0,50000), ylim=c(0,max(ave_rarefy, na.rm=T)))
 ```
 
 This is essentially what we did in the previous code chunk, except instead of providing a formula, we give the function the value `NA`. We now have a plot without anything in the box. We said that the only thing changing in our code was the sample name. We had code that looked like this except instead of a variable named `sample_name` we explicitly named the samples (e.g. "2007660")
 
 ```
-points(ave_rarefy[,sample_name]~numsampled, col=colors[metadata[metadata$sample==sample_name, "dx"]], type="l")
+points(ave_rarefy[,sample_name]~numsampled, col=dx_color[metadata[metadata$sample==sample_name, "dx"]], type="l")
 ```
 
 We might like to do `sample_name <- colnames(ave_rarefy)` and then run the preceding code, but that gives us an error. We will need to "loop" over all of the column names and give the `points` command above one sample name at a time. We will do this with what is called a "for loop". The basic syntax is
@@ -158,12 +148,10 @@ Write a for loop that runs the points function call from above on each value of 
 <input type=button class=hideshow style="margin-bottom: 20px"></input>
 <div style="display: none">
 ```{r}
-colors <- c(normal="black", adenoma="blue", cancer="red")
-
 plot(NA, type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed", xlim=c(0,50000), ylim=c(0,max(ave_rarefy, na.rm=T)))
 
 for(sample_name in colnames(ave_rarefy)){
-	points(ave_rarefy[,sample_name]~numsampled, col=colors[metadata[metadata$sample==sample_name, "dx"]], type="l")
+	points(ave_rarefy[,sample_name]~numsampled, col=dx_color[metadata[metadata$sample==sample_name, "dx"]], type="l")
 }
 ```
 </div>
@@ -171,24 +159,20 @@ for(sample_name in colnames(ave_rarefy)){
 Ugh, what a hideous mess! Let's replace our `ylim` argument in the `plot` function call with a better vector to spread the lines out a bit.
 
 ```{r}
-colors <- c(normal="black", adenoma="blue", cancer="red")
-
 plot(NA, type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed", xlim=c(0,50000), ylim=c(0,600))
 
 for(sample_name in colnames(ave_rarefy)){
-	points(ave_rarefy[,sample_name]~numsampled, col=colors[metadata[metadata$sample==sample_name, "dx"]], type="l")
+	points(ave_rarefy[,sample_name]~numsampled, col=dx_color[metadata[metadata$sample==sample_name, "dx"]], type="l")
 }
 ```
 
 Goodness that's ugly. But, hey, you wanted rarefaction curves! One last thing we can do with this monstrosity is to indicate the number of sequences that we rarefied to for our alpha and beta-diversity comparisons. The data we worked with in the previous sessions were rarefied to 10,530 sequences. It would be great to draw a vertical line at 10,530 to indicate this point. We can do this with the `abline` function using the `v` argument
 
 ```{r}
-colors <- c(normal="black", adenoma="blue", cancer="red")
-
 plot(NA, type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed", xlim=c(0,50000), ylim=c(0,600))
 
 for(sample_name in colnames(ave_rarefy)){
-	points(ave_rarefy[,sample_name]~numsampled, col=colors[metadata[metadata$sample==sample_name, "dx"]], type="l")
+	points(ave_rarefy[,sample_name]~numsampled, col=dx_color[metadata[metadata$sample==sample_name, "dx"]], type="l")
 }
 
 abline(v=10530)
@@ -200,12 +184,10 @@ Let's tone down our plot a bit to demonstrate a few more things about line plots
 
 
 ```{r}
-colors <- c(normal="black", adenoma="blue", cancer="red")
-
 plot(NA, type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed", xlim=c(0,40000), ylim=c(0,400))
 
 for(sample_name in colnames(ave_rarefy)[1:5]){
-	points(ave_rarefy[,sample_name]~numsampled, col=colors[metadata[metadata$sample==sample_name, "dx"]], type="l")
+	points(ave_rarefy[,sample_name]~numsampled, col=dx_color[metadata[metadata$sample==sample_name, "dx"]], type="l")
 }
 ```
 
@@ -218,7 +200,7 @@ We can make the lines a bit thicker. In the previous session we did this to alte
 plot(NA, type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed", xlim=c(0,40000), ylim=c(0,400))
 
 for(sample_name in colnames(ave_rarefy)[c(1, 4, 7)]){
-	points(ave_rarefy[,sample_name]~numsampled, col=colors[metadata[metadata$sample==sample_name, "dx"]], type="l", lwd=3)
+	points(ave_rarefy[,sample_name]~numsampled, col=dx_color[metadata[metadata$sample==sample_name, "dx"]], type="l", lwd=3)
 }
 ```
 </div>
@@ -240,13 +222,12 @@ Select a different line type to represent each of the diagnoses.
 <input type=button class=hideshow style="margin-bottom: 20px"></input>
 <div style="display: none">
 ```{r}
-colors <- c(normal="black", adenoma="blue", cancer="red")
 line_types <- c(normal=1, adenoma=2, cancer=3)
 
 plot(NA, type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed", xlim=c(0,40000), ylim=c(0,400))
 
 for(sample_name in colnames(ave_rarefy)[c(1, 4, 7)]){
-	points(ave_rarefy[,sample_name]~numsampled, col=colors[metadata[metadata$sample==sample_name, "dx"]], type="l", lty=line_types[metadata[metadata$sample==sample_name, "dx"]],lwd=3)
+	points(ave_rarefy[,sample_name]~numsampled, col=dx_color[metadata[metadata$sample==sample_name, "dx"]], type="l", lty=line_types[metadata[metadata$sample==sample_name, "dx"]],lwd=3)
 }
 ```
 </div>
@@ -254,16 +235,15 @@ for(sample_name in colnames(ave_rarefy)[c(1, 4, 7)]){
 The last thing we'd like to include is a legend so people know what each line color and type represents. Again the syntax is very similar to what we saw previously. The exception is that we provide the appropriate `lty` values so it draws the lines in the legend
 
 ```{r}
-colors <- c(normal="black", adenoma="blue", cancer="red")
 line_types <- c(normal=1, adenoma=2, cancer=3)
 
 plot(NA, type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed", xlim=c(0,40000), ylim=c(0,400))
 
 for(sample_name in colnames(ave_rarefy)[c(1, 4, 7)]){
-	points(ave_rarefy[,sample_name]~numsampled, col=colors[metadata[metadata$sample==sample_name, "dx"]], type="l", lty=line_types[metadata[metadata$sample==sample_name, "dx"]],lwd=3)
+	points(ave_rarefy[,sample_name]~numsampled, col=dx_color[metadata[metadata$sample==sample_name, "dx"]], type="l", lty=line_types[metadata[metadata$sample==sample_name, "dx"]],lwd=3)
 }
 
-legend(x=25000, y=200, legend=c("Normal", "Adenoma", "Cancer"), col=colors, lty=line_types, lwd=3)
+legend(x=25000, y=200, legend=c("Normal", "Adenoma", "Cancer"), col=dx_color, lty=line_types, lwd=3)
 ```
 
 

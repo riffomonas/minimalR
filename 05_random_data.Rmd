@@ -23,6 +23,8 @@ hist(meta_alpha$shannon, xlab="Shannon Diversity Index", col="dodgerblue", main=
 box()
 ```
 
+> A quick reminder that if you weren't able to make your own version of `code/baxter.R`, but want to move on before fixing the problems with your file, you can use `source("code/baxter_soln.R")` instead.
+
 Can we split the data so that we can make a histogram for each diagnosis group? Make `normal_shannon`, `adenoma_shannon`, and `cancer_shannon` variables and then go ahead and make a histogram for each variable.
 
 ```{r}
@@ -38,10 +40,10 @@ hist(cancer_shannon, xlim=c(0,5.5))
 What do you notice about each plot? Do they look normal? Are you able to compare the histograms to each other very easily? One problem with comparing the different histograms is that the size of the bins varies by diagnosis group. In the `hist` function we can set the `breaks` argument either to a number to indicate the number of breaks (we did this above), or we can give a vector to indicate the position of the breaks to make the bins.
 
 ```{r}
-my_breaks <- seq(0,5,0.25)
-hist(normal_shannon, xlim=c(0,5.5), breaks=my_breaks)
-hist(adenoma_shannon, xlim=c(0,5.5), breaks=my_breaks)
-hist(cancer_shannon, xlim=c(0,5.5), breaks=my_breaks)
+my_breaks <- seq(0,6,0.25)
+hist(normal_shannon, xlim=c(0,6), breaks=my_breaks)
+hist(adenoma_shannon, xlim=c(0,6), breaks=my_breaks)
+hist(cancer_shannon, xlim=c(0,6), breaks=my_breaks)
 ```
 
 The first thing we would like to do is determine whether the distributions are normally distributed. There are several ways to do this. For demonstration purposes, we'll work with the normal colon data. Let's start by getting the mean and standard deviation for our samples
@@ -55,7 +57,7 @@ If our data were normally distributed then their distribution should look like d
 
 ```{r}
 random <- rnorm(n=length(normal_shannon), mean=normal_mean, sd=normal_sd)
-hist(random)
+hist(random, breaks=my_breaks)
 ```
 
 It would be great to plot the histograms of `normal_shannon` and `random` on top of each other. We could plot the barplot histograms on top of each other, but this makes it hard to see what's going on.
@@ -187,7 +189,7 @@ legend(x=0, y=1.0, legend=c("Normal", "Adenoma", "Carcinoma"), col=c("black", "b
 ```
 
 #### Activity 3
-Re-run the ANOVAs that we ran in the previous session using the appropriately transformed data. Did the P-values change?
+Re-run the ANOVAs that we ran in the previous session using the appropriately transformed data. Note that they all need the same transformation (i.e. you can't square the values for one treatment and not another). Did the P-values change?
 
 
 #### Activity 4
@@ -201,7 +203,7 @@ normal_bmi <- meta_alpha[meta_alpha$dx == "normal", "BMI"]
 adenoma_bmi <- meta_alpha[meta_alpha$dx == "adenoma", "BMI"]
 cancer_bmi <- meta_alpha[meta_alpha$dx == "cancer", "BMI"]
 
-plot(density(normal_bmi), col="black", type="l", lwd=2, xlab="BMI", main="", xlim=c(0,70), ylim=c(0,0.1))
+plot(density(normal_bmi, na.rm=T), col="black", type="l", lwd=2, xlab="BMI", main="", xlim=c(0,70), ylim=c(0,0.1))
 points(density(adenoma_bmi, na.rm=T), col="blue", type="l", lwd=2)
 points(density(cancer_bmi, na.rm=T), col="red", type="l", lwd=2)
 
@@ -214,7 +216,7 @@ We've been generating some nice plots along the way, but we've never saved them.
 ```{r}
 png(filename="figures/bmi_density.png")
 
-plot(density(normal_bmi), col="black", type="l", lwd=2, xlab="BMI", main="", xlim=c(0,70), ylim=c(0,0.1))
+plot(density(normal_bmi, na.rm=T), col="black", type="l", lwd=2, xlab="BMI", main="", xlim=c(0,70), ylim=c(0,0.1))
 points(density(adenoma_bmi, na.rm=T), col="blue", type="l", lwd=2)
 points(density(cancer_bmi, na.rm=T), col="red", type="l", lwd=2)
 
@@ -228,7 +230,7 @@ Instead of plotting the figure to the screen, the `png` function will plot the d
 ```{r}
 tiff(filename="figures/bmi_density.tiff", width=3.5, height=3.4, units="in", res=300, pointsize=6)
 
-plot(density(normal_bmi), col="black", type="l", lwd=2, xlab="BMI", main="", xlim=c(0,70), ylim=c(0,0.1))
+plot(density(normal_bmi, na.rm=T), col="black", type="l", lwd=2, xlab="BMI", main="", xlim=c(0,70), ylim=c(0,0.1))
 points(density(adenoma_bmi, na.rm=T), col="blue", type="l", lwd=2)
 points(density(cancer_bmi, na.rm=T), col="red", type="l", lwd=2)
 

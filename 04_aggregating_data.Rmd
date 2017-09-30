@@ -141,6 +141,17 @@ meta_alpha <- get_meta_alpha()
 
 Let's pause and think about what we've been able to do with functions in this session. First, we've reduced the amount of duplicate code in our analysis. If I want the "Stage" column to be numerical instead of a factor, I only need to change one line and run one function. Similarly, if the guidelines for BMI thresholds change, I have those conversions in a single location that I can update without having to hunt for all of the places where I go from BMI to a category. Second, we've created a resource that others might find useful. Your future projects may need to generate BMI values and categories. Instead of trying to figure out how to code it up and test it, you can use your code from this project. Finally, we've put all of these functions into a file that will allow us to `source` it so that those features can persist long after our current session. Do you recall back in Session 1 we talked about the DRY - Don't Repeat Yourself - principle? Well with functions, we can make our code even more dry.
 
+Let's do one more thing with `code/baxter.R`. If we are going to generate a handful of plots, we'd like them all to have the same coloring scheme. We could define `dx_color` and `dx_pch` in every script where we generate a figure, but let's do that in `code/baxter.R` instead. At the bottom of `code/baxter.R` put the following:
+
+````
+dx_color <- c(normal="black", adenoma="blue", cancer="red")
+dx_pch <- c(normal=17, adenoma=18, cancer=19)
+sex_color <- c(f="red", m="blue")
+sex_symbol <- c(17, 19)
+````
+
+This way, if we want to use different colors or symbols, we only need to change them in one place. For instance, we may decide we don't want the colors in `sex_color` to overlap with those in `dx_color`. We could change that in `code/baxter.R` and we'll be good to go. Again, if we run `source('code/baxter.R')` at the top of a file, we'll automatically have all of the functions in that file available to us as well as the various plotting symbols and color schemes. Be sure to run `source('code/baxter.R')` before going further. If you got confused or lost along the way, you can run `source('code/baxter_soln.R')` instead - that's the code that I generated.
+
 
 I'd like to start exploring how our continuous data like Shannon diversity vary by some of our categorical data such as cancer status, gender, and BMI category. One method we can use to explore such relationships is to use a bar plot. Here we'll plot the height of a bar as the average Shannon diversity for the individuals within a specific category. To calculate the average across a vector of numbers you can use the `mean` function.
 
@@ -152,13 +163,15 @@ Calculate the average Shannon diversity for those individuals with normal colons
 <div style="display: none">
 
 ```{r}
-normal <- meta_alpha[meta_alpha$BMIcat == "normal", "shannon"]
+meta_alpha <- get_meta_alpha()
+
+normal <- meta_alpha[meta_alpha$dx == "normal", "shannon"]
 normal_mean <- mean(normal)
 
-adenoma <- meta_alpha[meta_alpha$BMIcat == "adenoma", "shannon"]
+adenoma <- meta_alpha[meta_alpha$dx == "adenoma", "shannon"]
 adenoma_mean <- mean(adenoma)
 
-cancer <- meta_alpha[meta_alpha$BMIcat == "cancer", "shannon"]
+cancer <- meta_alpha[meta_alpha$dx == "cancer", "shannon"]
 cancer_mean <- mean(cancer)
 ```
 
@@ -175,17 +188,24 @@ aggregate(shannon ~ BMIcat + Gender, data=meta_alpha, FUN=mean)
 aggregate(cbind(shannon, sobs) ~ BMIcat + Gender, data=meta_alpha, FUN=mean)
 ```
 
-Do you see what's happening in these commands? Do you remember what the `~` represents? These commands are asking R to aggregate the variables on the left side of the `~` using the variables on the right side and to calculate the average value within each category. The other new function you see here is `cbind`, which takes two vectors that are the same length and binds them together to make a new object with two columns (think "column bind"). There's also a `rbind`, which binds together thigns by rows (think "row bind").
+Do you see what's happening in these commands? Do you remember what the `~` represents? These commands are asking R to aggregate the variables on the left side of the `~` using the variables on the right side and to calculate the average value within each category. The other new function you see here is `cbind`, which takes two vectors that are the same length and binds them together to make a new object with two columns (think "column bind"). There's also a `rbind`, which binds together things by rows (think "row bind").
 
+Something you may notice is that the rows of the output aren't in alphabetical order. Perhaps we'd like to treat the `BMIcat` column as ordinal data. We can create an ordinal version of `BMIcat` by using the `factor` function:
+
+```{r}
+BMIordinal <- factor(meta_alpha$BMIcat, levels=c("underweight", "normal","overweight", "obese"))
+aggregate(shannon ~ BMIordinal, data=meta_alpha, FUN=mean)
+```
 
 #### Activity 5
-Using the `aggregate` function, create a variable, `shannon_colon_mean`, that contains the average Shannon diversity for each diagnosis. This object will replace the values in `normal_mean`, `adenoma_mean`, and `cancer_mean`. What type of variable is this?
+Using the `aggregate` function, create a variable, `shannon_colon_mean`, that contains the average Shannon diversity for each diagnosis. Treat the diagnosis groups as ordinal data. This object will replace the values in `normal_mean`, `adenoma_mean`, and `cancer_mean`. What type of variable is this?
 
 <input type=button class=hideshow style="margin-bottom: 20px"></input>
 <div style="display: none">
 
 ```{r}
-shannon_colon_mean <- aggregate(shannon ~ dx, data=meta_alpha, FUN=mean)
+dx_ordinal <- factor(meta_alpha$dx, levels=c("normal", "adenoma", "cancer"))
+shannon_colon_mean <- aggregate(shannon ~ dx_ordinal, data=meta_alpha, FUN=mean)
 str(shannon_colon_mean)
 ```
 
@@ -200,44 +220,26 @@ barplot(height=shannon_colon_mean$shannon)
 Well, that's a start. We will find that most of the plotting arguments are consistent across funtions. We can do this...
 
 ```{r}
-colors <- c("red", "blue", "black")
-barplot(height=shannon_colon_mean$shannon, ylim=c(0,5.5), ylab="Shannon Diversity Index", col=colors[shannon_colon_mean$dx])
+#colors <- c("red", "blue", "black")
+barplot(height=shannon_colon_mean$shannon, ylim=c(0,5.5), ylab="Shannon Diversity Index", col=dx_color[shannon_colon_mean$dx_ordinal])
 ```
 
 To label the actual bars, we need to use the `names.arg` argument. This argument takes a vector of names, which we can take from `shannon_colon_mean$dx`
 
 ```{r}
-barplot(height=shannon_colon_mean$shannon, ylim=c(0,5.5), ylab="Shannon Diversity Index", col=colors[shannon_colon_mean$dx], names.arg=shannon_colon_mean$dx)
+barplot(height=shannon_colon_mean$shannon, ylim=c(0,5.5), ylab="Shannon Diversity Index", col=dx_color[as.character(shannon_colon_mean$dx_ordinal)], names.arg=shannon_colon_mean$dx)
 ```
 
-Nice, that's looking better. Two things stand out that we might like to fix about the formatting. First, we'd like to order the columns in order of disease severity, not alphabetically. Second, we'd like to format the categories so the first letter is capitalized. To take care of the first issue we need to learn a little about `factor`s. When you run `str` with `shannon_colon_mean`, you'll see that the `dx` column is a factor. We can define a factor to have specific levels and the order of those levels. Again looking at the output of `str` we see that the levels are alphabetical, as they appear in the bar plot. We can reorder the factors by using the `factor` command with the `levels` argument and add the following line to the `get_metadata` function in our baxter.R file after the line for `metadata$is_obese`.
+Nice, that's looking better. You'll notice a subtle function call that we added, `col=dx_color[as.character(shannon_colon_mean$dx_ordinal)]`. That `as.character` function call, converts the output of `shannon_colon_mean$dx_ordinal` to a character vector. What is it otherwise? If you run `str(shannon_colon_mean)`, you'll notice that the `dx` column is a "`Factor w/ 3 levels "normal","adenoma",..: 1 2 3`". A factor represents categorical data. R stores a factor as a numerical vector (i.e. 1, 2, 3), but it gives those numbers character values (i.e. "normal", "adenoma", "cancer"). This can be a pain and is a frequent source of frustration in R. If the values in `dx_color` were not in the "correct" order, the colors would be screwed up because the values of `shannon_colon_mean$dx_ordinal` that go into `dx_color` are actually numbers. But we want to pull values out of `dx_color` using the diagnosis names. We don't really need `as.character` here, but it is a good practice to use it.
 
-```{r}
-metadata$dx <- factor(metadata$dx, levels=c("normal", "adenoma", "cancer"))
-```
-
-We'll re-`source` `baxter.R` and run `get_meta_alpha()`, and then rerun the commands from above to aggregate the data
-
-```{r}
-source("code/baxter.R")
-meta_alpha <- get_meta_alpha()
-shannon_colon_mean <- aggregate(shannon ~ dx, data=meta_alpha, FUN=mean)
-```
-
-See how the order of the factor levels has changed? Let's test it by regenerating the bar plot.
-
-```{r}
-barplot(height=shannon_colon_mean$shannon, ylim=c(0,5.5), ylab="Shannon Diversity Index", col=colors[shannon_colon_mean$dx], names.arg=shannon_colon_mean$dx)
-```
-
-Great, now we'd like to fix the category names so that the first column is capitalized. We could do some fancy string manipulations to achieve this, but for now, let's create a named vector to do the conversion. Can you create a vector called `dx_convert` so that if we call `dx_convert['normal']` we'll get back `"Normal"`? Go ahead and add this to the barplot command so the categories are properly named.
+Something we'd like to do to make the figure more "publication quality" is to format the categories so the first letter is capitalized. We could do some fancy string manipulations to achieve this, but for now, let's create a named vector to do the conversion. Can you create a vector called `dx_convert` so that if we call `dx_convert['normal']` we'll get back `"Normal"`? Go ahead and add this to the barplot command so the categories are properly named.
 
 <input type=button class=hideshow style="margin-bottom: 20px"></input>
 <div style="display: none">
 
 ```{r}
 dx_convert <- c(normal="Normal", adenoma="Adenoma", cancer="Cancer")
-barplot(height=shannon_colon_mean$shannon, ylim=c(0,5.5), ylab="Shannon Diversity Index", col=colors[shannon_colon_mean$dx], names.arg=dx_convert[shannon_colon_mean$dx])
+barplot(height=shannon_colon_mean$shannon, ylim=c(0,5.5), ylab="Shannon Diversity Index", col=dx_color[shannon_colon_mean$dx], names.arg=dx_convert[shannon_colon_mean$dx_ordinal])
 ```
 
 </div>
@@ -246,7 +248,7 @@ I like to have a box around my plots, we can get a box by using the `box` functi
 
 ```{r}
 dx_convert <- c(normal="Normal", adenoma="Adenoma", cancer="Cancer")
-barplot(height=shannon_colon_mean$shannon, ylim=c(0,5.5), ylab="Shannon Diversity Index", col=colors[shannon_colon_mean$dx], names.arg=dx_convert[shannon_colon_mean$dx])
+barplot(height=shannon_colon_mean$shannon, ylim=c(0,5.5), ylab="Shannon Diversity Index", col=dx_color[shannon_colon_mean$dx], names.arg=dx_convert[shannon_colon_mean$dx_ordinal])
 box()
 ```
 
@@ -267,9 +269,14 @@ se <- function(x){
 #### Activity 6
 Using our new `se` function, create a variable called `shannon_colon_se`.
 
+<input type=button class=hideshow style="margin-bottom: 20px"></input>
+<div style="display: none">
+
 ```{r}
-shannon_colon_se <- aggregate(shannon ~ dx, data=meta_alpha, se)
+shannon_colon_se <- aggregate(shannon ~ dx_ordinal, data=meta_alpha, se)
 ```
+
+</div>
 
 To create our error bars we will make use of the `arrows` command. If you think about it, an error bar is really an arrow where the sides of the arrow point are a 90 degree angle to the shaft of the arrow. How would we go about finding information on how to run this command?
 
@@ -312,16 +319,19 @@ col, lty, lwd: graphical parameters, possible vectors.  ‘NA’ values in
 Cool, this function draws arrows between points. Which points would we like to draw an arrow between? Looking at the arguments description we need to set the coordinates to draw the arrow from (`x0` and `y0`) and the coordinates to draw the arrow to (`x1` and `y1`). They `y0` and `y1` values come from `shannon_colon_mean` and `shannon_colon_se`. We can set the values for all of the columns by giving these arguments these vectors. By what about `x0` and `x1`? Do you think these values will be different from each other? We could guess at the values - perhaps their 1, 2, and 3? What function did we learn before for placing the legend? Give that a shot. For the legend we gave the `n` argument the value of 1, use 3 here and see what we get. Ugh, that's pretty ugly. When we run the `barplot` function we see a plot as an output. But there's other output values when the function is assigned to a variable - these values are the midpoints for the bars.
 
 ```{r}
-colon_plot <- barplot(height=shannon_colon_mean$shannon, ylim=c(0,5.5), ylab="Shannon Diversity Index", 
-						col=colors[shannon_colon_mean$dx], names.arg=dx_convert[shannon_colon_mean$dx])
+colon_plot <- barplot(height=shannon_colon_mean$shannon, ylim=c(0,5.5),
+											ylab="Shannon Diversity Index",
+											col=dx_color[shannon_colon_mean$dx_ordinal],
+ 											names.arg=dx_convert[shannon_colon_mean$dx_ordinal])
 ```
 
 What are the values of `colon_plot`? Do they look like the values you saw with the `locator` function? Great - now we know everything we need to add the error bars.
 
 ```{r}
 colon_plot <- barplot(height=shannon_colon_mean$shannon, ylim=c(0,5.5),
-											ylab="Shannon Diversity Index", col=colors[shannon_colon_mean$dx],
-											names.arg=dx_convert[shannon_colon_mean$dx])
+											ylab="Shannon Diversity Index",
+											col=dx_color[shannon_colon_mean$dx_ordinal],
+ 											names.arg=dx_convert[shannon_colon_mean$dx_ordinal])
 arrows(x0=colon_plot, x1=colon_plot, y0=shannon_colon_mean$shannon,
 			 y1=shannon_colon_se$shannon)
 ```
@@ -329,33 +339,54 @@ arrows(x0=colon_plot, x1=colon_plot, y0=shannon_colon_mean$shannon,
 Ruh roh. Do you see what we did wrong there?
 
 ```{r}
-colon_plot <- barplot(height=shannon_colon_mean$shannon, ylim=c(0,5.5), ylab="Shannon Diversity Index", col=colors[shannon_colon_mean$dx], names.arg=dx_convert[shannon_colon_mean$dx])
-arrows(x0=colon_plot, x1=colon_plot, y0=shannon_colon_mean$shannon, y1=shannon_colon_mean$shannon+shannon_colon_se$shannon)
+colon_plot <- barplot(height=shannon_colon_mean$shannon, ylim=c(0,5.5),
+											ylab="Shannon Diversity Index",
+											col=dx_color[shannon_colon_mean$dx],
+ 											names.arg=dx_convert[shannon_colon_mean$dx])
+arrows(x0=colon_plot,
+				x1=colon_plot,
+				y0=shannon_colon_mean$shannon,
+ 				y1=shannon_colon_mean$shannon+shannon_colon_se$shannon)
 ```
 
 That's better, but we need to adjust the angle of the arrow heads.
 
 ```{r}
-colon_plot <- barplot(height=shannon_colon_mean$shannon, ylim=c(0,5.5), ylab="Shannon Diversity Index", col=colors[shannon_colon_mean$dx], names.arg=dx_convert[shannon_colon_mean$dx])
-arrows(x0=colon_plot, x1=colon_plot, y0=shannon_colon_mean$shannon, y1=shannon_colon_mean$shannon+shannon_colon_se$shannon, angle=90)
+colon_plot <- barplot(height=shannon_colon_mean$shannon, ylim=c(0,5.5),
+											ylab="Shannon Diversity Index",
+											col=dx_color[shannon_colon_mean$dx_ordinal],
+ 											names.arg=dx_convert[shannon_colon_mean$dx_ordinal])
+arrows(x0=colon_plot,
+				x1=colon_plot,
+				y0=shannon_colon_mean$shannon,
+ 				y1=shannon_colon_mean$shannon+shannon_colon_se$shannon,
+				angle=90)
 ```
 
 Nice.
 
 
 #### Activity 7
-There's been much made about the relationship between obesity category and diversity. The thought is that obese individuals have a lower diversity than lean people. Modify our code to generate a bar plot that displays the variation in Shannon diversity for each obesity category. Is there a significant difference between the categories?
+There's been much made about the relationship between obesity category and diversity. The thought is that obese individuals have a lower diversity than normal people. Modify our code to generate a bar plot that displays the variation in Shannon diversity for each obesity category. Is there a significant difference between the categories?
 
 <input type=button class=hideshow style="margin-bottom: 20px"></input>
 <div style="display: none">
 
 ```{r}
-shannon_obesity_mean <- aggregate(shannon ~ BMIcat, data=meta_alpha, FUN=mean)
-shannon_obesity_se <- aggregate(shannon ~ BMIcat, data=meta_alpha, FUN=se)
-	
-obesity_plot <- barplot(height=shannon_obesity_mean$shannon, ylim=c(0,5.5),
-						ylab="Shannon Diversity Index", names.arg=shannon_obesity_mean$BMIcat)
-arrows(x0=colon_plot, x1=colon_plot, y0=shannon_obesity_mean$shannon, y1=shannon_obesity_mean$shannon+shannon_obesity_se$shannon, angle=90)
+bmi_convert <- c(underweight="Underweight", normal="Normal", overweight="Overweight", obese="Obese")
+
+shannon_obesity_mean <- aggregate(shannon ~ BMIordinal, data=meta_alpha, FUN=mean)
+shannon_obesity_se <- aggregate(shannon ~ BMIordinal, data=meta_alpha, FUN=se)
+
+obesity_plot <- barplot(height=shannon_obesity_mean$shannon,
+												ylim=c(0,4),
+												ylab="Shannon Diversity Index",
+												names.arg=bmi_convert[shannon_obesity_mean$BMIordinal])
+arrows(x0=obesity_plot,
+				x1=obesity_plot,
+				y0=shannon_obesity_mean$shannon,
+ 				y1=shannon_obesity_mean$shannon+shannon_obesity_se$shannon,
+				angle=90)
 ```
 
 </div>
@@ -368,14 +399,14 @@ A three or four category bar plot is nice and all, but really isn't that interes
 <div style="display: none">
 
 ```{r}
-shannon_dx_gender_mean <- aggregate(shannon ~ dx + Gender, data=meta_alpha, FUN=mean)
-shannon_dx_gender_se <- aggregate(shannon ~ dx + Gender, data=meta_alpha, FUN=se)
+shannon_dx_gender_mean <- aggregate(shannon ~ dx_ordinal + Gender, data=meta_alpha, FUN=mean)
+shannon_dx_gender_se <- aggregate(shannon ~ dx_ordinal + Gender, data=meta_alpha, FUN=se)
 ```
 
 </div>
 
 
-Great. For the `barplot` function we need to give the function heights as a vector or matrix (see `?barplot`). Previously, we supplied a vector, now we'd like to supply a matrix. But we haven't seen matrices yet! Matrice are essentially the same as a data frame, except that all of the values in the matrix are the same type. In a data frame we might have had a column of text, numbers, or booleans. But all of the values in a matrix must be text, numbers, or booleans, it can't change between columns. Let's start by generating a generic matrix.
+Great. For the `barplot` function we need to give the function heights as a vector or matrix (see `?barplot`). Previously, we supplied a vector, now we'd like to supply a matrix. But we haven't seen matrices yet! Matrices are essentially the same as a data frame, except that all of the values in the matrix are the same type. In a data frame we might have had a column of text, numbers, or booleans. But all of the values in a matrix must be text, numbers, or booleans, it can't change between columns. Let's start by generating a generic matrix.
 
 ```{r}
 my_vector <- 1:12
@@ -387,14 +418,14 @@ What's the difference between the two matrices? That's right, in the first, the 
 
 ```{r}
 mean_matrix <- matrix(shannon_dx_gender_mean$shannon, nrow=3, byrow=F)
-rownames(mean_matrix) <- c("Normal", "Adenoma", "Cancer")
-colnames(mean_matrix) <- c("Female", "Male")
+rownames(mean_matrix) <- c("normal", "adenoma", "cancer")
+colnames(mean_matrix) <- c("female", "male")
 ```
 
 Now let's give that to `barplot`
 
 ```{r}
-barplot(mean_matrix, beside=T, ylim=c(0.0,5.5), col=c("red", "blue", "black"))
+barplot(mean_matrix, beside=T, ylim=c(0.0,5.5))
 ```
 
 We can transpose the columns and rows of a matrix using the `t` function. With barplot, this will switch the grouping
@@ -406,9 +437,8 @@ barplot(t(mean_matrix), beside=T, ylim=c(0.0,5.5))
 Let's stick with the first and think about adding our error bars. The output of the bar plot is actually a matrix. We can convert this to a vector by using the `as.vector` command
 
 ```{r}
-colors <- c(Normal='black', Adenoma='blue', Cancer='red')
 matrix_plot <- barplot(mean_matrix, beside=T, ylim=c(0.0,5.5),
-											 col=colors[rownames(mean_matrix)], ylab="Shannon Diversity Index")
+											 col=dx_color[rownames(mean_matrix)], ylab="Shannon Diversity Index")
 x_positions <- as.vector(matrix_plot)
 arrows(x0=x_positions, x1=x_positions, y0=shannon_dx_gender_mean$shannon,
 			 y1=shannon_dx_gender_mean$shannon+shannon_dx_gender_se$shannon, angle=90)
@@ -418,15 +448,38 @@ box()
 We still have one small problem - the viewer doesn't know what our colors represent. We need a legend. See if you can't create a legend that goes in the upper right corner of the plot. In this case we don't want to use the `pch` or `col` arguments, rather we want to use the `fill` argument to specify the colors.
 
 ```{r}
-colors <- c(Normal='black', Adenoma='blue', Cancer='red')
 matrix_plot <- barplot(mean_matrix, beside=T, ylim=c(0.0,5.5),
-											 col=colors[rownames(mean_matrix)], ylab="Shannon Diversity Index")
+											 col=dx_color[rownames(mean_matrix)], ylab="Shannon Diversity Index")
 x_positions <- as.vector(matrix_plot)
 arrows(x0=x_positions, x1=x_positions, y0=shannon_dx_gender_mean$shannon,
 			 y1=shannon_dx_gender_mean$shannon+shannon_dx_gender_se$shannon, angle=90)
 box()
-legend("topright", legend=rownames(mean_matrix), 	fill=colors[rownames(mean_matrix)])
+legend("topright", legend=rownames(mean_matrix), fill=dx_color[rownames(mean_matrix)])
 ```
+
+#### Activity 8
+Modify the last code chunk to nicely format the diagnosis and sex labels
+
+<input type=button class=hideshow style="margin-bottom: 20px"></input>
+<div style="display: none">
+
+```{r}
+dx_convert <- c(normal="Normal", adenoma="Adenoma", cancer="Cancer")
+sex_convert <- c(female="Female", male="Male")
+
+matrix_plot <- barplot(mean_matrix, beside=T, ylim=c(0.0,5.5),
+											 	col=dx_color[rownames(mean_matrix)],
+												ylab="Shannon Diversity Index",
+												names.arg=sex_convert[colnames(mean_matrix)])
+x_positions <- as.vector(matrix_plot)
+arrows(x0=x_positions, x1=x_positions, y0=shannon_dx_gender_mean$shannon,
+			 y1=shannon_dx_gender_mean$shannon+shannon_dx_gender_se$shannon, angle=90)
+box()
+legend("topright", legend=dx_convert[rownames(mean_matrix)], fill=dx_color[rownames(mean_matrix)])
+```
+
+</div>
+
 
 Again we can test the significance using an analysis of variance with a model formula similar to what we used in the aggregate function.
 
