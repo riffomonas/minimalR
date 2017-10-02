@@ -8,3 +8,6 @@ print-%  :
 	R -e 'render("$<")'
 
 all : $(HTML) $(RMD)
+
+clean:
+	rm *.html
