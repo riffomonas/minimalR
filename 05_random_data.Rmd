@@ -137,6 +137,7 @@ Replicate the density and QQ plots we generated for the patients with normal col
 
 <input type=button class=hideshow style="margin-bottom: 20px"></input>
 <div style="display: none">
+
 ```{r}
 adenoma_shannon <- meta_alpha[meta_alpha$dx == "adenoma", "shannon"]
 adenoma_mean <- mean(adenoma_shannon)
@@ -145,12 +146,16 @@ random <- rnorm(n=length(adenoma_shannon), mean=adenoma_mean, sd=adenoma_sd)
 plot(density(adenoma_shannon), col="black", type="l", lwd=3, xlim=c(0,5.5), ylim=c(0,1.0), xlab="Shannon Diversity", main="")
 points(density(random), col="green", lwd=3, type="l")
 
+qqnorm(adenoma_shannon, col="black", pch=19)
+
 cancer_shannon <- meta_alpha[meta_alpha$dx == "cancer", "shannon"]
 cancer_mean <- mean(cancer_shannon)
 cancer_sd <- sd(cancer_shannon)
 random <- rnorm(n=length(cancer_shannon), mean=cancer_mean, sd=cancer_sd)
 plot(density(cancer_shannon), col="black", type="l", lwd=3, xlim=c(0,5.5), ylim=c(0,1.0), xlab="Shannon Diversity", main="")
 points(density(random), col="green", lwd=3, type="l")
+
+qqnorm(cancer_shannon, col="black", pch=19)
 ```
 </div>
 
@@ -193,7 +198,7 @@ Re-run the ANOVAs that we ran in the previous session using the appropriately tr
 
 
 #### Activity 4
-Plot the density of FIT values for each of the three diagnosis categories. You may notice that you get an error that says "'x' contains missing values". This happens because the `meta_alpha$BMI` vector contains `NA` values. You can tell the function (e.g. `density`) to ignore these values using the `na.rm=T` argument.
+Plot the density of BMI values for each of the three diagnosis categories. You may notice that you get an error that says "'x' contains missing values". This happens because the `meta_alpha$BMI` vector contains `NA` values. You can tell the function (e.g. `density`) to ignore these values using the `na.rm=T` argument.
 
 <input type=button class=hideshow style="margin-bottom: 20px"></input>
 <div style="display: none">
