@@ -1,5 +1,33 @@
 library("dplyr")
 
+
+# This function calculates a BMI value. Note that it assumes
+# the person's weight is in kg and their height is in cm. Probably
+# want to add code later to make sure the inputted height and
+# weight values make sense
+get_bmi <- function(weight_kg, height_cm){
+  height_m <- height_cm/100
+  bmi <- weight_kg / height_m ^2
+  return(bmi)
+}
+
+
+# This function takes in a bmi value and based on NIH recommendations
+# returns the BMI category that the value falls within
+get_bmi_category <- function(bmi){
+  category <- ifelse(bmi >= 30, "obese",
+                     ifelse(bmi >=25, "overweight",
+                            ifelse(bmi >= 18.5, "normal", "underweight")))
+  return(category)
+}
+
+
+# this function takes in a BMI value and reports whether the individual is obese
+is_obese <- function(bmi){
+  get_bmi_category(bmi) == "obese"
+}
+
+
 get_meta <- function(){
 	metadata <- read.table(file="data/baxter.metadata.tsv", header=T, sep='\t', stringsAsFactors=F)
 	metadata$sample <- as.character(metadata$sample)
@@ -43,34 +71,6 @@ get_meta_pcoa <- function(){
 
 	meta_pcoa <- inner_join(metadata, pcoa, by=c("sample"="group"))
 }
-
-
-# This function calculates a BMI value. Note that it assumes
-# the person's weight is in kg and their height is in cm. Probably
-# want to add code later to make sure the inputted height and
-# weight values make sense
-get_bmi <- function(weight_kg, height_cm){
-	height_m <- height_cm/100
-	bmi <- weight_kg / height_m ^2
-	return(bmi)
-}
-
-
-# This function takes in a bmi value and based on NIH recommendations
-# returns the BMI category that the value falls within
-get_bmi_category <- function(bmi){
-	category <- ifelse(bmi >= 30, "obese",
-										 	ifelse(bmi >=25, "overweight",
-										 				 ifelse(bmi >= 18.5, "normal", "underweight")))
-	return(category)
-}
-
-
-# this function takes in a BMI value and reports whether the individual is obese
-is_obese <- function(bmi){
-	get_bmi_category(bmi) == "obese"
-}
-
 
 
 dx_color <- c(normal="black", adenoma="blue", cancer="red")
