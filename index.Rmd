@@ -20,7 +20,7 @@ These are instructional materials that Pat Schloss uses to teach people to use R
 * Subsetting data
 * Plotting metadata on top of scatter data
 
-[3	Plotting pairs of continuous data with scatter plots](03_combining_data_frames.hml)
+[3	Plotting pairs of continuous data with scatter plots](03_combining_data_frames.html)
 
 * dplyr joins
 * Legends
