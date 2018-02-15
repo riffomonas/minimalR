@@ -1,0 +1,468 @@
+## Learning objectives
+
+* String manipulations - strsplit and paste
+* Regular expressions - more complex patterns
+* Apply functions
+* if ... else
+
+To this point our analysis has looked at alpha and beta diversity values for our samples. We'd like to start drilling into the data to get a better sense of the types of organisms that might differ between the three diagnosis groups. What we'd like to do is to generate plots to describe the biodiversity of the three diagnosis groups. In the next session we'll work with OTU data describing biodiversity at the phylum and OTU level. We'll need to manipulate the data in three steps. First, in the `data` folder there is a file called `baxter.cons.taxonomy` that contains the taxonomic information for each OTU that was observed when defining OTUs at a 3% distance cutoff. To build our plots we need to find the different phyla in that file. Second, we need to aggregate the data in the `baxter.subsample.shared` file by those phyla. Third, we will probably need to aggregate the data for each subject across individuals within a diagnosis group. Ready? Let's go!
+
+We'll start by reading in the data contained within `baxter.cons.taxonomy` to a data frame we'll call `taxonomy`.
+
+```{r}
+taxonomy <- read.table(file="data/baxter.cons.taxonomy", header=T, stringsAsFactors=F)
+```
+
+If you take a peak at this data frame using `head` you'll notice a few things. The first column is the OTU label and it has the format of "Otu######" where "#" is a number. You'll also notice that the third column, `Taxonomy`, contains the taxonomic information that we're interested in. The values of this column have a format like `Bacteria(100);Firmicutes(100);Clostridia(100);Clostridiales(100);Lachnospiraceae(100);Blautia(100);`. This is a `mothur` convention that indicates the taxonomic name at each level with each level separated by a semicolon (i.e. ';'). Each taxonomic name also has a name (e.g. "Firmicutes") followed by a pair of parentheses with a number inside of them (e.g. "(100)"). We would like to write a function to parse these strings to return a data frame where the values are the OTU names and the phylum-level names. From the previous session you may recall that we used the `gsub` function to find a pattern in a vector of characters and replace with a new string. We saw how we could remove `X0.03.` with a function call like this:
+
+```
+colnames(ave_rarefy) <- gsub("X0.03.", "", colnames(ave_rarefy))
+```
+
+This was a relatively simple pattern. Looking at the values in the `taxonomy$Taxonomy` vector there are a number of different values that are quite similar with a similar format. We'd like to find a pattern that matches the parentheses and numbers in between and replaces them with an empty string. This helps us get into some more advanced patterns. Fortunately, R has several "metacharacters" that you can think of as being generic representations of numbers, alphanumeric characters, and white spaces. You can learn more about these and many others by looking at the material in `?regex`. I commonly use five variations, so it's not really necessary to memorize the numerous options. Let's look at some examples before we apply these tools to our problem. Can you tell what each of these three metacharacters does?
+
+```{r}
+string <- "My phone number is (555)555-1234"
+gsub(pattern='\\s', replacement="_", string)
+gsub(pattern='\\d', replacement="#", string)
+gsub(pattern='\\w', replacement="*", string)
+gsub(pattern='.', replacement="x", string)
+gsub(pattern='[-]', replacement=" ", string)
+gsub(pattern='[()-]', replacement=" ", string)
+gsub(pattern='[^()-]', replacement=" ", string)
+sub(pattern='\\d', replacement="#", string)
+gsub(pattern='m', replacement="*", string, ignore.case=T)
+```
+
+Got it? We can string these together to produce a pattern to represent a phone number:
+
+```
+gsub(pattern='[(]\\d\\d\\d[)]\\d\\d\\d-\\d\\d\\d\\d', replacement="<redacted>", string)
+```
+
+Do you see what's happening there? If we want to match parentheses, we used `[(]` and `[)]`. Alternatively, we could have used `\\(` and `\\)`. The `\\` is necessary because the naked parentheses will be useful in a moment. For now let's stick with the bracket notation. We match the parentheses and the three numbers (i.e. `\\d\\d\\d`) within them. Then we match another three numbers, a hyphen and then four more numbers. If our phone number has a different pattern - say we don't use parentheses around the area code, `gsub` won't work like we want. Instead of repeating `\\d` over and over, we can use a quantifier to match the numbers.
+
+```
+gsub(pattern='[(]\\d{3}[)]\\d{3}-\\d{4}', replacement="<redacted>", string)
+```
+
+This is the same pattern as we had before, but much simpler. It's worth noting that we could have used `\\d{5,}` to match five or more consecutive numbers, `\\d{,5}` to match five or fewer consecutive numbers or `\\d{1,5}` to match one to five consecutive numbers. Let's consider a new set of strings:
+
+```{r}
+string <- c("My phone number is (555)555-1234", "Suzy's phone number is 555-555-9876")
+gsub(pattern='[(]\\d{3}[)]\\d{3}-\\d{4}', replacement="<redacted>", string)
+```
+
+You should see that Suzy's phone number was not redacted. We would like to manipulate our regular expression to accommodate both phone numbers. We can do this using another type of quantifier - the `?`, which represents 0 or 1 instances of the character:
+
+```{r}
+string <- c("My phone number is (555)555-1234", "Suzy's phone number is 555-555-9876")
+gsub(pattern='[(]?\\d{3}[)-]?\\d{3}-\\d{4}', replacement="<redacted>", string)
+```
+
+See that? By putting a `?` after the `[()]` we ask `gsub` to match a patten that may or may not start with an opening parentheses. Similarly, after three numbers, we ask `gsub` to match a string that may or may not contain a `)` or a `-`. Another quantifier we might want to use is `*`. This matches zero or more instances of the preceding character.
+
+```{r}
+string <- c("My phone number is (555)555-1234", "Suzy's phone number is 555-555-9876")
+gsub(pattern='.* ', replacement="", string)
+```
+
+The last tool that we can use is to replace an entire string with a substring. To do this we will use naked parentheses to wrap the substring that we want to preserve. In the replacement string we will use "\\1" to insert the substring. Let's suppose we want to extract the area code from each phone number. Can you see what these lines of code are doing?
+
+```{r}
+string <- c("My phone number is (555)555-1234", "Suzy's phone number is 555-555-9876")
+gsub(pattern='[(]?(\\d{3})[)-]?\\d{3}-\\d{4}', replacement="\\1", string)
+gsub(pattern='.*[(]?(\\d{3})[)-]?\\d{3}-\\d{4}', replacement="\\1", string)
+gsub(pattern='.*[(]?(\\d{3})[)-]?\\d{3}-\\d{4}', replacement="Area code: \\1", string)
+gsub(pattern='.*[(]?(\\d{3})[)-]?(\\d{3})-(\\d{4})', replacement="Area code: \\1, Central office code: \\2, Private extension: \\3", string)
+```
+
+Now, remember that our taxonomy strings have this general format and we want to extract the phylum-level name:
+
+```
+Bacteria(100);Firmicutes(100);Clostridia(100);Clostridiales(100);Lachnospiraceae(100);Blautia(100);
+```
+
+Let's start by removing the parentheses and the numbers between them. Assign the value to the variable `tax_no_confidence`
+
+```{r}
+tax_no_confidence <- gsub(pattern="\\(\\d*\\)", replacement="", x=taxonomy$Taxonomy)
+```
+
+Now we want to find the substring representing the phylum. Save the phylum names in a data frame called `otu_phylum` with columns `otu` and `phylum`
+
+```{r}
+phylum <- gsub("Bacteria;([^;]*);.*", "\\1", tax_no_confidence)
+otu_phylum <- data.frame(otu = taxonomy$OTU, phylum = phylum, stringsAsFactors=F)
+```
+
+### Activity 3
+Can you think of alternative ways to go from the strings in `taxonomy$Taxonomy` to `phylum`? Go ahead and implement the alternatives. Compare and contrast the implementations.
+
+
+
+### Activity 4
+Instead of parsing the phylum names, we want to retrieve the deepest taxonomy name for each OTU that isn't "unclassified". Create one or more `gsub` function calls to retrieve the most specific taxonomic name for each OTU. For example, if this was the taxonomy:
+
+```
+Bacteria(100);Firmicutes(100);Clostridia(100);Clostridiales(100);Ruminococcaceae(100);unclassified(100);
+```
+
+The function should return the OTU number and "Ruminococcaceae". Here's some code to get you started...
+
+
+```r
+taxonomy <- read.table(file="data/baxter.cons.taxonomy", header=T, stringsAsFactors=F)
+tax_no_confidence <- gsub(pattern="\\(\\d*\\)", replacement="", x=taxonomy$Taxonomy)
+
+
+### Insert code here
+# best_taxonomy <- ??????
+
+otu_name <- best_taxonomy
+names(otu_name) <- taxonomy$OTU
+```
+
+
+<input type=button class=hideshow style="margin-bottom: 20px"></input>
+<div style="display: none">
+```{r}
+taxonomy <- read.table(file="data/baxter.cons.taxonomy", header=T, stringsAsFactors=F)
+tax_no_confidence <- gsub(pattern="\\(\\d*\\)", replacement="", x=taxonomy$Taxonomy)
+
+no_unclassified <- gsub(pattern="unclassified;", replacement="", tax_no_confidence)
+best_taxonomy <- gsub(pattern=".*;(.*);", replacement="\\1", no_unclassified)
+
+otu_name <- best_taxonomy
+names(otu_name) <- taxonomy$OTU
+```
+</div>
+
+
+We've achieved step 1 - find the different phyla in the consensus taxonomy file. Next, we need to aggregate the columns in `baxter.subsample.shared` that come from the same phylum. Let's look at two ways of doing this and you can decide which you think is better.
+
+The first approach will use what are commonly called "apply" functions. We will read in the shared file, loop through each unique phylum name, get the OTUs from that phylum, extract those OTUs from the shared table, and sum their values together. Reading in the shared file the syntax will look pretty similar except that we are now going to assign row names using the second column (i.e. `row.names=2`) and then we're going to remove the `label` and `numOtus` columns.
+
+```{r}
+shared <- read.table(file="data/baxter.subsample.shared", header=T, stringsAsFactors=F, row.names=2)
+shared <- shared[,-c(1,2)]
+```
+
+Unfortunately, because we subsampled `baxter.shared` to `baxter.subsample.shared` a number of OTUs were removed from the shared file that were present in the `baxter.taxonomy` file. We need to remove the extra OTUs from the taxonomy data so that the same OTUs are present in both the taxonomy and shared files. We will do this using the `%in%` function. This is a function that is more like `+` than it is like `read.table`. Consider the following
+
+```{r}
+letters_A <- c("A", "C", "E", "F")
+letters_B <- c("A", "B", "C", "D", "E", "F", "G")
+letters_B %in% letters_A
+letters_A %in% letters_B
+```
+
+As you can see `letters_A` is a subset of `letters_B`. Can you tell the difference between the last two lines of code? This example is analogous to what we want to do with our OTU data. The vector of OTUs in our shared data is analogous to `letters_A` and the vector of OTUs in our taxonomy data is analogous to `letters_B`. We want to use the first approach to select those rows from the taxonomy file that match the column names of the shared file.
+
+```{r}
+otu_phylum_overlap <- otu_phylum[otu_phylum$otu %in% colnames(shared), ]
+stopifnot(nrow(otu_phylum_overlap) == ncol(shared))
+```
+
+
+To get the names of the unique phylum names in `otu_phylum_overlap$phylum` we can use the `unique` function.
+
+```{r}
+unique_phyla <- unique(otu_phylum_overlap$phylum)
+```
+
+Let's manually go through the steps of getting the counts for the Firmicutes. Again, we'll identify those OTUs that are affiliated with the Firmicutes, extract those columns from `shared`, and then sum the values across the columns. The approaches used for the first two steps we've seen before:
+
+```{r}
+otus <- otu_phylum_overlap[otu_phylum_overlap$phylum == "Firmicutes", 'otu']
+```
+
+Now we have a new data frame with 490 rows and 5450 columns. To sum across a data frame like this we can use the `apply` function. See if you can figure out what the apply function is doing in these two cases. Which is what we want?
+
+```{r}
+approach_one <- apply(shared[,otus], 1, sum)
+approach_two <- apply(shared[,otus], 2, sum)
+```
+
+Great, now we have the number of sequences from the Firmicutes in each of our samples. We can repeat this for each of the other phyla. Let's think about how to keep this DRY. Here is the chunk of code we'd like to repeat for each phylum.
+
+```{r}
+otus <- otu_phylum_overlap[otu_phylum_overlap$phylum == "Firmicutes", 'otu']
+sub_shared <- shared[,otus]
+phylum_count <- apply(sub_shared, 1, sum)
+```
+
+If we repeat this for the Bacteroidetes, what would we change? How about for the Proteobacteria? That's right, there's only one thing that would change. We can turn this into a function and then use a for loop to loop over the different phyla. Make a function, `count_phyla` that takes in the phylum we want (`phylum`), the data frame of OTU counts (`otu_counts`), and the data frame to map the OTU names to the phyla (`map`).
+
+```{r}
+count_phyla <- function(phylum, otu_counts, map){
+	otus <- map[map$phylum == phylum, 'otu']
+	sub_shared <- otu_counts[,otus]
+	phylum_count <- apply(sub_shared, 1, sum)
+	return(phylum_count)
+}
+```
+
+If we run `count_phyla("Firmicutes", shared, otu_phylum_overlap)` we should get a vector of counts indicating the number of sequences in each sample that affiliated with the Firmicutes. We now need to loop this function over all of the phyla. To do this, we first need to initialize a new data frame that will hold the data.
+
+```{r}
+n_phyla <- length(unique_phyla)
+n_samples <- nrow(shared)
+phylum_shared <- data.frame(matrix(0, nrow=n_samples, ncol=n_phyla))
+rownames(phylum_shared) <- rownames(shared)
+colnames(phylum_shared) <- unique_phyla
+```
+
+That's a bit of a pain, but now we have a data frame that has row and column names matching our samples and phyla, respectively. It is filled with zeroes and is ready to be filled using our `count_phyla` function and a for loop. Write the for loop to fill the data frame.
+
+```{r, error=TRUE}
+for(phylum in unique_phyla){
+	phylum_shared[,phylum] <- count_phyla(phylum, shared, otu_phylum_overlap)
+}
+```
+
+Did you get an error? Good! You should haves seen something like
+
+```
+Error in apply(sub_shared, 1, sum) : dim(X) must have a positive length
+```
+
+As we saw in the first session, `dim` returns the number of rows and columns in a data frame. We aren't quite sure what "positive length" means, but there seems to be a problem somewhere in our function. If we enter `phylum` at the terminal we'll get back "Elusimicrobia". This tells us that the last value of `phylum` that was tried in our for loop was for the Elusimicrobia. Now what we can do is to recreate the manual calculation like we did above for the "Firmicutes" and see if we find an error.
+
+```{r, error=TRUE}
+otus <- otu_phylum_overlap[otu_phylum_overlap$phylum == "Elusimicrobia", 'otu']
+sub_shared <- shared[,otus]
+phylum_count <- apply(sub_shared, 1, sum)
+```
+
+Great we get the same error. Run `dim(sub_shared)`. What did you get? `NULL` means that `sub_shared` doesn't have dimensions. Print out the contents of `sub_shared` to the screen. You'l see that it is a vector. This is because `otus` only contains one OTU. The `apply` function expects a data frame or matrix, not a vector, hence the error message. To get around this we need to modify our `count_phyla` function to konw what to do if there's only one OTU in the sub_shared object. We can do this using something like the `ifelse` function we used in an earlier session. We will use an `if ... else` statement to control what happens under different situations.
+
+```{r}
+count_phyla <- function(phylum, otu_counts, map){
+	otus <- map[map$phylum == phylum, 'otu']
+	sub_shared <- otu_counts[,otus]
+
+	if(length(otus) > 1){
+		phylum_count <- apply(sub_shared, 1, sum)
+	} else {
+		phylum_count <- sub_shared
+	}
+	return(phylum_count)
+}
+```
+
+If there is more than one OTU that match the phylum (i.e. `length(otus) > 1`) then we will run the `apply` function and call the resulting vector `phylum_counts`. Alternatively, we will assign the values in the `sub_shared` vector to `phylum_counts`. Let's load the function and re-run the for loop
+
+```{r}
+for(phylum in unique_phyla){
+	phylum_shared[,phylum] <- count_phyla(phylum, shared, otu_phylum_overlap)
+}
+```
+
+Success! We think... How do we know we got the right values? We could select some phyla and manually confirm the calculations. We could also make sure that the sum across the rows of each sample is the same for the `shared` and `phylum_shared` data frames using the apply function we just learned and the `stopifnot` function we learned a few sessions back!
+
+```{r}
+shared_sample_sum <- apply(shared, 1, sum)
+phylum_shared_sample_sum <- apply(phylum_shared, 1, sum)
+stopifnot(shared_sample_sum == phylum_shared_sample_sum)
+```
+
+Great! The use of a for loop here was a bit of a pain. We had to predefine the data frame and worry about how to index into the data frame. It wasn't much of an issue here, but for loops are widely regarded to be quite slow in R relative to some other options. R has optimized several types of for loops using the `sapply` function (if you `?sapply` you'll see other flavors of these functions). To run `sapply` we give the function a vector to loop over (`unique_phyla`), the function name (`count_phyla`), and then the arguments that the function needs.
+
+```{r}
+phylum_shared_sapply <- sapply(X=unique_phyla, FUN=count_phyla, otu_counts=shared, map=otu_phylum_overlap)
+stopifnot(phylum_shared_sapply == phylum_shared)
+```
+
+The `stopifnot` function in that code block confirms for us that we get almost the same answer as when we used the for loop. Go ahead and run `str(phylum_shared_sapply)`, what do you notice that is different from `str(phylum_shared)`? How can we get the `str` output for `phylum_shared_sapply` to match that of `phylum_shared`? What about the other direction? Again the advantages are that we don't have to initialize `phylum_shared` and instead of using several lines of code, we just use one. Now we've achieved step two - aggregating the data in the `baxter.subsample.shared` file by the various phyla.
+
+To visually represent our data, we need to do the third step of aggregating the data by subject within each diagnosis group. We first need to convert our sequence counts to relative abundances. We'll do this by generating the row sums and then divide the `phylum_shared` data frame by the number of sequences to generate a `rel_abund` object. See if you can get this to work. Confirm that yod did it correctly by running `apply(rel_abund, 1, sum)`.
+
+```{r}
+n_seqs <- apply(phylum_shared_sapply, 1, sum)
+rel_abund <- phylum_shared_sapply / n_seqs
+apply(rel_abund, 1, sum)
+```
+
+Go ahead and look at the `rel_abund` matrix. To make it easier to look at, we'll order the columns by the median relative abundance across the subjects. Again, we'll start with the apply function. Then we'll use the `order` function to find the proper ordering. Finally, we'll reorder the matrix.
+
+```{r}
+median_rel_abund <- apply(rel_abund, 2, median)
+decreasing_order <- order(median_rel_abund, decreasing=T)
+rel_abund <- rel_abund[,decreasing_order]
+```
+
+Can you tell why we used "2" in the `apply` function? Go ahead and look at the first few rows of `rel_abund` and confirm that we are sorting the phyla by their order of relative abundance.
+
+Now we want to aggregate the relative abundances by cancer diagnosis. Let's read in the metadata file at this point and make sure that our samples are in the same order.
+
+```{r}
+source("code/baxter.R")
+metadata <- get_meta()
+stopifnot(metadata$sample == rownames(rel_abund))
+```
+
+Previously we used the `aggregate` function where the alpha diversity and metadata were in the same data frame. This time, `rel_abund` is a matrix, and the diagnosis is in a separate data frame. We can still use `aggregate`, but the syntax is a bit different.
+
+```{r}
+dx_ordinal <- factor(metadata$dx, level=c("normal", "adenoma", "cancer"))
+mean_phylum <- aggregate(rel_abund, by=list(dx_ordinal), mean)
+```
+
+The key difference is that we tell `aggregate` explicitly what to aggregate by and this needs to be a `list` of values. The output is a data frame where the diagnoses are the rows and the phyla are the columns. We'd like to convert this to a matrix where the rows are the phyla are the rows and the diagnoses are the columns. We'll create `mean_phylum_matrix`, which is a matrix containing the transpose (`t`) of the `mean_phylum` data frame with out the `Group.1` column
+
+```{r}
+mean_phylum_matrix <- as.matrix(t(mean_phylum[,-1]))
+colnames(mean_phylum_matrix) <- mean_phylum$Group.1
+```
+
+We'd also like to know the 95% confidence interval around each mean relative abundance.
+
+### Activity 5
+Collect the various chunks of code from above that went into creating the `mean_phylum_matrix` into one place. Make sure you got everything by quitting R, restarting it and running your code. Confirm that you had no errors. Modify the code to create a matrix called `median_phylum_matrix` that returns the median relative abundance and `sd_phylum_matrix` that returns the standard deviations of the relative abundances.
+
+<input type=button class=hideshow style="margin-bottom: 20px"></input>
+<div style="display: none">
+```{r}
+source("code/baxter.R")
+
+#Aggregate the number of times a specific phylum was seen in each sample
+count_phyla <- function(phylum, otu_counts, map){
+	otus <- map[map$phylum == phylum, 'otu'] #identify the otus that match phylum
+	sub_shared <- otu_counts[,otus] #subset out the relevant columns
+
+	if(length(otus) > 1){	#if sub_shared is a matrix, then...
+		phylum_count <- apply(sub_shared, 1, sum) #sum across the rows
+	} else {							#... otherwise ...
+		phylum_count <- sub_shared # return the vector of counts for the otu
+	}
+	return(phylum_count)
+}
+
+taxonomy <- read.table(file="data/baxter.cons.taxonomy", header=T, stringsAsFactors=F)
+tax_no_confidence <- gsub(pattern="\\(\\d*\\)", replacement="", x=taxonomy$Taxonomy)
+phylum <- gsub("Bacteria;([^;]*);.*", "\\1", tax_no_confidence)
+otu_phylum <- data.frame(otu = taxonomy$OTU, phylum = phylum, stringsAsFactors=F)
+
+shared <- read.table(file="data/baxter.subsample.shared", header=T, stringsAsFactors=F, row.names=2)
+shared <- shared[,-c(1,2)]
+
+otu_phylum_overlap <- otu_phylum[otu_phylum$otu %in% colnames(shared), ]
+stopifnot(nrow(otu_phylum_overlap) == ncol(shared))
+
+unique_phyla <- unique(otu_phylum_overlap$phylum)
+
+phylum_shared_sapply <- sapply(X=unique_phyla, FUN=count_phyla, otu_counts=shared, map=otu_phylum_overlap)
+
+n_seqs <- apply(phylum_shared_sapply, 1, sum)
+rel_abund <- phylum_shared_sapply / n_seqs
+
+median_rel_abund <- apply(rel_abund, 2, median)
+decreasing_order <- order(median_rel_abund, decreasing=T)
+rel_abund <- rel_abund[,decreasing_order]
+
+metadata <- get_meta()
+stopifnot(metadata$sample == rownames(rel_abund))
+
+mean_phylum <- aggregate(rel_abund, by=list(dx_ordinal), mean)
+mean_phylum_matrix <- as.matrix(t(mean_phylum[,-1]))
+colnames(mean_phylum_matrix) <- mean_phylum$Group.1
+
+median_phylum <- aggregate(rel_abund, by=list(dx_ordinal), median)
+median_phylum_matrix <- as.matrix(t(median_phylum[,-1]))
+colnames(median_phylum_matrix) <- median_phylum$Group.1
+
+sd_phylum <- aggregate(rel_abund, by=list(dx_ordinal), sd)
+sd_phylum_matrix <- as.matrix(t(sd_phylum[,-1]))
+colnames(sd_phylum_matrix) <- sd_phylum$Group.1
+```
+</div>
+
+### Activity 1
+To this point we haven't done much to annotate what's happening in our code beyond trying to give meaningful variable and function names. Imagine handing your code to a colleague or coming back to the code 6 months from now. It might be difficult to understand what you were trying to do. To minimize these difficulties, we can comment our code by adding text that starts with a `#`. This symbol tells R to ignore anything that follows. Go through our code and add some comments. I've already started the process for you
+
+```r
+#Load useful utility functions for processing metadata and what not
+source("code/baxter.R")
+
+#Aggregate the number of times a specific phylum was seen in each sample
+count_phyla <- function(phylum, otu_counts, map){
+	otus <- map[map$phylum == phylum, 'otu'] #identify the otus that match phylum
+	sub_shared <- otu_counts[,otus] #subset out the relevant columns
+
+	if(length(otus) > 1){	#if sub_shared is a matrix, then...
+		phylum_count <- apply(sub_shared, 1, sum) #sum across the rows
+	} else {							#... otherwise ...
+		phylum_count <- sub_shared # return the vector of counts for the otu
+	}
+	return(phylum_count)
+}
+
+taxonomy <- read.table(file="data/baxter.cons.taxonomy", header=T, stringsAsFactors=F)
+tax_no_confidence <- gsub(pattern="\\(\\d*\\)", replacement="", x=taxonomy$Taxonomy)
+phylum <- gsub("Bacteria;([^;]*);.*", "\\1", tax_no_confidence)
+otu_phylum <- data.frame(otu = taxonomy$OTU, phylum = phylum, stringsAsFactors=F)
+
+shared <- read.table(file="data/baxter.subsample.shared", header=T, stringsAsFactors=F, row.names=2)
+shared <- shared[,-c(1,2)]
+
+otu_phylum_overlap <- otu_phylum[otu_phylum$otu %in% colnames(shared), ]
+stopifnot(nrow(otu_phylum_overlap) == ncol(shared))
+
+unique_phyla <- unique(otu_phylum_overlap$phylum)
+
+phylum_shared_sapply <- sapply(X=unique_phyla, FUN=count_phyla, otu_counts=shared, map=otu_phylum_overlap)
+
+n_seqs <- apply(phylum_shared_sapply, 1, sum)
+rel_abund <- phylum_shared_sapply / n_seqs
+
+median_rel_abund <- apply(rel_abund, 2, median)
+decreasing_order <- order(median_rel_abund, decreasing=T)
+rel_abund <- rel_abund[,decreasing_order]
+
+metadata <- get_meta()
+stopifnot(metadata$sample == rownames(rel_abund))
+
+mean_phylum <- aggregate(rel_abund, by=list(dx_ordinal), mean)
+mean_phylum_matrix <- as.matrix(t(mean_phylum[,-1]))
+colnames(mean_phylum_matrix) <- mean_phylum$Group.1
+
+median_phylum <- aggregate(rel_abund, by=list(dx_ordinal), median)
+median_phylum_matrix <- as.matrix(t(median_phylum[,-1]))
+colnames(median_phylum_matrix) <- median_phylum$Group.1
+
+sd_phylum <- aggregate(rel_abund, by=list(dx_ordinal), sd)
+sd_phylum_matrix <- as.matrix(t(sd_phylum[,-1]))
+colnames(sd_phylum_matrix) <- sd_phylum$Group.1
+```
+
+
+### Activity 2
+In this session we focused on phylum-level data. Can you develop a function to replace these lines
+
+```
+tax_no_confidence <- gsub(pattern="\\(\\d*\\)", replacement="", x=taxonomy$Taxonomy)
+phylum <- gsub("Bacteria;([^;]*);.*", "\\1", tax_no_confidence)
+otu_phylum <- data.frame(otu = taxonomy$OTU, phylum = phylum, stringsAsFactors=F)
+```
+
+with a function that allows the user to use any taxonomic level? To prevent getting back "unclassified", could you write the function to instead return a more meaningful name?
+
+
+
+<script>
+$( "input.hideshow" ).each( function ( index, button ) {
+  button.value = 'Show an answer';
+  $( button ).click( function () {
+    var target = this.nextSibling ? this : this.parentNode;
+    target = target.nextSibling.nextSibling;
+    if ( target.style.display == 'block' || target.style.display == '' ) {
+      target.style.display = 'none';
+      this.value = 'Show an answer';
+    } else {
+      target.style.display = 'block';
+      this.value = 'Hide answer';
+    }
+  } );
+} );
+</script>
