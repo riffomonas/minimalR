@@ -1,13 +1,13 @@
-RMD = $(wildcard *.Rmd)
-HTML = $(subst Rmd,html,$(RMD))
+RMD = $(wildcard _rmd_files/*.Rmd)
+MD = $(addsuffix .md,$(basename $(subst _rmd_files/,,$(RMD))))
 
 print-%  :
 	@echo $* = $($*)
 
-%.html : %.Rmd
-	R -e 'render("$<")'
+%.md : _rmd_files/%.Rmd
+	R -e 'library("ezknitr"); ezknit(file="$<", out_dir="./", keep_html=FALSE, fig_dir="assets/images/$(basename $@)")';
 
-all : $(HTML) $(RMD)
+all : $(MD) $(RMD)
 
 clean:
-	rm *.html
+	rm $(MD)
