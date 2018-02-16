@@ -1,7 +1,6 @@
 ---
 title: "Session 10"
 output: markdown_document
-permalink: finding_relevant_otus
 ---
 
 ## Learning objectives

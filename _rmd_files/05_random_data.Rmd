@@ -1,7 +1,6 @@
 ---
 title: "Session 5"
 output: markdown_document
-permalink: random_data
 ---
 
 ## Learning goals

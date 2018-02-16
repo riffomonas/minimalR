@@ -1,7 +1,6 @@
 ---
 title: "Session 8"
 output: markdown_document
-permalink: otu_data
 ---
 
 ## Learning objectives

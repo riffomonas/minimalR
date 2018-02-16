@@ -1,7 +1,7 @@
 ---
+layout: lesson
 title: "Session 1"
 output: markdown_document
-permalink: scatter_plots
 ---
 
 ## Learning goals

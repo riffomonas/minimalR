@@ -1,7 +1,6 @@
 ---
 title: "Session 9"
 output: markdown_document
-permalink: plotting_otu_data
 ---
 
 ## Learning objectives

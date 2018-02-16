@@ -1,7 +1,6 @@
 ---
 title: "Session 7"
 output: markdown_document
-permalink: line_plots
 ---
 
 ## Learning objectives

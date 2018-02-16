@@ -1,7 +1,6 @@
 ---
 title: "Session 6"
 output: markdown_document
-permalink: non_normal_data
 ---
 
 ## Learning goals

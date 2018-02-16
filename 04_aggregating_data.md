@@ -1,7 +1,6 @@
 ---
 title: "Session 4"
 output: markdown_document
-permalink: aggregating_data
 ---
 
 

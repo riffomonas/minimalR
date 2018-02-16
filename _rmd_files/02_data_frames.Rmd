@@ -1,7 +1,6 @@
 ---
 title: "Session 2"
 output: markdown_document
-permalink: data_frames
 ---
 
 ## Learning goals

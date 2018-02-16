@@ -1,7 +1,6 @@
 ---
 title: "Session 3"
 output: markdown_document
-permalink: combining_data_frames
 ---
 
 ## Learning goals
@@ -142,7 +141,7 @@ install.packages("dplyr", repos="https://cloud.r-project.org/")
 ```
 ## 
 ## The downloaded binary packages are in
-## 	/var/folders/8p/j4r5_4yn7jg5z3s6p_ky8lc40000gn/T//RtmpmJUjwN/downloaded_packages
+## 	/var/folders/8p/j4r5_4yn7jg5z3s6p_ky8lc40000gn/T//RtmpM8C4iz/downloaded_packages
 ```
 
 ```r
