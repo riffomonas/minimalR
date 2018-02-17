@@ -1,5 +1,6 @@
 ---
-title: "Session 3"
+layout: lesson
+title: "Session 3: Combining Data Frames"
 output: markdown_document
 ---
 
@@ -141,7 +142,7 @@ install.packages("dplyr", repos="https://cloud.r-project.org/")
 ```
 ## 
 ## The downloaded binary packages are in
-## 	/var/folders/8p/j4r5_4yn7jg5z3s6p_ky8lc40000gn/T//RtmpM8C4iz/downloaded_packages
+## 	/var/folders/8p/j4r5_4yn7jg5z3s6p_ky8lc40000gn/T//RtmpCCOpdJ/downloaded_packages
 ```
 
 ```r
@@ -291,8 +292,8 @@ inner_join(a, b, by=c("a1"="b1"))
 #### Activity 1
 What happens in these cases when we switch the `a` and `b` data frames in the `inner_join` function call?
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -311,8 +312,8 @@ inner_join(b, a, by=c("b1"="a1"))
 #### Activity 2
 Let's get back to our data. When we were using the `$` to pull columns out of our files we used `alpha_mean$group` and `metadata$sample`. Based on what we did with the `a` and `b` data frames, how would we merge the `alpha_mean` and `metadata` data frames? Which join should we use? Which data frame do we want to go first? Does it matter? Go ahead and plot the relationship between a patient's Shannon index and their age.
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -330,8 +331,8 @@ Based on what we learned in the earlier exercises let's make some improvements.
 * Alter the limits of the x-axis to go from 0 to 90 and have the y-axis go from 0 to 5.
 * Color the points by diagnosis
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -368,8 +369,8 @@ Again, we've got the same output, but simpler code.
 #### Activity 4
 Generate a new plot where you plot each patient's number of observed OTUs (Sobs) as a function of the fit result. Color each point by their gender and select the plotting symbol based on whether they smoke. Use the `~` approach with the `data` argument.
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -442,8 +443,8 @@ legend(x=2000, y=100, legend=c('Female smoker','Male smoker', 'Female non-smoker
 #### Activity 5
 Revisit the ordination plot you generated in Activity 5 from Session 2 and generate a legend to accompany the plot.
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 ```r
 sex_color <- c(f="red", m="blue")
@@ -517,8 +518,8 @@ We see that our correlation is -0.085 and the P-value is 0.061, which is not sig
 #### Activity 6
 Revisiting the figure from Activity 5, go ahead and put the legend in the right hand margin of the plotting window.
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 ```r
 sex_color <- c(f="red", m="blue")
@@ -540,8 +541,8 @@ legend(x=0.6, y=0.4, legend=c("Female, Normal", "Female, Adenoma", "Female, Canc
 #### Activity 7
 Plot the relationship between each person's height and weight. What is the correlation between the two variables?
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r

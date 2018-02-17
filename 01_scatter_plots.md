@@ -1,6 +1,6 @@
 ---
 layout: lesson
-title: "Session 1"
+title: "Session 1: Scatter Plots"
 output: markdown_document
 ---
 
@@ -34,8 +34,8 @@ What's going on in this chunk of code?
 * Change the plotting symbol from a red diamond to a solid blue circle
 * Make the plotting symbols a smidge larger
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -46,15 +46,15 @@ plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",
  			main="PCoA of ThetaYC Distances Between Stool Samples")
 ```
 
-![plot of chunk unnamed-chunk-2](../assets/images/01_scatter_plots//unnamed-chunk-2-1.png)
+![plot of chunk unnamed-chunk-2](assets/images/01_scatter_plots//unnamed-chunk-2-1.png)
 
 </div>
 
 ### Activity 2
 * Write code for a new plot, and adapt the code to plot PCo axes 2 and 3
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -65,14 +65,14 @@ plot(x=pcoa$axis2, y=pcoa$axis3, xlab="PCo Axis 2", ylab="PCo Axis 3",
  			main="PCoA of ThetaYC Distances Between Stool Samples")
 ```
 
-![plot of chunk unnamed-chunk-3](../assets/images/01_scatter_plots//unnamed-chunk-3-1.png)
+![plot of chunk unnamed-chunk-3](assets/images/01_scatter_plots//unnamed-chunk-3-1.png)
 </div>
 
 ## Working with vectors
 In the plot we generated above we used a combination of vectors and scalars to hold numbers and strings. Our `ylim` value was `c(-1.0, 1.0)` is a funky looking vector that actually contains two values: -1.0 and 1.0. As you probably found changing these values changed the bounds on the ordination plot. In the plot command above there were several vectors that can take or or more values:  x, y, xlim, ylim, pch, col, and cex. You'll probably notice that some of these vectors only had one value. For example, pch, col, and cex only took a single value in this case. How do you think you'd change our original code to alternate between pch values of 1 and 19?
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -81,14 +81,14 @@ plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",
  			main="PCoA of ThetaYC Distances Between Stool Samples")
 ```
 
-![plot of chunk unnamed-chunk-4](../assets/images/01_scatter_plots//unnamed-chunk-4-1.png)
+![plot of chunk unnamed-chunk-4](assets/images/01_scatter_plots//unnamed-chunk-4-1.png)
 
 </div>
 
 What do you think we'd do if we wanted to alternate between red and blue colored points?
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -111,7 +111,7 @@ plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",
   		cex=pcoa$axis3, main="PCoA of ThetaYC Distances Between Stool Samples")
 ```
 
-![plot of chunk unnamed-chunk-6](../assets/images/01_scatter_plots//unnamed-chunk-6-1.png)
+![plot of chunk unnamed-chunk-6](assets/images/01_scatter_plots//unnamed-chunk-6-1.png)
 
 Hmmmm. Let's see whether we can learn something more about the values in that third dimension. We'll use the `summary` function
 
@@ -121,7 +121,7 @@ summary(pcoa$axis3)
 ```
 
 ```
-##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ## -0.2575 -0.1038 -0.0268  0.0000  0.0660  0.5383
 ```
 
@@ -133,7 +133,7 @@ summary(pcoa$axis3 + 1)
 ```
 
 ```
-##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ##  0.7425  0.8962  0.9732  1.0000  1.0660  1.5383
 ```
 
@@ -155,7 +155,7 @@ plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",
   		cex=pcoa$axis3+1, main="PCoA of ThetaYC Distances Between Stool Samples")
 ```
 
-![plot of chunk unnamed-chunk-10](../assets/images/01_scatter_plots//unnamed-chunk-10-1.png)
+![plot of chunk unnamed-chunk-10](assets/images/01_scatter_plots//unnamed-chunk-10-1.png)
 
 Alternatively, we could create a variable that holds the transformed data.
 
@@ -168,12 +168,12 @@ plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",
   		cex=scaled_axis3, main="PCoA of ThetaYC Distances Between Stool Samples")
 ```
 
-![plot of chunk unnamed-chunk-11](../assets/images/01_scatter_plots//unnamed-chunk-11-1.png)
+![plot of chunk unnamed-chunk-11](assets/images/01_scatter_plots//unnamed-chunk-11-1.png)
 
 Hmmm. I'm not seeing a big difference between the smallest and largest points. What if we were to double the value of our scaled variable?
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -184,7 +184,7 @@ plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",
   		cex=scaled_axis3, main="PCoA of ThetaYC Distances Between Stool Samples")
 ```
 
-![plot of chunk unnamed-chunk-12](../assets/images/01_scatter_plots//unnamed-chunk-12-1.png)
+![plot of chunk unnamed-chunk-12](assets/images/01_scatter_plots//unnamed-chunk-12-1.png)
 
 That's a bit better.
 
@@ -211,7 +211,7 @@ One problem with the ordination is that there is a tendency for the points to fa
 
 There are 25 different plotting symbols in R that can be set by giving a vector containing one or more value from 1 to 25 to the pch option in R's plotting commands. I tend to limit myself to a handful of these: open and closed squares, circles, or triangles. To keep myself from hunting for the right pch value, I made a cheat sheet:
 
-![plot of chunk unnamed-chunk-13](../assets/images/01_scatter_plots//unnamed-chunk-13-1.png)
+![plot of chunk unnamed-chunk-13](assets/images/01_scatter_plots//unnamed-chunk-13-1.png)
 
 You already played around with changing the plotting symbols in the earlier exercises. Among these 25 symbols, symbols 21 to 25 are unique. The symbol takes a color as does the border of the symbol. You can set the symbol color using the `bg` option and the border with the `col` option. Let's give this a shot with our ordination:
 
@@ -222,7 +222,7 @@ plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",
 		 main="PCoA of ThetaYC Distances Between Stool Samples")
 ```
 
-![plot of chunk unnamed-chunk-14](../assets/images/01_scatter_plots//unnamed-chunk-14-1.png)
+![plot of chunk unnamed-chunk-14](assets/images/01_scatter_plots//unnamed-chunk-14-1.png)
 
 We can also make the border thicker using the `lwd` option
 
@@ -233,7 +233,7 @@ plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",
 			lwd=2, cex=1, main="PCoA of ThetaYC Distances Between Stool Samples")
 ```
 
-![plot of chunk unnamed-chunk-15](../assets/images/01_scatter_plots//unnamed-chunk-15-1.png)
+![plot of chunk unnamed-chunk-15](assets/images/01_scatter_plots//unnamed-chunk-15-1.png)
 
 We can mix and match plotting symbols from 1 to 20 with those from 21 to 25
 
@@ -245,7 +245,7 @@ plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",
 		main="PCoA of ThetaYC Distances Between Stool Samples")
 ```
 
-![plot of chunk unnamed-chunk-16](../assets/images/01_scatter_plots//unnamed-chunk-16-1.png)
+![plot of chunk unnamed-chunk-16](assets/images/01_scatter_plots//unnamed-chunk-16-1.png)
 
 Even with the increased contrast between plotting symbols that we get by putting a border on the plotting symbol there is a fair amount of over plotting going on here, which makes it difficult to differentiate our points. We'll use get an introduction to packages. One thing that makes R awesome is that anyone can create a package to extend the utility of the base package. This has resulted in a massive breadth of functionality. We'll see a number of packages as we go through these exercises. The package we're immediately interested in is called `scales` because it has a function called `alpha`, which modifies color opacity. We need to learn three things: how to install a package, how to load its library, and how to use alpha. Once you've installed a package, you can skip the `install.packages` step in all future R sessions; however, you need to use the `library` function whenever you reopen R in the future. Here we go...
 
@@ -260,9 +260,9 @@ install.packages('scales', repos="https://cloud.r-project.org/")
 ```
 
 ```
-##
+## 
 ## The downloaded binary packages are in
-## 	/var/folders/8p/j4r5_4yn7jg5z3s6p_ky8lc40000gn/T//RtmpD5GXPT/downloaded_packages
+## 	/var/folders/8p/j4r5_4yn7jg5z3s6p_ky8lc40000gn/T//RtmpGk9Gmf/downloaded_packages
 ```
 
 ```r
@@ -273,12 +273,12 @@ plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",
 		lwd=2, cex=1, main="PCoA of ThetaYC Distances Between Stool Samples")
 ```
 
-![plot of chunk unnamed-chunk-17](../assets/images/01_scatter_plots//unnamed-chunk-17-1.png)
+![plot of chunk unnamed-chunk-17](assets/images/01_scatter_plots//unnamed-chunk-17-1.png)
 
 You can see that we used the `alpha` function to generate a color for the `col` option. Here we took `red` and made it 25% opaque. If four or more points were stacked up on each other, the overlapping region would be solid red. Go ahead and change the opacity to be 50%.
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -287,15 +287,15 @@ plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",
 		lwd=2, cex=1, main="PCoA of ThetaYC Distances Between Stool Samples")
 ```
 
-![plot of chunk unnamed-chunk-18](../assets/images/01_scatter_plots//unnamed-chunk-18-1.png)
+![plot of chunk unnamed-chunk-18](assets/images/01_scatter_plots//unnamed-chunk-18-1.png)
 
 </div>
 
 ### Activity 5
 Can you alter the transparency of the plotting symbol to reflect the position of each point in the third dimension? You will need to scale the points to fall between 0.0 and 1.0. To get the minimum value in a vector you can use the `min` function and the maximum value using the `max` function.
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -304,26 +304,9 @@ plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",
 		lwd=2, cex=1, main="PCoA of ThetaYC Distances Between Stool Samples")
 ```
 
-![plot of chunk unnamed-chunk-19](../assets/images/01_scatter_plots//unnamed-chunk-19-1.png)
+![plot of chunk unnamed-chunk-19](assets/images/01_scatter_plots//unnamed-chunk-19-1.png)
 
 </div>
 
 ### Activity 6
 Take what you've learned in this session and prove to yourself that you can mix and match parameter values. For example, can you generate a plot with two different plotting symbols, colors, and opacities?
-
-<script>
-$( "input.hideshow" ).each( function ( index, button ) {
-  button.value = 'Show an answer';
-  $( button ).click( function () {
-    var target = this.nextSibling ? this : this.parentNode;
-    target = target.nextSibling.nextSibling;
-    if ( target.style.display == 'block' || target.style.display == '' ) {
-      target.style.display = 'none';
-      this.value = 'Show an answer';
-    } else {
-      target.style.display = 'block';
-      this.value = 'Hide answer';
-    }
-  } );
-} );
-</script>

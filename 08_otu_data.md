@@ -1,5 +1,6 @@
 ---
-title: "Session 8"
+layout: lesson
+title: "Session 8: OTU Data"
 output: markdown_document
 ---
 
@@ -236,8 +237,8 @@ names(otu_name) <- taxonomy$OTU
 ```
 
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 ```r
 taxonomy <- read.table(file="data/baxter.cons.taxonomy", header=T, stringsAsFactors=F)
@@ -606,8 +607,8 @@ We'd also like to know the 95% confidence interval around each mean relative abu
 ### Activity 5
 Collect the various chunks of code from above that went into creating the `mean_phylum_matrix` into one place. Make sure you got everything by quitting R, restarting it and running your code. Confirm that you had no errors. Modify the code to create a matrix called `median_phylum_matrix` that returns the median relative abundance and `sd_phylum_matrix` that returns the standard deviations of the relative abundances.
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 ```r
 source("code/baxter.R")
@@ -733,22 +734,3 @@ otu_phylum <- data.frame(otu = taxonomy$OTU, phylum = phylum, stringsAsFactors=F
 ```
 
 with a function that allows the user to use any taxonomic level? To prevent getting back "unclassified", could you write the function to instead return a more meaningful name?
-
-
-
-<script>
-$( "input.hideshow" ).each( function ( index, button ) {
-  button.value = 'Show an answer';
-  $( button ).click( function () {
-    var target = this.nextSibling ? this : this.parentNode;
-    target = target.nextSibling.nextSibling;
-    if ( target.style.display == 'block' || target.style.display == '' ) {
-      target.style.display = 'none';
-      this.value = 'Show an answer';
-    } else {
-      target.style.display = 'block';
-      this.value = 'Hide answer';
-    }
-  } );
-} );
-</script>

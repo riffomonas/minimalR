@@ -1,5 +1,6 @@
 ---
-title: "Session 9"
+layout: lesson
+title: "Session 9: Plotting OTU Data"
 output: markdown_document
 ---
 
@@ -172,8 +173,8 @@ barplot(t(mean_abundant_phylum_matrix), beside=T, col=dx_color[colnames(mean_phy
 box()
 ```
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -347,8 +348,8 @@ box()
 ### Activity 1
 If you change the size of the window by dragging the lower right corner to the left, do you notice that some of our phylum names go away? This is less than ideal. We just saw how we could use the `las` argument to turn the labels 90 degrees. What happens when you use `las=2` in your `axis(1, ...)` function call? Modify the margins so that the names fit in the plotting window.
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 ```r
 plot(NA, ylim=c(0,1), xlim=c(1,19), ylab="Relative Abundance", xlab="", axes=F)
@@ -404,8 +405,8 @@ box()
 ### Activity 2
 Hopefully you're keyed into the fact that this code is not DRY. It also doesn't lend itself very well to incorporating new data or should we want to adjust our minimal threshold. Rewrite the code to replace the five `boxplot` function calls with a single cal within a for loop and filter the `rel_abund` matrix to those phyla whose average relative abundance is greater than 2%. Finally, add a legend to the plot.
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 ```r
 abundant <- apply(mean_phylum_matrix, 1, mean) > 0.02
@@ -514,8 +515,8 @@ We frequently want to italicize taxonomic names. Journals vary in their styles, 
 ### Activity 4
 Sometimes it's easier to visualize a plot if it is rotated 90 degrees. Can you transpose the strip chart so the strips go from left to right? What happens if you set the y-axis limits from 19 to 1 instead of from 1 to 19?
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -553,20 +554,3 @@ legend(y=10, x=0.7, legend=c("Normal", "Adenoma", "Cancer"), col=c("black", "blu
 
 ![plot of chunk unnamed-chunk-14](assets/images/09_plotting_otu_data//unnamed-chunk-14-1.png)
 </div>
-
-<script>
-$( "input.hideshow" ).each( function ( index, button ) {
-  button.value = 'Show an answer';
-  $( button ).click( function () {
-    var target = this.nextSibling ? this : this.parentNode;
-    target = target.nextSibling.nextSibling;
-    if ( target.style.display == 'block' || target.style.display == '' ) {
-      target.style.display = 'none';
-      this.value = 'Show an answer';
-    } else {
-      target.style.display = 'block';
-      this.value = 'Hide answer';
-    }
-  } );
-} );
-</script>

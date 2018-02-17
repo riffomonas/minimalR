@@ -1,5 +1,6 @@
 ---
-title: "Session 7"
+layout: lesson
+title: "Session 7: Line Plots"
 output: markdown_document
 ---
 
@@ -183,8 +184,8 @@ points(ave_rarefy[,"2005650"]~numsampled, col=dx_color[metadata[metadata$sample=
 
 Can you add two or three more lines to the plot?
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 ```r
 plot(ave_rarefy[,"2003650"]~numsampled, col=dx_color[metadata[metadata$sample=="2003650", "dx"]], type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed")
@@ -294,8 +295,8 @@ The first time through the loop, `my_value` is the first value of `my_vector_of_
 ### Activity 1
 Write a for loop that runs the points function call from above on each value of `colnames(ave_rarefy)`
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 ```r
 plot(NA, type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed", xlim=c(0,50000), ylim=c(0,max(ave_rarefy, na.rm=T)))
@@ -379,8 +380,8 @@ for(sample_name in colnames(ave_rarefy)[1:5]){
 ### Activity 2
 We can make the lines a bit thicker. In the previous session we did this to alter the thickness of the segments indicating the average diversity values. Go ahead and modify the previous code chunk to give the lines a thickness of 3 units.
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 ```r
 plot(NA, type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed", xlim=c(0,40000), ylim=c(0,400))
@@ -419,8 +420,8 @@ par(mar=orig_mar)
 ### Activity 3
 Select a different line type to represent each of the diagnoses.
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 ```r
 line_types <- c(normal=1, adenoma=2, cancer=3)
@@ -467,22 +468,3 @@ legend(x=25000, y=200, legend=c("Normal", "Adenoma", "Cancer"), col=dx_color, lt
 ```
 
 ![plot of chunk unnamed-chunk-20](assets/images/07_line_plots//unnamed-chunk-20-1.png)
-
-
-
-<script>
-$( "input.hideshow" ).each( function ( index, button ) {
-  button.value = 'Show an answer';
-  $( button ).click( function () {
-    var target = this.nextSibling ? this : this.parentNode;
-    target = target.nextSibling.nextSibling;
-    if ( target.style.display == 'block' || target.style.display == '' ) {
-      target.style.display = 'none';
-      this.value = 'Show an answer';
-    } else {
-      target.style.display = 'block';
-      this.value = 'Hide answer';
-    }
-  } );
-} );
-</script>

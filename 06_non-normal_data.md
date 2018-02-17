@@ -1,5 +1,6 @@
 ---
-title: "Session 6"
+layout: lesson
+title: "Session 6: Non-normal Data"
 output: markdown_document
 ---
 
@@ -127,8 +128,8 @@ Let's break this down a bit. If you recall our discussion of putting the legend 
 #### Activity 1
 Write another `mtext` function call to add the label to indicate the Male box plots. Can you write a single `mtext` function call to produce both labels?
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -228,8 +229,8 @@ Here we have three new arguments. The first, `vertical=T` tells `stripchart` to 
 #### Activity 2
 As we did with the boxplots, we can also use the `+` operator in the formula, the `at` and `add` arguments to plot multiple categories together. See if you can take what you learned from the `boxplot` and `stripchart` examples to build a strip chart comparing the Shannon diversity of the three diagnoses for the female and male patients.
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -257,8 +258,8 @@ mtext(side=1, at=c(2,5.5), line=3, cex=1.5, text=c("Female", "Male"))
 
 Whoops. You'll notice the labels aren't showing up under the plots for the male subset of samples. Unfortunately, this is one of the quirks of the naming argument for stripcharts. One way around it is to combine the individual functions as we did before with the boxplots using `at` to tell R where to plot and `rep()` to repeat the label names appropriately.  Go ahead and give that a try now.
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -281,8 +282,8 @@ mtext(side=1, at=c(2,5.5), line=3, cex=1.5, text=c("Female", "Male"))
 #### Activity 3
 Because there is still a fair amount of over plotting, can you rebuild this plot and change the opacity for each point to 50%?
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -361,8 +362,8 @@ Wonderful!
 #### Activity 4
 We might like the segments to extend a bit further so that they extend beyond the horizontal range of each strip chart. Can you alter the segments function call to make each segment start 0.3 units before the edge of each strip and end 0.3 units after each strip? Go ahead and put this with your code for the strip chart, axis labeling, and calculation of the mean value.
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -391,8 +392,8 @@ segments(x0=c(1:3, c(4.5,5.5,6.5))-0.3, y0=shannon_dx_gender_median$shannon,
 #### Activity 5
 Can you regenerate the previous plot using the number of observed OTUs (`sobs`) instead of the Shannon diversity index?
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -418,23 +419,3 @@ segments(x0=c(1:3, c(4.5,5.5,6.5))-0.3, y0=sobs_dx_gender_median$sobs,
 
 ![plot of chunk unnamed-chunk-21](assets/images/06_non-normal_data//unnamed-chunk-21-1.png)
 </div>
-
-
-
-
-<script>
-$( "input.hideshow" ).each( function ( index, button ) {
-  button.value = 'Show an answer';
-  $( button ).click( function () {
-    var target = this.nextSibling ? this : this.parentNode;
-    target = target.nextSibling.nextSibling;
-    if ( target.style.display == 'block' || target.style.display == '' ) {
-      target.style.display = 'none';
-      this.value = 'Show an answer';
-    } else {
-      target.style.display = 'block';
-      this.value = 'Hide answer';
-    }
-  } );
-} );
-</script>

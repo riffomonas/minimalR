@@ -1,5 +1,6 @@
 ---
-title: "Session 4"
+layout: lesson
+title: "Session 4: Aggregating Data"
 output: markdown_document
 ---
 
@@ -115,8 +116,8 @@ bmi <- weight_kg / height_m ^ 2
 
 Write a function that takes both parameters and returns the BMI. Use an online BMI calculator like the one at the [NIH](http://www.nhlbi.nih.gov/health/educational/lose_wt/BMI/bmi-m.htm) to double check your values. Try it out on the data in `meta_alpha` to generate a `bmi` column in the data frame.
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -149,8 +150,8 @@ Let's step through this assuming we have a BMI of 17. The first question is whet
 #### Activity 2
 Generate a function `is_obese` that takes in a person's `bmi` and returns a `TRUE` or `FALSE` value indicating whether the person is obese.
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -168,8 +169,8 @@ is_obese <- function(bmi){
 * Add `get_bmi`, `get_bmi_category`, and `is_obese` to `baxter.R`. Call these functions in `get_meta` to add three new columns: BMI, BMIcat, and is_obese to the data frame.
 * Restart R and run
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -276,8 +277,8 @@ I'd like to start exploring how our continuous data like Shannon diversity vary 
 #### Activity 4
 Calculate the average Shannon diversity for those individuals with normal colons (`normal_mean`). Repeat for those with adenomas (`adenoma_mean`) and cancer (`cancer_mean`).
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -362,8 +363,8 @@ aggregate(shannon ~ BMIordinal, data=meta_alpha, FUN=mean)
 #### Activity 5
 Using the `aggregate` function, create a variable, `shannon_colon_mean`, that contains the average Shannon diversity for each diagnosis. Treat the diagnosis groups as ordinal data. This object will replace the values in `normal_mean`, `adenoma_mean`, and `cancer_mean`. What type of variable is this?
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -415,8 +416,8 @@ Nice, that's looking better. You'll notice a subtle function call that we added,
 
 Something we'd like to do to make the figure more "publication quality" is to format the categories so the first letter is capitalized. We could do some fancy string manipulations to achieve this, but for now, let's create a named vector to do the conversion. Can you create a vector called `dx_convert` so that if we call `dx_convert['normal']` we'll get back `"Normal"`? Go ahead and add this to the barplot command so the categories are properly named.
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -475,8 +476,8 @@ se <- function(x){
 #### Activity 6
 Using our new `se` function, create a variable called `shannon_colon_se`.
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -617,8 +618,8 @@ Nice.
 #### Activity 7
 There's been much made about the relationship between obesity category and diversity. The thought is that obese individuals have a lower diversity than normal people. Modify our code to generate a bar plot that displays the variation in Shannon diversity for each obesity category. Is there a significant difference between the categories?
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -646,8 +647,8 @@ arrows(x0=obesity_plot,
 A three or four category bar plot is nice and all, but really isn't that interesting. We'd like to know whether the Shannon diversity varies between diagnosis category and gender. We think we'd like to see the bars clustered by gender, but we might also want to see them clustered by category. The first thing we need to do is to use our aggregate command. Can you create the `shannon_dx_gender_mean` and `shannon_dx_gender_se` variable using aggregate commands?
 
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -779,8 +780,8 @@ legend("topright", legend=rownames(mean_matrix), fill=dx_color[rownames(mean_mat
 #### Activity 8
 Modify the last code chunk to nicely format the diagnosis and sex labels
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -863,23 +864,3 @@ summary(aov(shannon ~ dx * Gender, data=meta_alpha))
 ```
 
 Still nothing.
-
-
-
-
-<script>
-$( "input.hideshow" ).each( function ( index, button ) {
-  button.value = 'Show an answer';
-  $( button ).click( function () {
-    var target = this.nextSibling ? this : this.parentNode;
-    target = target.nextSibling.nextSibling;
-    if ( target.style.display == 'block' || target.style.display == '' ) {
-      target.style.display = 'none';
-      this.value = 'Show an answer';
-    } else {
-      target.style.display = 'block';
-      this.value = 'Hide answer';
-    }
-  } );
-} );
-</script>

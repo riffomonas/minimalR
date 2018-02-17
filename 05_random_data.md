@@ -1,5 +1,6 @@
 ---
-title: "Session 5"
+layout: lesson
+title: "Session 5: Random Data"
 output: markdown_document
 ---
 
@@ -229,8 +230,8 @@ Which of these do you think looks better? Squaring the `normal_shannon` data app
 #### Activity 1
 Replicate the density and QQ plots we generated for the patients with normal colons to assess the normality of the patients with adenomas and cancer.
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -272,8 +273,8 @@ qqnorm(cancer_shannon, col="black", pch=19)
 #### Activity 2
 We've compared the distribution of our observed Shannon diversity values to those we'd expect if the data were normally distributed on the same plots. Can you plot the observed distributions for the normal, adenoma, and cancer samples on the same plot?
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -318,8 +319,8 @@ Re-run the ANOVAs that we ran in the previous session using the appropriately tr
 #### Activity 4
 Plot the density of BMI values for each of the three diagnosis categories. You may notice that you get an error that says "'x' contains missing values". This happens because the `meta_alpha$BMI` vector contains `NA` values. You can tell the function (e.g. `density`) to ignore these values using the `na.rm=T` argument.
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -374,22 +375,3 @@ dev.off()
 ```
 ## Error in dev.off(): QuartzBitmap_Output - unable to open file 'figures/bmi_density.tiff'
 ```
-
-
-
-<script>
-$( "input.hideshow" ).each( function ( index, button ) {
-  button.value = 'Show an answer';
-  $( button ).click( function () {
-    var target = this.nextSibling ? this : this.parentNode;
-    target = target.nextSibling.nextSibling;
-    if ( target.style.display == 'block' || target.style.display == '' ) {
-      target.style.display = 'none';
-      this.value = 'Show an answer';
-    } else {
-      target.style.display = 'block';
-      this.value = 'Hide answer';
-    }
-  } );
-} );
-</script>

@@ -1,5 +1,6 @@
 ---
-title: "Session 2"
+layout: lesson
+title: "Session 2: Data Frames"
 output: markdown_document
 ---
 
@@ -677,8 +678,8 @@ metadata <- metadata
 metadata <- metadata
 ```
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -694,8 +695,8 @@ metadata$Hx_of_Polyps <- as.logical(metadata$Hx_of_Polyps)
 
 The final column of the data.frame, `stage` indicates the subject's cancer stage from 0 to 4. What type of variable does it currently use? What do you think it should be? Write the command below to make this happen.
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -1888,8 +1889,8 @@ metadata[metadata$Dx_Bin == "High Risk Normal" | is.na(metadata$Diabetic),]
 ### Activity 4
 * Create a data frame that contains only individuals from Dana Farber
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -1900,8 +1901,8 @@ dana_farber <- metadata[metadata$Site == "Dana Farber",]
 
 * Create a data frame that contains individuals that have a FIT result greater than 100
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -1912,8 +1913,8 @@ high_fit <- metadata[metadata$fit_result > 100,]
 
 * Create a data frame that contains individuals are 50 years old and younger
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -1932,8 +1933,8 @@ metadata[metadata$ == 0 & !is.na(metadata$Weight), ""] <- NA
 summary(metadata)
 ```
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 
 ```r
@@ -2018,8 +2019,8 @@ plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",
 ### Activity 5
 * Change the plotting symbols to use a different plotting symbol for each diagnosis.
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 ```r
 dx_pch <- c(normal=17, adenoma=18, cancer=19)
@@ -2035,8 +2036,8 @@ plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",
 
 * Color the points for the male and female patients separately
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 ```r
 sex_color <- c(f="red", m="blue")
@@ -2055,20 +2056,3 @@ plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",
 
 ### Activity 6
 At the end of the last session, you thought about scatter plots that you would use in your own research. You made a freehand sketch of what the plot would look like. The final question in that activity was, "What more do you need to learn to make the plot for your own data?" Update your list of things you need to learn. Are you ready to make your plot?
-
-<script>
-$( "input.hideshow" ).each( function ( index, button ) {
-  button.value = 'Show an answer';
-  $( button ).click( function () {
-    var target = this.nextSibling ? this : this.parentNode;
-    target = target.nextSibling.nextSibling;
-    if ( target.style.display == 'block' || target.style.display == '' ) {
-      target.style.display = 'none';
-      this.value = 'Show an answer';
-    } else {
-      target.style.display = 'block';
-      this.value = 'Hide answer';
-    }
-  } );
-} );
-</script>

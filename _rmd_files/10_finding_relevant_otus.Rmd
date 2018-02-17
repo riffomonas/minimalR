@@ -1,5 +1,6 @@
 ---
-title: "Session 10"
+layout: lesson
+title: "Session 10: Finding Relevant OTUs"
 output: markdown_document
 ---
 
@@ -113,8 +114,9 @@ Great - now we have a matrix of OTUs that are differentially represented between
 ### Activity 1
 Using the code from the previous session, generate a strip chart that represents the relative abundances of the differentially represented OTUs. Note that to draw the line segments you'll have to generate a variable called `median_sig_relabund`.
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+
 ```{r}
 median_sig_relabund <- aggregate(sig_relabund, by=list(dx_ordinal), median)
 
@@ -138,6 +140,7 @@ box()
 
 legend(y=15, x=0.18, legend=c("Normal", "Adenoma", "Cancer"), col=c("gray", "blue", "red"), pch=19)
 ```
+
 </div>
 
 Fantastic. There's a few things we might not especially like about this plot. First, the relative abundance values are largely compressed against the x-axis. It would be good to have some spread to the data. Second, the OTU names are dreadful and not descriptive. Instead of "Otu000058", we'd probably prefer something like "*Pasteurellaceae* (OTU 58)". Let's see if we can make this happen.
@@ -279,8 +282,8 @@ names(otu_name) <- taxonomy$OTU
 ### Activity 2
 Rewrite our `axis(2, ...)` function to use our new `otu_name` vector and italicize the names.
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 ```{r}
 fudge_factor <- 5e-5
 transformed <- sig_relabund + fudge_factor
@@ -320,8 +323,8 @@ Using your `gsub` skills, complete the following line of code:
 otus <- gsub(pattern="??????", replacement="?????", names(otu_name))
 ```
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 ```{r}
 otus <- gsub(pattern="Otu0*", replacement="OTU ", names(otu_name))
 ```
@@ -351,8 +354,8 @@ names(pretty_otus) <- names(otu_name)
 ### Activity 4
 Rewrite our `axis(2, ...)` function again to use our new `otu_name` vector and italicize the names.
 
-<input type=button class=hideshow style="margin-bottom: 20px"></input>
-<div style="display: none">
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 ```{r}
 fudge_factor <- 5e-5
 transformed <- sig_relabund + fudge_factor
@@ -454,21 +457,3 @@ abline(v=0.9e-4, col="gray")
 ```
 
 BOOM! Once you get it working, be sure to go back to your stackoverflow question and check the answer as being correct. Looking back at the answer I noticed the `bquote` function being called. I'd never heard of that before. I googled "Rstats bquote example" and got a great example that in hindsight was exactly what I wanted: https://blog.snap.uaf.edu/2012/11/29/an-r-bquote-example/.
-
-
-<script>
-$( "input.hideshow" ).each( function ( index, button ) {
-  button.value = 'Show an answer';
-  $( button ).click( function () {
-    var target = this.nextSibling ? this : this.parentNode;
-    target = target.nextSibling.nextSibling;
-    if ( target.style.display == 'block' || target.style.display == '' ) {
-      target.style.display = 'none';
-      this.value = 'Show an answer';
-    } else {
-      target.style.display = 'block';
-      this.value = 'Hide answer';
-    }
-  } );
-} );
-</script>
