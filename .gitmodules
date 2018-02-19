@@ -3,4 +3,4 @@
 	url = https://github.com/riffomonas/resources.git
 [submodule "data"]
 	path = data
-	url = git@github.com:riffomonas/baxter_data.git
+	url = https://github.com/riffomonas/baxter_data.git
