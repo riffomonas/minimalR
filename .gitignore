@@ -4,6 +4,7 @@ _site
 
 code/
 figures/
+processed_data/
 
 \.DS_Store
 

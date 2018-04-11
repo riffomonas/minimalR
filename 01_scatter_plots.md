@@ -6,9 +6,7 @@ output: markdown_document
 
 ## Learning goals
 * Determine when a scatter plot is an appropriate data visualization tool
-* Manipulate plotting symbols
-* Manipulate vectors
-* Create variables to make code DRY
+* Manipulate plotting symbols and colors to plot metadata
 * Adapt existing code to achieve a goal
 * Install R packages and libraries
 
@@ -20,9 +18,10 @@ output: markdown_document
 
 ```r
 library(tidyverse)
+library(readxl)
 
-pcoa <- read_tsv(file="data/baxter.thetayc.pcoa.axes")
-metadata <- read_tsv(file="data/baxter.metadata.tsv")
+pcoa <- read_tsv(file="raw_data//baxter.thetayc.pcoa.axes")
+metadata <- read_excel(path="raw_data//baxter.metadata.xlsx")
 pcoa_metadata <- inner_join(pcoa, metadata, by=c('group'='sample'))
 
 ggplot(pcoa_metadata, aes(x=axis1, y=axis2, color=dx)) +
@@ -42,7 +41,7 @@ ggsave("ordination.pdf")
 
 <img src="assets/images/01_scatter_plots//unnamed-chunk-1-1.png" title="plot of chunk unnamed-chunk-1" alt="plot of chunk unnamed-chunk-1" width="504" />
 
-What's going on in this chunk of code? One of the nice things about working in R is that the code can be quite readable so that a novice can figure out what is going on. This chunk of code has four sections. First, we are asking R to load a library called `tidyverse`. Second, we are reading in two files and joining them together. Finally, we are plotting some of the data from the joined data and saving it as a PDF. There are a couple of details that are helpful to notice here:
+What's going on in this chunk of code? One of the nice things about working in R is that the code can be quite readable so that a novice can figure out what is going on. This chunk of code has four sections. First, we are asking R to load two libraries called `tidyverse` and `readxl`. Second, we are reading in two files and joining them together. Finally, we are plotting some of the data from the joined data and saving it as a PDF. There are a couple of details that are helpful to notice here:
 * R is a very expansive language that many people from diverse backgrounds and interests are helping to develop. This has resulted in numerous packages to make life easier. The `tidyverse` is a set of packages that has been a game changer for R.
 * A function (e.g. `read_tsv`) takes arguments. These arguments are contained within round parentheses (i.e. `(`) and if there are multiple arguments, they are separated by a comma
 * Parameters for the arguments that are textual are wrapped in quote marks (i.e. `"` or `'`). It doesn't matter whether you use single (i.e. `'`) or double (i.e. `"`) quotes, but be consistent and you have to match a single quote with a single quote and a double with a double.
