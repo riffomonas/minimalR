@@ -25,9 +25,9 @@ library(readxl)
 
 pcoa <- read_tsv(file="raw_data/baxter.thetayc.pcoa.axes")
 metadata <- read_excel(path="raw_data/baxter.metadata.xlsx")
-pcoa_metadata <- inner_join(pcoa, metadata, by=c('group'='sample'))
+metadata_pcoa <- inner_join(metadata, pcoa, by=c('sample'='group'))
 
-ggplot(pcoa_metadata, aes(x=axis1, y=axis2, color=dx)) +
+ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 	geom_point(shape=19, size=2) +
 	scale_color_manual(name=NULL,
 		values=c("blue", "red", "black"),
@@ -635,10 +635,10 @@ write_tsv(x=metadata, path='processed_data/baxter.metadata.tsv')
 Now that we have the `metadata` data frame looking spiffy, we want to run the next line:
 
 ```R
-pcoa_metadata <- inner_join(pcoa, metadata, by=c('group'='sample'))
+metadata_pcoa <- inner_join(metadata, pcoa, by=c('sample'='group'))
 ```
 
-This throws an error. It is complaining because the "group" column in our `pcoa` data frame contains integers and the "sample" column in our `metadata` data frame contains characters. To merge these using `inner_join`, we need them to both be characters. Can you think of how to change the "sample" column from `meatdata` to be characters? Test your solution by creating the `pcoa_metadata` data frame
+This throws an error. It is complaining because the "group" column in our `pcoa` data frame contains integers and the "sample" column in our `metadata` data frame contains characters. To merge these using `inner_join`, we need them to both be characters. Can you think of how to change the "sample" column from `meatdata` to be characters? Test your solution by creating the `metadata_pcoa` data frame
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
@@ -647,13 +647,13 @@ This throws an error. It is complaining because the "group" column in our `pcoa`
 pcoa <- read_tsv(file="raw_data/baxter.thetayc.pcoa.axes",
 		col_types=cols(group=col_character())
 
-pcoa_metadata <- inner_join(pcoa, metadata, by=c('group'='sample'))
+metadata_pcoa <- inner_join(metadata, pcoa, by=c('sample'='group'))
 ```
 
 ```
 ## Error: <text>:4:1: unexpected symbol
 ## 3: 
-## 4: pcoa_metadata
+## 4: metadata_pcoa
 ##    ^
 ```
 </div>
@@ -696,9 +696,9 @@ metadata <- rename(.data=metadata,
 dir.create("processed_data", showWarnings=FALSE)
 write_tsv(x=metadata, path='processed_data/baxter.metadata.tsv')
 
-pcoa_metadata <- inner_join(pcoa, metadata, by=c('group'='sample'))
+metadata_pcoa <- inner_join(metadata, pcoa, by=c('sample'='group'))
 
-ggplot(pcoa_metadata, aes(x=axis1, y=axis2, color=diagnosis)) +
+ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
 	geom_point(shape=19, size=2) +
 	scale_color_manual(name=NULL,
 		values=c("blue", "red", "black"),

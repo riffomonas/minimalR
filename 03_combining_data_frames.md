@@ -1,598 +1,872 @@
 ---
 layout: lesson
-title: "Session 3: Combining Data Frames"
+title: "Session 3: Combining and Exploring Data Frames"
 output: markdown_document
 ---
 
 ## Learning goals
-
-* Combining datasets safely
-* More with scatter plots
-* Correlation analysis
+* Combining datasets
 
 
 
-Do you ever have those moments where you worry that you forgot to turn off the stove after you left on vacation? These moments happen in data analysis too! I'm afraid we have one of those moments right now - *gulp*. In the previous session we generated a plot where we changed the colors and shapes of plotting symbols based on the data in a second file. We assumed that the PCoA and metadata data frames were in the same order. Did you check to make sure they were in the same order? I didn't. How do we know if the files were in the right order? We could certainly go through the two files manually and check. considering there were about 500 lines in each file, manually checking both files would be tedious and error prone. Let's check it out with R. Here's a strategy that we can use that will review some of the concepts from the previous sessions:
 
-* read in both files
-* extract the relevant columns from both data frames
-* determine whether the two columns are the same
+## Joining `metadata` and `pcoa`
+We've almost accounted for all of the lines from our original chunk of code to build an ordination plot. You may remember the `inner_join` function, which was called after cleaning up the `metadata` data frame and before using `ggplot` to plot the data
+
+
+
+```R
+metadata_pcoa <- inner_join(metadata, pcoa, by=c('sample'='group'))
+```
+
+The syntax here should be somewhat clear. The function "joins" two data frames - `pcoa` and `metadata` - based on the columns "sample" and "group", which are the columns in the `metadata` and `pcoa` data frames, respectively. If we were thinking ahead, we could have renamed the "group" column in `pcoa` to be "sample" and then the command could have just been `inner_join(metadata, pcoa)`. When you look at the contents of the `metadata_pcoa` data frame you'll see that the data frame is now 490 rows by 507 columns. Perhaps you're wondering what the ***inner*** in the `inner_join` function is about. It turns out that the `dplyr` package has several ways to join data frames. As we'll see, the `inner_join` function joins two data frames based on a column that they have in common (i.e. `by=c('sample'='group')` in our case) and if a sample or group is missing from one of the data frames, it is excluded from the joined data frame. This is what is called an "[inner join](https://en.wikipedia.org/wiki/Join_(SQL)#Inner_join)".
+
+
+## Joins
+In addition to an "inner join", the `dplyr` package has "[left join](https://en.wikipedia.org/wiki/Join_(SQL)#Left_outer_join)" (i.e. `left_join`) and "[right join](https://en.wikipedia.org/wiki/Join_(SQL)#Right_outer_join)" (i.e. `right_join`) functions, which will merge the data frames using the sample identifiers found in the left or right data frame being joined. There is also a "[full join](https://en.wikipedia.org/wiki/Join_(SQL)#Full_outer_join)" (i.e. `full_join`), which produces a data frame where the samples from both data frames are represented even if they're missing from one of the data frames. Let's do a couple of examples to demonstrate these joins. To keep things simple, we'll define two new data frames. We can do this by giving the `tibble` function a series of vectors that will be used to create the columns
 
 
 ```r
-pcoa <- read.table(file="data/baxter.thetayc.pcoa.axes", header=T)
-metadata <- read.table(file="data/baxter.metadata.tsv", header=T, sep='\t')
-metadata$sample <- as.character(metadata$sample)
-
-pcoa$group == metadata$sample
-```
-
-```
-##   [1] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-##  [15] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-##  [29] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-##  [43] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-##  [57] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-##  [71] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-##  [85] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-##  [99] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [113] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [127] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [141] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [155] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [169] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [183] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [197] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [211] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [225] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [239] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [253] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [267] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [281] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [295] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [309] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [323] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [337] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [351] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [365] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [379] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [393] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [407] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [421] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [435] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [449] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [463] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-## [477] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE
-```
-
-Phew! The lines in our `pcoa` and `metadata` data frames line up. If they had disagreed, then one or more of the `TRUE` values in the output would have been a `FALSE`. Again, with 490 samples, it can still be tedious to see whether any of the values were FALSE. Here are two strategies to make sure that everything is `TRUE`. First, we can exploit the fact that numerical value of `TRUE` is 1 and we can use the `sum` command.
-
-
-```r
-sum(pcoa$group != metadata$sample)
-```
-
-```
-## [1] 0
-```
-
-Get that? by using `!=` we look for rows where the values are not the same. We then sum up all the values and see that they were all `FALSE`. Ergo, our names agree. A second approach can use the `stopifnot` function. This will complain if the expression it is given is not `TRUE`.
-
-
-```r
-stopifnot(pcoa$group == metadata$sample)
-```
-
-No output is a good sign. Great, I'm glad we got that figured out.
-
-For the activities in this session we're going to plot a continuous variable (e.g. diversity) against a categorical variable to create a bar plot. We have a bunch of alpha-diversity data in the file called `data/baxter.groups.ave-std.summary`. These are the alpha-diversity values for the samples that we looked at in the scatter plot exercises. We could imagine wanting to know whether the Shannon diversity varied between the three states of normal, adenoma, and cancer. Go ahead and read it in and take a look around.
-
-
-```r
-alpha <- read.table(file="data/baxter.groups.ave-std.summary", header=T)
-```
-
-Notice anything? Again, because the sample names (or `group` names) are numerical, they are read in as integers, not as characters. We can take care of this. Also, there's a `method` column. Because these data are the product of rarefying a data to 10,530 sequences, we have the mean (ave) and standard deviation (std) for each metric and sample. All we really want from this are the rows with "ave" in the `method` column. See if you can do this with out looking below. Name the new data frame `alpha_mean` - it should have 491 rows and 12 columns.
-
-
-```r
-alpha$group <- as.character(alpha$group)
-alpha_mean <- alpha[alpha$method == 'ave', ]
-```
-
-Having learned our lesson before after getting lucky, let's double check that our data frames are in the same order:
-
-
-```r
-stopifnot(alpha_mean$group == metadata$sample)
-```
-
-```
-## Warning in alpha_mean$group == metadata$sample: longer object length is not
-## a multiple of shorter object length
-```
-
-```
-## Error: alpha_mean$group == metadata$sample are not all TRUE
-```
-
-Ruh roh. There are two problems: the values aren't all `TRUE` and one vector is shorter than the other. Perhaps you noticed that `alpha_mean` had 491 rows but our `metadata` data frame had 490. What's the difference? There are a number of commands that you can use to compare the composition of two vectors (see `?setdiff`). The `setdiff` command tells us which elements are different between the two vectors.
-
-
-```r
-setdiff(alpha_mean$group, metadata$sample)
-```
-
-```
-## [1] "3561655"
-```
-
-Aha, there's one extra element, "3561655" in the `alpha_mean` data_frame. Although we might be interested in figuring out why we don't have metadata for this subject, we perhaps remember that this individual forgot to return their survey when they dropped off their sample so the sample should be excluded. At this point, we could do several steps to remove this sample and make sure the rows are all in the same order. Since this is a common problem, a set of functions have been developed as part of the `dplyr` package. Go ahead and install this package and load the library.
-
-
-```r
-install.packages("dplyr", repos="https://cloud.r-project.org/")
-```
-
-```
-## Installing package into '/Users/pschloss/Library/R/3.4/library'
-## (as 'lib' is unspecified)
-```
-
-```
-## 
-## The downloaded binary packages are in
-## 	/var/folders/8p/j4r5_4yn7jg5z3s6p_ky8lc40000gn/T//RtmpCCOpdJ/downloaded_packages
-```
-
-```r
-library("dplyr")
-```
-
-```
-## 
-## Attaching package: 'dplyr'
-```
-
-```
-## The following objects are masked from 'package:stats':
-## 
-##     filter, lag
-```
-
-```
-## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union
-```
-
-The dplyr package has a few functions that we can use to merge different data frames. We can do an "inner join", which will merge the data frames using the rows that are shared between the two data frames. Alternatively, a "left join" or "right join" will merge the data frames using the rows found in the left or right data frame being joined. There is also a "full join", which produces a data frame where the samples from both data frames are represented. Let's do a couple of examples to demonstrate these joins. First we'll define two new data frames. We can do this by giving the `data.frame` function a series of vectors that will be used to create the columns
-
-
-```r
-a <- data.frame(x1=c("A", "B", "C"), x2=1:3, stringsAsFactors=F)
+a <- tibble(sample=c("A", "B", "C"), x2=1:3)
 a
-```
 
-```
-##   x1 x2
-## 1  A  1
-## 2  B  2
-## 3  C  3
-```
-
-```r
-b <- data.frame(x1=c("A", "B", "D"), x3=c(T, F, T), stringsAsFactors=F)
+b <- tibble(sample=c("A", "B", "D"), x3=c(T, F, T))
 b
 ```
 
 ```
-##   x1    x3
-## 1  A  TRUE
-## 2  B FALSE
-## 3  D  TRUE
+## # A tibble: 3 x 2
+##   sample    x2
+##   <chr>  <int>
+## 1 A          1
+## 2 B          2
+## 3 C          3
+## # A tibble: 3 x 2
+##   sample x3   
+##   <chr>  <lgl>
+## 1 A      T    
+## 2 B      F    
+## 3 D      T
 ```
 
 We'll do a "left join" ...
 
 
 ```r
-left_join(a, b, by="x1")
+left_join(a, b, by="sample")
 ```
 
 ```
-##   x1 x2    x3
-## 1  A  1  TRUE
-## 2  B  2 FALSE
-## 3  C  3    NA
+## # A tibble: 3 x 3
+##   sample    x2 x3   
+##   <chr>  <int> <lgl>
+## 1 A          1 T    
+## 2 B          2 F    
+## 3 C          3 NA
 ```
 
-... a "right join" ...
+Notice that because `b` doesn't have a value for "C" in column "x1", the resulting data frame has a `NA` in that cell. Because `a` doesn't have a value for "D" in column "x1" it is excluded from teh new data frame. If we instead do a "right join" ...
 
 
 ```r
-right_join(a, b, by="x1")
+right_join(a, b, by="sample")
 ```
 
 ```
-##   x1 x2    x3
-## 1  A  1  TRUE
-## 2  B  2 FALSE
-## 3  D NA  TRUE
+## # A tibble: 3 x 3
+##   sample    x2 x3   
+##   <chr>  <int> <lgl>
+## 1 A          1 T    
+## 2 B          2 F    
+## 3 D         NA T
 ```
 
-... a "full join" ...
+We see the opposite result - sample "C" is missing in the new data frame and the value in column "x2" for sample "D" is `NA`. If we now do a "full join"...
 
 
 ```r
-full_join(a, b, by="x1")
+full_join(a, b, by="sample")
 ```
 
 ```
-##   x1 x2    x3
-## 1  A  1  TRUE
-## 2  B  2 FALSE
-## 3  C  3    NA
-## 4  D NA  TRUE
+## # A tibble: 4 x 3
+##   sample    x2 x3   
+##   <chr>  <int> <lgl>
+## 1 A          1 T    
+## 2 B          2 F    
+## 3 C          3 NA   
+## 4 D         NA T
 ```
 
-... and finally an "inner join"
+Here we see that all four samples are represented, but that the "x2" and "x3" columns have `NA` values for samples D and C, respectively. Finally, returning to our old friend, "inner join"...
 
 
 ```r
-inner_join(a, b, by="x1")
+inner_join(a, b, by="sample")
 ```
 
 ```
-##   x1 x2    x3
-## 1  A  1  TRUE
-## 2  B  2 FALSE
+## # A tibble: 2 x 3
+##   sample    x2 x3   
+##   <chr>  <int> <lgl>
+## 1 A          1 T    
+## 2 B          2 F
 ```
 
-You should have noticed two things. First, the left, right, and full joins insert `NA` values into the data frame to fill the in the data frame. In contrast, the inner join, only uses those rows that are shared between the two. Second, we used the `x1` column in each matrix to complete the join. Pretend we had these data frames and wanted to perform a join...
+We now get a data frame that has two rows representing the two samples that were found in `a` and `b`. Depending on your goals, you will need to chose the appropriate join function. Most of the time I use an `inner_join` since I will only want the values (e.g. the axes in `pcoa`) that I have metadata for and I will only want the descriptors (e.g. the values in `metadata`) that I have community data for.
 
-
-```r
-a <- data.frame(a1=c("A", "B", "C"), a2=1:3, stringsAsFactors=F)
-a
-```
-
-```
-##   a1 a2
-## 1  A  1
-## 2  B  2
-## 3  C  3
-```
-
-```r
-b <- data.frame(b1=c("A", "B", "D"), b3=c(T, F, T), stringsAsFactors=F)
-b
-```
-
-```
-##   b1    b3
-## 1  A  TRUE
-## 2  B FALSE
-## 3  D  TRUE
-```
-
-We see that the column names are all different, but we'd like to merge the two data frames using columns `a1` and `b1`. Here's how we can merge the data frames
-
-
-```r
-inner_join(a, b, by=c("a1"="b1"))
-```
-
-```
-##   a1 a2    b3
-## 1  A  1  TRUE
-## 2  B  2 FALSE
-```
-
-#### Activity 1
-What happens in these cases when we switch the `a` and `b` data frames in the `inner_join` function call?
+### Activity 1
+What happens in these cases when we reverse the `a` and `b` data frames in the `inner_join` function call?
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
 
 
 ```r
-inner_join(b, a, by=c("b1"="a1"))
+left_join(b, a, by="sample")
+right_join(b, a, by="sample")
+full_join(b, a, by="sample")
+inner_join(b, a, by="sample")
 ```
 
 ```
-##   b1    b3 a2
-## 1  A  TRUE  1
-## 2  B FALSE  2
+## # A tibble: 3 x 3
+##   sample x3       x2
+##   <chr>  <lgl> <int>
+## 1 A      T         1
+## 2 B      F         2
+## 3 D      T        NA
+## # A tibble: 3 x 3
+##   sample x3       x2
+##   <chr>  <lgl> <int>
+## 1 A      T         1
+## 2 B      F         2
+## 3 C      NA        3
+## # A tibble: 4 x 3
+##   sample x3       x2
+##   <chr>  <lgl> <int>
+## 1 A      T         1
+## 2 B      F         2
+## 3 D      T        NA
+## 4 C      NA        3
+## # A tibble: 2 x 3
+##   sample x3       x2
+##   <chr>  <lgl> <int>
+## 1 A      T         1
+## 2 B      F         2
 ```
 
+We see that the order of columns "x2" and "x3" is reversed
 </div>
 
 
-#### Activity 2
-Let's get back to our data. When we were using the `$` to pull columns out of our files we used `alpha_mean$group` and `metadata$sample`. Based on what we did with the `a` and `b` data frames, how would we merge the `alpha_mean` and `metadata` data frames? Which join should we use? Which data frame do we want to go first? Does it matter? Go ahead and plot the relationship between a patient's Shannon index and their age.
+### Activity 2
+What happens if we leave out the `by="sample"` argument from our join commands?
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
 
 
 ```r
-meta_alpha <- inner_join(metadata, alpha_mean, by=c("sample"="group"))
-plot(meta_alpha$Age, meta_alpha$shannon, xlab="Age (years)", ylab="Shannon Diversity Index")
+inner_join(a, b)
 ```
 
-![plot of chunk unnamed-chunk-17](assets/images/03_combining_data_frames//unnamed-chunk-17-1.png)
+```
+## # A tibble: 2 x 3
+##   sample    x2 x3   
+##   <chr>  <int> <lgl>
+## 1 A          1 T    
+## 2 B          2 F
+```
 
+The commands are smart enough to figure out that since there's only one column name in common between the two data frames, then it should join using the "sample" column.
 </div>
 
 
-#### Activity 3
-Based on what we learned in the earlier exercises let's make some improvements.
-* Alter the limits of the x-axis to go from 0 to 90 and have the y-axis go from 0 to 5.
-* Color the points by diagnosis
+
+Perhaps we want to know whether there are any rows from our data frames that will be removed when we do an inner join. For this case, we can use the `anti_join` function from the `dplyr` package:
+
+
+```r
+anti_join(a, b, by="sample")
+```
+
+```
+## # A tibble: 1 x 2
+##   sample    x2
+##   <chr>  <int>
+## 1 C          3
+```
+
+```r
+anti_join(b, a, by="sample")
+```
+
+```
+## # A tibble: 1 x 2
+##   sample x3   
+##   <chr>  <lgl>
+## 1 D      T
+```
+
+We can see that for the first case, the row for sample "C" is found in `a`, but not `b`. In the second case, sample "D" is found in `b`, but not `a`.
+
+We can also see what from `a` overlaps with `b` and vice versa with the `semi_join` function from the `dplyr` package
+
+
+```r
+semi_join(a, b, by="sample")
+```
+
+```
+## # A tibble: 2 x 2
+##   sample    x2
+##   <chr>  <int>
+## 1 A          1
+## 2 B          2
+```
+
+```r
+semi_join(b, a, by="sample")
+```
+
+```
+## # A tibble: 2 x 2
+##   sample x3   
+##   <chr>  <lgl>
+## 1 A      T    
+## 2 B      F
+```
+
+
+## Selecting columns from our data frames
+Looking at the ordination data that is in our `pcoa` data frame, we see that there were a few hundred columns. When this is joined to the `metadata` data frame we get a very wide and obnoxiously large data frame. We really only need the first four columns of the `pcoa` data frame (i.e. "group", "axis1", "axis2", and "axis3"). We can do this with the `select` function from the `dplyr` package.
+
+
+```r
+select(pcoa, group, axis1, axis2, axis3)
+```
+
+```
+## # A tibble: 490 x 4
+##    group      axis1   axis2   axis3
+##    <chr>      <dbl>   <dbl>   <dbl>
+##  1 2003650 -0.109    0.0279 -0.200 
+##  2 2005650 -0.222    0.169  -0.0667
+##  3 2007660 -0.189   -0.0389 -0.147 
+##  4 2009650 -0.161   -0.0237 -0.155 
+##  5 2013660  0.319    0.0136 -0.0494
+##  6 2015650 -0.225    0.172  -0.0871
+##  7 2017660  0.00846 -0.155  -0.0670
+##  8 2019651  0.171   -0.0903  0.0112
+##  9 2023680 -0.299    0.122  -0.144 
+## 10 2025653  0.333    0.0280  0.0304
+## # ... with 480 more rows
+```
+
+The resulting tibble still has 490 rows, but now it has the 4 columns we *selected*. If we want to remove specific columns we could also use a negative sign
+
+
+```r
+select(pcoa, -axis1)
+```
+
+```
+## # A tibble: 490 x 490
+##    group     axis2   axis3    axis4    axis5    axis6   axis7   axis8
+##    <chr>     <dbl>   <dbl>    <dbl>    <dbl>    <dbl>   <dbl>   <dbl>
+##  1 2003650  0.0279 -0.200  -0.199    0.0891   0.00139 -0.0142 -0.116 
+##  2 2005650  0.169  -0.0667  0.00512 -0.0816  -0.0478   0.118   0.0840
+##  3 2007660 -0.0389 -0.147   0.00898 -0.00153 -0.0361   0.136   0.0885
+##  4 2009650 -0.0237 -0.155  -0.0321  -0.0882   0.109    0.151  -0.119 
+##  5 2013660  0.0136 -0.0494  0.00922 -0.0757  -0.240   -0.0645  0.104 
+##  6 2015650  0.172  -0.0871 -0.185    0.374   -0.0999  -0.0331  0.0943
+##  7 2017660 -0.155  -0.0670 -0.0939  -0.0938   0.0298  -0.154  -0.0244
+##  8 2019651 -0.0903  0.0112 -0.0738   0.0538   0.159   -0.209   0.198 
+##  9 2023680  0.122  -0.144  -0.117    0.114    0.0295   0.231   0.0778
+## 10 2025653  0.0280  0.0304  0.113    0.0410   0.0774   0.161  -0.0367
+## # ... with 480 more rows, and 482 more variables: axis9 <dbl>,
+## #   axis10 <dbl>, axis11 <dbl>, axis12 <dbl>, axis13 <dbl>, axis14 <dbl>,
+## #   axis15 <dbl>, axis16 <dbl>, axis17 <dbl>, axis18 <dbl>, axis19 <dbl>,
+## #   axis20 <dbl>, axis21 <dbl>, axis22 <dbl>, axis23 <dbl>, axis24 <dbl>,
+## #   axis25 <dbl>, axis26 <dbl>, axis27 <dbl>, axis28 <dbl>, axis29 <dbl>,
+## #   axis30 <dbl>, axis31 <dbl>, axis32 <dbl>, axis33 <dbl>, axis34 <dbl>,
+## #   axis35 <dbl>, axis36 <dbl>, axis37 <dbl>, axis38 <dbl>, axis39 <dbl>,
+## #   axis40 <dbl>, axis41 <dbl>, axis42 <dbl>, axis43 <dbl>, axis44 <dbl>,
+## #   axis45 <dbl>, axis46 <dbl>, axis47 <dbl>, axis48 <dbl>, axis49 <dbl>,
+## #   axis50 <dbl>, axis51 <dbl>, axis52 <dbl>, axis53 <dbl>, axis54 <dbl>,
+## #   axis55 <dbl>, axis56 <dbl>, axis57 <dbl>, axis58 <dbl>, axis59 <dbl>,
+## #   axis60 <dbl>, axis61 <dbl>, axis62 <dbl>, axis63 <dbl>, axis64 <dbl>,
+## #   axis65 <dbl>, axis66 <dbl>, axis67 <dbl>, axis68 <dbl>, axis69 <dbl>,
+## #   axis70 <dbl>, axis71 <dbl>, axis72 <dbl>, axis73 <dbl>, axis74 <dbl>,
+## #   axis75 <dbl>, axis76 <dbl>, axis77 <dbl>, axis78 <dbl>, axis79 <dbl>,
+## #   axis80 <dbl>, axis81 <dbl>, axis82 <dbl>, axis83 <dbl>, axis84 <dbl>,
+## #   axis85 <dbl>, axis86 <dbl>, axis87 <dbl>, axis88 <dbl>, axis89 <dbl>,
+## #   axis90 <dbl>, axis91 <dbl>, axis92 <dbl>, axis93 <dbl>, axis94 <dbl>,
+## #   axis95 <dbl>, axis96 <dbl>, axis97 <dbl>, axis98 <dbl>, axis99 <dbl>,
+## #   axis100 <dbl>, axis101 <dbl>, axis102 <dbl>, axis103 <dbl>,
+## #   axis104 <dbl>, axis105 <dbl>, axis106 <dbl>, axis107 <dbl>,
+## #   axis108 <dbl>, …
+```
+
+The result is that the "axis1" column has been removed. If we consider our `metadata` data frame, we could also select the sample column any column that starts with "diagnosis"
+
+
+```r
+select(metadata, sample, starts_with("diagnosis"))
+```
+
+```
+## # A tibble: 490 x 3
+##    sample  diagnosis_bin    diagnosis
+##    <chr>   <chr>            <chr>    
+##  1 2003650 High Risk Normal normal   
+##  2 2005650 High Risk Normal normal   
+##  3 2007660 High Risk Normal normal   
+##  4 2009650 Adenoma          adenoma  
+##  5 2013660 Normal           normal   
+##  6 2015650 High Risk Normal normal   
+##  7 2017660 Cancer           cancer   
+##  8 2019651 Normal           normal   
+##  9 2023680 High Risk Normal normal   
+## 10 2025653 Cancer           cancer   
+## # ... with 480 more rows
+```
+
+This gets us a new data frame with the columns "sample", "diagnosis_bin", and "diagnosis". We could also get the "sample" column and any column that contains "history"
+
+
+```r
+select(metadata, sample, contains("history"))
+```
+
+```
+## # A tibble: 490 x 4
+##    sample  previous_history history_of_polyps family_history_of_crc
+##    <chr>   <lgl>            <lgl>             <lgl>                
+##  1 2003650 F                T                 T                    
+##  2 2005650 F                T                 F                    
+##  3 2007660 F                T                 T                    
+##  4 2009650 F                T                 F                    
+##  5 2013660 F                F                 F                    
+##  6 2015650 F                T                 F                    
+##  7 2017660 T                T                 F                    
+##  8 2019651 F                F                 F                    
+##  9 2023680 T                T                 F                    
+## 10 2025653 T                T                 F                    
+## # ... with 480 more rows
+```
+
+This generates a data frame that contains the columns "sample", "previous_history", "history_of_polyps", and "family_history_of_crc". There are other helper functions including `ends_with`, `matches`, `num_range`, and `one _of` that you can learn more about by using the `?` helper.
+
+
+
+## Selecting rows from our data frames
+We might also want to make new data frames that contain a subset of the rows. We can "filter" the data frame using the `filter` function from the `dplyr` package. Let's assume that we want to recreate our favorite ordination using only samples from the University of Michigan. We can generate a new data frame using `filter`
+
+
+```r
+filter(metadata, site=="U Michigan")
+```
+
+```
+## # A tibble: 107 x 17
+##    sample  fit_result site      diagnosis_bin   diagnosis previous_history
+##    <chr>        <dbl> <chr>     <chr>           <chr>     <lgl>           
+##  1 2003650        0   U Michig… High Risk Norm… normal    F               
+##  2 2005650        0   U Michig… High Risk Norm… normal    F               
+##  3 2007660       26.0 U Michig… High Risk Norm… normal    F               
+##  4 2013660        0   U Michig… Normal          normal    F               
+##  5 2019651       19.0 U Michig… Normal          normal    F               
+##  6 2025653     1509   U Michig… Cancer          cancer    T               
+##  7 2029650        0   U Michig… Adenoma         adenoma   F               
+##  8 2041650        0   U Michig… Adenoma         adenoma   F               
+##  9 2045653        0   U Michig… Normal          normal    F               
+## 10 2057650        0   U Michig… High Risk Norm… normal    F               
+## # ... with 97 more rows, and 11 more variables: history_of_polyps <lgl>,
+## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
+## #   family_history_of_crc <lgl>, height <lgl>, weight <dbl>, nsaid <lgl>,
+## #   diabetes_med <lgl>, stage <chr>
+```
+
+The resulting data frame has 107 samples. If we put this together with our previous code we can build the ordination...
+
+
+```r
+um_metadata <- filter(metadata, site=="U Michigan")
+um_metadata_pcoa <- inner_join(um_metadata, pcoa, by=c('sample'='group'))
+
+ggplot(um_metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
+	geom_point(shape=19, size=2) +
+	scale_color_manual(name=NULL,
+		values=c("blue", "red", "black"),
+		breaks=c("normal", "adenoma", "cancer"),
+		labels=c("Normal", "Adenoma", "Cancer")) +
+	coord_fixed() +
+	labs(title="PCoA of ThetaYC Distances Between Stool Samples\nCollected at the University of Michigan",
+		x="PCo Axis 1",
+		y="PCo Axis 2") +
+	theme_classic()
+```
+
+<img src="assets/images/03_combining_data_frames//unnamed-chunk-16-1.png" title="plot of chunk unnamed-chunk-16" alt="plot of chunk unnamed-chunk-16" width="504" />
+
+Returning to the syntax of `filter` you saw that I used `site=="U Michigan"`. This tells `filter` to identify those rows where the "site" column had a value equal to "U Michigan". The `==` is a logical comparison that asks whether the value on either side of the `==` are the same. The answer is either `TRUE` or `FALSE`. There are other logical operators that you should already be familiar with (but perhaps didn't know!) including `<`, `<=`, `>`, `>=`. These should be self explanatory. For example, if we want ever subject that has a `fit_result` greater than or equal to 100 we would write
+
+
+```r
+filter(metadata, fit_result >= 100)
+```
+
+```
+## # A tibble: 126 x 17
+##    sample  fit_result site        diagnosis_bin diagnosis previous_history
+##    <chr>        <dbl> <chr>       <chr>         <chr>     <lgl>           
+##  1 2025653       1509 U Michigan  Cancer        cancer    T               
+##  2 2093650        286 Dana Farber Normal        normal    T               
+##  3 2105652        314 U Michigan  Normal        normal    F               
+##  4 2185670        982 Toronto     Adv Adenoma   adenoma   F               
+##  5 2187680       1200 Toronto     Cancer        cancer    F               
+##  6 2203653       1992 U Michigan  Cancer        cancer    T               
+##  7 2255653        140 Dana Farber Cancer        cancer    T               
+##  8 2267653        149 Dana Farber Cancer        cancer    T               
+##  9 2283670       1346 Toronto     Cancer        cancer    F               
+## 10 2287660        939 Dana Farber Cancer        cancer    T               
+## # ... with 116 more rows, and 11 more variables: history_of_polyps <lgl>,
+## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
+## #   family_history_of_crc <lgl>, height <lgl>, weight <dbl>, nsaid <lgl>,
+## #   diabetes_med <lgl>, stage <chr>
+```
+
+Some of our columns are already logical. To get those individuals with a previous history of colorectal cancer we could do
+
+
+```r
+filter(metadata, previous_history)
+```
+
+```
+## # A tibble: 138 x 17
+##    sample  fit_result site      diagnosis_bin   diagnosis previous_history
+##    <chr>        <dbl> <chr>     <chr>           <chr>     <lgl>           
+##  1 2017660       7.00 Dana Far… Cancer          cancer    T               
+##  2 2023680       0    Dana Far… High Risk Norm… normal    T               
+##  3 2025653    1509    U Michig… Cancer          cancer    T               
+##  4 2033650       0    Toronto   High Risk Norm… normal    T               
+##  5 2051660       0    Dana Far… Adenoma         adenoma   T               
+##  6 2055690       0    Dana Far… Adv Adenoma     adenoma   T               
+##  7 2063650       0    Dana Far… High Risk Norm… normal    T               
+##  8 2087650       5.00 Dana Far… High Risk Norm… normal    T               
+##  9 2093650     286    Dana Far… Normal          normal    T               
+## 10 2109653       0    Dana Far… Normal          normal    T               
+## # ... with 128 more rows, and 11 more variables: history_of_polyps <lgl>,
+## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
+## #   family_history_of_crc <lgl>, height <lgl>, weight <dbl>, nsaid <lgl>,
+## #   diabetes_med <lgl>, stage <chr>
+```
+
+If we want those samples from people ***without*** a previous history we can use the `!` operator which turns `TRUE` to `FALSE` and `FALSE` to `TRUE`
+
+
+```r
+filter(metadata, !previous_history)
+```
+
+```
+## # A tibble: 349 x 17
+##    sample  fit_result site      diagnosis_bin   diagnosis previous_history
+##    <chr>        <dbl> <chr>     <chr>           <chr>     <lgl>           
+##  1 2003650        0   U Michig… High Risk Norm… normal    F               
+##  2 2005650        0   U Michig… High Risk Norm… normal    F               
+##  3 2007660       26.0 U Michig… High Risk Norm… normal    F               
+##  4 2009650       10.0 Toronto   Adenoma         adenoma   F               
+##  5 2013660        0   U Michig… Normal          normal    F               
+##  6 2015650        0   Dana Far… High Risk Norm… normal    F               
+##  7 2019651       19.0 U Michig… Normal          normal    F               
+##  8 2027653        0   Toronto   Normal          normal    F               
+##  9 2029650        0   U Michig… Adenoma         adenoma   F               
+## 10 2031650        0   Toronto   Adenoma         adenoma   F               
+## # ... with 339 more rows, and 11 more variables: history_of_polyps <lgl>,
+## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
+## #   family_history_of_crc <lgl>, height <lgl>, weight <dbl>, nsaid <lgl>,
+## #   diabetes_med <lgl>, stage <chr>
+```
+
+The `!` can also be used as `!=` to test whether two values are different from each other. We could use this to get the samples from people that do not have a normal diagnosis
+
+
+```r
+filter(metadata, diagnosis != 'normal')
+```
+
+```
+## # A tibble: 318 x 17
+##    sample  fit_result site        diagnosis_bin diagnosis previous_history
+##    <chr>        <dbl> <chr>       <chr>         <chr>     <lgl>           
+##  1 2009650      10.0  Toronto     Adenoma       adenoma   F               
+##  2 2017660       7.00 Dana Farber Cancer        cancer    T               
+##  3 2025653    1509    U Michigan  Cancer        cancer    T               
+##  4 2029650       0    U Michigan  Adenoma       adenoma   F               
+##  5 2031650       0    Toronto     Adenoma       adenoma   F               
+##  6 2035650       0    Toronto     Adv Adenoma   adenoma   F               
+##  7 2037653      72.0  Toronto     Cancer        cancer    F               
+##  8 2041650       0    U Michigan  Adenoma       adenoma   F               
+##  9 2049653       0    Dana Farber Adenoma       adenoma   F               
+## 10 2051660       0    Dana Farber Adenoma       adenoma   T               
+## # ... with 308 more rows, and 11 more variables: history_of_polyps <lgl>,
+## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
+## #   family_history_of_crc <lgl>, height <lgl>, weight <dbl>, nsaid <lgl>,
+## #   diabetes_med <lgl>, stage <chr>
+```
+
+### Activity 3
+A common bug for novice and experienced programmers is shown below
+
+```
+filter(metadata, diagnosis="cancer")
+```
+
+Can you see what the problem is and how to fix it?
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
 
-
 ```r
-dx_color <- c(normal="black", adenoma="blue", cancer="red")
-plot(meta_alpha$Age, meta_alpha$shannon, xlim=c(0,90), ylim=c(0,5), xlab="Age (years)",
-		 ylab="Shannon Diversity Index", col=dx_color[as.character(meta_alpha$dx)], pch=19)
+filter(metadata, diagnosis=="cancer")
 ```
 
-![plot of chunk unnamed-chunk-18](assets/images/03_combining_data_frames//unnamed-chunk-18-1.png)
-
+```
+## # A tibble: 120 x 17
+##    sample  fit_result site        diagnosis_bin diagnosis previous_history
+##    <chr>        <dbl> <chr>       <chr>         <chr>     <lgl>           
+##  1 2017660       7.00 Dana Farber Cancer        cancer    T               
+##  2 2025653    1509    U Michigan  Cancer        cancer    T               
+##  3 2037653      72.0  Toronto     Cancer        cancer    F               
+##  4 2187680    1200    Toronto     Cancer        cancer    F               
+##  5 2203653    1992    U Michigan  Cancer        cancer    T               
+##  6 2255653     140    Dana Farber Cancer        cancer    T               
+##  7 2267653     149    Dana Farber Cancer        cancer    T               
+##  8 2283670    1346    Toronto     Cancer        cancer    F               
+##  9 2285653       0    U Michigan  Cancer        cancer    F               
+## 10 2287660     939    Dana Farber Cancer        cancer    T               
+## # ... with 110 more rows, and 11 more variables: history_of_polyps <lgl>,
+## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
+## #   family_history_of_crc <lgl>, height <lgl>, weight <dbl>, nsaid <lgl>,
+## #   diabetes_med <lgl>, stage <chr>
+```
 </div>
 
 
-Let's take a brief aside to re-factor our plotting code. Take a look at what we have here
-
-
-```r
-plot(meta_alpha$shannon~meta_alpha$Age, xlim=c(0,90), ylim=c(0,5), xlab="Age (years)",
-		 ylab="Shannon Diversity Index", col=dx_color[as.character(meta_alpha$dx)], pch=19)
-```
-
-There's a subtle change here, do you see it? The output is the same, but in this code we used a `~`. Numerous commands in R will allow us to use the `~`. This should be read as "shannon is explained by age" or "our y-axis variable is explained by our x-axis variable". The significance isn't so obvious in this example. By doing this, however, we can use the `data` argument to simplify our code.
-
-
-```r
-plot(shannon~Age, data=meta_alpha, xlim=c(0,90), ylim=c(0,5), xlab="Age (years)",
-		 ylab="Shannon Diversity Index", col=dx_color[as.character(dx)], pch=19)
-```
-
-![plot of chunk unnamed-chunk-20](assets/images/03_combining_data_frames//unnamed-chunk-20-1.png)
-
-Again, we've got the same output, but simpler code.
-
-#### Activity 4
-Generate a new plot where you plot each patient's number of observed OTUs (Sobs) as a function of the fit result. Color each point by their gender and select the plotting symbol based on whether they smoke. Use the `~` approach with the `data` argument.
-
-<input type="button" class="hideshow">
-<div markdown="1" style="display:none;">
-
-
-```r
-sex_color <- c(m="red", f="blue")
-sex_symbol <- c(17, 19)
-plot(sobs~fit_result, data=meta_alpha, xlim=c(0,3000), ylim=c(0, 400), xlab="Fit Result",
-		 ylab="Number of OTUs", col=sex_color[as.character(Gender)], pch=sex_symbol[Smoke+1])
-```
-
-![plot of chunk unnamed-chunk-21](assets/images/03_combining_data_frames//unnamed-chunk-21-1.png)
-
-</div>
-
-Now we've got a couple colors and a couple plotting symbols. Our readers might like to know what these points represent! Let's make a legend. We do this with the legend command. To build a legend, we'll need to figure out a few things. First, we need to generate different plotting symbol and color combinations. Second, we need to connect those combinations to a description. Finally, we need to find a good place to put the legend. Unfortunately, as we tinker, we will need to rebuild the plot and place a new legend on top of it. Let's get going.
-
-
-```r
-sex_color <- c(m="red", f="blue")
-sex_symbol <- c(17, 19)
-plot(sobs~fit_result, data=meta_alpha, xlim=c(0,3000), ylim=c(0, 400), xlab="Fit Result",
-		 ylab="Number of OTUs", col=sex_color[as.character(Gender)], pch=sex_symbol[Smoke+1])
-legend("bottomright", legend=c('Female smoker','Male smoker', 'Female non-smoker',
-															 'Male non-smoker'))
-```
-
-![plot of chunk unnamed-chunk-22](assets/images/03_combining_data_frames//unnamed-chunk-22-1.png)
-
-Cool - we have the start of a legend! We have tentatively placed the legend in the "bottomright" and have added the legend text. Try replacing "bottomright" with "bottom", "bottomleft", "left", "topleft", "top", "topright", "right", or "center". Alternatively we could give the `legend` function x and y coordinates for the top left corner of the legend box.
-
-
-```r
-sex_color <- c(m="red", f="blue")
-sex_symbol <- c(17, 19)
-plot(sobs~fit_result, data=meta_alpha, xlim=c(0,3000), ylim=c(0, 400), xlab="Fit Result",
-		 ylab="Number of OTUs", col=sex_color[as.character(Gender)], pch=sex_symbol[Smoke+1])
-legend(x=1000, y=100, legend=c('Female smoker','Male smoker', 'Female non-smoker',
-															 'Male non-smoker'))
-```
-
-![plot of chunk unnamed-chunk-23](assets/images/03_combining_data_frames//unnamed-chunk-23-1.png)
-
-A useful function for selecting a location is the `locator` function. Run `locator(1)` and then go to the plotting window. You'll notice cross hairs, which look like an addition sign. Go ahead and click anywhere on your plot. Back in the terminal console you'll see x and y coordinates outputted. If you run `locator(2)` you can click twice to get two points. Go ahead and use the locator function to specify where you want the legend.
-
-Alright, we know where we want the legend and what the text in the legend should say, now we need the plotting symbols and colors. Here we will use a `col` and `pch` vectors to specify the color and plotting symbol so that their order corresponds to the text in the legend.
-
-
-```r
-sex_color <- c(m="red", f="blue")
-sex_symbol <- c(17, 19)
-plot(sobs~fit_result, data=meta_alpha, xlim=c(0,3000), ylim=c(0, 400), xlab="Fit Result",
-		 ylab="Number of OTUs", col=sex_color[as.character(Gender)], pch=sex_symbol[Smoke+1])
-legend(x=2000, y=100, legend=c('Female smoker','Male smoker', 'Female non-smoker', 'Male non-smoker'), pch=c(19,19,17,17), col=c("blue", "red","blue","red"))
-```
-
-![plot of chunk unnamed-chunk-24](assets/images/03_combining_data_frames//unnamed-chunk-24-1.png)
-
-We can make the legend text smaller or the plotting symbol larger by altering the pt.cex and cex values.
-
-
-```r
-sex_color <- c(m="red", f="blue")
-sex_symbol <- c(17, 19)
-plot(sobs~fit_result, data=meta_alpha, xlim=c(0,3000), ylim=c(0, 400), xlab="Fit Result",
-		 ylab="Number of OTUs", col=sex_color[as.character(Gender)], pch=sex_symbol[Smoke+1])
-legend(x=2000, y=100, legend=c('Female smoker','Male smoker', 'Female non-smoker', 'Male non-smoker'), pch=c(19,19,17,17), col=c("blue", "red","blue","red"), pt.cex=1.5, cex=0.8)
-```
-
-![plot of chunk unnamed-chunk-25](assets/images/03_combining_data_frames//unnamed-chunk-25-1.png)
-
-#### Activity 5
-Revisit the ordination plot you generated in Activity 5 from Session 2 and generate a legend to accompany the plot.
+### Activity 4
+Create a data frame that contains only females
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
 
 ```r
-sex_color <- c(f="red", m="blue")
-dx_pch <- c(normal=17, adenoma=18, cancer=19)
-
-plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",
-		 xlim=c(-0.5, 0.5), ylim=c(-0.6, 0.4), pch=dx_pch[metadata$dx],
-		 col=sex_color[as.character(metadata$Gender)], lwd=1, cex=1,
-		 main="PCoA of ThetaYC Distances Between Stool Samples")
-
-legend("bottomright", legend=c("Female, Normal", "Female, Adenoma", "Female, Cancer", "Male, Normal", "Male, Adenoma", "Male, Cancer"), pch=c(dx_pch, dx_pch), col=rep(sex_color, each=3))
+filter(metadata, sex=="male")
 ```
 
-![plot of chunk unnamed-chunk-26](assets/images/03_combining_data_frames//unnamed-chunk-26-1.png)
+```
+## # A tibble: 247 x 17
+##    sample  fit_result site      diagnosis_bin   diagnosis previous_history
+##    <chr>        <dbl> <chr>     <chr>           <chr>     <lgl>           
+##  1 2003650       0    U Michig… High Risk Norm… normal    F               
+##  2 2005650       0    U Michig… High Risk Norm… normal    F               
+##  3 2017660       7.00 Dana Far… Cancer          cancer    T               
+##  4 2019651      19.0  U Michig… Normal          normal    F               
+##  5 2025653    1509    U Michig… Cancer          cancer    T               
+##  6 2029650       0    U Michig… Adenoma         adenoma   F               
+##  7 2033650       0    Toronto   High Risk Norm… normal    T               
+##  8 2035650       0    Toronto   Adv Adenoma     adenoma   F               
+##  9 2041650       0    U Michig… Adenoma         adenoma   F               
+## 10 2043650       5.00 Toronto   High Risk Norm… normal    F               
+## # ... with 237 more rows, and 11 more variables: history_of_polyps <lgl>,
+## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
+## #   family_history_of_crc <lgl>, height <lgl>, weight <dbl>, nsaid <lgl>,
+## #   diabetes_med <lgl>, stage <chr>
+```
 </div>
 
 
-Sometimes our plots have points that are well spread across the plotting window and it's impossible to find a clean place to put the legend. Putting the legend in the plotting window would cover your data or could confuse the viewer into thinking that the plotting symbols in the legend were data. This is why many favor putting the legend outside of the plotting window. To do this, we need to learn a little about how the space around the plot is formatted. Have you noticed that in our plots without a main title there is a lot of space at the top of the window? That's the margin. If we call `par()$mar` we can see the margin values. These seem a bit cryptic, but represent the number of lines between the axis and the edge of the window. The numbers start on the x-axis and go clockwise. We can call `par(mar=c(1,1,1,1))` to set all the margins to one line or we could call `par(mar=c(5,5,1,10))` to have a wide margin on the right side. Let's give this a shot.
-
-
-```r
-par(mar=c(5,5,1,10))
-sex_color <- c(m="red", f="blue")
-smoke_symbol <- c(17, 19)
-plot(sobs~fit_result, data=meta_alpha, xlim=c(0,3000), ylim=c(0, 400), xlab="Fit Result", ylab="Number of OTUs", col=sex_color[as.character(Gender)], pch=smoke_symbol[Smoke+1])
-legend(x=2000, y=100, legend=c('Female smoker','Male smoker', 'Female non-smoker', 'Male non-smoker'), pch=c(19,19,17,17), col=c("blue", "red","blue","red"), pt.cex=1.5, cex=0.8)
-```
-
-![plot of chunk unnamed-chunk-27](assets/images/03_combining_data_frames//unnamed-chunk-27-1.png)
-
-Great. You'll notice that we saved the default value before changing the margins and then reset the values at the end of the code chunk. This is helpful to keep our settings consistent. Now let's use the `locator` function that we learned about to find a good place to put the legend in the right side margin. You'll see that the x values continue beyond the x-axis labels and that the y values are consistent with the y-axis values. To get this to work, we'll need to add the `xpd` argument to our legend command. This allows us to plot information outside of the normal plotting window.
-
-
-```r
-par(mar=c(5,5,1,10))
-sex_color <- c(m="red", f="blue")
-smoke_symbol <- c(17, 19)
-plot(sobs~fit_result, data=meta_alpha, xlim=c(0,3000), ylim=c(0, 400), xlab="Fit Result", ylab="Number of OTUs", col=sex_color[as.character(Gender)], pch=smoke_symbol[Smoke+1])
-legend(x=3300, y=300, legend=c('Female smoker','Male smoker', 'Female non-smoker', 'Male non-smoker'), pch=c(19,19,17,17), col=c("blue", "red","blue","red"), pt.cex=1.5, cex=0.8, xpd=TRUE)
-```
-
-![plot of chunk unnamed-chunk-28](assets/images/03_combining_data_frames//unnamed-chunk-28-1.png)
-
-Before we leave this analysis, it would be nice to know whether the number of OTUs is correlated with the fit result. In R, we can use a Pearson, Spearman, or Kendall correlation analysis. We can do the correlation using either the `cor` or `cor.test` functions. We'll use the `cor.test` function because it has more interesting output. We'll also use the Spearman correlation because FIT result data are not normally distributed
-
-
-```r
-cor.test(meta_alpha$fit_result, meta_alpha$sobs, method="spearman")
-```
-
-```
-## Warning in cor.test.default(meta_alpha$fit_result, meta_alpha$sobs, method
-## = "spearman"): Cannot compute exact p-value with ties
-```
-
-```
-## 
-## 	Spearman's rank correlation rho
-## 
-## data:  meta_alpha$fit_result and meta_alpha$sobs
-## S = 21270000, p-value = 0.06089
-## alternative hypothesis: true rho is not equal to 0
-## sample estimates:
-##        rho 
-## -0.0847346
-```
-
-We see that our correlation is -0.085 and the P-value is 0.061, which is not significant. If we wanted to use the Pearson or Kendall correlations we would replace "spearman" with "pearson" (the default) or "kendall".
-
-
-#### Activity 6
-Revisiting the figure from Activity 5, go ahead and put the legend in the right hand margin of the plotting window.
+### Activity 5
+Create a data frame that contains individuals are 50 years old and younger
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
 
 ```r
-sex_color <- c(f="red", m="blue")
-dx_pch <- c(normal=17, adenoma=18, cancer=19)
-
-par(mar=c(5,5,2,10))
-plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",
-		 xlim=c(-0.5, 0.5), ylim=c(-0.6, 0.4), pch=dx_pch[metadata$dx],
-		 col=sex_color[as.character(metadata$Gender)], lwd=1, cex=1,
-		 main="PCoA of ThetaYC Distances Between Stool Samples")
-
-legend(x=0.6, y=0.4, legend=c("Female, Normal", "Female, Adenoma", "Female, Cancer", "Male, Normal", "Male, Adenoma", "Male, Cancer"), pch=c(dx_pch, dx_pch), col=rep(sex_color, each=3), xpd=TRUE)
+filter(metadata, age <= 50)
 ```
 
-![plot of chunk unnamed-chunk-30](assets/images/03_combining_data_frames//unnamed-chunk-30-1.png)
+```
+## # A tibble: 96 x 17
+##    sample  fit_result site      diagnosis_bin   diagnosis previous_history
+##    <chr>        <dbl> <chr>     <chr>           <chr>     <lgl>           
+##  1 2007660      26.0  U Michig… High Risk Norm… normal    F               
+##  2 2013660       0    U Michig… Normal          normal    F               
+##  3 2061650       0    Dana Far… High Risk Norm… normal    F               
+##  4 2073650       0    U Michig… High Risk Norm… normal    F               
+##  5 2077653       0    U Michig… Normal          normal    F               
+##  6 2081660       0    U Michig… High Risk Norm… normal    F               
+##  7 2083650       0    Dana Far… High Risk Norm… normal    F               
+##  8 2085653       7.00 Dana Far… Normal          normal    F               
+##  9 2087650       5.00 Dana Far… High Risk Norm… normal    T               
+## 10 2093650     286    Dana Far… Normal          normal    T               
+## # ... with 86 more rows, and 11 more variables: history_of_polyps <lgl>,
+## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
+## #   family_history_of_crc <lgl>, height <lgl>, weight <dbl>, nsaid <lgl>,
+## #   diabetes_med <lgl>, stage <chr>
+```
 </div>
 
 
-#### Activity 7
-Plot the relationship between each person's height and weight. What is the correlation between the two variables?
+The `filter` and `select` functions are very powerful for subsetting our data frames. The fit result measures how much blood is in a person's stool. It's a common non-invasive diagnostic to identify colonic lesions. What if I want to get those samples from people that have a fit result over 100 and were given a normal diagnosis? We can use the `&` operator to see if two logical comparisons are true
+
+
+```r
+filter(metadata, fit_result >= 100 & diagnosis == "normal")
+```
+
+```
+## # A tibble: 5 x 17
+##   sample  fit_result site       diagnosis_bin   diagnosis previous_history
+##   <chr>        <dbl> <chr>      <chr>           <chr>     <lgl>           
+## 1 2093650        286 Dana Farb… Normal          normal    T               
+## 2 2105652        314 U Michigan Normal          normal    F               
+## 3 2321650        148 Dana Farb… Normal          normal    F               
+## 4 3099680        356 Dana Farb… High Risk Norm… normal    T               
+## 5 3137650        118 U Michigan Normal          normal    F               
+## # ... with 11 more variables: history_of_polyps <lgl>, age <dbl>,
+## #   sex <chr>, smoke <lgl>, diabetic <lgl>, family_history_of_crc <lgl>,
+## #   height <lgl>, weight <dbl>, nsaid <lgl>, diabetes_med <lgl>,
+## #   stage <chr>
+```
+
+If we want samples from people with a high fit result or a cancer diagnosis we can use a similar approach, except that instead of using `&` we would use `|`
+
+
+```r
+filter(metadata, fit_result >= 100 | diagnosis == "cancer")
+```
+
+```
+## # A tibble: 156 x 17
+##    sample  fit_result site        diagnosis_bin diagnosis previous_history
+##    <chr>        <dbl> <chr>       <chr>         <chr>     <lgl>           
+##  1 2017660       7.00 Dana Farber Cancer        cancer    T               
+##  2 2025653    1509    U Michigan  Cancer        cancer    T               
+##  3 2037653      72.0  Toronto     Cancer        cancer    F               
+##  4 2093650     286    Dana Farber Normal        normal    T               
+##  5 2105652     314    U Michigan  Normal        normal    F               
+##  6 2185670     982    Toronto     Adv Adenoma   adenoma   F               
+##  7 2187680    1200    Toronto     Cancer        cancer    F               
+##  8 2203653    1992    U Michigan  Cancer        cancer    T               
+##  9 2255653     140    Dana Farber Cancer        cancer    T               
+## 10 2267653     149    Dana Farber Cancer        cancer    T               
+## # ... with 146 more rows, and 11 more variables: history_of_polyps <lgl>,
+## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
+## #   family_history_of_crc <lgl>, height <lgl>, weight <dbl>, nsaid <lgl>,
+## #   diabetes_med <lgl>, stage <chr>
+```
+
+### Activity 6
+Create a data frame that contains samples from individuals who are 50 years old and younger and have a non-normal diagnosis
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
 
-
 ```r
-plot(metadata$Weight~metadata$Height, xlab="Height (cm)", ylab="Weight (kg)")
-```
-
-![plot of chunk unnamed-chunk-31](assets/images/03_combining_data_frames//unnamed-chunk-31-1.png)
-
-```r
-cor.test(metadata$Weight, metadata$Height, method="spearman")
+filter(metadata, age <= 50 & diagnosis != "normal")
 ```
 
 ```
-## Warning in cor.test.default(metadata$Weight, metadata$Height, method =
-## "spearman"): Cannot compute exact p-value with ties
+## # A tibble: 46 x 17
+##    sample  fit_result site        diagnosis_bin diagnosis previous_history
+##    <chr>        <dbl> <chr>       <chr>         <chr>     <lgl>           
+##  1 2203653     1992   U Michigan  Cancer        cancer    T               
+##  2 2307650        0   Dana Farber Adv Adenoma   adenoma   T               
+##  3 2339651     1278   Dana Farber Cancer        cancer    T               
+##  4 2379653        0   Toronto     Adv Adenoma   adenoma   F               
+##  5 2421651      133   MD Anderson Cancer        cancer    T               
+##  6 2463651       45.0 Dana Farber Cancer        cancer    T               
+##  7 2465680     1185   Dana Farber Cancer        cancer    T               
+##  8 2523653      392   MD Anderson Cancer        cancer    T               
+##  9 2545651      301   Dana Farber Adv Adenoma   adenoma   F               
+## 10 2555653        0   Toronto     Adv Adenoma   adenoma   F               
+## # ... with 36 more rows, and 11 more variables: history_of_polyps <lgl>,
+## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
+## #   family_history_of_crc <lgl>, height <lgl>, weight <dbl>, nsaid <lgl>,
+## #   diabetes_med <lgl>, stage <chr>
 ```
-
-```
-## 
-## 	Spearman's rank correlation rho
-## 
-## data:  metadata$Weight and metadata$Height
-## S = 8269400, p-value < 2.2e-16
-## alternative hypothesis: true rho is not equal to 0
-## sample estimates:
-##       rho 
-## 0.5756711
-```
-
 </div>
 
 
-#### Activity 8
-Through the previous two sessions you've been developing your own scatter plot idea. At this point, you should know everything you need to plot your own data. Go for it!
+### Activity 7
+Create a data frame that contains samples from individuals who have a previous or family history of colorectal cancer
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+
+```r
+filter(metadata, previous_history | family_history_of_crc)
+```
+
+```
+## # A tibble: 199 x 17
+##    sample  fit_result site      diagnosis_bin   diagnosis previous_history
+##    <chr>        <dbl> <chr>     <chr>           <chr>     <lgl>           
+##  1 2003650       0    U Michig… High Risk Norm… normal    F               
+##  2 2007660      26.0  U Michig… High Risk Norm… normal    F               
+##  3 2017660       7.00 Dana Far… Cancer          cancer    T               
+##  4 2023680       0    Dana Far… High Risk Norm… normal    T               
+##  5 2025653    1509    U Michig… Cancer          cancer    T               
+##  6 2029650       0    U Michig… Adenoma         adenoma   F               
+##  7 2033650       0    Toronto   High Risk Norm… normal    T               
+##  8 2041650       0    U Michig… Adenoma         adenoma   F               
+##  9 2043650       5.00 Toronto   High Risk Norm… normal    F               
+## 10 2045653       0    U Michig… Normal          normal    F               
+## # ... with 189 more rows, and 11 more variables: history_of_polyps <lgl>,
+## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
+## #   family_history_of_crc <lgl>, height <lgl>, weight <dbl>, nsaid <lgl>,
+## #   diabetes_med <lgl>, stage <chr>
+```
+</div>
 
 
+## Selecting and filtering with pipes
 
-<script>
-$( "input.hideshow" ).each( function ( index, button ) {
-  button.value = 'Show an answer';
-  $( button ).click( function () {
-    var target = this.nextSibling ? this : this.parentNode;
-    target = target.nextSibling.nextSibling;
-    if ( target.style.display == 'block' || target.style.display == '' ) {
-      target.style.display = 'none';
-      this.value = 'Show an answer';
-    } else {
-      target.style.display = 'block';
-      this.value = 'Hide answer';
-    }
-  } );
-} );
-</script>
+Let's leverage the `select` and `filter` commands we have been using to work with a new `tsv` file. The file `raw_data/baxter.groups.ave-std.summary` was generated by the [mothur `summary.single`](https://mothur.org/wiki/Summary.single) command, which rarefies the number of sequences per sample and calculates a variety of alpha diversity metrics.
+
+### Activity 8
+This file has a number of columns that aren't that interesting for us. You will also find that the `method` column has two values - ave and std - which indicate the average value of the alpha diversity metric after rarefying and the standard deviation (i.e. std), which is the standard deviation for the rarefaction replicates. You have several tasks...
+
+* Write the code needed to read in the file to a new data frame called `alpha`. Make sure that the group column is read in as characters
+* Filter out the rows that contain the standard deviation data
+* Select the columns that contain the subject identifier, the number of observed OTUs (i.e "sobs"), the Shannon diversity index (i.e. "shannon"), the inverse Simpson diversity index (i.e. "invsimpson"), and Good's coverage (i.e. "coverage")
+* Use the appropriate join function to create a data frame called `alpha_metadata` that is a join between `alpha` and `metadata`
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+
+```r
+alpha <- read_tsv(file="raw_data/baxter.groups.ave-std.summary", col_types=cols(group = col_character()))
+alpha <- filter(alpha, method=='ave')
+alpha <- select(alpha, group, sobs, shannon, invsimpson, coverage)
+metadata_alpha <- inner_join(metadata, alpha, by=c("sample"="group"))
+```
+</div>
+
+Hopefully that was a good review of what we've done in this and the previous lessons. The approach we've taken to generate `metadata_alpha` works perfectly. I'd like to show you a different way to think about the code. If you look at these four lines of code, you should see that the data kind of "flows" from the `tsv` file to the final version of `alpha` before we join it to `metadata`. There's a package installed with `dplyr` called `magrittr` that has a funny looking function called a pipe - `%>%`. The pipe, directs the flow of data from one command to the next. Instead of writing over `alpha` multiple times, we can write it once as the output of the data flow through the pipes.
+
+
+```r
+alpha <- read_tsv(file="raw_data/baxter.groups.ave-std.summary", col_types=cols(group = col_character())) %>%
+	filter(method=='ave') %>%
+	select(group, sobs, shannon, invsimpson, coverage)
+alpha
+```
+
+```
+## # A tibble: 490 x 5
+##    group    sobs shannon invsimpson coverage
+##    <chr>   <dbl>   <dbl>      <dbl>    <dbl>
+##  1 2005650   291    3.98       26.6    0.990
+##  2 2003650   262    4.02       35.6    0.991
+##  3 2009650   324    4.16       30.1    0.991
+##  4 2013660   133    3.33       17.4    0.997
+##  5 2015650   233    3.74       20.8    0.993
+##  6 2017660   238    3.98       28.6    0.994
+##  7 2019651   191    3.69       20.1    0.996
+##  8 2023680   300    4.01       28.9    0.992
+##  9 2025653   179    3.39       14.6    0.995
+## 10 2027653   127    3.54       19.2    0.998
+## # ... with 480 more rows
+```
+
+Viola! Cool, eh? You may not see the benefit of the pipes here, but in subsequent lessons we will pipe together numerous functions to direct the flow of data. Instead of writing over `alpha` as we did in the previous code chunks, some people would rather write each update to a new variable name. Both approaches get tedious and so the ability to pipe becomes pretty handy. In fact, we can skip the creation of the `alpha` data frame all together by piping this flow right into the `inner_join` function call. Notice that in the code below, the `inner_join` function call has a `.` where `alpha` had been before. The `.` tells `inner_join` to use the data that is flowing through the pipe.
+
+
+```r
+metadata_alpha <- read_tsv(file="raw_data/baxter.groups.ave-std.summary", col_types=cols(group = col_character())) %>%
+	filter(method=='ave') %>%
+	select(group, sobs, shannon, invsimpson, coverage) %>%
+	inner_join(metadata, ., by=c("sample"="group"))
+metadata_alpha
+```
+
+```
+## # A tibble: 490 x 21
+##    sample  fit_result site      diagnosis_bin   diagnosis previous_history
+##    <chr>        <dbl> <chr>     <chr>           <chr>     <lgl>           
+##  1 2003650       0    U Michig… High Risk Norm… normal    F               
+##  2 2005650       0    U Michig… High Risk Norm… normal    F               
+##  3 2007660      26.0  U Michig… High Risk Norm… normal    F               
+##  4 2009650      10.0  Toronto   Adenoma         adenoma   F               
+##  5 2013660       0    U Michig… Normal          normal    F               
+##  6 2015650       0    Dana Far… High Risk Norm… normal    F               
+##  7 2017660       7.00 Dana Far… Cancer          cancer    T               
+##  8 2019651      19.0  U Michig… Normal          normal    F               
+##  9 2023680       0    Dana Far… High Risk Norm… normal    T               
+## 10 2025653    1509    U Michig… Cancer          cancer    T               
+## # ... with 480 more rows, and 15 more variables: history_of_polyps <lgl>,
+## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
+## #   family_history_of_crc <lgl>, height <lgl>, weight <dbl>, nsaid <lgl>,
+## #   diabetes_med <lgl>, stage <chr>, sobs <dbl>, shannon <dbl>,
+## #   invsimpson <dbl>, coverage <dbl>
+```
+
+But wait... there's more!
+
+
+```r
+read_tsv(file="raw_data/baxter.groups.ave-std.summary", col_types=cols(group = col_character())) %>%
+	filter(method=='ave') %>%
+	select(group, sobs, shannon, invsimpson, coverage) %>%
+	inner_join(metadata, ., by=c("sample"="group")) %>%
+	ggplot(aes(x=age, y=shannon, color=diagnosis)) +
+		geom_point(shape=19, size=2) +
+		coord_cartesian(xlim=c(0,90), ylim=c(0,5)) +
+		scale_color_manual(name=NULL,
+			values=c("blue", "red", "black"),
+			breaks=c("normal", "adenoma", "cancer"),
+			labels=c("Normal", "Adenoma", "Cancer")) +
+		labs(title="Relationship between community diversity and subject's age",
+			x="Age",
+			y="Shannon Diversity Index") +
+		theme_classic()
+```
+
+<img src="assets/images/03_combining_data_frames//unnamed-chunk-31-1.png" title="plot of chunk unnamed-chunk-31" alt="plot of chunk unnamed-chunk-31" width="504" />
+
+We've gone all the way - reading in the data from a `tsv` file to getting the rows and columns we want to joining it with our metadata to plotting. All in one command. Pretty slick.
+
+
+### Activity 9
+With our new found piping skillz, rewrite the code from the end of the last tutorial to generate the ordination. Use the `metadata` data frame that we've already been working with
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+
+```r
+read_tsv(file="raw_data/baxter.thetayc.pcoa.axes", col_types=cols(group=col_character())) %>%
+	inner_join(metadata, ., by=c('sample'='group')) %>%
+	ggplot(aes(x=axis1, y=axis2, color=diagnosis)) +
+		geom_point(shape=19, size=2) +
+		scale_color_manual(name=NULL,
+			values=c("blue", "red", "black"),
+			breaks=c("normal", "adenoma", "cancer"),
+			labels=c("Normal", "Adenoma", "Cancer")) +
+		coord_fixed() +
+		labs(title="PCoA of ThetaYC Distances Between Stool Samples",
+			x="PCo Axis 1",
+			y="PCo Axis 2") +
+		theme_classic()
+```
+
+<img src="assets/images/03_combining_data_frames//unnamed-chunk-32-1.png" title="plot of chunk unnamed-chunk-32" alt="plot of chunk unnamed-chunk-32" width="504" />
+</div>
+
+
+## Conclusion
+A couple of closing thoughts are needed before we move on to the next lesson where we'll start doing more sophisticated work with data frames and functions from the `dplyr` package. First, you might ask why we ran select and filter on alpha rather than on the output of the `inner_join`. There's no real reason. The output would be the same. Do what makes sense for where you are in your analysis. Second, you can feel free to break up the piping as much as you want. It is there as a helper to your coding so that you don't have to create temporary data frames or write over ones you just made. Beyond these advantages, most people find that debugging code that uses the pipes is much easier than with the other approaches. Finally, instead of making the alpha diversity scatter plot one pipeline, I probably would normally break it up into two pipelines. One pipeline to create `alpha` and do the `select` and `filter` steps. The second would join `alpha` with `metadata` and produce the plot.

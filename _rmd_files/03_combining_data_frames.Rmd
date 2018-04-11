@@ -1,346 +1,398 @@
 ---
 layout: lesson
-title: "Session 3: Combining Data Frames"
+title: "Session 3: Combining and Exploring Data Frames"
 output: markdown_document
 ---
 
 ## Learning goals
+* Merging data frames
+* Selecting columns from data frames
+* Selecting rows from data frames
+* Connecting steps in data processing with pipes
 
-* Combining datasets safely
-* More with scatter plots
-* Correlation analysis
 
+```{r knitr_settings, eval=TRUE, echo=FALSE, cache=FALSE}
+library(knitr)
+opts_chunk$set("echo" = TRUE)
+opts_chunk$set("eval" = TRUE)
+opts_chunk$set("message" = FALSE)
+opts_chunk$set("warning" = FALSE)
+opts_chunk$set("cache" = FALSE)
 
-
-Do you ever have those moments where you worry that you forgot to turn off the stove after you left on vacation? These moments happen in data analysis too! I'm afraid we have one of those moments right now - *gulp*. In the previous session we generated a plot where we changed the colors and shapes of plotting symbols based on the data in a second file. We assumed that the PCoA and metadata data frames were in the same order. Did you check to make sure they were in the same order? I didn't. How do we know if the files were in the right order? We could certainly go through the two files manually and check. considering there were about 500 lines in each file, manually checking both files would be tedious and error prone. Let's check it out with R. Here's a strategy that we can use that will review some of the concepts from the previous sessions:
-
-* read in both files
-* extract the relevant columns from both data frames
-* determine whether the two columns are the same
-
-```{r}
-pcoa <- read.table(file="data/baxter.thetayc.pcoa.axes", header=T)
-metadata <- read.table(file="data/baxter.metadata.tsv", header=T, sep='\t')
-metadata$sample <- as.character(metadata$sample)
-
-pcoa$group == metadata$sample
+opts_chunk$set("fig.retina" = 4)
+opts_chunk$set("results" = "hold")
+opts_chunk$set("fig.show" = "hold")
+opts_chunk$set("fig.width" = 7)
 ```
 
-Phew! The lines in our `pcoa` and `metadata` data frames line up. If they had disagreed, then one or more of the `TRUE` values in the output would have been a `FALSE`. Again, with 490 samples, it can still be tedious to see whether any of the values were FALSE. Here are two strategies to make sure that everything is `TRUE`. First, we can exploit the fact that numerical value of `TRUE` is 1 and we can use the `sum` command.
+## Joining `metadata` and `pcoa`
+We've almost accounted for all of the lines from our original chunk of code to build an ordination plot. You may remember the `inner_join` function, which was called after cleaning up the `metadata` data frame and before using `ggplot` to plot the data
 
-```{r}
-sum(pcoa$group != metadata$sample)
+```{r echo=FALSE}
+library(tidyverse)
+library(readxl)
+
+pcoa <- read_tsv(file="raw_data/baxter.thetayc.pcoa.axes",
+		col_types=cols(group=col_character())
+	)
+
+metadata <- read_excel(path="raw_data/baxter.metadata.xlsx",
+		col_types=c(sample = "text", fit_result = "numeric", Site = "text", Dx_Bin = "text",
+				dx = "text", Hx_Prev = "logical", Hx_of_Polyps = "logical", Age = "numeric",
+				Gender = "text", Smoke = "logical", Diabetic = "logical", Hx_Fam_CRC = "logical",
+				Height = "logical", Weight = "numeric", NSAID = "logical", Diabetes_Med = "logical",
+				stage = "text")
+	)
+metadata[["Height"]] <- na_if(metadata[["Height"]], 0)
+metadata[["Weight"]] <- na_if(metadata[["Weight"]], 0)
+metadata[["Site"]] <- recode(.x=metadata[["Site"]], "U of Michigan"="U Michigan")
+metadata[["Dx_Bin"]] <- recode(.x=metadata[["Dx_Bin"]], "Cancer."="Cancer")
+metadata[["Gender"]] <- recode(.x=metadata[["Gender"]], "m"="male")
+metadata[["Gender"]] <- recode(.x=metadata[["Gender"]], "f"="female")
+
+metadata <- rename_all(.tbl=metadata, .funs=tolower)
+metadata <- rename(.data=metadata,
+		previous_history=hx_prev,
+		history_of_polyps=hx_of_polyps,
+		family_history_of_crc=hx_fam_crc,
+		diagnosis_bin=dx_bin,
+		diagnosis=dx,
+		sex=gender)
+
+metadata_pcoa <- inner_join(metadata, pcoa, by=c('sample'='group'))
 ```
 
-Get that? by using `!=` we look for rows where the values are not the same. We then sum up all the values and see that they were all `FALSE`. Ergo, our names agree. A second approach can use the `stopifnot` function. This will complain if the expression it is given is not `TRUE`.
-
-```{r}
-stopifnot(pcoa$group == metadata$sample)
+```R
+metadata_pcoa <- inner_join(metadata, pcoa, by=c('sample'='group'))
 ```
 
-No output is a good sign. Great, I'm glad we got that figured out.
+The syntax here should be somewhat clear. The function "joins" two data frames - `pcoa` and `metadata` - based on the columns "sample" and "group", which are the columns in the `metadata` and `pcoa` data frames, respectively. If we were thinking ahead, we could have renamed the "group" column in `pcoa` to be "sample" and then the command could have just been `inner_join(metadata, pcoa)`. When you look at the contents of the `metadata_pcoa` data frame you'll see that the data frame is now 490 rows by 507 columns. Perhaps you're wondering what the ***inner*** in the `inner_join` function is about. It turns out that the `dplyr` package has several ways to join data frames. As we'll see, the `inner_join` function joins two data frames based on a column that they have in common (i.e. `by=c('sample'='group')` in our case) and if a sample or group is missing from one of the data frames, it is excluded from the joined data frame. This is what is called an "[inner join](https://en.wikipedia.org/wiki/Join_(SQL)#Inner_join)".
 
-For the activities in this session we're going to plot a continuous variable (e.g. diversity) against a categorical variable to create a bar plot. We have a bunch of alpha-diversity data in the file called `data/baxter.groups.ave-std.summary`. These are the alpha-diversity values for the samples that we looked at in the scatter plot exercises. We could imagine wanting to know whether the Shannon diversity varied between the three states of normal, adenoma, and cancer. Go ahead and read it in and take a look around.
 
-```{r}
-alpha <- read.table(file="data/baxter.groups.ave-std.summary", header=T)
-```
-
-Notice anything? Again, because the sample names (or `group` names) are numerical, they are read in as integers, not as characters. We can take care of this. Also, there's a `method` column. Because these data are the product of rarefying a data to 10,530 sequences, we have the mean (ave) and standard deviation (std) for each metric and sample. All we really want from this are the rows with "ave" in the `method` column. See if you can do this with out looking below. Name the new data frame `alpha_mean` - it should have 491 rows and 12 columns.
+## Joins
+In addition to an "inner join", the `dplyr` package has "[left join](https://en.wikipedia.org/wiki/Join_(SQL)#Left_outer_join)" (i.e. `left_join`) and "[right join](https://en.wikipedia.org/wiki/Join_(SQL)#Right_outer_join)" (i.e. `right_join`) functions, which will merge the data frames using the sample identifiers found in the left or right data frame being joined. There is also a "[full join](https://en.wikipedia.org/wiki/Join_(SQL)#Full_outer_join)" (i.e. `full_join`), which produces a data frame where the samples from both data frames are represented even if they're missing from one of the data frames. Let's do a couple of examples to demonstrate these joins. To keep things simple, we'll define two new data frames. We can do this by giving the `tibble` function a series of vectors that will be used to create the columns
 
 ```{r}
-alpha$group <- as.character(alpha$group)
-alpha_mean <- alpha[alpha$method == 'ave', ]
-```
-
-Having learned our lesson before after getting lucky, let's double check that our data frames are in the same order:
-
-```{r, error=TRUE}
-stopifnot(alpha_mean$group == metadata$sample)
-```
-
-Ruh roh. There are two problems: the values aren't all `TRUE` and one vector is shorter than the other. Perhaps you noticed that `alpha_mean` had 491 rows but our `metadata` data frame had 490. What's the difference? There are a number of commands that you can use to compare the composition of two vectors (see `?setdiff`). The `setdiff` command tells us which elements are different between the two vectors.
-
-```{r}
-setdiff(alpha_mean$group, metadata$sample)
-```
-
-Aha, there's one extra element, "3561655" in the `alpha_mean` data_frame. Although we might be interested in figuring out why we don't have metadata for this subject, we perhaps remember that this individual forgot to return their survey when they dropped off their sample so the sample should be excluded. At this point, we could do several steps to remove this sample and make sure the rows are all in the same order. Since this is a common problem, a set of functions have been developed as part of the `dplyr` package. Go ahead and install this package and load the library.
-
-```{r}
-install.packages("dplyr", repos="https://cloud.r-project.org/")
-library("dplyr")
-```
-
-The dplyr package has a few functions that we can use to merge different data frames. We can do an "inner join", which will merge the data frames using the rows that are shared between the two data frames. Alternatively, a "left join" or "right join" will merge the data frames using the rows found in the left or right data frame being joined. There is also a "full join", which produces a data frame where the samples from both data frames are represented. Let's do a couple of examples to demonstrate these joins. First we'll define two new data frames. We can do this by giving the `data.frame` function a series of vectors that will be used to create the columns
-
-```{r}
-a <- data.frame(x1=c("A", "B", "C"), x2=1:3, stringsAsFactors=F)
+a <- tibble(sample=c("A", "B", "C"), x2=1:3)
 a
 
-b <- data.frame(x1=c("A", "B", "D"), x3=c(T, F, T), stringsAsFactors=F)
+b <- tibble(sample=c("A", "B", "D"), x3=c(T, F, T))
 b
 ```
 
 We'll do a "left join" ...
 
 ```{r}
-left_join(a, b, by="x1")
+left_join(a, b, by="sample")
 ```
 
-... a "right join" ...
+Notice that because `b` doesn't have a value for "C" in column "x1", the resulting data frame has a `NA` in that cell. Because `a` doesn't have a value for "D" in column "x1" it is excluded from teh new data frame. If we instead do a "right join" ...
 
 ```{r}
-right_join(a, b, by="x1")
+right_join(a, b, by="sample")
 ```
 
-... a "full join" ...
+We see the opposite result - sample "C" is missing in the new data frame and the value in column "x2" for sample "D" is `NA`. If we now do a "full join"...
 
 ```{r}
-full_join(a, b, by="x1")
+full_join(a, b, by="sample")
 ```
 
-... and finally an "inner join"
+Here we see that all four samples are represented, but that the "x2" and "x3" columns have `NA` values for samples D and C, respectively. Finally, returning to our old friend, "inner join"...
 
 ```{r}
-inner_join(a, b, by="x1")
+inner_join(a, b, by="sample")
 ```
 
-You should have noticed two things. First, the left, right, and full joins insert `NA` values into the data frame to fill the in the data frame. In contrast, the inner join, only uses those rows that are shared between the two. Second, we used the `x1` column in each matrix to complete the join. Pretend we had these data frames and wanted to perform a join...
+We now get a data frame that has two rows representing the two samples that were found in `a` and `b`. Depending on your goals, you will need to chose the appropriate join function. Most of the time I use an `inner_join` since I will only want the values (e.g. the axes in `pcoa`) that I have metadata for and I will only want the descriptors (e.g. the values in `metadata`) that I have community data for.
 
-```{r}
-a <- data.frame(a1=c("A", "B", "C"), a2=1:3, stringsAsFactors=F)
-a
-
-b <- data.frame(b1=c("A", "B", "D"), b3=c(T, F, T), stringsAsFactors=F)
-b
-```
-
-We see that the column names are all different, but we'd like to merge the two data frames using columns `a1` and `b1`. Here's how we can merge the data frames
-
-```{r}
-inner_join(a, b, by=c("a1"="b1"))
-```
-
-#### Activity 1
-What happens in these cases when we switch the `a` and `b` data frames in the `inner_join` function call?
+### Activity 1
+What happens in these cases when we reverse the `a` and `b` data frames in the `inner_join` function call?
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
 
 ```{r}
-inner_join(b, a, by=c("b1"="a1"))
+left_join(b, a, by="sample")
+right_join(b, a, by="sample")
+full_join(b, a, by="sample")
+inner_join(b, a, by="sample")
 ```
 
+We see that the order of columns "x2" and "x3" is reversed
 </div>
 
 
-#### Activity 2
-Let's get back to our data. When we were using the `$` to pull columns out of our files we used `alpha_mean$group` and `metadata$sample`. Based on what we did with the `a` and `b` data frames, how would we merge the `alpha_mean` and `metadata` data frames? Which join should we use? Which data frame do we want to go first? Does it matter? Go ahead and plot the relationship between a patient's Shannon index and their age.
+### Activity 2
+What happens if we leave out the `by="sample"` argument from our join commands?
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
 
 ```{r}
-meta_alpha <- inner_join(metadata, alpha_mean, by=c("sample"="group"))
-plot(meta_alpha$Age, meta_alpha$shannon, xlab="Age (years)", ylab="Shannon Diversity Index")
+inner_join(a, b)
 ```
 
+The commands are smart enough to figure out that since there's only one column name in common between the two data frames, then it should join using the "sample" column.
 </div>
 
 
-#### Activity 3
-Based on what we learned in the earlier exercises let's make some improvements.
-* Alter the limits of the x-axis to go from 0 to 90 and have the y-axis go from 0 to 5.
-* Color the points by diagnosis
 
-<input type="button" class="hideshow">
-<div markdown="1" style="display:none;">
+Perhaps we want to know whether there are any rows from our data frames that will be removed when we do an inner join. For this case, we can use the `anti_join` function from the `dplyr` package:
+
+```{r results="markup"}
+anti_join(a, b, by="sample")
+anti_join(b, a, by="sample")
+```
+
+We can see that for the first case, the row for sample "C" is found in `a`, but not `b`. In the second case, sample "D" is found in `b`, but not `a`.
+
+We can also see what from `a` overlaps with `b` and vice versa with the `semi_join` function from the `dplyr` package
+
+```{r results="markup"}
+semi_join(a, b, by="sample")
+semi_join(b, a, by="sample")
+```
+
+
+## Selecting columns from our data frames
+Looking at the ordination data that is in our `pcoa` data frame, we see that there were a few hundred columns. When this is joined to the `metadata` data frame we get a very wide and obnoxiously large data frame. We really only need the first four columns of the `pcoa` data frame (i.e. "group", "axis1", "axis2", and "axis3"). We can do this with the `select` function from the `dplyr` package.
 
 ```{r}
-dx_color <- c(normal="black", adenoma="blue", cancer="red")
-plot(meta_alpha$Age, meta_alpha$shannon, xlim=c(0,90), ylim=c(0,5), xlab="Age (years)",
-		 ylab="Shannon Diversity Index", col=dx_color[as.character(meta_alpha$dx)], pch=19)
+select(pcoa, group, axis1, axis2, axis3)
 ```
 
-</div>
-
-
-Let's take a brief aside to re-factor our plotting code. Take a look at what we have here
-
-```{r, fig.show='hide'}
-plot(meta_alpha$shannon~meta_alpha$Age, xlim=c(0,90), ylim=c(0,5), xlab="Age (years)",
-		 ylab="Shannon Diversity Index", col=dx_color[as.character(meta_alpha$dx)], pch=19)
-```
-
-There's a subtle change here, do you see it? The output is the same, but in this code we used a `~`. Numerous commands in R will allow us to use the `~`. This should be read as "shannon is explained by age" or "our y-axis variable is explained by our x-axis variable". The significance isn't so obvious in this example. By doing this, however, we can use the `data` argument to simplify our code.
+The resulting tibble still has 490 rows, but now it has the 4 columns we *selected*. If we want to remove specific columns we could also use a negative sign
 
 ```{r}
-plot(shannon~Age, data=meta_alpha, xlim=c(0,90), ylim=c(0,5), xlab="Age (years)",
-		 ylab="Shannon Diversity Index", col=dx_color[as.character(dx)], pch=19)
+select(pcoa, -axis1)
 ```
 
-Again, we've got the same output, but simpler code.
-
-#### Activity 4
-Generate a new plot where you plot each patient's number of observed OTUs (Sobs) as a function of the fit result. Color each point by their gender and select the plotting symbol based on whether they smoke. Use the `~` approach with the `data` argument.
-
-<input type="button" class="hideshow">
-<div markdown="1" style="display:none;">
+The result is that the "axis1" column has been removed. If we consider our `metadata` data frame, we could also select the sample column any column that starts with "diagnosis"
 
 ```{r}
-sex_color <- c(m="red", f="blue")
-sex_symbol <- c(17, 19)
-plot(sobs~fit_result, data=meta_alpha, xlim=c(0,3000), ylim=c(0, 400), xlab="Fit Result",
-		 ylab="Number of OTUs", col=sex_color[as.character(Gender)], pch=sex_symbol[Smoke+1])
+select(metadata, sample, starts_with("diagnosis"))
 ```
 
-</div>
-
-Now we've got a couple colors and a couple plotting symbols. Our readers might like to know what these points represent! Let's make a legend. We do this with the legend command. To build a legend, we'll need to figure out a few things. First, we need to generate different plotting symbol and color combinations. Second, we need to connect those combinations to a description. Finally, we need to find a good place to put the legend. Unfortunately, as we tinker, we will need to rebuild the plot and place a new legend on top of it. Let's get going.
+This gets us a new data frame with the columns "sample", "diagnosis_bin", and "diagnosis". We could also get the "sample" column and any column that contains "history"
 
 ```{r}
-sex_color <- c(m="red", f="blue")
-sex_symbol <- c(17, 19)
-plot(sobs~fit_result, data=meta_alpha, xlim=c(0,3000), ylim=c(0, 400), xlab="Fit Result",
-		 ylab="Number of OTUs", col=sex_color[as.character(Gender)], pch=sex_symbol[Smoke+1])
-legend("bottomright", legend=c('Female smoker','Male smoker', 'Female non-smoker',
-															 'Male non-smoker'))
+select(metadata, sample, contains("history"))
 ```
 
-Cool - we have the start of a legend! We have tentatively placed the legend in the "bottomright" and have added the legend text. Try replacing "bottomright" with "bottom", "bottomleft", "left", "topleft", "top", "topright", "right", or "center". Alternatively we could give the `legend` function x and y coordinates for the top left corner of the legend box.
+This generates a data frame that contains the columns "sample", "previous_history", "history_of_polyps", and "family_history_of_crc". There are other helper functions including `ends_with`, `matches`, `num_range`, and `one _of` that you can learn more about by using the `?` helper.
+
+
+
+## Selecting rows from our data frames
+We might also want to make new data frames that contain a subset of the rows. We can "filter" the data frame using the `filter` function from the `dplyr` package. Let's assume that we want to recreate our favorite ordination using only samples from the University of Michigan. We can generate a new data frame using `filter`
 
 ```{r}
-sex_color <- c(m="red", f="blue")
-sex_symbol <- c(17, 19)
-plot(sobs~fit_result, data=meta_alpha, xlim=c(0,3000), ylim=c(0, 400), xlab="Fit Result",
-		 ylab="Number of OTUs", col=sex_color[as.character(Gender)], pch=sex_symbol[Smoke+1])
-legend(x=1000, y=100, legend=c('Female smoker','Male smoker', 'Female non-smoker',
-															 'Male non-smoker'))
+filter(metadata, site=="U Michigan")
 ```
 
-A useful function for selecting a location is the `locator` function. Run `locator(1)` and then go to the plotting window. You'll notice cross hairs, which look like an addition sign. Go ahead and click anywhere on your plot. Back in the terminal console you'll see x and y coordinates outputted. If you run `locator(2)` you can click twice to get two points. Go ahead and use the locator function to specify where you want the legend.
-
-Alright, we know where we want the legend and what the text in the legend should say, now we need the plotting symbols and colors. Here we will use a `col` and `pch` vectors to specify the color and plotting symbol so that their order corresponds to the text in the legend.
+The resulting data frame has 107 samples. If we put this together with our previous code we can build the ordination...
 
 ```{r}
-sex_color <- c(m="red", f="blue")
-sex_symbol <- c(17, 19)
-plot(sobs~fit_result, data=meta_alpha, xlim=c(0,3000), ylim=c(0, 400), xlab="Fit Result",
-		 ylab="Number of OTUs", col=sex_color[as.character(Gender)], pch=sex_symbol[Smoke+1])
-legend(x=2000, y=100, legend=c('Female smoker','Male smoker', 'Female non-smoker', 'Male non-smoker'), pch=c(19,19,17,17), col=c("blue", "red","blue","red"))
+um_metadata <- filter(metadata, site=="U Michigan")
+um_metadata_pcoa <- inner_join(um_metadata, pcoa, by=c('sample'='group'))
+
+ggplot(um_metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
+	geom_point(shape=19, size=2) +
+	scale_color_manual(name=NULL,
+		values=c("blue", "red", "black"),
+		breaks=c("normal", "adenoma", "cancer"),
+		labels=c("Normal", "Adenoma", "Cancer")) +
+	coord_fixed() +
+	labs(title="PCoA of ThetaYC Distances Between Stool Samples\nCollected at the University of Michigan",
+		x="PCo Axis 1",
+		y="PCo Axis 2") +
+	theme_classic()
 ```
 
-We can make the legend text smaller or the plotting symbol larger by altering the pt.cex and cex values.
+Returning to the syntax of `filter` you saw that I used `site=="U Michigan"`. This tells `filter` to identify those rows where the "site" column had a value equal to "U Michigan". The `==` is a logical comparison that asks whether the value on either side of the `==` are the same. The answer is either `TRUE` or `FALSE`. There are other logical operators that you should already be familiar with (but perhaps didn't know!) including `<`, `<=`, `>`, `>=`. These should be self explanatory. For example, if we want ever subject that has a `fit_result` greater than or equal to 100 we would write
 
 ```{r}
-sex_color <- c(m="red", f="blue")
-sex_symbol <- c(17, 19)
-plot(sobs~fit_result, data=meta_alpha, xlim=c(0,3000), ylim=c(0, 400), xlab="Fit Result",
-		 ylab="Number of OTUs", col=sex_color[as.character(Gender)], pch=sex_symbol[Smoke+1])
-legend(x=2000, y=100, legend=c('Female smoker','Male smoker', 'Female non-smoker', 'Male non-smoker'), pch=c(19,19,17,17), col=c("blue", "red","blue","red"), pt.cex=1.5, cex=0.8)
+filter(metadata, fit_result >= 100)
 ```
 
-#### Activity 5
-Revisit the ordination plot you generated in Activity 5 from Session 2 and generate a legend to accompany the plot.
-
-<input type="button" class="hideshow">
-<div markdown="1" style="display:none;">
-```{r}
-sex_color <- c(f="red", m="blue")
-dx_pch <- c(normal=17, adenoma=18, cancer=19)
-
-plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",
-		 xlim=c(-0.5, 0.5), ylim=c(-0.6, 0.4), pch=dx_pch[metadata$dx],
-		 col=sex_color[as.character(metadata$Gender)], lwd=1, cex=1,
-		 main="PCoA of ThetaYC Distances Between Stool Samples")
-
-legend("bottomright", legend=c("Female, Normal", "Female, Adenoma", "Female, Cancer", "Male, Normal", "Male, Adenoma", "Male, Cancer"), pch=c(dx_pch, dx_pch), col=rep(sex_color, each=3))
-```
-</div>
-
-
-Sometimes our plots have points that are well spread across the plotting window and it's impossible to find a clean place to put the legend. Putting the legend in the plotting window would cover your data or could confuse the viewer into thinking that the plotting symbols in the legend were data. This is why many favor putting the legend outside of the plotting window. To do this, we need to learn a little about how the space around the plot is formatted. Have you noticed that in our plots without a main title there is a lot of space at the top of the window? That's the margin. If we call `par()$mar` we can see the margin values. These seem a bit cryptic, but represent the number of lines between the axis and the edge of the window. The numbers start on the x-axis and go clockwise. We can call `par(mar=c(1,1,1,1))` to set all the margins to one line or we could call `par(mar=c(5,5,1,10))` to have a wide margin on the right side. Let's give this a shot.
+Some of our columns are already logical. To get those individuals with a previous history of colorectal cancer we could do
 
 ```{r}
-par(mar=c(5,5,1,10))
-sex_color <- c(m="red", f="blue")
-smoke_symbol <- c(17, 19)
-plot(sobs~fit_result, data=meta_alpha, xlim=c(0,3000), ylim=c(0, 400), xlab="Fit Result", ylab="Number of OTUs", col=sex_color[as.character(Gender)], pch=smoke_symbol[Smoke+1])
-legend(x=2000, y=100, legend=c('Female smoker','Male smoker', 'Female non-smoker', 'Male non-smoker'), pch=c(19,19,17,17), col=c("blue", "red","blue","red"), pt.cex=1.5, cex=0.8)
+filter(metadata, previous_history)
 ```
 
-Great. You'll notice that we saved the default value before changing the margins and then reset the values at the end of the code chunk. This is helpful to keep our settings consistent. Now let's use the `locator` function that we learned about to find a good place to put the legend in the right side margin. You'll see that the x values continue beyond the x-axis labels and that the y values are consistent with the y-axis values. To get this to work, we'll need to add the `xpd` argument to our legend command. This allows us to plot information outside of the normal plotting window.
-
-```{r, collapse=TRUE}
-par(mar=c(5,5,1,10))
-sex_color <- c(m="red", f="blue")
-smoke_symbol <- c(17, 19)
-plot(sobs~fit_result, data=meta_alpha, xlim=c(0,3000), ylim=c(0, 400), xlab="Fit Result", ylab="Number of OTUs", col=sex_color[as.character(Gender)], pch=smoke_symbol[Smoke+1])
-legend(x=3300, y=300, legend=c('Female smoker','Male smoker', 'Female non-smoker', 'Male non-smoker'), pch=c(19,19,17,17), col=c("blue", "red","blue","red"), pt.cex=1.5, cex=0.8, xpd=TRUE)
-```
-
-Before we leave this analysis, it would be nice to know whether the number of OTUs is correlated with the fit result. In R, we can use a Pearson, Spearman, or Kendall correlation analysis. We can do the correlation using either the `cor` or `cor.test` functions. We'll use the `cor.test` function because it has more interesting output. We'll also use the Spearman correlation because FIT result data are not normally distributed
+If we want those samples from people ***without*** a previous history we can use the `!` operator which turns `TRUE` to `FALSE` and `FALSE` to `TRUE`
 
 ```{r}
-cor.test(meta_alpha$fit_result, meta_alpha$sobs, method="spearman")
+filter(metadata, !previous_history)
 ```
 
-We see that our correlation is `r c_t <- cor.test(meta_alpha$fit_result, meta_alpha$sobs, method="spearman"); format(c_t$estimate, digits=2)` and the P-value is `r format(c_t$p.value, digits=2)`, which is not significant. If we wanted to use the Pearson or Kendall correlations we would replace "spearman" with "pearson" (the default) or "kendall".
+The `!` can also be used as `!=` to test whether two values are different from each other. We could use this to get the samples from people that do not have a normal diagnosis
 
+```{r}
+filter(metadata, diagnosis != 'normal')
+```
 
-#### Activity 6
-Revisiting the figure from Activity 5, go ahead and put the legend in the right hand margin of the plotting window.
+### Activity 3
+A common bug for novice and experienced programmers is shown below
+
+```
+filter(metadata, diagnosis="cancer")
+```
+
+Can you see what the problem is and how to fix it?
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
 ```{r}
-sex_color <- c(f="red", m="blue")
-dx_pch <- c(normal=17, adenoma=18, cancer=19)
-
-par(mar=c(5,5,2,10))
-plot(x=pcoa$axis1, y=pcoa$axis2, xlab="PCo Axis 1", ylab="PCo Axis 2",
-		 xlim=c(-0.5, 0.5), ylim=c(-0.6, 0.4), pch=dx_pch[metadata$dx],
-		 col=sex_color[as.character(metadata$Gender)], lwd=1, cex=1,
-		 main="PCoA of ThetaYC Distances Between Stool Samples")
-
-legend(x=0.6, y=0.4, legend=c("Female, Normal", "Female, Adenoma", "Female, Cancer", "Male, Normal", "Male, Adenoma", "Male, Cancer"), pch=c(dx_pch, dx_pch), col=rep(sex_color, each=3), xpd=TRUE)
+filter(metadata, diagnosis=="cancer")
 ```
 </div>
 
 
-#### Activity 7
-Plot the relationship between each person's height and weight. What is the correlation between the two variables?
+### Activity 4
+Create a data frame that contains only females
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
-
 ```{r}
-plot(metadata$Weight~metadata$Height, xlab="Height (cm)", ylab="Weight (kg)")
-cor.test(metadata$Weight, metadata$Height, method="spearman")
+filter(metadata, sex=="male")
 ```
-
 </div>
 
 
-#### Activity 8
-Through the previous two sessions you've been developing your own scatter plot idea. At this point, you should know everything you need to plot your own data. Go for it!
+### Activity 5
+Create a data frame that contains individuals are 50 years old and younger
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+```{r}
+filter(metadata, age <= 50)
+```
+</div>
 
 
+The `filter` and `select` functions are very powerful for subsetting our data frames. The fit result measures how much blood is in a person's stool. It's a common non-invasive diagnostic to identify colonic lesions. What if I want to get those samples from people that have a fit result over 100 and were given a normal diagnosis? We can use the `&` operator to see if two logical comparisons are true
 
-<script>
-$( "input.hideshow" ).each( function ( index, button ) {
-  button.value = 'Show an answer';
-  $( button ).click( function () {
-    var target = this.nextSibling ? this : this.parentNode;
-    target = target.nextSibling.nextSibling;
-    if ( target.style.display == 'block' || target.style.display == '' ) {
-      target.style.display = 'none';
-      this.value = 'Show an answer';
-    } else {
-      target.style.display = 'block';
-      this.value = 'Hide answer';
-    }
-  } );
-} );
-</script>
+```{r}
+filter(metadata, fit_result >= 100 & diagnosis == "normal")
+```
+
+If we want samples from people with a high fit result or a cancer diagnosis we can use a similar approach, except that instead of using `&` we would use `|`
+
+```{r}
+filter(metadata, fit_result >= 100 | diagnosis == "cancer")
+```
+
+### Activity 6
+Create a data frame that contains samples from individuals who are 50 years old and younger and have a non-normal diagnosis
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+```{r}
+filter(metadata, age <= 50 & diagnosis != "normal")
+```
+</div>
+
+
+### Activity 7
+Create a data frame that contains samples from individuals who have a previous or family history of colorectal cancer
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+```{r}
+filter(metadata, previous_history | family_history_of_crc)
+```
+</div>
+
+
+## Selecting and filtering with pipes
+
+Let's leverage the `select` and `filter` commands we have been using to work with a new `tsv` file. The file `raw_data/baxter.groups.ave-std.summary` was generated by the [mothur `summary.single`](https://mothur.org/wiki/Summary.single) command, which rarefies the number of sequences per sample and calculates a variety of alpha diversity metrics.
+
+### Activity 8
+This file has a number of columns that aren't that interesting for us. You will also find that the `method` column has two values - ave and std - which indicate the average value of the alpha diversity metric after rarefying and the standard deviation (i.e. std), which is the standard deviation for the rarefaction replicates. You have several tasks...
+
+* Write the code needed to read in the file to a new data frame called `alpha`. Make sure that the group column is read in as characters
+* Filter out the rows that contain the standard deviation data
+* Select the columns that contain the subject identifier, the number of observed OTUs (i.e "sobs"), the Shannon diversity index (i.e. "shannon"), the inverse Simpson diversity index (i.e. "invsimpson"), and Good's coverage (i.e. "coverage")
+* Use the appropriate join function to create a data frame called `alpha_metadata` that is a join between `alpha` and `metadata`
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+```{r}
+alpha <- read_tsv(file="raw_data/baxter.groups.ave-std.summary", col_types=cols(group = col_character()))
+alpha <- filter(alpha, method=='ave')
+alpha <- select(alpha, group, sobs, shannon, invsimpson, coverage)
+metadata_alpha <- inner_join(metadata, alpha, by=c("sample"="group"))
+```
+</div>
+
+Hopefully that was a good review of what we've done in this and the previous lessons. The approach we've taken to generate `metadata_alpha` works perfectly. I'd like to show you a different way to think about the code. If you look at these four lines of code, you should see that the data kind of "flows" from the `tsv` file to the final version of `alpha` before we join it to `metadata`. There's a package installed with `dplyr` called `magrittr` that has a funny looking function called a pipe - `%>%`. The pipe, directs the flow of data from one command to the next. Instead of writing over `alpha` multiple times, we can write it once as the output of the data flow through the pipes.
+
+```{r}
+alpha <- read_tsv(file="raw_data/baxter.groups.ave-std.summary", col_types=cols(group = col_character())) %>%
+	filter(method=='ave') %>%
+	select(group, sobs, shannon, invsimpson, coverage)
+alpha
+```
+
+Viola! Cool, eh? You may not see the benefit of the pipes here, but in subsequent lessons we will pipe together numerous functions to direct the flow of data. Instead of writing over `alpha` as we did in the previous code chunks, some people would rather write each update to a new variable name. Both approaches get tedious and so the ability to pipe becomes pretty handy. In fact, we can skip the creation of the `alpha` data frame all together by piping this flow right into the `inner_join` function call. Notice that in the code below, the `inner_join` function call has a `.` where `alpha` had been before. The `.` tells `inner_join` to use the data that is flowing through the pipe.
+
+```{r}
+metadata_alpha <- read_tsv(file="raw_data/baxter.groups.ave-std.summary", col_types=cols(group = col_character())) %>%
+	filter(method=='ave') %>%
+	select(group, sobs, shannon, invsimpson, coverage) %>%
+	inner_join(metadata, ., by=c("sample"="group"))
+metadata_alpha
+```
+
+But wait... there's more!
+
+```{r}
+read_tsv(file="raw_data/baxter.groups.ave-std.summary", col_types=cols(group = col_character())) %>%
+	filter(method=='ave') %>%
+	select(group, sobs, shannon, invsimpson, coverage) %>%
+	inner_join(metadata, ., by=c("sample"="group")) %>%
+	ggplot(aes(x=age, y=shannon, color=diagnosis)) +
+		geom_point(shape=19, size=2) +
+		coord_cartesian(xlim=c(0,90), ylim=c(0,5)) +
+		scale_color_manual(name=NULL,
+			values=c("blue", "red", "black"),
+			breaks=c("normal", "adenoma", "cancer"),
+			labels=c("Normal", "Adenoma", "Cancer")) +
+		labs(title="Relationship between community diversity and subject's age",
+			x="Age",
+			y="Shannon Diversity Index") +
+		theme_classic()
+```
+
+We've gone all the way - reading in the data from a `tsv` file to getting the rows and columns we want to joining it with our metadata to plotting. All in one command. Pretty slick.
+
+
+### Activity 9
+With our new found piping skillz, rewrite the code from the end of the last tutorial to generate the ordination. Use the `metadata` data frame that we've already been working with
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+```{r}
+read_tsv(file="raw_data/baxter.thetayc.pcoa.axes", col_types=cols(group=col_character())) %>%
+	inner_join(metadata, ., by=c('sample'='group')) %>%
+	ggplot(aes(x=axis1, y=axis2, color=diagnosis)) +
+		geom_point(shape=19, size=2) +
+		scale_color_manual(name=NULL,
+			values=c("blue", "red", "black"),
+			breaks=c("normal", "adenoma", "cancer"),
+			labels=c("Normal", "Adenoma", "Cancer")) +
+		coord_fixed() +
+		labs(title="PCoA of ThetaYC Distances Between Stool Samples",
+			x="PCo Axis 1",
+			y="PCo Axis 2") +
+		theme_classic()
+```
+</div>
+
+
+## Conclusion
+A couple of closing thoughts are needed before we move on to the next lesson where we'll start doing more sophisticated work with data frames and functions from the `dplyr` package. First, you might ask why we ran select and filter on alpha rather than on the output of the `inner_join`. There's no real reason. The output would be the same. Do what makes sense for where you are in your analysis. Second, you can feel free to break up the piping as much as you want. It is there as a helper to your coding so that you don't have to create temporary data frames or write over ones you just made. Beyond these advantages, most people find that debugging code that uses the pipes is much easier than with the other approaches. Finally, instead of making the alpha diversity scatter plot one pipeline, I probably would normally break it up into two pipelines. One pipeline to create `alpha` and do the `select` and `filter` steps. The second would join `alpha` with `metadata` and produce the plot.

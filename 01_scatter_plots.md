@@ -22,9 +22,9 @@ library(readxl)
 
 pcoa <- read_tsv(file="raw_data//baxter.thetayc.pcoa.axes")
 metadata <- read_excel(path="raw_data//baxter.metadata.xlsx")
-pcoa_metadata <- inner_join(pcoa, metadata, by=c('group'='sample'))
+metadata_pcoa <- inner_join(metadata, pcoa, by=c('sample'='group'))
 
-ggplot(pcoa_metadata, aes(x=axis1, y=axis2, color=dx)) +
+ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 	geom_point(shape=19, size=2) +
 	scale_color_manual(name=NULL,
 		values=c("blue", "red", "black"),
@@ -89,7 +89,7 @@ You can learn about these and the other package that are loaded as part of the t
 
 
 ```r
-ggplot(pcoa_metadata, aes(x=axis1, y=axis2, color=dx)) +
+ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 	geom_point(shape=18, size=3) +
 	scale_color_manual(name=NULL,
 		values=c("blue", "red", "black"),
@@ -117,7 +117,7 @@ ggsave("ordination.png")
 
 
 ```r
-ggplot(data=pcoa_metadata, mapping=aes(x=axis1, y=axis2, color=Gender)) +
+ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2, color=Gender)) +
 	geom_point(shape=19, size=3) +
 	scale_color_manual(name=NULL,
 		values=c("darkgreen", "orange"),
@@ -142,14 +142,14 @@ As an introduction to ggplot, let's break down the plotting section of the code 
 
 
 ```r
-ggplot(data=pcoa_metadata, mapping=aes(x=axis1, y=axis2, color=dx))
+ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2, color=dx))
 ```
 
-Here we can see that the data to be plotted comes from a *variable* named `pcoa_metadata`, which is a *data frame* that contains the data we want to plot. The mapping we are applying to the data consists of assigning various columns from the data frame to aesthetics that we want to plot. Specifically, we will put the data in the `axis1` column to the x-axis, the data in the `axis2` column to the y-axis, and the data in the `dx` column (i.e. the diagnosis) to the color that will be plotted at the x and y coordinates. If we run this line in R, we will get a plotting window that doesn't have any data in it.
+Here we can see that the data to be plotted comes from a *variable* named `metadata_pcoa`, which is a *data frame* that contains the data we want to plot. The mapping we are applying to the data consists of assigning various columns from the data frame to aesthetics that we want to plot. Specifically, we will put the data in the `axis1` column to the x-axis, the data in the `axis2` column to the y-axis, and the data in the `dx` column (i.e. the diagnosis) to the color that will be plotted at the x and y coordinates. If we run this line in R, we will get a plotting window that doesn't have any data in it.
 
 
 ```r
-ggplot(data=pcoa_metadata, mapping=aes(x=axis1, y=axis2, color=dx))
+ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2, color=dx))
 ```
 
 <img src="assets/images/01_scatter_plots//unnamed-chunk-5-1.png" title="plot of chunk unnamed-chunk-5" alt="plot of chunk unnamed-chunk-5" width="504" />
@@ -158,7 +158,7 @@ The data are there, we just can't see them - we need to tell ggplot the geometry
 
 
 ```r
-ggplot(data=pcoa_metadata, mapping=aes(x=axis1, y=axis2, color=dx)) +
+ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2, color=dx)) +
 	geom_point(shape=19, size=2)
 ```
 
@@ -181,7 +181,7 @@ Now check this out
 
 
 ```r
-p <- ggplot(data=pcoa_metadata, mapping=aes(x=axis1, y=axis2, color=dx))
+p <- ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2, color=dx))
 p + geom_point(shape=19, size=2)
 ```
 
@@ -191,7 +191,7 @@ We get the same result. There is a subtle point to notice in our `geom_point` fu
 
 
 ```r
-p <- ggplot(data=pcoa_metadata, mapping=aes(x=axis1, y=axis2))
+p <- ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2))
 p + geom_point(shape=19, size=2, mapping=aes(color=dx))
 ```
 
@@ -201,7 +201,7 @@ Again, we get the same plot. Stylistically, it's generally best to put your aest
 
 
 ```r
-p <- ggplot(data=pcoa_metadata, mapping=aes(x=axis1, y=axis2, color=dx))
+p <- ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2, color=dx))
 p + geom_point(shape=19, size=2, color="black")
 ```
 
@@ -211,7 +211,7 @@ Our new color aesthetic, black, is overwriting the colors for the three diagnosi
 
 
 ```r
-p <- ggplot(data=pcoa_metadata, mapping=aes(x=axis1, y=axis2, color=dx, shape=dx))
+p <- ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2, color=dx, shape=dx))
 p + geom_point(size=2)
 ```
 
@@ -221,7 +221,7 @@ Each geometry (e.g. `geom_point`) has a set of aesthetics that it will map onto 
 
 
 ```r
-p <- ggplot(data=pcoa_metadata, mapping=aes(x=axis1, y=axis2, color=dx))
+p <- ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2, color=dx))
 p <- p + geom_point(shape=19, size=2)
 ```
 
@@ -290,7 +290,7 @@ Altering the size of the plotting symbol is commonly called a ["bubble chart"](h
 
 
 ```r
-ggplot(pcoa_metadata, aes(x=axis1, y=axis2, size=axis3, color=dx)) +
+ggplot(metadata_pcoa, aes(x=axis1, y=axis2, size=axis3, color=dx)) +
 	geom_point(shape=19) +
 	scale_color_manual(name=NULL,
 		values=c("blue", "red", "black"),
@@ -315,7 +315,7 @@ One problem with the original ordination is that there is a tendency for the poi
 
 
 ```r
-ggplot(pcoa_metadata, aes(x=axis1, y=axis2, color=dx)) +
+ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 	geom_point(shape=19, size=2, alpha=0.5) +
 	scale_color_manual(name=NULL,
 		values=c("blue", "red", "black"),
@@ -355,7 +355,7 @@ Among these 25 symbols, symbols 21 to 25 are unique. The color of these symbol i
 
 
 ```r
-ggplot(pcoa_metadata, aes(x=axis1, y=axis2, fill=dx)) +
+ggplot(metadata_pcoa, aes(x=axis1, y=axis2, fill=dx)) +
 	geom_point(shape=21, size=2, stroke=0.5) +
 	scale_color_manual(name=NULL,
 		values=c("blue", "red", "black"),
@@ -374,7 +374,7 @@ We have a small bug in our code now - our colors don't seem to be taking. What d
 
 
 ```r
-ggplot(pcoa_metadata, aes(x=axis1, y=axis2, fill=dx)) +
+ggplot(metadata_pcoa, aes(x=axis1, y=axis2, fill=dx)) +
 	geom_point(shape=21, size=2, stroke=0.5) +
 	scale_fill_manual(name=NULL,
 		values=c("blue", "red", "black"),
@@ -393,7 +393,7 @@ Let's change our ordination a bit to color our point by the `dx` column of our d
 
 
 ```r
-ggplot(pcoa_metadata, aes(x=axis1, y=axis2, color=dx, shape=Gender)) +
+ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx, shape=Gender)) +
 	geom_point(size=2) +
 	scale_color_manual(name=NULL,
 		values=c("blue", "red", "black"),
@@ -412,7 +412,7 @@ Here again, we have the poorly formatted legend for the shape. Similar to our us
 
 
 ```r
-ggplot(pcoa_metadata, aes(x=axis1, y=axis2, color=dx, shape=Gender)) +
+ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx, shape=Gender)) +
 	geom_point(size=2) +
 	scale_color_manual(name=NULL,
 		values=c("blue", "red", "black"),
@@ -435,7 +435,7 @@ Nothing really pops out in the ordination to suggest that there's a difference b
 
 
 ```r
-ggplot(pcoa_metadata, aes(x=axis1, y=axis2, color=dx, shape=dx)) +
+ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx, shape=dx)) +
 	geom_point(size=2) +
 	scale_color_manual(name=NULL,
 		values=c("blue", "red", "black"),
@@ -469,7 +469,7 @@ Revisiting our original ordination we might try to soften the saturation of the 
 
 
 ```r
-ggplot(pcoa_metadata, aes(x=axis1, y=axis2, color=dx)) +
+ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 	geom_point(shape=19, size=2) +
 	scale_color_manual(name=NULL,
 		values=c("dodgerblue", "sienna", "gray"),
@@ -673,7 +673,7 @@ This pops up a set of three options that we can now use for our ordination with 
 
 
 ```r
-ggplot(pcoa_metadata, aes(x=axis1, y=axis2, color=dx)) +
+ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 	geom_point(shape=19, size=2) +
 	scale_color_manual(name=NULL,
 		values=brewer.pal(n=3, name="Dark2"),
@@ -692,7 +692,7 @@ Some more whimsical options include the [`beyonce`](https://github.com/dill/beyo
 
 
 ```r
-ggplot(pcoa_metadata, aes(x=axis1, y=axis2, color=dx)) +
+ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 	geom_point(shape=19, size=2) +
 	scale_color_manual(name=NULL,
 		values=c('#FFAC63', '#2857D6', 'black'),
@@ -735,7 +735,7 @@ install.packages("wesanderson")
 library("wesanderson")
 names(wes_palettes)
 
-ggplot(pcoa_metadata, aes(x=axis1, y=axis2, color=dx)) +
+ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 	geom_point(shape=19, size=2) +
 	scale_color_manual(name=NULL,
 		values=wes_palette(name="Darjeeling", n=3),
@@ -757,5 +757,4 @@ ggplot(pcoa_metadata, aes(x=axis1, y=axis2, color=dx)) +
 ```
 
 <img src="assets/images/01_scatter_plots//unnamed-chunk-36-1.png" title="plot of chunk unnamed-chunk-36" alt="plot of chunk unnamed-chunk-36" width="504" />
-
 </div>

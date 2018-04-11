@@ -27,12 +27,12 @@ title: minimalR
 			<li>Importance of how things are named</li>
 		</ul>
 
-	<li><a href="03_combining_data_frames.html">Plotting pairs of continuous data with scatter plots</a></li>
+	<li><a href="03_combining_data_frames.html">Combining and Exploring Data Frames</a></li>
 		<ul>
-			<li>dplyr joins</li>
-			<li>Legends</li>
-			<li>Margins</li>
-			<li>Calculating correlations</li>
+			<li>Merging data frames</li>
+			<li>Selecting columns from data frames</li>
+			<li>Selecting rows from data frames</li>
+			<li>Connecting steps in data processing with pipes</li>
 		</ul>
 
 	<li><a href="04_aggregating_data.html">Plotting continuous by categorical data</a></li>
