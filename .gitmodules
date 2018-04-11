@@ -1,6 +1,6 @@
 [submodule "resources"]
 	path = resources
 	url = https://github.com/riffomonas/resources.git
-[submodule "data"]
+[submodule "raw_data"]
 	path = raw_data
 	url = https://github.com/riffomonas/baxter_data.git
