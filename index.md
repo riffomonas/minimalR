@@ -35,15 +35,12 @@ title: minimalR
 			<li>Connecting steps in data processing with pipes</li>
 		</ul>
 
-	<li><a href="04_aggregating_data.html">Plotting continuous by categorical data</a></li>
+	<li><a href="04_aggregating_data.html">Working with data in data frames</a></li>
 		<ul>
-			<li>Functions</li>
-			<li>Sourcing R scripts</li>
-			<li>Controlling flow with `ifelse`</li>
-			<li>Aggregating function</li>
-			<li>Matrices</li>
-			<li>Barplots - Legends; from Vectors, Matrices, t(Matrices)</li>
-			<li>Error bar - standard deviation</li>
+			<li>Aggregating and summarizing data by a categorical variable</li>
+			<li>Adding columns to data frames</li>
+			<li>Creating customized functions</li>
+			<li>The importance of keeping code DRY</li>
 		</ul>
 
 	<li><a href="05_random_data.html">Working with random data</a></li>

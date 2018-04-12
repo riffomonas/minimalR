@@ -255,7 +255,7 @@ metadata <- read_excel(path="raw_data/baxter.metadata.xlsx",
 		col_types=c(sample = "text", fit_result = "numeric", Site = "text", Dx_Bin = "text",
 				dx = "text", Hx_Prev = "logical", Hx_of_Polyps = "logical", Age = "numeric",
 				Gender = "text", Smoke = "logical", Diabetic = "logical", Hx_Fam_CRC = "logical",
-				Height = "logical", Weight = "numeric", NSAID = "logical", Diabetes_Med = "logical",
+				Height = "numeric", Weight = "numeric", NSAID = "logical", Diabetes_Med = "logical",
 				stage = "text")
 	)
 metadata
@@ -423,7 +423,7 @@ metadata <- read_excel(path="raw_data/baxter.metadata.xlsx",
 		col_types=c(sample = "text", fit_result = "numeric", Site = "text", Dx_Bin = "text",
 				dx = "text", Hx_Prev = "logical", Hx_of_Polyps = "logical", Age = "numeric",
 				Gender = "text", Smoke = "logical", Diabetic = "logical", Hx_Fam_CRC = "logical",
-				Height = "logical", Weight = "numeric", NSAID = "logical", Diabetes_Med = "logical",
+				Height = "numeric", Weight = "numeric", NSAID = "logical", Diabetes_Med = "logical",
 				stage = "text")
 	)
 metadata[["Height"]] <- na_if(metadata[["Height"]], 0)

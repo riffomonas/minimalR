@@ -5,7 +5,10 @@ output: markdown_document
 ---
 
 ## Learning goals
-* Combining datasets
+* Merging data frames
+* Selecting columns from data frames
+* Selecting rows from data frames
+* Connecting steps in data processing with pipes
 
 
 
@@ -385,7 +388,7 @@ filter(metadata, site=="U Michigan")
 ## 10 2057650        0   U Michig… High Risk Norm… normal    F               
 ## # ... with 97 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
-## #   family_history_of_crc <lgl>, height <lgl>, weight <dbl>, nsaid <lgl>,
+## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>
 ```
 
@@ -434,7 +437,7 @@ filter(metadata, fit_result >= 100)
 ## 10 2287660        939 Dana Farber Cancer        cancer    T               
 ## # ... with 116 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
-## #   family_history_of_crc <lgl>, height <lgl>, weight <dbl>, nsaid <lgl>,
+## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>
 ```
 
@@ -461,7 +464,7 @@ filter(metadata, previous_history)
 ## 10 2109653       0    Dana Far… Normal          normal    T               
 ## # ... with 128 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
-## #   family_history_of_crc <lgl>, height <lgl>, weight <dbl>, nsaid <lgl>,
+## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>
 ```
 
@@ -488,7 +491,7 @@ filter(metadata, !previous_history)
 ## 10 2031650        0   Toronto   Adenoma         adenoma   F               
 ## # ... with 339 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
-## #   family_history_of_crc <lgl>, height <lgl>, weight <dbl>, nsaid <lgl>,
+## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>
 ```
 
@@ -515,7 +518,7 @@ filter(metadata, diagnosis != 'normal')
 ## 10 2051660       0    Dana Farber Adenoma       adenoma   T               
 ## # ... with 308 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
-## #   family_history_of_crc <lgl>, height <lgl>, weight <dbl>, nsaid <lgl>,
+## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>
 ```
 
@@ -551,7 +554,7 @@ filter(metadata, diagnosis=="cancer")
 ## 10 2287660     939    Dana Farber Cancer        cancer    T               
 ## # ... with 110 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
-## #   family_history_of_crc <lgl>, height <lgl>, weight <dbl>, nsaid <lgl>,
+## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>
 ```
 </div>
@@ -583,7 +586,7 @@ filter(metadata, sex=="male")
 ## 10 2043650       5.00 Toronto   High Risk Norm… normal    F               
 ## # ... with 237 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
-## #   family_history_of_crc <lgl>, height <lgl>, weight <dbl>, nsaid <lgl>,
+## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>
 ```
 </div>
@@ -615,7 +618,7 @@ filter(metadata, age <= 50)
 ## 10 2093650     286    Dana Far… Normal          normal    T               
 ## # ... with 86 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
-## #   family_history_of_crc <lgl>, height <lgl>, weight <dbl>, nsaid <lgl>,
+## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>
 ```
 </div>
@@ -639,7 +642,7 @@ filter(metadata, fit_result >= 100 & diagnosis == "normal")
 ## 5 3137650        118 U Michigan Normal          normal    F               
 ## # ... with 11 more variables: history_of_polyps <lgl>, age <dbl>,
 ## #   sex <chr>, smoke <lgl>, diabetic <lgl>, family_history_of_crc <lgl>,
-## #   height <lgl>, weight <dbl>, nsaid <lgl>, diabetes_med <lgl>,
+## #   height <dbl>, weight <dbl>, nsaid <lgl>, diabetes_med <lgl>,
 ## #   stage <chr>
 ```
 
@@ -666,7 +669,7 @@ filter(metadata, fit_result >= 100 | diagnosis == "cancer")
 ## 10 2267653     149    Dana Farber Cancer        cancer    T               
 ## # ... with 146 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
-## #   family_history_of_crc <lgl>, height <lgl>, weight <dbl>, nsaid <lgl>,
+## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>
 ```
 
@@ -696,7 +699,7 @@ filter(metadata, age <= 50 & diagnosis != "normal")
 ## 10 2555653        0   Toronto     Adv Adenoma   adenoma   F               
 ## # ... with 36 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
-## #   family_history_of_crc <lgl>, height <lgl>, weight <dbl>, nsaid <lgl>,
+## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>
 ```
 </div>
@@ -728,7 +731,7 @@ filter(metadata, previous_history | family_history_of_crc)
 ## 10 2045653       0    U Michig… Normal          normal    F               
 ## # ... with 189 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
-## #   family_history_of_crc <lgl>, height <lgl>, weight <dbl>, nsaid <lgl>,
+## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>
 ```
 </div>
@@ -811,7 +814,7 @@ metadata_alpha
 ## 10 2025653    1509    U Michig… Cancer          cancer    T               
 ## # ... with 480 more rows, and 15 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
-## #   family_history_of_crc <lgl>, height <lgl>, weight <dbl>, nsaid <lgl>,
+## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>, sobs <dbl>, shannon <dbl>,
 ## #   invsimpson <dbl>, coverage <dbl>
 ```

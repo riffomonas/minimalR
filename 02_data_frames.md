@@ -387,7 +387,7 @@ metadata <- read_excel(path="raw_data/baxter.metadata.xlsx",
 		col_types=c(sample = "text", fit_result = "numeric", Site = "text", Dx_Bin = "text",
 				dx = "text", Hx_Prev = "logical", Hx_of_Polyps = "logical", Age = "numeric",
 				Gender = "text", Smoke = "logical", Diabetic = "logical", Hx_Fam_CRC = "logical",
-				Height = "logical", Weight = "numeric", NSAID = "logical", Diabetes_Med = "logical",
+				Height = "numeric", Weight = "numeric", NSAID = "logical", Diabetes_Med = "logical",
 				stage = "text")
 	)
 metadata
@@ -408,7 +408,7 @@ metadata
 ##  9 2023680       0    Dana… High … norm… T       T             63.0 f     
 ## 10 2025653    1509    U Mi… Cance… canc… T       T             67.0 m     
 ## # ... with 480 more rows, and 8 more variables: Smoke <lgl>,
-## #   Diabetic <lgl>, Hx_Fam_CRC <lgl>, Height <lgl>, Weight <dbl>,
+## #   Diabetic <lgl>, Hx_Fam_CRC <lgl>, Height <dbl>, Weight <dbl>,
 ## #   NSAID <lgl>, Diabetes_Med <lgl>, stage <chr>
 ```
 
@@ -590,7 +590,7 @@ metadata
 ##  9 2023680       0    Dana… High … norm… T       T             63.0 female
 ## 10 2025653    1509    U Mi… Cancer canc… T       T             67.0 male  
 ## # ... with 480 more rows, and 8 more variables: smoke <lgl>,
-## #   diabetic <lgl>, hx_fam_crc <lgl>, height <lgl>, weight <dbl>,
+## #   diabetic <lgl>, hx_fam_crc <lgl>, height <dbl>, weight <dbl>,
 ## #   nsaid <lgl>, diabetes_med <lgl>, stage <chr>
 ```
 
@@ -674,7 +674,7 @@ metadata <- read_excel(path="raw_data/baxter.metadata.xlsx",
 		col_types=c(sample = "text", fit_result = "numeric", Site = "text", Dx_Bin = "text",
 				dx = "text", Hx_Prev = "logical", Hx_of_Polyps = "logical", Age = "numeric",
 				Gender = "text", Smoke = "logical", Diabetic = "logical", Hx_Fam_CRC = "logical",
-				Height = "logical", Weight = "numeric", NSAID = "logical", Diabetes_Med = "logical",
+				Height = "numeric", Weight = "numeric", NSAID = "logical", Diabetes_Med = "logical",
 				stage = "text")
 	)
 metadata[["Height"]] <- na_if(metadata[["Height"]], 0)
