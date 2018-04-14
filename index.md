@@ -43,6 +43,19 @@ title: minimalR
 			<li>The importance of keeping code DRY</li>
 		</ul>
 
+
+	<li><a href="05_continuous_categorical.html">Comparing distributions of continuous data across categorical variables</a></li>
+		<ul>
+			<li>Bar plots</li>
+			<li>Error bars</li>
+			<li>Positioning with jitter and dodging</li>
+			<li>Strip charts</li>
+			<li>Box plots</li>
+			<li>Violin plots</li>
+			<li>Factors</li>
+		</ul>
+
+
 	<li><a href="05_random_data.html">Working with random data</a></li>
 		<ul>
 			<li>Histograms - are data normally distributed?</li>
