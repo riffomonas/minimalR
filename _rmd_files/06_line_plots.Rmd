@@ -4,244 +4,723 @@ title: "Session 7: Line Plots"
 output: markdown_document
 ---
 
+```{r knitr_settings, eval=TRUE, echo=FALSE, cache=FALSE}
+library(knitr)
+opts_chunk$set("echo" = TRUE)
+opts_chunk$set("eval" = TRUE)
+opts_chunk$set("message" = FALSE)
+opts_chunk$set("warning" = FALSE)
+opts_chunk$set("cache" = FALSE)
+
+opts_chunk$set("fig.retina" = 4)
+opts_chunk$set("results" = "hold")
+opts_chunk$set("fig.show" = "hold")
+opts_chunk$set("fig.width" = 7)
+```
+
 ## Learning objectives
 
+* Scripts
 * Rarefaction curves
 * Loops
 * Adding lines to plots
+* Working with text
 
-Frequently we may have continuous data that was collected in a specific order. Usually order is dictated by time. We could use a scatterplot like we did for the ordination, but to indicate that the samples are linked, we would like to connect them with a line segment. This is what we'll call a line plot. For better or worse microbial ecology researchers are frequently interested in plotting rarefaction curves. These curves indicate how well one has sampled the most abundant sequences and can be used to make comparisons based on a common number of sequences. The file `baxter.rarefaction` contains the rarefied version of the data in the `baxter.shared` file, both of which are in the `data` folder.
+
+## Getting organized
+To this point, we've had a chunk of code that we've been copying and pasting into the terminal to generate the `metadata` data frame. Perhaps you've been saving your code to a text file as we've been going a long, which has made it easier to copy and paste. But this process is pretty risky since we might forget to highlight all of the code we want or we may have multiple versions lying around. Before we move on to building line plots, we're going to see how we can encapsulate the code for the `metadata` data frame in a script and how we can use that script in our analyses. To help organize our project, we'll create a directory in our project directory called `code`.
+
+```{r}
+dir.create("code", showWarnings=FALSE)
+```
+
+Open a text file either using `RStudio`, `atom`, or another text editor and copy and paste this code to the file:
+
+```R
+library(tidyverse)
+library(readxl)
+
+metadata <- read_excel(path="raw_data/baxter.metadata.xlsx",
+		col_types=c(sample = "text", fit_result = "numeric", Site = "text", Dx_Bin = "text",
+				dx = "text", Hx_Prev = "logical", Hx_of_Polyps = "logical", Age = "numeric",
+				Gender = "text", Smoke = "logical", Diabetic = "logical", Hx_Fam_CRC = "logical",
+				Height = "numeric", Weight = "numeric", NSAID = "logical", Diabetes_Med = "logical",
+				stage = "text")
+	)
+metadata[["Height"]] <- na_if(metadata[["Height"]], 0)
+metadata[["Weight"]] <- na_if(metadata[["Weight"]], 0)
+metadata[["Site"]] <- recode(.x=metadata[["Site"]], "U of Michigan"="U Michigan")
+metadata[["Dx_Bin"]] <- recode(.x=metadata[["Dx_Bin"]], "Cancer."="Cancer")
+metadata[["Gender"]] <- recode(.x=metadata[["Gender"]], "m"="male")
+metadata[["Gender"]] <- recode(.x=metadata[["Gender"]], "f"="female")
+
+metadata <- rename_all(.tbl=metadata, .funs=tolower)
+metadata <- rename(.data=metadata,
+		previous_history=hx_prev,
+		history_of_polyps=hx_of_polyps,
+		family_history_of_crc=hx_fam_crc,
+		diagnosis_bin=dx_bin,
+		diagnosis=dx,
+		sex=gender)
+```
+
+Within your new `code` directory, save the file as `baxter.R`. Re-start `R` and type `metadata` at the prompt. You should get an error saying **`Error: object 'metadata' not found`**. If you don't this would be a good time to remind you that you should not save your session on quitting and you should not load your previous session on starting. R will prompt you about the former and automatically to the latter unless you have R properly configured. You can set this in the RStudio preferences. Trust me, these things causes major headaches and reduce the reproducibility of your analyses.
+
+How do we get metadata back into R? We can load code from external files in a few different ways. One that we've already seen is with the `library` function, which loads code from external packages. We can also use the `source` command. Before running `source`, let's see what variables are already loaded into R with the `ls` function.
+
+```R
+ls()
+source('code/baxter.R')
+ls()
+metadata
+```
+
+Nice, eh? Before we ran `source`, the result of `ls` was `character(0)`, which means there is nothing. After running `source`, `ls` tells us that the `metadata` variable is loaded. Our source file only contains variable - `metadata` - it's pretty simple. Do you remember that we previously created a couple of functions related to the BMI? Let's bring those into our `baxter.R` file as functions below our metadata code.
+
+```R
+is_obese <- function(weight_kg, height_m){
+	bmi_category <- get_bmi_category(weight_kg, height_m)
+	return(bmi_category == "obese")
+}
+
+get_bmi_category <- function(weight_kg, height_m){
+	bmi <- get_bmi(weight_kg, height_m)
+
+	bmi_cat <- case_when(bmi >= 30 ~ "obese",
+			bmi >= 25 ~ "overweight",
+ 			bmi >= 18.5 ~ "normal",
+			TRUE ~ "underweight")
+
+	return(bmi_cat)
+}
+
+is_obese <- function(weight_kg, height_m){
+	bmi_category <- get_bmi_category(weight_kg, height_m)
+	return(bmi_category == "obese")
+}
+```
+
+Save `baxter.R` and re-run the `source` and `ls` functions.
+
+```R
+source('code/baxter.R')
+ls()
+```
+
+We now see `get_bmi`, `get_bmi_category`, `is_obese`, and `metadata`. Remember that functions are variables. To make sure it all works, let's test our functions
+
+```{r}
+get_bmi(height=2, weight=130)
+get_bmi_category(height=2, weight=130)
+is_obese(height=2, weight=130)
+```
+
+The cool thing about this is that wherever we want to calculate a BMI value in our project, `get_bmi` is available to us after we source `baxter.R`. In the grand scheme of things, the code to generate the `metadata` data frame was pretty simple - there's only one variable: `metadata`. If our code had been more complex and we had used multiple variables to generate `metadata`, then all those variables would be available to us. That would probably be less than ideal. What happens if you enter `bmi_cat` at the prompt? You get an error message, right? That's because it's within the body of the `get_bmi_category` function and is hidden to any code outside that function. Let's convert our metadata code into a function we'll call `get_metadata`. You will need to edit `baxter.R` like this...
+
+```R
+library(tidyverse)
+library(readxl)
+
+get_metadata <- function(){
+
+	metadata <- read_excel(path="raw_data/baxter.metadata.xlsx",
+
+...
+
+			sex=gender)
+
+	return(metadata)
+}
+```
+
+Go ahead and restart R. Now try this
+
+```{r}
+source('code/baxter.R')
+ls()
+```
+
+Instead of seeing `metadata` we now see `get_metadata`. But how do we get a `metadata` data frame?
+
+```{r}
+metadata <- get_metadata()
+metadata
+```
+
+We now have a DRY way of providing the code to generate a consistent `metadata` data frame across our project.  You might be thinking that this isn't so special since you can dump all of your code for your project into `baxter.R`. Sure, you could. Most people who have been working to make their code reusable and reproducible find value to breaking their code up across multiple files. For example, we might want to make an ordination figure like we started with, a strip chart of FIT result by diagnosis group, and a strip chart of diversity by diagnosis group. My preference is to have a separate R script file to build each of these figures. That way if I want to come back and change my diversity value from Shannon to inverse Simpson indices in the third figure, I would only need to re-run the code for that figure. Similarly, having a primary "utility" R script that has a lot of common features in it, I can now source `baxter.R` in each of the figures where I need metadata. Also, if I were really on the ball, I could define my color scheme in `baxter.R` as a variable and then use that variable throughout my figures. Ultimately, as a project gets larger, it helps to break up your code in to different R scripts as a way of organizing your code.
+
+Before we move on to generating line graphs, I want to leave you with a stylistic note. In your R script files, it helps to put all your `library` and `source` function calls at the top of the script. This way it is obvious to anyone that picks up your script what packages they need to install and what other R scripts your script depends on.
+
+
+### Activity 1
+Modify get_metadata to add a bmi, bmi_category, and is_obese column to the `metadata` data frame. Confirm that your edits worked by running `source('code/baxter.R')`  and then looking at the values in `metadata`
+
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+```r
+...
+			diagnosis=dx,
+			sex=gender)
+
+	metadata <- metadata %>%
+		mutate(bmi = get_bmi(weight=weight, height=height/100),
+			bmi_category = get_bmi_category(weight=weight, height=height/100),
+			obese = is_obese(weight=weight, height=height/100)
+		)
+
+	return(metadata)
+}
+```
+</div>
+
+
+### Activity 2
+Create a new file in the `code` directory called `plot_ordination.R` that contains the code to build the first figure that we talked about in this series of lessons.
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+This code would go into `code/plot_ordination.R`. Note that the the `library(tidyverse)` line isn't necessary since it's already being loaded in `baxter.R`
+
+```r
+library(tidyverse)
+source('code/baxter.R')
+
+pcoa <- read_tsv(file="raw_data/baxter.thetayc.pcoa.axes",
+		col_types=cols(group=col_character())
+	)
+
+metadata <- get_metadata()
+metadata_pcoa <- inner_join(metadata, pcoa, by=c('sample'='group'))
+
+ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
+	geom_point(shape=19, size=2) +
+	scale_color_manual(name=NULL,
+		values=c("blue", "red", "black"),
+		breaks=c("normal", "adenoma", "cancer"),
+		labels=c("Normal", "Adenoma", "Cancer")) +
+	coord_fixed() +
+	labs(title="PCoA of ThetaYC Distances Between Stool Samples",
+		x="PCo Axis 1",
+		y="PCo Axis 2") +
+	theme_classic()
+
+ggsave("ordination.pdf")
+```
+
+Once `code/plot-ordination.R` is saved, in your terminal you can run `source('code/plot_ordination.R')` to generate the following
+
+```{r echo=FALSE}
+library(tidyverse)
+source('code/baxter.R')
+
+pcoa <- read_tsv(file="raw_data/baxter.thetayc.pcoa.axes",
+		col_types=cols(group=col_character())
+	)
+
+metadata <- get_metadata()
+metadata_pcoa <- inner_join(metadata, pcoa, by=c('sample'='group'))
+
+ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
+	geom_point(shape=19, size=2) +
+	scale_color_manual(name=NULL,
+		values=c("blue", "red", "black"),
+		breaks=c("normal", "adenoma", "cancer"),
+		labels=c("Normal", "Adenoma", "Cancer")) +
+	coord_fixed() +
+	labs(title="PCoA of ThetaYC Distances Between Stool Samples",
+		x="PCo Axis 1",
+		y="PCo Axis 2") +
+	theme_classic()
+
+ggsave("ordination.pdf")
+```
+</div>
+
+
+## Plotting associated data with line plots
+
+Frequently we may have continuous data that was collected in a specific order. Usually order is dictated by time. We could use a scatterplot like we did for the ordination, but to indicate that the samples are linked, we would like to connect them with a line segment. This is what we'll call a line plot. If you have two samples from the same individual or site that perhaps represent a pre and post time point and you connect the points with a line, this is a special type of line plot called a slope plot. The key is that for some data we can connect observations with a line and that line indicates that the points are connected.
+
+For better or worse, microbial ecologists are frequently obsessed with plotting rarefaction curves. These curves indicate how well one has sampled the most abundant sequences and can be used to make comparisons based on a common number of sequences. Rarefaction is really a tool for asking the question, "How many types of things would I have observed if I had only sampled N things?" We can then compare the number of types across samples where we collected different numbers of things. The file `baxter.rarefaction` contains the rarefied version of the data in the `baxter.shared` file, both of which are in the `raw_data` folder.
 
 Go ahead and write the code to read the rarefaction file into a variable called `rarefy`. Using the approach from the first session, take a look at this file to get a sense of what it looks like.
 
 ```{r}
-rarefy <- read.table(file="data/baxter.rarefaction", header=T, stringsAsFactors=F)
+rarefy <- read_tsv(file="raw_data/baxter.rarefaction")
+rarefy
 ```
 
-If you look at the contents of `rarefy`, you'll see that it looks pretty ugly. The first column, `numsampled` has the number of sequences that have been sampled and it goes from 1 to 430213 in 100 sequence steps. The columns are displayed in sets of threes. For example, `X0.03.2003650 lci.2003650 hci.2003650`. The first column in the triplet is the average number of OTUs observed for that sample at the specified number of sequences sampled by the value in the `numsampled` column. The second and third columns in the triplet represent the lower (`lci`) and higher (`hci`) confidence interval. We don't want to mess with the `lci` and `hci` columns. There's 980 of these columns and so we can't manually remove these columns using the `-` operator like we've seen before. Instead, let's use a new function, `grep`. This allows us to search for a "REgular ExPression". There are two flavors of `grep`: `grep`, which gives us the vector index number of any values that match our regular expression and `grepl`, which gives us `TRUE` or `FALSE` depending on whether the regular expression was found. Let's do a brief aside to show some different regular expression patterns.
+If you look at the contents of `rarefy`, you'll see that it looks pretty ugly. The first column, `numsampled` has the number of sequences that have been sampled and it goes from 1 to 430213 in 100 sequence steps. The columns are displayed in sets of threes. For example, `0.03-2003650 lci-2003650 hci-2003650`. The first column in the triplet is the average number of OTUs observed for that sample (e.g. `2003650`) at the specified number of sequences sampled by the value in the `numsampled` column. The second and third columns in the triplet represent the lower (`lci`) and higher (`hci`) confidence interval. We don't want to mess with the `lci` and `hci` columns. There's 980 of these columns that are cluttering the data frame and will be in the way in a few moments. We can't manually remove these columns using the `-` operator like we've seen before with the `select` function from the `dplyr` package. Can you remember another function from the `dplyr` package that we can use with `select`? Some options we might consider would be `contains` and `starts_with`. We can do
 
 ```{r}
-names <- c("Samntha", "Javier", "John", "Jon", "Maria", "Courtney", "Mary")
-grep(pattern="John", x=names)
-grep(pattern="Maria", x=names)
-grepl(pattern="John", x=names)
-grepl(pattern="Maria", x=names)
-
-grep(pattern="Mar", x=names)
+rarefy <- read_tsv(file="raw_data/baxter.rarefaction") %>%
+	select(-contains("lci-")) %>%
+	select(-contains("hci-"))
 ```
 
-These are pretty straightforward. The first four are analogous to saying `John == names` or `Maria == names`. The fifth begins to show us the power of regular expressions finding any name that starts with "Mar". There are many, many ways to write patterns to find strings. We'll see more of these in subsequent sessions. Can you write an expression to return a vector that contains `Maria Mary`? With this bit of knowledge, you should be able to write your own regular expression to get the columns that contain the average number of OTUs for a specific number of sequences. See if you can use this to then create a new data.frame that we'll call `ave_rarefy` that contains the matching columns
-
-```
-ave_columns <- grep(pattern=???????, x=colnames(rarefy))
-ave_rarefy <- rarefy[,?????]
-```
-
-Let's go ahead and use this regular expression to generate an `ave_rarefy` variable
+or
 
 ```{r}
-ave_columns <- grep(pattern="X0.03", x=colnames(rarefy))
-ave_rarefy <- rarefy[,ave_columns]
+rarefy <- read_tsv(file="raw_data/baxter.rarefaction") %>%
+	select(-contains("lci-"), -contains("hci-"))
 ```
 
-If you run `ave_rarefy[1:5,1:5]` what do you notice? I notice that we no longer have the `numsampled` column and that although we have the right columns. Let's make a new vector, `numsampled`, which is the first column from `rarefy`.
+Both of these work, it's a matter of how explicit you want to be with the steps in your analysis. Note that we used `-contains(...)`, which removes those columns that contain the offending columns. If you look at `rarefy`, you'll see that we now have all of the columns that start with `0.03`, which is what we want.
+
+
+### Activity 3
+Rewrite the previous code chunk to get the columns using the `starts_with` function rather than the `contains` function.
+
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+Note that if we do what seems obvious, then we will lose our numsampled column, which we need to know how many sequences have been sampled from each sample
+
+```r
+read_tsv(file="raw_data/baxter.rarefaction") %>%
+	select(starts_with("0.03"))
+```
+
+We need to remember that "numsampled" column in our `select` function call
 
 ```{r}
-numsampled <- rarefy$numsampled
+read_tsv(file="raw_data/baxter.rarefaction") %>%
+	select("numsampled", starts_with("0.03"))
+```
+</div>
+
+
+## Tidying data
+We've made it all this way using various tools from the "tidyverse" without ever describing what the tidyverse is! "Tidy data" refers to the structure of a data frame where similar measurements are in the same column. For example, consider if we had the temperatures of various cities over time. We might be inclined to make a column for the date and then separate columns for each city. Then each row would contain the temperature for that date and city. This produces a wide-formatted data frame. This ends up being hard to work with. If you think about how we've been using `dplyr` and `ggplot` functions we want to apply their functions to columns. If we wanted to plot the temperature (or number of OTUs) by city, we would like to have a city column and a temperature column. Not a bunch of temperature columns for different cities. If you think about our `metadata` data frame it is tidy. Each column is distinct and measures a different thing about each person. Depending on the context, our `alpha` data frame could be considered to be non-tidy. We have numerous parameters (e.g. `shannon`, `invsimpson`, `sobs`, `coverage`) for each subject. If we wanted to compare those parameters to each other for each person, then we'd want them to be in the same column. Usually we wouldn't want to compare `shannon` to `invsimpson` data so it isn't a big deal. But we would want to compare Chicago to Nashville temperatures, so they should be in the same column. Similarly, we want to compare the rarefaction data for samples `2003650` and `2005650`. Within the tidyverse there is a `tidyr` package that has functions we will now use to make our `rarefy` data frame tidy.
+
+Let's start with a simpler example than `rarefy`
+
+```{r}
+temps <- tibble(day=c(1,2,3), chicago=c(75, 77, 74), detroit=c(69, 71, 70), nashville=c(79,80,78))
 ```
 
-The other thing I noticed about `ave_rarefy` is that although we now have the right columns, it isn't going to be easy to take a column name and retrieve the corresponding metadata. Let's go ahead and load the metadata using the `get_meta` function from the `code/baxter.R` file
+We can make `temps` a tidy data frame by using the `gather` function from `tidyr`. To use this function, we need to tell `gather` which columns we want to gather and the name for the new column containing the city name (i.e. `key`) and the name for the new column containing the temperatures (i.e. `value`)
+
+```{r}
+gather(temps, chicago, detroit, nashville, key='city', value='temperatures')
+```
+
+Note that if we had a bunch of cities, it would be a pain to write them all out. We could use the helper functions that we used with `select`. Alternatively, if there's only one other column (e.g. "day" or "numsampled"), you could use the `-` to tell `gather` to ignore that columns
+
+```{r}
+gather(temps, -day, key='city', value='temperatures')
+```
+
+Let's apply this to our rarefaction data
+
+```{r}
+rarefy <- read_tsv(file="raw_data/baxter.rarefaction") %>%
+	select(-contains("lci-"), -contains("hci-")) %>%
+	gather(-numsampled, key=sample, value=sobs)
+```
+
+Our `rarefy` data frame now has 450,310 rows and three columns. It has gone from being really wide to being skinny and really long. As we'll see in the next section, it is now much easier to do a join between `rarefy` and `metadata` than it would have been with the samples across the columns.
+
+
+### Activity 4
+Use the `gather` function with our `alpha` data frame to gather together the `sobs`, `shannon`, `invsimpson`, and `coverage` columns. The key column should be called "metric" and the value column should be called "value".
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+alpha <- read_tsv(file="raw_data/baxter.groups.ave-std.summary",
+		col_types=cols(group = col_character())) %>%
+	filter(method=='ave') %>%
+	select(group, sobs, shannon, invsimpson, coverage) %>%
+	gather(-group, key=metric, value=value)
+# or
+# gather(sobs, shannon, invsimpson, coverage, key=metric, value=values)
+</div>
+
+
+## Cleaning up our sample names
+What we want to be able to do is connect our sample identifiers in the column names of `rarefy` with the sample identifiers in `metadata`. The names in the "sample" column aren't quite where they need to be. We need to remove the `0.03-` from each identifier. R has several options for manipulating strings. Basically, we want to use one of those functions that will do a find all/replace all operation for us. There are two options: `gsub` and `str_replace_all`. The former is part of the base R package while the latter is part of `tidyr`. They do the same thing, but `str_replace_all` is a bit preferable since it's more readable. Let's try it out...
+
+```{r}
+str_replace_all(string="0.03-2003650", pattern="0.03-", replacement="")
+```
+
+That's exactly what we want, but distributed across the entire column. In later lessons we'll see how we can use more sophisticated `pattern` and `replacement` values to do more powerful searches. Let's go ahead and apply `str_replace_all` to our `rarefy` data frame so we can get to our line plots.
+
+```{r}
+rarefy <- read_tsv(file="raw_data/baxter.rarefaction") %>%
+	select(-contains("lci-"), -contains("hci-")) %>%
+	gather(-numsampled, key=sample, value=sobs) %>%
+	mutate(sample=str_replace_all(sample, pattern="0.03-", replacement=""))
+```
+
+One thing that you may remember from looking at rarefy when it was a wide data frame was that there were a lot of `NA` values in the data frame. This is because one sample may have had 10000 reads, but another sample only had 9000 reads. For the second sample, the number of OTUs between 9000 and 1000 reads would be an `NA` since the data were missing. We can remove these `NA` values by using the `drop_na` function from the `tidyr` package
+
+```{r}
+rarefy <- read_tsv(file="raw_data/baxter.rarefaction") %>%
+	select(-contains("lci-"), -contains("hci-")) %>%
+	gather(-numsampled, key=sample, value=sobs) %>%
+	mutate(sample=str_replace_all(sample, pattern="0.03-", replacement="")) %>%
+	drop_na()
+```
+
+Now the rarefy data frame "only" has 140,797 rows. We are now ready for our `inner_join` to connect the `rarefy` and `metadata` data frames
 
 ```{r}
 source('code/baxter.R')
-metadata <- get_meta()
+metadata <- get_metadata()
+metadata_rarefy <- inner_join(metadata, rarefy)
 ```
 
-Recall, that the first column is `sample` and that it is a vector of `character` data. How would you confirm this?
+If we were interested in plotting the rarefaction curves and coloring them by diagnosis of the person the sample came from, we could use `select` to get the "sample" and "dianosis" columns from `metadata` before joining. This would make the data frame much smaller. It isn't that big, so we'll stick with what we've got.
 
-Ok, now we need to "edit" the column names of `ave_rarefy` to get them to be in the same format as the `sample` column in `metadata`. We need to remove the `X0.03.` portion of the column names. We're going to build upon our experience with `grep` to perform this edit. You can think of `grep` as being the `find` command in a word processor and `gsub` as the `find & replace` command. The syntax will look like this
-
-```
-gsub(pattern="find", replacement="replace", x=my_vector)
-```
-
-For example...
-
-```{r}
-gsub(pattern="Samntha", replacement="Samantha", x=names)
-gsub(pattern="Javier", replacement="Javi", x=names)
-```
-
-Do you see what happened? In the first case we corrected the spelling of Samantha's name. In the second, we shortened Javier's name to his nickname, Javi. Can you see how to take this and remove the `X0.03.` from every column name?
-
-```{r}
-colnames(ave_rarefy) <- gsub("X0.03.", "", colnames(ave_rarefy))
-```
-
-Check it out, how did we do?
-
-
-Now we're ready to think about how we'd like to plot the data! Let's generate a line plot for the sample in the first column, `2003650`.
-
-```{r}
-plot(ave_rarefy[,"2003650"]~numsampled, col=dx_color[metadata[metadata$sample=="2003650", "dx"]], type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed")
-```
-
-This chunk of code creates a vector of colors that we've seen before to give each diagnosis it's own color. Then we call the `plot` function. We ran this before, but this time we use `type="l"`. This is what tells the `plot` function to generate a line plot. Again we use the `xlab` and `ylab` arguments to label the two axes. How would we add the second column? If you recall Session 5, you might remember that we were able to add points to a plot using the `points` function. We'll do the same thing here, but again we'll use `type=l` to add a line to the plot
-
-```{r}
-plot(ave_rarefy[,"2003650"]~numsampled, col=dx_color[metadata[metadata$sample=="2003650", "dx"]], type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed")
-points(ave_rarefy[,"2005650"]~numsampled, col=dx_color[metadata[metadata$sample=="2005650", "dx"]], type="l")
-```
-
-Can you add two or three more lines to the plot?
+### Activity 5
+Create a new data frame called `roman_metadata` where the numbers in the "stage" column of metadata is represented as a roman numeral. This will require multiple lines of code.
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
-```{r}
-plot(ave_rarefy[,"2003650"]~numsampled, col=dx_color[metadata[metadata$sample=="2003650", "dx"]], type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed")
-points(ave_rarefy[,"2005650"]~numsampled, col=dx_color[metadata[metadata$sample=="2005650", "dx"]], type="l")
-points(ave_rarefy[,"2007660"]~numsampled, col=dx_color[metadata[metadata$sample=="2007660", "dx"]], type="l")
-points(ave_rarefy[,"2009650"]~numsampled, col=dx_color[metadata[metadata$sample=="2009650", "dx"]], type="l")
-points(ave_rarefy[,"2013660"]~numsampled, col=dx_color[metadata[metadata$sample=="2013660", "dx"]], type="l")
-```
-</div>
-
-Jot down a few things you notice about the plot as well as several thoughts about the process of building this plot. First, we have a very broad x-axis scale ranging from 0 to over 400,000 even though our initial samples have fewer than 50,000 sequences. It would be nice to perhaps change the limit to only include the first 50,000 sequences. Second, we might notice that one of our lines has gone outside the vertical bounds of the plotting window. We need a better y-axis limit that we can set at the beginning. Let's see if we can't change these based on what we did previously with the scatter plots.
+There are probably easier ways of doing this (e.g. `case_when`), but this also works
 
 ```{r}
-plot(ave_rarefy[,"2003650"]~numsampled, col=dx_color[metadata[metadata$sample=="2003650", "dx"]], type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed", xlim=c(0,50000), ylim=c(0,max(ave_rarefy, na.rm=T)))
-points(ave_rarefy[,"2007660"]~numsampled, col=dx_color[metadata[metadata$sample=="2007660", "dx"]], type="l")
-points(ave_rarefy[,"2009650"]~numsampled, col=dx_color[metadata[metadata$sample=="2009650", "dx"]], type="l")
-points(ave_rarefy[,"2013660"]~numsampled, col=dx_color[metadata[metadata$sample=="2013660", "dx"]], type="l")
-```
-
-That looks a bit better. One thing you'll notice is that the vector I assigned to the `ylim` argument included `max(ave_rarefy, na.rm=T)`. What happens if we call `max(ave_rarefy)` from the prompt? The `na.rm=T` argument tells the `max` function to remove any value that equals `NA`. You can use the same argument in the `min`, `median`, `mean`, `sd`, and many other functions. If I ever get an `NA` back from a function, I will check the function's documentation (using `?function_name`) to see what it does with `NA` values.
-
-Great. What else did we notice about the process here? We've created a plot with 4 lines on it. We have 486 more to go. Ugh. That's going to be painful. Not only will it take a long time, but we are also breaking the DRY rule. Each of our `points` function calls is essentially the same except for the sample name that we'll be using. To keep our code DRY, we're going to learn how to create a loop so that we can repeat a piece of code while being DRY.
-
-First, we need to create an empty plot using the `plot` function
-
-```{r}
-plot(NA, type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed", xlim=c(0,50000), ylim=c(0,max(ave_rarefy, na.rm=T)))
-```
-
-This is essentially what we did in the previous code chunk, except instead of providing a formula, we give the function the value `NA`. We now have a plot without anything in the box. We said that the only thing changing in our code was the sample name. We had code that looked like this except instead of a variable named `sample_name` we explicitly named the samples (e.g. "2007660")
-
-```
-points(ave_rarefy[,sample_name]~numsampled, col=dx_color[metadata[metadata$sample==sample_name, "dx"]], type="l")
-```
-
-We might like to do `sample_name <- colnames(ave_rarefy)` and then run the preceding code, but that gives us an error. We will need to "loop" over all of the column names and give the `points` command above one sample name at a time. We will do this with what is called a "for loop". The basic syntax is
-
-```
-for(my_value in my_vector_of_values){
-	#do something with my_value
-}
-```
-
-The first time through the loop, `my_value` is the first value of `my_vector_of_values`. The second time through it's the second value, and so forth. The vector we put in `my_vector_of_values` can be a vector of any data type. We could put our vector of sample names in place of `my_vector_of_values` and replace `my_value` with `sample_name`.
-
-### Activity 1
-Write a for loop that runs the points function call from above on each value of `colnames(ave_rarefy)`
-
-<input type="button" class="hideshow">
-<div markdown="1" style="display:none;">
-```{r}
-plot(NA, type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed", xlim=c(0,50000), ylim=c(0,max(ave_rarefy, na.rm=T)))
-
-for(sample_name in colnames(ave_rarefy)){
-	points(ave_rarefy[,sample_name]~numsampled, col=dx_color[metadata[metadata$sample==sample_name, "dx"]], type="l")
-}
-```
-</div>
-
-Ugh, what a hideous mess! Let's replace our `ylim` argument in the `plot` function call with a better vector to spread the lines out a bit.
-
-```{r}
-plot(NA, type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed", xlim=c(0,50000), ylim=c(0,600))
-
-for(sample_name in colnames(ave_rarefy)){
-	points(ave_rarefy[,sample_name]~numsampled, col=dx_color[metadata[metadata$sample==sample_name, "dx"]], type="l")
-}
-```
-
-Goodness that's ugly. But, hey, you wanted rarefaction curves! One last thing we can do with this monstrosity is to indicate the number of sequences that we rarefied to for our alpha and beta-diversity comparisons. The data we worked with in the previous sessions were rarefied to 10,530 sequences. It would be great to draw a vertical line at 10,530 to indicate this point. We can do this with the `abline` function using the `v` argument
-
-```{r}
-plot(NA, type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed", xlim=c(0,50000), ylim=c(0,600))
-
-for(sample_name in colnames(ave_rarefy)){
-	points(ave_rarefy[,sample_name]~numsampled, col=dx_color[metadata[metadata$sample==sample_name, "dx"]], type="l")
-}
-
-abline(v=10530)
-```
-
-Similarly, if you wanted a horizontal line, you could use the `h` argument.
-
-Let's tone down our plot a bit to demonstrate a few more things about line plots
-
-
-```{r}
-plot(NA, type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed", xlim=c(0,40000), ylim=c(0,400))
-
-for(sample_name in colnames(ave_rarefy)[1:5]){
-	points(ave_rarefy[,sample_name]~numsampled, col=dx_color[metadata[metadata$sample==sample_name, "dx"]], type="l")
-}
-```
-
-### Activity 2
-We can make the lines a bit thicker. In the previous session we did this to alter the thickness of the segments indicating the average diversity values. Go ahead and modify the previous code chunk to give the lines a thickness of 3 units.
-
-<input type="button" class="hideshow">
-<div markdown="1" style="display:none;">
-```{r}
-plot(NA, type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed", xlim=c(0,40000), ylim=c(0,400))
-
-for(sample_name in colnames(ave_rarefy)[c(1, 4, 7)]){
-	points(ave_rarefy[,sample_name]~numsampled, col=dx_color[metadata[metadata$sample==sample_name, "dx"]], type="l", lwd=3)
-}
+roman_metadata <- metadata %>%
+			mutate(stage=str_replace_all(stage, pattern="1", replacement="I")) %>%
+			mutate(stage=str_replace_all(stage, pattern="2", replacement="II")) %>%
+			mutate(stage=str_replace_all(stage, pattern="3", replacement="III")) %>%
+			mutate(stage=str_replace_all(stage, pattern="4", replacement="IV"))
+roman_metadata %>% count(stage)
 ```
 </div>
 
 
-Another modification we'd like to make is to change the way the lines are presented. Here they're presented as solid lines. But we can introduce various breaks to the lines using the `lty` argument (think Line TYpe). Here's a cheat sheet to help you select one of the six different `lty` values
+
+## Plotting rarefaction curves
+At this point you've probably seen enough of the ggplot syntax to anticipate what we're going to do. Insted of `geom_point` or `geom_jitter`, we're going to use `geom_line`
 
 ```{r}
-orig_mar <- par()$mar
-par(mar=c(5,0.5,0.5,0.5))
-plot(NA, xlim=c(1,6), ylim=c(0,1), xlab="lty argument value", ylab="", yaxt="no")
-segments(x0=1:7, y0=0, y1=1, lty=1:6)
-par(mar=orig_mar)
+ggplot(metadata_rarefy, aes(x=numsampled, y=sobs)) +
+	geom_line()
 ```
 
-### Activity 3
-Select a different line type to represent each of the diagnoses.
+Whoa. That my friends is what we call [#accidentalaRt](https://twitter.com/search?q=rstats%20accidentalart&src=typd). It appears that the points were all connected by a single line. We want separate lines for each sample. Looking at the aesthetics that we can use with `geom_line`, we see that there is a `group` option. We want to use that to group our samples by `sample`.
+
+```{r}
+ggplot(metadata_rarefy, aes(x=numsampled, y=sobs, group=sample)) +
+	geom_line()
+```
+
+That's more like it! Let's map the `diagnosis` to the `color` aesthetic so our lines are colored by the subjects' diagnosis group.
+
+```{r}
+ggplot(metadata_rarefy, aes(x=numsampled, y=sobs, group=sample, color=diagnosis)) +
+	geom_line()
+```
+
+To keep our coloring scheme consistent, let's add our `scale_color_manual` function. While we're at it, let's add our titling and theme.
+
+```{r}
+ggplot(metadata_rarefy, aes(x=numsampled, y=sobs, group=sample, color=diagnosis)) +
+	geom_line() +
+	scale_color_manual(name=NULL,
+		values=c("blue", "red", "black"),
+		breaks=c("normal", "adenoma", "cancer"),
+		labels=c("Normal", "Adenoma", "Cancer")) +
+	labs(title="Rarefaction curves are pretty pointless at this scale",
+		x="Number of Sequences Sampled per Subject",
+		y="Number of OTUs per Subject") +
+	theme_classic()
+```
+
+One thing we might notice is that most of the action is occurring inside of 20,000 sequences sampled. We'd like to zoom in on the x and y-axes. Recall that we can do this with the `coord_cartesian` function.
+
+```{r}
+ggplot(metadata_rarefy, aes(x=numsampled, y=sobs, group=sample, color=diagnosis)) +
+	geom_line() +
+	scale_color_manual(name=NULL,
+		values=c("blue", "red", "black"),
+		breaks=c("normal", "adenoma", "cancer"),
+		labels=c("Normal", "Adenoma", "Cancer")) +
+	coord_cartesian(xlim=c(0,20000), ylim=c(0,500)) +
+	labs(title="Rarefaction curves are pretty pointless at this scale",
+		x="Number of Sequences Sampled per Subject",
+		y="Number of OTUs per Subject") +
+	theme_classic()
+```
+
+This plot is a bit much. There are way too many lines. To illustrate some other features of `geom_line`, let's reduce the number of samples. We can do this with the `sample_n` or `sample_frac` functions from the `dplyr` package.
+
+```{r}
+set.seed(1) #this makes sure that we all get the same result!
+metadata_rarefy_sample <- metadata %>%
+	sample_n(10) %>%
+	inner_join(., rarefy)
+
+ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=diagnosis)) +
+		geom_line() +
+		scale_color_manual(name=NULL,
+			values=c("blue", "red", "black"),
+			breaks=c("normal", "adenoma", "cancer"),
+			labels=c("Normal", "Adenoma", "Cancer")) +
+		coord_cartesian(xlim=c(0,20000), ylim=c(0,500)) +
+		labs(title="Rarefaction curves are pretty pointless at this scale",
+			x="Number of Sequences Sampled per Subject",
+			y="Number of OTUs per Subject") +
+		theme_classic()
+```
+
+
+Here we have solid lines. What if we want to have some hashing to the lines or want to change their width? Let's start with the hashing, which is controlled by the `linetype` aesthetic
+
+```{r}
+ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=diagnosis)) +
+		geom_line(linetype=5) +
+		scale_color_manual(name=NULL,
+			values=c("blue", "red", "black"),
+			breaks=c("normal", "adenoma", "cancer"),
+			labels=c("Normal", "Adenoma", "Cancer")) +
+		coord_cartesian(xlim=c(0,20000), ylim=c(0,500)) +
+		labs(title="Rarefaction curves are pretty pointless at this scale",
+			x="Number of Sequences Sampled per Subject",
+			y="Number of OTUs per Subject") +
+		theme_classic()
+```
+
+There are six different `linetype`s that you can set with a number from 1 to 6.
+
+
+### Activity 6
+Map the diagnosis value for each subject on to the line type. Make sure that you only have one legend.
+
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
 ```{r}
-line_types <- c(normal=1, adenoma=2, cancer=3)
-
-plot(NA, type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed", xlim=c(0,40000), ylim=c(0,400))
-
-for(sample_name in colnames(ave_rarefy)[c(1, 4, 7)]){
-	points(ave_rarefy[,sample_name]~numsampled, col=dx_color[metadata[metadata$sample==sample_name, "dx"]], type="l", lty=line_types[metadata[metadata$sample==sample_name, "dx"]],lwd=3)
-}
+ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=diagnosis, linetype=diagnosis)) +
+		geom_line() +
+		scale_color_manual(name=NULL,
+			values=c("blue", "red", "black"),
+			breaks=c("normal", "adenoma", "cancer"),
+			labels=c("Normal", "Adenoma", "Cancer")) +
+		scale_linetype_manual(name=NULL,
+			values=c(1, 5, 6),
+			breaks=c("normal", "adenoma", "cancer"),
+			labels=c("Normal", "Adenoma", "Cancer")) +
+		coord_cartesian(xlim=c(0,20000), ylim=c(0,500)) +
+		labs(title="Rarefaction curves are pretty pointless at this scale",
+			x="Number of Sequences Sampled per Subject",
+			y="Number of OTUs per Subject") +
+		theme_classic()
 ```
 </div>
 
-The last thing we'd like to include is a legend so people know what each line color and type represents. Again the syntax is very similar to what we saw previously. The exception is that we provide the appropriate `lty` values so it draws the lines in the legend
+
+
+### Activity 7
+Map the diagnosis value for each subject onto color and their sex to the line type.
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+```{r}
+ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=diagnosis, linetype=sex)) +
+		geom_line() +
+		scale_color_manual(name=NULL,
+			values=c("blue", "red", "black"),
+			breaks=c("normal", "adenoma", "cancer"),
+			labels=c("Normal", "Adenoma", "Cancer")) +
+		scale_linetype_manual(name=NULL,
+			values=c(2, 6),
+			breaks=c("female", "male"),
+			labels=c("Female", "Male")) +
+		coord_cartesian(xlim=c(0,20000), ylim=c(0,500)) +
+		labs(title="Rarefaction curves are pretty pointless at this scale",
+			x="Number of Sequences Sampled per Subject",
+			y="Number of OTUs per Subject") +
+		theme_classic()
+```
+</div>
+
+
+### Activity 7
+Map the diagnosis value for each subject onto color and their sex to shape of the plotting symbol.
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+```{r}
+ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=diagnosis, shape=sex)) +
+		geom_line() +
+		geom_point() +
+		scale_color_manual(name=NULL,
+			values=c("blue", "red", "black"),
+			breaks=c("normal", "adenoma", "cancer"),
+			labels=c("Normal", "Adenoma", "Cancer")) +
+		scale_shape_manual(name=NULL,
+			values=c(19, 1),
+			breaks=c("female", "male"),
+			labels=c("Female", "Male")) +
+		coord_cartesian(xlim=c(0,20000), ylim=c(0,500)) +
+		labs(title="Rarefaction curves are pretty pointless at this scale",
+			x="Number of Sequences Sampled per Subject",
+			y="Number of OTUs per Subject") +
+		theme_classic()
+```
+
+You'll notice some clumping in the points along the lines. This occurs because if a sample got to 9331 sequences, then mothur outputted the data for all of the samples at 9331 sequences. We could change the output to make sure that the data outputted every 1000 or 5000 or whatever sequences by making a second data frame to use with the `geom_line` function.
 
 ```{r}
-line_types <- c(normal=1, adenoma=2, cancer=3)
+metadata_rarefy_sample_dots <- metadata_rarefy_sample %>% filter(numsampled %% 1000 == 0)
 
-plot(NA, type="l", xlab="Number of Sequences Sampled", ylab="Average Number of OTUs observed", xlim=c(0,40000), ylim=c(0,400))
-
-for(sample_name in colnames(ave_rarefy)[c(1, 4, 7)]){
-	points(ave_rarefy[,sample_name]~numsampled, col=dx_color[metadata[metadata$sample==sample_name, "dx"]], type="l", lty=line_types[metadata[metadata$sample==sample_name, "dx"]],lwd=3)
-}
-
-legend(x=25000, y=200, legend=c("Normal", "Adenoma", "Cancer"), col=dx_color, lty=line_types, lwd=3)
+ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=diagnosis)) +
+		geom_line() +
+		geom_point(data=metadata_rarefy_sample_dots, aes(x=numsampled, y=sobs, group=sample, color=diagnosis, shape=sex)) +
+		scale_color_manual(name=NULL,
+			values=c("blue", "red", "black"),
+			breaks=c("normal", "adenoma", "cancer"),
+			labels=c("Normal", "Adenoma", "Cancer")) +
+		scale_shape_manual(name=NULL,
+			values=c(19, 1),
+			breaks=c("female", "male"),
+			labels=c("Female", "Male")) +
+		coord_cartesian(xlim=c(0,20000), ylim=c(0,500)) +
+		labs(title="Rarefaction curves are pretty pointless at this scale",
+			x="Number of Sequences Sampled per Subject",
+			y="Number of OTUs per Subject") +
+		theme_classic()
 ```
+
+The `%%` function is the modulus operator, which returns the remainder of dividing one number by another. If you do `233 %% 100` the value would be `33`. If you did `2000 %% 1000`, the remainder would be `0`.
+</div>
+
+
+## Using lines to annotate a plot
+
+In the original study, we rarefied all of our data to 10,530 sequences per sample. We would like to have a vertical line that crosses the x-axis at 10,530 to indicate the number of OTUs that were observed at that threshold. Let's return to our simple line plot. We will add a vertical line using the `geom_vline` function.
+
+```{r}
+ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=diagnosis)) +
+		geom_line() +
+		geom_vline(xintercept=10530) +
+		scale_color_manual(name=NULL,
+			values=c("blue", "red", "black"),
+			breaks=c("normal", "adenoma", "cancer"),
+			labels=c("Normal", "Adenoma", "Cancer")) +
+		coord_cartesian(xlim=c(0,20000), ylim=c(0,500)) +
+		labs(title="Rarefaction curves are pretty pointless at this scale",
+			x="Number of Sequences Sampled per Subject",
+			y="Number of OTUs per Subject") +
+		theme_classic()
+```
+
+As with `geom_line`, we can change the line type, color, and width. Let's make the line a bit thicker and have it be gray. To put the vertical line behind the curves, we will call `geom_vline` before `geom_line`
+
+```{r}
+ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=diagnosis)) +
+		geom_vline(xintercept=10530, color="gray", size=2) +
+		geom_line() +
+		scale_color_manual(name=NULL,
+			values=c("blue", "red", "black"),
+			breaks=c("normal", "adenoma", "cancer"),
+			labels=c("Normal", "Adenoma", "Cancer")) +
+		coord_cartesian(xlim=c(0,20000), ylim=c(0,500)) +
+		labs(title="Rarefaction curves are pretty pointless at this scale",
+			x="Number of Sequences Sampled per Subject",
+			y="Number of OTUs per Subject") +
+		theme_classic()
+```
+
+You might have seen this coming, but if you want a horizontal line, you would use `geom_hline` with the `yintercept` attribute.
+
+```{r}
+ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=diagnosis)) +
+		geom_hline(yintercept=200, color="gray", size=2) +
+		geom_line() +
+		scale_color_manual(name=NULL,
+			values=c("blue", "red", "black"),
+			breaks=c("normal", "adenoma", "cancer"),
+			labels=c("Normal", "Adenoma", "Cancer")) +
+		coord_cartesian(xlim=c(0,20000), ylim=c(0,500)) +
+		labs(title="Rarefaction curves are pretty pointless at this scale",
+			x="Number of Sequences Sampled per Subject",
+			y="Number of OTUs per Subject") +
+		theme_classic()
+```
+
+A third type of line that doesn't exactly fit with rarefaction data is `geom_abline` or a straight line with a defined y-intercept and slope
+
+```{r}
+ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=diagnosis)) +
+		geom_abline(intercept=150, slope=0.005, color="gray", size=2) +
+		geom_line() +
+		scale_color_manual(name=NULL,
+			values=c("blue", "red", "black"),
+			breaks=c("normal", "adenoma", "cancer"),
+			labels=c("Normal", "Adenoma", "Cancer")) +
+		coord_cartesian(xlim=c(0,20000), ylim=c(0,500)) +
+		labs(title="Rarefaction curves are pretty pointless at this scale",
+			x="Number of Sequences Sampled per Subject",
+			y="Number of OTUs per Subject") +
+		theme_classic()
+```
+
+### Activity 8
+Create a scatter plot with the subjects' FIT result on the x-axis and the Shannon diversity index on the y-axis. Color the points by diagnosis group and draw a vertical line to cross the x-axis at 100.
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+```{r}
+source("code/baxter.R")
+metadata <- get_metadata()
+
+alpha <- read_tsv(file="raw_data/baxter.groups.ave-std.summary",
+		col_types=cols(group = col_character())) %>%
+	filter(method=='ave') %>%
+	select(group, sobs, shannon, invsimpson, coverage)
+
+meta_alpha <- inner_join(metadata, alpha, by=c('sample'='group'))
+
+ggplot(meta_alpha, aes(x=fit_result, y=shannon, color=diagnosis)) +
+	geom_vline(xintercept=100, color="gray") +
+	geom_point(size=2) +
+	scale_color_manual(name=NULL,
+		values=c("blue", "red", "black"),
+		breaks=c("normal", "adenoma", "cancer"),
+		labels=c("Normal", "Adenoma", "Cancer")) +
+	labs(title="No apparent relationship between Shannon diversity index and FIT result",
+		subtitle="Vertical line indicates the clinical screening threshold of 100",
+		x="FIT Result",
+		y="Shannon Diversity Index") +
+	theme_classic()
+```
+</div>
+
+
+### Activity 9
+Create a file in `code/` that is called `plot_rarefaction_curves.R` that contains the code needed to generate the 490 rarefaction curves colored by diagnosis. Draw a vertical gray line behind the curves to indicate where the 10,530 sequence threshold was. Restart R and run `source("code/plot_rarefaction_curves.R", echo=T)` to make sure it runs as intended.
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+```{r}
+source('code/baxter.R')
+metadata <- get_metadata()
+
+rarefy <- read_tsv(file="raw_data/baxter.rarefaction") %>%
+	select(-contains("lci-"), -contains("hci-")) %>%
+	gather(-numsampled, key=sample, value=sobs) %>%
+	mutate(sample=str_replace_all(sample, pattern="0.03-", replacement="")) %>%
+	drop_na()
+
+metadata_rarefy <- inner_join(metadata, rarefy)
+
+ggplot(metadata_rarefy, aes(x=numsampled, y=sobs, group=sample, color=diagnosis)) +
+	geom_vline(xintercept=10530, color="gray", size=2) +
+	geom_line() +
+	scale_color_manual(name=NULL,
+		values=c("blue", "red", "black"),
+		breaks=c("normal", "adenoma", "cancer"),
+		labels=c("Normal", "Adenoma", "Cancer")) +
+	coord_cartesian(xlim=c(0,20000), ylim=c(0,500)) +
+	labs(title="Rarefaction curves are pretty pointless at this scale",
+		subtitle="Vertical line indicates the number of sequences that samples were rarefied to",
+		x="Number of Sequences Sampled per Subject",
+		y="Number of OTUs per Subject") +
+	theme_classic()
+```
+<div>
