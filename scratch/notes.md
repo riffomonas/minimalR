@@ -1,6 +1,7 @@
 0	Introduction to R and RStudio
 
 1	Introduction to plotting
+
 * Break down what is happening in the initial chunk of code
 	- Importing data
 	- Merging data sets
@@ -17,6 +18,7 @@
 
 
 2 Reading in and cleaning data from files
+
 * read_*/read.xlsx functions
 * tidy data
 	* reshaping data
@@ -30,6 +32,7 @@
 
 
 3 Joining and exploring data frames
+
 dplyr::joins
 dplyr::filtering
 dplyr::select
@@ -78,20 +81,20 @@ wilcoxon.test
 kruskal.test
 
 
-
-
-
 8 Working with OTU data
+
 * String manipulations - strsplit and paste
 * Regular expressions - more complex patterns
 * Apply functions
 * if ... else
+
 
 9	Plotting taxonomic data
 * Pie charts
 * Stacked bar plots
 * Bar plots
 * Strip charts
+
 
 10	Finding relevant OTUs to plot
 * Kruskal-Wallis test

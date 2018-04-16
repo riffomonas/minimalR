@@ -75,7 +75,7 @@ title: minimalR
 
 
 
-
+<!--
 
 	<li><a href="08_otu_data.html">Working with OTU data</a></li>
 	<ul>
@@ -99,7 +99,7 @@ title: minimalR
 			<li>Correcting for multiple hypotheses</li>
 			<li>Plotting OTU data</li>
 			<li>Getting help</li>
- 		</ul>
+ 		</ul> -->
 
 </ol>
 
