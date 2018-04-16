@@ -436,12 +436,13 @@ summary(metadata)
 Take a moment to look at the columns represented in your data frame and the information presented below the column names. Do all of the values seem reasonable? Need a hint? Check out the information below "Height" and "Weight". Think someone could weight 0 kg or be 0 cm tall? I think those should instead be `NA`. To look at and manipulate an individual column we have three options:
 
 ```R
+select(metadata, "Height")
 metadata[["Height"]]
 metadata$Height
 metadata[[13]]
 ```
 
-The first two options are pretty solid, the third option is a bit of a hassle since it requires us to count columns. Whichever approach you select, stick with it and be consistent in your coding. These commands pulls out a column from the data frame and converts it into a vector. We'll learn more about vectors later. For now, think of this as a column. Just like we saw how we could update our `p` variable when adding layers to our scatter plot by using the `<-` operator, we can update our columns this way as well. The `dplyr` package, which is one of the core package within the tidyverse, has a useful function called `na_if`. If it finds a value we specify in the vector, it will convert it to an `NA`.
+The first three options are pretty solid, the last option is a bit of a hassle since it requires us to count columns. Whichever approach you select, stick with it and be consistent in your coding. We will primarily use the first approach throughout this series of lessons. These commands pulls out a column from the data frame and converts it into a vector. We'll learn more about vectors later. For now, think of this as a column. Just like we saw how we could update our `p` variable when adding layers to our scatter plot by using the `<-` operator, we can update our columns this way as well. The `dplyr` package, which is one of the core package within the tidyverse, has a useful function called `na_if`. If it finds a value we specify in the vector, it will convert it to an `NA`.
 
 
 ```r
@@ -449,59 +450,78 @@ metadata[["Height"]] <- na_if(metadata[["Height"]], 0)
 metadata[["Weight"]] <- na_if(metadata[["Weight"]], 0)
 ```
 
-Running `summary(metadata)` again, we see that the ranges for the "Height" and "Weight" columns are more reasonable now. We'd like to look at the values for our columns that contain character values, but they're obfuscated. One way to check this out is with the `table` command
+Running `summary(metadata)` again, we see that the ranges for the "Height" and "Weight" columns are more reasonable now. We'd like to look at the values for our columns that contain character values, but they're obfuscated. One way to check this out is with the `count` command
 
 
 ```r
-table(metadata[["Site"]])
+count(metadata, Site)
 ```
 
 ```
-## 
-##   Dana Farber   MD Anderson       Toronto    U Michigan U of Michigan 
-##           120            95           168           106             1
-```
-
-```r
-table(metadata[["Dx_Bin"]])
-```
-
-```
-## 
-##          Adenoma      Adv Adenoma           Cancer          Cancer. 
-##               89              109              119                1 
-## High Risk Normal           Normal 
-##               50              122
+## # A tibble: 5 x 2
+##   Site              n
+##   <chr>         <int>
+## 1 Dana Farber     120
+## 2 MD Anderson      95
+## 3 Toronto         168
+## 4 U Michigan      106
+## 5 U of Michigan     1
 ```
 
 ```r
-table(metadata[["dx"]])
+count(metadata, Dx_Bin)
 ```
 
 ```
-## 
-## adenoma  cancer  normal 
-##     198     120     172
-```
-
-```r
-table(metadata[["Gender"]])
-```
-
-```
-## 
-##   f   m 
-## 243 247
+## # A tibble: 6 x 2
+##   Dx_Bin               n
+##   <chr>            <int>
+## 1 Adenoma             89
+## 2 Adv Adenoma        109
+## 3 Cancer             119
+## 4 Cancer.              1
+## 5 High Risk Normal    50
+## 6 Normal             122
 ```
 
 ```r
-table(metadata[["stage"]])
+count(metadata, dx)
 ```
 
 ```
-## 
-##   0   1   2   3   4 
-## 370  39  35  36  10
+## # A tibble: 3 x 2
+##   dx          n
+##   <chr>   <int>
+## 1 adenoma   198
+## 2 cancer    120
+## 3 normal    172
+```
+
+```r
+count(metadata, Gender)
+```
+
+```
+## # A tibble: 2 x 2
+##   Gender     n
+##   <chr>  <int>
+## 1 f        243
+## 2 m        247
+```
+
+```r
+count(metadata, stage)
+```
+
+```
+## # A tibble: 5 x 2
+##   stage     n
+##   <chr> <int>
+## 1 0       370
+## 2 1        39
+## 3 2        35
+## 4 3        36
+## 5 4        10
 ```
 
 Notice anything weird here? Yup. In the "Site" column, it looks like our collaborator used "U of Michigan" for one subject, but "U Michigan" for all of the others. We need to fix this. We can use the `dplyr` function `recode` to make this easy...
@@ -509,13 +529,17 @@ Notice anything weird here? Yup. In the "Site" column, it looks like our collabo
 
 ```r
 metadata[["Site"]] <- recode(.x=metadata[["Site"]], "U of Michigan"="U Michigan")
-table(metadata[["Site"]])
+count(metadata, Site)
 ```
 
 ```
-## 
-## Dana Farber MD Anderson     Toronto  U Michigan 
-##         120          95         168         107
+## # A tibble: 4 x 2
+##   Site            n
+##   <chr>       <int>
+## 1 Dana Farber   120
+## 2 MD Anderson    95
+## 3 Toronto       168
+## 4 U Michigan    107
 ```
 
 ### Activity 5
@@ -526,15 +550,18 @@ You should notice that in the "Dx_Bin" column there is a subject with the value 
 
 ```r
 metadata[["Dx_Bin"]] <- recode(.x=metadata[["Dx_Bin"]], "Cancer."="Cancer")
-table(metadata[["Dx_Bin"]])
+count(metadata, Dx_Bin)
 ```
 
 ```
-## 
-##          Adenoma      Adv Adenoma           Cancer High Risk Normal 
-##               89              109              120               50 
-##           Normal 
-##              122
+## # A tibble: 5 x 2
+##   Dx_Bin               n
+##   <chr>            <int>
+## 1 Adenoma             89
+## 2 Adv Adenoma        109
+## 3 Cancer             120
+## 4 High Risk Normal    50
+## 5 Normal             122
 ```
 </div>
 
@@ -548,14 +575,15 @@ It might be obvious to us what is contained in the "Gender" column - "f" and "m"
 ```r
 metadata[["Gender"]] <- recode(.x=metadata[["Gender"]], "m"="male")
 metadata[["Gender"]] <- recode(.x=metadata[["Gender"]], "f"="female")
-
-table(metadata[["Gender"]])
+count(metadata, Gender)
 ```
 
 ```
-## 
-## female   male 
-##    243    247
+## # A tibble: 2 x 2
+##   Gender     n
+##   <chr>  <int>
+## 1 female   243
+## 2 male     247
 ```
 </div>
 

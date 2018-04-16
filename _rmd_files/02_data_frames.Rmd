@@ -285,33 +285,34 @@ summary(metadata)
 Take a moment to look at the columns represented in your data frame and the information presented below the column names. Do all of the values seem reasonable? Need a hint? Check out the information below "Height" and "Weight". Think someone could weight 0 kg or be 0 cm tall? I think those should instead be `NA`. To look at and manipulate an individual column we have three options:
 
 ```R
+select(metadata, "Height")
 metadata[["Height"]]
 metadata$Height
 metadata[[13]]
 ```
 
-The first two options are pretty solid, the third option is a bit of a hassle since it requires us to count columns. Whichever approach you select, stick with it and be consistent in your coding. These commands pulls out a column from the data frame and converts it into a vector. We'll learn more about vectors later. For now, think of this as a column. Just like we saw how we could update our `p` variable when adding layers to our scatter plot by using the `<-` operator, we can update our columns this way as well. The `dplyr` package, which is one of the core package within the tidyverse, has a useful function called `na_if`. If it finds a value we specify in the vector, it will convert it to an `NA`.
+The first three options are pretty solid, the last option is a bit of a hassle since it requires us to count columns. Whichever approach you select, stick with it and be consistent in your coding. We will primarily use the first approach throughout this series of lessons. These commands pulls out a column from the data frame and converts it into a vector. We'll learn more about vectors later. For now, think of this as a column. Just like we saw how we could update our `p` variable when adding layers to our scatter plot by using the `<-` operator, we can update our columns this way as well. The `dplyr` package, which is one of the core package within the tidyverse, has a useful function called `na_if`. If it finds a value we specify in the vector, it will convert it to an `NA`.
 
 ```{r}
 metadata[["Height"]] <- na_if(metadata[["Height"]], 0)
 metadata[["Weight"]] <- na_if(metadata[["Weight"]], 0)
 ```
 
-Running `summary(metadata)` again, we see that the ranges for the "Height" and "Weight" columns are more reasonable now. We'd like to look at the values for our columns that contain character values, but they're obfuscated. One way to check this out is with the `table` command
+Running `summary(metadata)` again, we see that the ranges for the "Height" and "Weight" columns are more reasonable now. We'd like to look at the values for our columns that contain character values, but they're obfuscated. One way to check this out is with the `count` command
 
 ```{r results='markup'}
-table(metadata[["Site"]])
-table(metadata[["Dx_Bin"]])
-table(metadata[["dx"]])
-table(metadata[["Gender"]])
-table(metadata[["stage"]])
+count(metadata, Site)
+count(metadata, Dx_Bin)
+count(metadata, dx)
+count(metadata, Gender)
+count(metadata, stage)
 ```
 
 Notice anything weird here? Yup. In the "Site" column, it looks like our collaborator used "U of Michigan" for one subject, but "U Michigan" for all of the others. We need to fix this. We can use the `dplyr` function `recode` to make this easy...
 
 ```{r}
 metadata[["Site"]] <- recode(.x=metadata[["Site"]], "U of Michigan"="U Michigan")
-table(metadata[["Site"]])
+count(metadata, Site)
 ```
 
 ### Activity 5
@@ -321,7 +322,7 @@ You should notice that in the "Dx_Bin" column there is a subject with the value 
 <div markdown="1" style="display:none;">
 ```{r}
 metadata[["Dx_Bin"]] <- recode(.x=metadata[["Dx_Bin"]], "Cancer."="Cancer")
-table(metadata[["Dx_Bin"]])
+count(metadata, Dx_Bin)
 ```
 </div>
 
@@ -334,8 +335,7 @@ It might be obvious to us what is contained in the "Gender" column - "f" and "m"
 ```{r}
 metadata[["Gender"]] <- recode(.x=metadata[["Gender"]], "m"="male")
 metadata[["Gender"]] <- recode(.x=metadata[["Gender"]], "f"="female")
-
-table(metadata[["Gender"]])
+count(metadata, Gender)
 ```
 </div>
 
