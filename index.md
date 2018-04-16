@@ -63,15 +63,19 @@ title: minimalR
 		<li>Annotating figures with lines</li>
 	</ul>
 
-
-
-	<li><a href="06_non-normal_data.html">Plotting frequency data</a></li>
+	<li><a href="07_statistical_analyses.html">Statistical analyses</a></li>
 	<ul>
-		<li>Box plots</li>
-		<li>Custom box plot (building your own plots)</li>
-		<li>Strip charts</li>
-		<li>Over plotting line for median</li>
+		<li>Transforming data to make them normally distributed</li>
+		<li>T-test and Analysis of Variance</li>
+		<li>Wilcoxon and Kruskal-Wallis tests</li>
+		<li>Correlations and regression</li>
+		<li>Overlaying regression on scatter plots</li>
+		<li>Chi-squared tests and visualization</li>
 	</ul>
+
+
+
+
 
 	<li><a href="08_otu_data.html">Working with OTU data</a></li>
 	<ul>

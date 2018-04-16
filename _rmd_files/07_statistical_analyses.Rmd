@@ -1,0 +1,345 @@
+---
+layout: lesson
+title: "Session 5: Statistical analyses"
+output: markdown_document
+---
+
+```{r knitr_settings, eval=TRUE, echo=FALSE, cache=FALSE}
+library(knitr)
+opts_chunk$set("echo" = TRUE)
+opts_chunk$set("eval" = TRUE)
+opts_chunk$set("message" = FALSE)
+opts_chunk$set("warning" = FALSE)
+opts_chunk$set("cache" = FALSE)
+
+opts_chunk$set("fig.retina" = 4)
+opts_chunk$set("results" = "hold")
+opts_chunk$set("fig.show" = "hold")
+opts_chunk$set("fig.width" = 7)
+```
+
+## Learning goals
+* Transforming data to make them normally distributed
+* T-test and Analysis of Variance
+* Wilcoxon and Kruskal-Wallis tests
+* Correlations and regression
+* Overlaying regression on scatter plots
+* Chi-squared tests and visualization
+
+
+
+## Comparing continuous by categorical variables
+So far we have been analyzing our data visually with the plots we have made. It would be nice to know whether there are statistically significant differences between various categories of the same variable or whether two continuous variables are correlated with each other. For example, we might want to know whether the Shannon diversity of men and women or between the three diagnosis categories is significantly different. Alternatively, we might want to know whether having a cancer diagnosis varies with the subjects' sex. Or we might want to know whether there is a correlation between Shannon diversity and a subject's BMI or FIT result.
+
+One of the more important assumptions in most statistical analyses is whether the data are normally distributed. We can look at this question graphically with a few tools. The first we'll use is the qq plot which plots the normally distributed quartiles on the x axis and our observed values on the y-axis. If the data are normally distributed, then the points fall on a line. We can generate this plot using `geom_qq` and `stat_qq_line`
+
+```{r}
+source("code/baxter.R")
+
+alpha <- read_tsv(file="raw_data/baxter.groups.ave-std.summary",
+		col_types=cols(group = col_character())) %>%
+	filter(method=='ave') %>%
+	select(group, sobs, shannon, invsimpson, coverage)
+metadata <- get_metadata()
+meta_alpha <- inner_join(metadata, alpha, by=c('sample'='group'))
+
+ggplot(meta_alpha, aes(sample=shannon, group=diagnosis, color=diagnosis)) + geom_qq() + stat_qq_line()
+```
+
+We see from this qq plot that our data are not normally distributed. We can attempt to normalize the distributions by scaling `shannon` by raising it to a power. If the curve would hold water, then you should use a power between 0 and 1 and if it wouldn't hold water you would use a power above 1. Ours would not hold water so we'll try 2 or 3.
+
+```{r}
+meta_alpha <- mutate(meta_alpha, scaled_shannon=shannon^3)
+
+ggplot(meta_alpha, aes(sample=scaled_shannon, group=diagnosis, color=diagnosis)) +
+	geom_qq() + stat_qq_line()
+```
+
+It's hard to tell the difference between 2 and 3, but I think 3 looks a bit better. Let's compare the raw Shannon values to the scaled values using a histogram
+
+```{r}
+ggplot(meta_alpha, aes(x=shannon)) + geom_histogram()
+```
+
+We see that the distribution is skewed to the left.
+
+```{r}
+ggplot(meta_alpha, aes(x=scaled_shannon)) + geom_histogram()
+```
+
+That does look better. There are several other functions that you might find useful for plotting histograms including `geom_freqpoly`, `geom_dotplot`, and `geom_density`. As with `geom_qq`, you can specify the `group` and `color` or `fill` aesthetics to see the distribution for each category you are interested in.
+
+
+Now that we are confident our data are properly distribute for an analysis of variance (ANOVA), we can run the test with the `aov` and `summary` functions.
+
+```{r}
+diagnosis_shannon_aov <- aov(scaled_shannon~diagnosis, data=meta_alpha)
+summary(diagnosis_shannon_aov)
+```
+
+The `scaled_shannon~diagnosis` syntax is a bit different than anything we've seen before. It is a model specification that asks R to test for a relationship where `diagnosis` explains `scaled_shannon`. It is commonly used with statistical modeling in R. We see that our P-value is `r format(summary(diagnosis_shannon_aov)[[1]][['Pr(>F)']][1], digits=3L)`, which is not less than 0.05. If the experiment-wise P-value had been less than 0.05, then we could use Tukey's Honest Significant Difference (HSD) test **[Note that this is a bad idea if your experiment-wise P-value is greater than 0.05]**.
+
+```{r}
+TukeyHSD(diagnosis_shannon_aov)
+```
+
+Again, all of our adjusted P-values are greater than 0.05.
+
+
+If instead of using the scaled Shannon values we had used the raw values, then we would want to use a Kruskal-Wallis test using the `kruskal.test` function. To run this test, we need to recast `diagnosis` as a factor.
+
+```{r}
+kruskal.test(shannon~factor(diagnosis), data=meta_alpha)
+```
+
+Again, our P-value is not significant. If the experiment-wise P-value had been less than 0.05, then we could use pairwise Wilcoxon rank sum tests with correction for multiple comparisons. **[Note that this is a bad idea if your experiment-wise P-value is greater than 0.05]**. Here we need to revert to using the `[[]]` notation that we learned earlier to select specific columns from our data frame.
+
+```{r}
+pairwise.wilcox.test(g=meta_alpha[["diagnosis"]], x=meta_alpha[["shannon"]], p.adjust.method="BH")
+```
+
+We are telling `pairwise.wilcox.test` to group our values from `meta_alpha[["shannon"]]` by `meta_alpha[["diagnosis"]]` and to perform all possible pairwise Wilcoxon tests. Because this is fraught with an increased probability of Type I errors, we need to correct for multiple comparisons. As written, this is done using the Benjamini & Hochberg (`BH`) method. You can find other methods of correcting p-values by looking at `?p.adjust.methods`.
+
+ANOVA and Kruskal-Wallis tests are for cases where there are more than two levels of a single variable. You can also use ANOVA to test for more than two levels for more than one variable in R. This is beyond what we are shooting for in these lessons, but know that it can be done. Let's back up a bit and see how we test when there are only two levels of a variable such as sex. If our data are normally distributed we can use `t.test`
+
+```{r}
+t.test(scaled_shannon~sex, data=meta_alpha)
+```
+
+We see that the P-value is 0.55 and is not significant. Alternatively, we could have used the Wilcoxon test
+
+```{r}
+wilcox.test(scaled_shannon~sex, data=meta_alpha)
+```
+
+Both of these tests allow you perform a paired test if you have pre and post data from the same experimental units. Again, this is not a statistics tutorial...
+
+
+### Activity 1
+Is the number of OTUs normally distributed? Repeat the analyses we performed above to see whether there is a significant difference in the number of OTUs by diagnosis group.
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+```{r}
+ggplot(meta_alpha, aes(sample=sobs, group=diagnosis, color=diagnosis)) + geom_qq() + stat_qq_line()
+```
+
+The curve holds water so we might try transforming with the square root
+
+```{r}
+meta_alpha <- mutate(meta_alpha, scaled_sobs=sobs^0.5)
+
+ggplot(meta_alpha, aes(sample=scaled_sobs, group=diagnosis, color=diagnosis)) +
+	geom_qq() + stat_qq_line()
+```
+
+That doesn't look horrible...
+
+```{r}
+ggplot(meta_alpha, aes(x=sobs)) + geom_histogram()
+ggplot(meta_alpha, aes(x=scaled_sobs)) + geom_histogram()
+```
+
+Good enough...
+
+```{r}
+diagnosis_sobs_aov <- aov(scaled_sobs~diagnosis, data=meta_alpha)
+summary(diagnosis_sobs_aov)
+```
+
+Not significant.
+</div>
+
+### Activity 2
+Is there a significant difference in the FIT result by diagnosis group?
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+```{r}
+kruskal.test(fit_result~factor(diagnosis), data=meta_alpha)
+```
+
+Yes, the P-value is quite small. Let's perform the pairwise Wilcoxon tests
+
+```{r}
+pairwise.wilcox.test(g=meta_alpha[["diagnosis"]], x=meta_alpha[["fit_result"]], p.adjust.method="BH")
+```
+
+The three diagnosis groups have significantly different FIT results even after comparing for multiple comparisons.
+</div>
+
+
+
+## Comparing continuous by categorical variables
+Sometimes we would like to know whether two variables are correlated with each other. For example, is someone's BMI correlated with their Shannon diversity? Is FIT result correlated with age? Is the FIT result correlated with their Shannon diversity? To test for these types of correlations we can use the `cor.test` function
+
+```{r}
+cor.test(meta_alpha[["shannon"]], meta_alpha[["bmi"]])
+cor.test(meta_alpha[["fit_result"]], meta_alpha[["age"]])
+cor.test(meta_alpha[["fit_result"]], meta_alpha[["shannon"]])
+```
+
+We see that Shannon diversity has a significant negative correlation with BMI, albeit a small correlation (R=`r cor.test(meta_alpha[["shannon"]], meta_alpha[["bmi"]])$estimate`). But there is no significant correlation between FIT result and age or Shannon diversity. To explore this correlation a bit further, we can fit a regression line through the data using the `lm` (i.e. linear model) function
+
+```{r}
+lm_shannon_bmi <- lm(meta_alpha[["shannon"]]~meta_alpha[["bmi"]])
+summary(lm_shannon_bmi)
+```
+
+The slope of the line where BMI is the x-axis and Shannon diversity is the y-axis is slightly negative. Again, it's significant, but ... meh. We can also test whether the regression changes by diagnosis group
+
+```{r}
+lm_shannon_bmi <- lm(shannon~bmi + diagnosis, data=meta_alpha)
+summary(lm_shannon_bmi)
+```
+
+We see that the impact of BMI is significant, but that there's no meaninful difference between the three diagnosis groups.
+
+By default, `cor.test` performs a Pearson correlation, which assumes a linear relationship between the two variables. Having seen the FIT result distribution a few times now, we might suspect that it has a non-linear association with other variables. We can test the association with a Spearman correlation.
+
+```{r}
+cor.test(meta_alpha[["shannon"]], meta_alpha[["bmi"]], method="spearman")
+cor.test(meta_alpha[["fit_result"]], meta_alpha[["age"]], method="spearman")
+cor.test(meta_alpha[["fit_result"]], meta_alpha[["shannon"]], method="spearman")
+```
+
+Now we get significant P-values for these comparisons, but we see that the rho values are quite small. We also get a warning message that an exact p-value cannot be calculated when there are ties such as those that occur because multiple subjects have a value of zero for their FIT result.
+
+We can plot these associations on our scatter plots with the `geom_smooth` function and giving it the linear model `method` (i.e. `lm`)
+
+```{r}
+ggplot(meta_alpha, aes(x=bmi, y=shannon, color=diagnosis)) +
+	geom_point() +
+	geom_smooth(method="lm") +
+	scale_color_manual(name=NULL,
+		values=c("blue", "red", "black"),
+		breaks=c("normal", "adenoma", "cancer"),
+		labels=c("Normal", "Adenoma", "Cancer")) +
+	labs(title="There is a significant, but small negative association between a person's BMI\nand their Shannon diversity",
+		x="Body Mass Index (BMI)",
+		y="Shannon Diversity Index") +
+	theme_classic()
+```
+
+This plots the regression lines with the cloud around the line indicating the 95% confidence interval. We noted above that our regression analysis indicated that there wasn't a statistical difference between the diagnosis groups. If we want a single line through the data, then we can overwrite the `color` aesthetic in `geom_smooth`
+
+```{r}
+ggplot(meta_alpha, aes(x=bmi, y=shannon, color=diagnosis)) +
+	geom_point() +
+	geom_smooth(method="lm", color="gray") +
+	scale_color_manual(name=NULL,
+		values=c("blue", "red", "black"),
+		breaks=c("normal", "adenoma", "cancer"),
+		labels=c("Normal", "Adenoma", "Cancer")) +
+	labs(title="There is a significant, but small negative association between a person's BMI\nand their Shannon diversity",
+		x="Body Mass Index (BMI)",
+		y="Shannon Diversity Index") +
+	theme_classic()
+```
+
+### Activity 3
+In the scatter plot where we drew three regression lines the legend changed to have a gray background behind the points and a line was drawn with the points. This is effectively a merge between the legend of the `geom_point` and `geom_smooth` layers. How do we remove the `geom_smooth` legend so that our legend only contains the simple plotting character?
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+```{r}
+ggplot(meta_alpha, aes(x=bmi, y=shannon, color=diagnosis)) +
+	geom_point() +
+	geom_smooth(method="lm", show.legend=FALSE) +
+	scale_color_manual(name=NULL,
+		values=c("blue", "red", "black"),
+		breaks=c("normal", "adenoma", "cancer"),
+		labels=c("Normal", "Adenoma", "Cancer")) +
+	labs(title="There is a significant, but small negative association between a person's BMI\nand their Shannon diversity",
+		x="Body Mass Index (BMI)",
+		y="Shannon Diversity Index") +
+	theme_classic()
+```
+</div>
+
+
+### Activity 4
+Is there a significant association between the number of OTUs in a person's fecal samples and their BMI and sex? Run the test and show a plot of the relevant fit of the data.
+
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+```{r}
+lm_sobs_bmi_sex <- lm(sobs~bmi+sex, data=meta_alpha)
+summary(lm_sobs_bmi_sex)
+```
+
+The effect of BMI is statistically significant, but not with the subject's sex.
+
+```{r}
+ggplot(meta_alpha, aes(x=bmi, y=sobs, color=sex)) +
+	geom_point() +
+	geom_smooth(method="lm", color="gray") +
+	scale_color_manual(name=NULL,
+		values=c("lightgreen", "orange"),
+		breaks=c("female", "male"),
+		labels=c("Female", "Male")) +
+	labs(title="There is a significant, but small negative association between a person's BMI\nand the number of OTUs in their feces",
+		x="Body Mass Index (BMI)",
+		y="Number of observed OTUs") +
+	theme_classic()
+```
+</div>
+
+
+## Comparing discrete variables
+We might also be interested in knowing whether two discrete variables have the same distribution. For example, within our cohort, are men and women equally likely to have adenomas and carcinomas? Is there variation in obesity status and diagnosis? Let's start with the first question and leave the second for an activity for you to work on. We can test this association using a Chi-Squared test of association using the `chisq.test` function
+
+
+```{r}
+chisq.test(x=meta_alpha[["sex"]], y=meta_alpha[["diagnosis"]])
+```
+
+We see that the P-value for this difference is quite small and so we can conclude that within our cohort there is a significant difference in the proportion of men and women who have a diagnosis of an adenoma or carcinoma. We can visualize this with the `geom_count` function.
+
+```{r}
+ggplot(meta_alpha, aes(x=sex, y=diagnosis)) +
+	geom_count() +
+	scale_x_discrete(name=NULL,
+		breaks=c("female", "male"),
+		labels=c("Female", "Male")) +
+	scale_y_discrete(name=NULL,
+		breaks=c("normal", "adenoma", "cancer"),
+		labels=c("Normal", "Adenoma", "Cancer")) +
+	scale_size_continuous(name=NULL) +
+	labs(title="There is significant variation in the likelihood that men or women will\ndevelop lesions",
+		x="Body Mass Index (BMI)",
+		y="Number of observed OTUs") +
+	theme_classic()
+```
+
+Not that size of circles is generally pretty hard for people to differentiate, so this isn't necessarily the best visualization tool. To see how to scale the circles by proportions you should see the examples in the `?geom_count` documentation.
+
+
+### Activity 5
+Is there variation in obesity status and diagnosis?
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+```{r}
+chisq.test(x=meta_alpha[["obese"]], y=meta_alpha[["diagnosis"]])
+```
+
+The P-value is quite small
+
+```{r}
+ggplot(meta_alpha, aes(x=obese, y=diagnosis)) +
+	geom_count() +
+	scale_x_discrete(name=NULL,
+		breaks=c("TRUE", "FALSE"),
+		labels=c("Obese", "Not Obese")) +
+	scale_y_discrete(name=NULL,
+		breaks=c("normal", "adenoma", "cancer"),
+		labels=c("Normal", "Adenoma", "Cancer")) +
+	scale_size_continuous(name=NULL) +
+	labs(title="There is significant variation in the likelihood that obese individuals\nwill develop lesions",
+		x="Body Mass Index (BMI)",
+		y="Number of observed OTUs") +
+	theme_classic()
+```
+</div>

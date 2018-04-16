@@ -58,48 +58,28 @@ geom_boxplot
 factor
 
 
-5 Working with single variables
-* Discrete
-* Continuous
-* Histograms - are data normally distributed?
-* Density plots
-* Points
-* Transforming data
-* Generate random data
-
-
-
-Statistical testing
-
+6	Line plots
 
 Scripting
+Tidy data
+str_relace_all
+Rarefaction curves
 
 
-vectors
+7 Statistical testing
 
-
-apply functions
-
-scripts
-faceting
-
-regex: gsub
-regex: grep
-
-* put heat colors on ordination/scatter plot
-* Over plotting line for median
-* Text annotation of figures
-* themes
-
-Heatmaps
+qqplot
+frequency plots
+plotting statistics on plots
+t.test (normal and paired)
+anova
+corr.test
+wilcoxon.test
+kruskal.test
 
 
 
-7	Line plots
-* Regular expressions - grep and gsub
-* Rarefaction curves
-* Building plots
-* Loops
+
 
 8 Working with OTU data
 * String manipulations - strsplit and paste
@@ -118,6 +98,49 @@ Heatmaps
 * Correcting for multiple hypotheses
 * Plotting OTU data
 * Getting help
+
+
+faceting
+* ggplot faceting
+* making multi-panel figures
+
+
+themes
+
+
+
+Base R stuff
+loops
+if(){...} elsif() {...} else {...}
+apply functions
+vectors
+
+
+
+
+string manipulation - stringr
+regex: gsub
+regex: grep
+
+
+
+* put heat colors on ordination/scatter plot
+* Over plotting line for median
+* Text annotation of figures
+* themes
+
+Heatmaps
+
+
+
+
+X Working with single variables
+
+* Discrete
+* Continuous
+* Transforming data
+* Generate random data
+
 
 11	Classifying samples based on OTUs
 * Random forest
@@ -169,52 +192,3 @@ Reading in data from websites
 * dplyr workflow
 * models / plotting fits
 * format / round
-
-
-## Tidy data
-
-We've been using a number of packages from the "tidyverse", but we've never actually defined it. "Tidy data" refers to the idea that data can be structured to simplify analysis such that...
-(need to fix definition)
-> 1. Each variable forms a column.
-> 2. Each observation forms a row.
-> 3. Each type of observational unit forms a table.
-
-If you're familiar with relational databases, this should sound familiar. As an example, consider the following data taken from `data/baxter.subsample.shared`
-
-label  | Group   | numOtus | Otu000001 | Otu000002 | Otu000003 | Otu000004 | Otu000005 |
--------|---------|---------|-----------|-----------|-----------|-----------|-----------|
-0.0300 | 2003650 |  5450   |    363    |   290     |   284     |   218     |   253     |
-0.0300 | 2005650 |  5450   |    593    |   706     |  1360     |   253     |   107     |
-0.0300 | 2007660 |  5450   |    143    |   236     |   769     |   589     |   354     |
-0.0300 | 2009650 |  5450   |    327    |   203     |    31     |   249     |   205     |
-0.0300 | 2013660 |  5450   |   1423    |     8     |   183     |   642     |  1124     |
-
-We could argue that the columns containing the OTU count data are not tidy because they contain the same type of data (i.e. counts of sequences in OTUs). In contrast, the following table would be tidy:
-
-| label|   Group| numOtus|OTU       | counts|
-|-----:|-------:|-------:|:---------|------:|
-|  0.03| 2003650|    5450|Otu000001 |    363|
-|  0.03| 2005650|    5450|Otu000001 |    593|
-|  0.03| 2007660|    5450|Otu000001 |    143|
-|  0.03| 2009650|    5450|Otu000001 |    327|
-|  0.03| 2013660|    5450|Otu000001 |   1423|
-|  0.03| 2003650|    5450|Otu000002 |    290|
-|  0.03| 2005650|    5450|Otu000002 |    706|
-|  0.03| 2007660|    5450|Otu000002 |    236|
-|  0.03| 2009650|    5450|Otu000002 |    203|
-|  0.03| 2013660|    5450|Otu000002 |      8|
-|  0.03| 2003650|    5450|Otu000003 |    284|
-|  0.03| 2005650|    5450|Otu000003 |   1360|
-|  0.03| 2007660|    5450|Otu000003 |    769|
-|  0.03| 2009650|    5450|Otu000003 |     31|
-|  0.03| 2013660|    5450|Otu000003 |    183|
-|  0.03| 2003650|    5450|Otu000004 |    218|
-|  0.03| 2005650|    5450|Otu000004 |    253|
-|  0.03| 2007660|    5450|Otu000004 |    589|
-|  0.03| 2009650|    5450|Otu000004 |    249|
-|  0.03| 2013660|    5450|Otu000004 |    642|
-|  0.03| 2003650|    5450|Otu000005 |    253|
-|  0.03| 2005650|    5450|Otu000005 |    107|
-|  0.03| 2007660|    5450|Otu000005 |    354|
-|  0.03| 2009650|    5450|Otu000005 |    205|
-|  0.03| 2013660|    5450|Otu000005 |   1124|
