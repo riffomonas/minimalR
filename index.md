@@ -10,93 +10,84 @@ title: minimalR
 
 <ol>
 	<li><a href="01_scatter_plots.html">Introduction to R via Scatter Plots</a></li>
-		<ul>
-			<li>Determine when a scatter plot is an appropriate data visualization tool</li>
-			<li>Manipulate plotting symbols and colors to plot metadata</li>
-			<li>Adapt existing code to achieve a goal</li>
-			<li>Install R packages and libraries</li>
-		</ul>
+	<ul>
+		<li>Determine when a scatter plot is an appropriate data visualization tool</li>
+		<li>Manipulate plotting symbols and colors to plot metadata</li>
+		<li>Adapt existing code to achieve a goal</li>
+		<li>Install R packages and libraries</li>
+	</ul>
 
 	<li><a href="02_data_frames.html">Data Frames</a></li>
-		<ul>
-			<li>Read in data from various file formats</li>
-			<li>Write data out to various file formats</li>
-			<li>Clean up data frames</li>
-			<li>Data types in R</li>
-			<li>Value of keeping raw data, raw</li>
-			<li>Importance of how things are named</li>
-		</ul>
+	<ul>
+		<li>Read in data from various file formats</li>
+		<li>Write data out to various file formats</li>
+		<li>Clean up data frames</li>
+		<li>Data types in R</li>
+		<li>Value of keeping raw data, raw</li>
+		<li>Importance of how things are named</li>
+	</ul>
 
 	<li><a href="03_combining_data_frames.html">Combining and Exploring Data Frames</a></li>
-		<ul>
-			<li>Merging data frames</li>
-			<li>Selecting columns from data frames</li>
-			<li>Selecting rows from data frames</li>
-			<li>Connecting steps in data processing with pipes</li>
-		</ul>
+	<ul>
+		<li>Merging data frames</li>
+		<li>Selecting columns from data frames</li>
+		<li>Selecting rows from data frames</li>
+		<li>Connecting steps in data processing with pipes</li>
+	</ul>
 
 	<li><a href="04_aggregating_data.html">Working with data in data frames</a></li>
-		<ul>
-			<li>Aggregating and summarizing data by a categorical variable</li>
-			<li>Adding columns to data frames</li>
-			<li>Creating customized functions</li>
-			<li>The importance of keeping code DRY</li>
-		</ul>
-
+	<ul>
+		<li>Aggregating and summarizing data by a categorical variable</li>
+		<li>Adding columns to data frames</li>
+		<li>Creating customized functions</li>
+		<li>The importance of keeping code DRY</li>
+	</ul>
 
 	<li><a href="05_continuous_categorical.html">Comparing distributions of continuous data across categorical variables</a></li>
-		<ul>
-			<li>Bar plots</li>
-			<li>Error bars</li>
-			<li>Positioning with jitter and dodging</li>
-			<li>Strip charts</li>
-			<li>Box plots</li>
-			<li>Violin plots</li>
-			<li>Factors</li>
-		</ul>
+	<ul>
+		<li>Bar plots</li>
+		<li>Error bars</li>
+		<li>Positioning with jitter and dodging</li>
+		<li>Strip charts</li>
+		<li>Box plots</li>
+		<li>Violin plots</li>
+		<li>Factors</li>
+	</ul>
+
+	<li><a href="06_line_plots.html">Line plots</a></li>
+	<ul>
+		<li>Scripting</li>
+		<li>Tidy data</li>
+		<li>Altering text</li>
+		<li>Making line plots</li>
+		<li>Annotating figures with lines</li>
+	</ul>
 
 
-	<li><a href="05_random_data.html">Working with random data</a></li>
-		<ul>
-			<li>Histograms - are data normally distributed?</li>
-			<li>Density plots</li>
-			<li>Points</li>
-			<li>Transforming data</li>
-			<li>Generate random data</li>
-			<li>Saving plots</li>
-		</ul>
 
-	<li><a href="06_non-normal_data.html">Plotting non-normal data</a></li>
-		<ul>
-			<li>Box plots</li>
-			<li>Custom box plot (building your own plots)</li>
-			<li>Strip charts</li>
-			<li>Over plotting line for median</li>
-		</ul>
-
-	<li><a href="07_line_plots.html">Line plots</a></li>
-		<ul>
-			<li>Regular expressions - grep and gsub</li>
-			<li>Rarefaction curves</li>
-			<li>Building plots</li>
-			<li>Loops</li>
-		</ul>
+	<li><a href="06_non-normal_data.html">Plotting frequency data</a></li>
+	<ul>
+		<li>Box plots</li>
+		<li>Custom box plot (building your own plots)</li>
+		<li>Strip charts</li>
+		<li>Over plotting line for median</li>
+	</ul>
 
 	<li><a href="08_otu_data.html">Working with OTU data</a></li>
-		<ul>
-			<li>String manipulations - strsplit and paste</li>
-			<li>Regular expressions - more complex patterns</li>
-			<li>Apply functions</li>
-			<li>if ... else</li>
-		</ul>
+	<ul>
+		<li>String manipulations - strsplit and paste</li>
+		<li>Regular expressions - more complex patterns</li>
+		<li>Apply functions</li>
+		<li>if ... else</li>
+	</ul>
 
 	<li><a href="09_plotting_otu_data.html">Plotting taxonomic data</a></li>
-		<ul>
-			<li>Pie charts</li>
-			<li>Stacked bar plots</li>
-			<li>Bar plots</li>
-			<li>Strip charts</li>
-		</ul>
+	<ul>
+		<li>Pie charts</li>
+		<li>Stacked bar plots</li>
+		<li>Bar plots</li>
+		<li>Strip charts</li>
+	</ul>
 
 	<li><a href="10_finding_relevant_otus.html">Finding relevant OTUs to plot</a></li>
 		<ul>
