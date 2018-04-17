@@ -73,31 +73,13 @@ title: minimalR
 		<li>Chi-squared tests and visualization</li>
 	</ul>
 
-	<li><a href="08_text_data.html">Working with text data</a></li>
+	<li><a href="08_taxonomic_data.html">Working with taxonomic data</a></li>
 	<ul>
-		<li>String manipulations - strsplit and paste</li>
-		<li>Regular expressions - more complex patterns</li>
-		<li>Apply functions</li>
-		<li>if ... else</li>
+		<li>String manipulations</li>
+		<li>Regular expressions</li>
+		<li>Representing taxonomic data</li>
+		<li>Identifying significantly different taxa</li>
 	</ul>
-
-
-<!--
-	<li><a href="09_plotting_otu_data.html">Plotting taxonomic data</a></li>
-	<ul>
-		<li>Pie charts</li>
-		<li>Stacked bar plots</li>
-		<li>Bar plots</li>
-		<li>Strip charts</li>
-	</ul>
-
-	<li><a href="10_finding_relevant_otus.html">Finding relevant OTUs to plot</a></li>
-		<ul>
-			<li>Kruskal-Wallis test</li>
-			<li>Correcting for multiple hypotheses</li>
-			<li>Plotting OTU data</li>
-			<li>Getting help</li>
- 		</ul> -->
 
 </ol>
 
