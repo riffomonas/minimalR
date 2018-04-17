@@ -83,29 +83,20 @@ kruskal.test
 
 8 Working with OTU data
 
-* String manipulations - strsplit and paste
+* String manipulations
 * Regular expressions - more complex patterns
-* Apply functions
-* if ... else
-
-
-9	Plotting taxonomic data
-* Pie charts
-* Stacked bar plots
-* Bar plots
+* box plots
 * Strip charts
-
-
-10	Finding relevant OTUs to plot
-* Kruskal-Wallis test
+* coord_flip
+* multiple Kruskal-Wallis test with do(tidy(...))
 * Correcting for multiple hypotheses
 * Plotting OTU data
-* Getting help
+
 
 
 faceting
-* ggplot faceting
-* making multi-panel figures
+* ggplot: faceting
+* cowplot: making multi-panel figures
 
 
 themes
@@ -117,15 +108,9 @@ loops
 if(){...} elsif() {...} else {...}
 apply functions
 vectors
+Generate random data
 
-
-
-
-string manipulation - stringr
-regex: gsub
-regex: grep
-
-
+more string manipulation - stringr
 
 * put heat colors on ordination/scatter plot
 * Over plotting line for median
@@ -137,12 +122,6 @@ Heatmaps
 
 
 
-X Working with single variables
-
-* Discrete
-* Continuous
-* Transforming data
-* Generate random data
 
 
 11	Classifying samples based on OTUs
@@ -166,6 +145,7 @@ X Working with single variables
 
 1X
 rentrez - Pulling down web data
+Reading in data from websites
 Diagrams
 
 1X	Building interactivity
@@ -176,8 +156,6 @@ Diagrams
 * xtable
 * citations
 
-1X	ggplot2
-
 1X	Network
 
 1X	Shiny app
@@ -186,7 +164,6 @@ Diagrams
 
 1X	building a package
 
-Reading in data from websites
 
 
 
