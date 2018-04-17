@@ -1,6 +1,6 @@
 ---
 layout: lesson
-title: "Session 5: Statistical analyses"
+title: "Session 7: Statistical analyses"
 output: markdown_document
 ---
 
