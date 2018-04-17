@@ -73,11 +73,7 @@ title: minimalR
 		<li>Chi-squared tests and visualization</li>
 	</ul>
 
-
-
-<!--
-
-	<li><a href="08_otu_data.html">Working with OTU data</a></li>
+	<li><a href="08_text_data.html">Working with text data</a></li>
 	<ul>
 		<li>String manipulations - strsplit and paste</li>
 		<li>Regular expressions - more complex patterns</li>
@@ -85,6 +81,8 @@ title: minimalR
 		<li>if ... else</li>
 	</ul>
 
+
+<!--
 	<li><a href="09_plotting_otu_data.html">Plotting taxonomic data</a></li>
 	<ul>
 		<li>Pie charts</li>
