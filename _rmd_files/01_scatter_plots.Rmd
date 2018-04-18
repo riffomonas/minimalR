@@ -115,7 +115,7 @@ ggsave("ordination.png")
 </div>
 
 
-### Activity 3
+### Activity 4
 * Write code for a new plot, and adapt the code to make the color represent the "Gender" variable
 
 <input type="button" class="hideshow">
@@ -247,7 +247,7 @@ ggsave("ordination.pdf")
 This has been a quick run through the various ggplot-related functions that we can use to build our plot. We'll spend more time talking about colors and shapes in a moment. In later chapters we'll also discuss the various geometries, coordinates, and theming elements that we might use to represent our data.
 
 
-### Activity 4
+### Activity 5
 Altering the size of the plotting symbol is commonly called a ["bubble chart"](https://en.wikipedia.org/wiki/Bubble_chart). Create a plot where the value of `axis3` (the z-axis) is mapped on to the size of the plotting symbol. Don't worry about manipulating the legend.
 
 <input type="button" class="hideshow">
@@ -269,7 +269,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, size=axis3, color=dx)) +
 </div>
 
 
-### Activity 5
+### Activity 6
 One problem with the original ordination is that there is a tendency for the points to fall on top of each other making for a big mass of point. One of the aesthetic properties of `geom_point` is `alpha`, which allows you to set the transparency of each point. Alter the original ggplot code we used to change the alpha of our points to get a better sense of how many points overlap at the same location.
 
 <input type="button" class="hideshow">
@@ -292,13 +292,13 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 </div>
 
 
-### Activity 6
+### Activity 7
 * Think about the data in your research. What variables would you depict by changing the plotting symbol? The symbol color? The symbol's size?
 * What is an appropriate number of colors or plotting symbols to use? Are there colors to stay away from?
 * Freehand draw a scatter chart plot of your data. What question are you trying to answer with your plot? What variable goes on the x-axis? y-axis? How do you use color? symbols? size?
 * What more do you need to learn to make the plot for your own data?
 
-### Activity 7
+### Activity 8
 * What do you think of our original ordination? What works? What doesn't?
 * What question(s) is it seeking to answer?
 
@@ -642,7 +642,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 	theme_classic()
 ```
 
-### Activity 8
+### Activity 9
 What if you run `brewer.pal(n=3, name="Dark2")` at the prompt in R?
 
 <input type="button" class="hideshow">
@@ -653,7 +653,7 @@ brewer.pal(n=3, name="Dark2")
 </div>
 
 
-### Activity 9
+### Activity 10
 Install the `wesanderson` R package and pick a theme to color the ordination
 
 <input type="button" class="hideshow">

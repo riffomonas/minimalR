@@ -148,7 +148,7 @@ This is the documentation for four `readr` commands: `read_delim`, `read_csv`, `
 
 ```R
 # Don't run this!
-pcoa <- read_tsv(file="raw_data/baxter.thetayc.pcoa.axes")
+pcoa <- read_tsv(file="raw_data/baxter.thetayc.pcoa.axes", col_names=FALSE)
 ```
 
 These reading functions are pretty smart and can generally figure out the type of data that is in each column.
