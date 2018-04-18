@@ -30,25 +30,25 @@ In addition to an "inner join", the `dplyr` package has "[left join](https://en.
 
 
 ```r
-a <- tibble(sample=c("A", "B", "C"), x2=1:3)
+a <- tibble(sample=c("A", "B", "C"), diagnosis=c("normal", "cancer", "adenoma"))
 a
 
-b <- tibble(sample=c("A", "B", "D"), x3=c(T, F, T))
+b <- tibble(sample=c("A", "B", "D"), previous_history=c(T, F, T))
 b
 ```
 
 ```
 ## # A tibble: 3 x 2
-##   sample    x2
-##   <chr>  <int>
-## 1 A          1
-## 2 B          2
-## 3 C          3
+##   sample diagnosis
+##   <chr>  <chr>    
+## 1 A      normal   
+## 2 B      cancer   
+## 3 C      adenoma  
 ## # A tibble: 3 x 2
-##   sample x3   
-##   <chr>  <lgl>
-## 1 A      T    
-## 2 B      F    
+##   sample previous_history
+##   <chr>  <lgl>           
+## 1 A      T               
+## 2 B      F               
 ## 3 D      T
 ```
 
@@ -61,11 +61,11 @@ left_join(a, b, by="sample")
 
 ```
 ## # A tibble: 3 x 3
-##   sample    x2 x3   
-##   <chr>  <int> <lgl>
-## 1 A          1 T    
-## 2 B          2 F    
-## 3 C          3 NA
+##   sample diagnosis previous_history
+##   <chr>  <chr>     <lgl>           
+## 1 A      normal    T               
+## 2 B      cancer    F               
+## 3 C      adenoma   NA
 ```
 
 Notice that because `b` doesn't have a value for "C" in column "x1", the resulting data frame has a `NA` in that cell. Because `a` doesn't have a value for "D" in column "x1" it is excluded from teh new data frame. If we instead do a "right join" ...
@@ -77,11 +77,11 @@ right_join(a, b, by="sample")
 
 ```
 ## # A tibble: 3 x 3
-##   sample    x2 x3   
-##   <chr>  <int> <lgl>
-## 1 A          1 T    
-## 2 B          2 F    
-## 3 D         NA T
+##   sample diagnosis previous_history
+##   <chr>  <chr>     <lgl>           
+## 1 A      normal    T               
+## 2 B      cancer    F               
+## 3 D      <NA>      T
 ```
 
 We see the opposite result - sample "C" is missing in the new data frame and the value in column "x2" for sample "D" is `NA`. If we now do a "full join"...
@@ -93,12 +93,12 @@ full_join(a, b, by="sample")
 
 ```
 ## # A tibble: 4 x 3
-##   sample    x2 x3   
-##   <chr>  <int> <lgl>
-## 1 A          1 T    
-## 2 B          2 F    
-## 3 C          3 NA   
-## 4 D         NA T
+##   sample diagnosis previous_history
+##   <chr>  <chr>     <lgl>           
+## 1 A      normal    T               
+## 2 B      cancer    F               
+## 3 C      adenoma   NA              
+## 4 D      <NA>      T
 ```
 
 Here we see that all four samples are represented, but that the "x2" and "x3" columns have `NA` values for samples D and C, respectively. Finally, returning to our old friend, "inner join"...
@@ -110,10 +110,10 @@ inner_join(a, b, by="sample")
 
 ```
 ## # A tibble: 2 x 3
-##   sample    x2 x3   
-##   <chr>  <int> <lgl>
-## 1 A          1 T    
-## 2 B          2 F
+##   sample diagnosis previous_history
+##   <chr>  <chr>     <lgl>           
+## 1 A      normal    T               
+## 2 B      cancer    F
 ```
 
 We now get a data frame that has two rows representing the two samples that were found in `a` and `b`. Depending on your goals, you will need to chose the appropriate join function. Most of the time I use an `inner_join` since I will only want the values (e.g. the axes in `pcoa`) that I have metadata for and I will only want the descriptors (e.g. the values in `metadata`) that I have community data for.
@@ -134,32 +134,32 @@ inner_join(b, a, by="sample")
 
 ```
 ## # A tibble: 3 x 3
-##   sample x3       x2
-##   <chr>  <lgl> <int>
-## 1 A      T         1
-## 2 B      F         2
-## 3 D      T        NA
+##   sample previous_history diagnosis
+##   <chr>  <lgl>            <chr>    
+## 1 A      T                normal   
+## 2 B      F                cancer   
+## 3 D      T                <NA>     
 ## # A tibble: 3 x 3
-##   sample x3       x2
-##   <chr>  <lgl> <int>
-## 1 A      T         1
-## 2 B      F         2
-## 3 C      NA        3
+##   sample previous_history diagnosis
+##   <chr>  <lgl>            <chr>    
+## 1 A      T                normal   
+## 2 B      F                cancer   
+## 3 C      NA               adenoma  
 ## # A tibble: 4 x 3
-##   sample x3       x2
-##   <chr>  <lgl> <int>
-## 1 A      T         1
-## 2 B      F         2
-## 3 D      T        NA
-## 4 C      NA        3
+##   sample previous_history diagnosis
+##   <chr>  <lgl>            <chr>    
+## 1 A      T                normal   
+## 2 B      F                cancer   
+## 3 D      T                <NA>     
+## 4 C      NA               adenoma  
 ## # A tibble: 2 x 3
-##   sample x3       x2
-##   <chr>  <lgl> <int>
-## 1 A      T         1
-## 2 B      F         2
+##   sample previous_history diagnosis
+##   <chr>  <lgl>            <chr>    
+## 1 A      T                normal   
+## 2 B      F                cancer
 ```
 
-We see that the order of columns "x2" and "x3" is reversed
+We see that the order of the columns is reversed
 </div>
 
 
@@ -176,10 +176,10 @@ inner_join(a, b)
 
 ```
 ## # A tibble: 2 x 3
-##   sample    x2 x3   
-##   <chr>  <int> <lgl>
-## 1 A          1 T    
-## 2 B          2 F
+##   sample diagnosis previous_history
+##   <chr>  <chr>     <lgl>           
+## 1 A      normal    T               
+## 2 B      cancer    F
 ```
 
 The commands are smart enough to figure out that since there's only one column name in common between the two data frames, then it should join using the "sample" column.
@@ -196,9 +196,9 @@ anti_join(a, b, by="sample")
 
 ```
 ## # A tibble: 1 x 2
-##   sample    x2
-##   <chr>  <int>
-## 1 C          3
+##   sample diagnosis
+##   <chr>  <chr>    
+## 1 C      adenoma
 ```
 
 ```r
@@ -207,8 +207,8 @@ anti_join(b, a, by="sample")
 
 ```
 ## # A tibble: 1 x 2
-##   sample x3   
-##   <chr>  <lgl>
+##   sample previous_history
+##   <chr>  <lgl>           
 ## 1 D      T
 ```
 
@@ -223,10 +223,10 @@ semi_join(a, b, by="sample")
 
 ```
 ## # A tibble: 2 x 2
-##   sample    x2
-##   <chr>  <int>
-## 1 A          1
-## 2 B          2
+##   sample diagnosis
+##   <chr>  <chr>    
+## 1 A      normal   
+## 2 B      cancer
 ```
 
 ```r
@@ -235,9 +235,9 @@ semi_join(b, a, by="sample")
 
 ```
 ## # A tibble: 2 x 2
-##   sample x3   
-##   <chr>  <lgl>
-## 1 A      T    
+##   sample previous_history
+##   <chr>  <lgl>           
+## 1 A      T               
 ## 2 B      F
 ```
 

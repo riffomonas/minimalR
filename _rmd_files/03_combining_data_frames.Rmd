@@ -73,10 +73,10 @@ The syntax here should be somewhat clear. The function "joins" two data frames -
 In addition to an "inner join", the `dplyr` package has "[left join](https://en.wikipedia.org/wiki/Join_(SQL)#Left_outer_join)" (i.e. `left_join`) and "[right join](https://en.wikipedia.org/wiki/Join_(SQL)#Right_outer_join)" (i.e. `right_join`) functions, which will merge the data frames using the sample identifiers found in the left or right data frame being joined. There is also a "[full join](https://en.wikipedia.org/wiki/Join_(SQL)#Full_outer_join)" (i.e. `full_join`), which produces a data frame where the samples from both data frames are represented even if they're missing from one of the data frames. Let's do a couple of examples to demonstrate these joins. To keep things simple, we'll define two new data frames. We can do this by giving the `tibble` function a series of vectors that will be used to create the columns
 
 ```{r}
-a <- tibble(sample=c("A", "B", "C"), x2=1:3)
+a <- tibble(sample=c("A", "B", "C"), diagnosis=c("normal", "cancer", "adenoma"))
 a
 
-b <- tibble(sample=c("A", "B", "D"), x3=c(T, F, T))
+b <- tibble(sample=c("A", "B", "D"), previous_history=c(T, F, T))
 b
 ```
 
@@ -119,7 +119,7 @@ full_join(b, a, by="sample")
 inner_join(b, a, by="sample")
 ```
 
-We see that the order of columns "x2" and "x3" is reversed
+We see that the order of the columns is reversed
 </div>
 
 
