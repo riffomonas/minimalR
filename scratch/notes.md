@@ -97,6 +97,7 @@ kruskal.test
 faceting
 * ggplot: faceting
 * cowplot: making multi-panel figures
+* ggAnimate
 
 
 themes
