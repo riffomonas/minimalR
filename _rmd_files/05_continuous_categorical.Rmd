@@ -525,6 +525,8 @@ It depends on the question, which is better! If we are interested in comparing t
 Our box plots have only had color on the rectangle, median line, whiskers, and outliers. Generate a box plot for the relationship between the patients' Shannon diversity and their diagnosis. Add a complimentary fill color that allows you to still see the cardinal values of the box plot.
 
 <input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+```{r}
 ggplot(meta_alpha, aes(x=diagnosis, y=shannon, color=diagnosis, fill=diagnosis)) +
 	geom_boxplot() +
 	scale_color_manual(name=NULL,
@@ -539,7 +541,7 @@ ggplot(meta_alpha, aes(x=diagnosis, y=shannon, color=diagnosis, fill=diagnosis))
 		x=NULL,
 		y="FIT Result") +
 	theme_classic()
-<div markdown="1" style="display:none;">
+```
 </div>
 
 
