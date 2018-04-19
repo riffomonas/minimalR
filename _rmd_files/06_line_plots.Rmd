@@ -78,9 +78,9 @@ metadata
 Nice, eh? Before we ran `source`, the result of `ls` was `character(0)`, which means there is nothing. After running `source`, `ls` tells us that the `metadata` variable is loaded. Our source file only contains variable - `metadata` - it's pretty simple. Do you remember that we previously created a couple of functions related to the BMI? Let's bring those into our `baxter.R` file as functions below our metadata code.
 
 ```R
-is_obese <- function(weight_kg, height_m){
-	bmi_category <- get_bmi_category(weight_kg, height_m)
-	return(bmi_category == "obese")
+get_bmi <- function(weight_kg, height_m){
+	bmi <- if_else(weight_kg == 0 | height_m == 0, NA_real_, weight_kg / height_m ^ 2)
+	return(bmi)
 }
 
 get_bmi_category <- function(weight_kg, height_m){
