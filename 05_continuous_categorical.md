@@ -176,7 +176,7 @@ fit_by_diagnosis_sex <- meta_alpha %>%
 		summarize(mean_fit = mean(fit_result), sd_fit = sd(fit_result))
 
 ggplot(fit_by_diagnosis_sex, aes(x=diagnosis, y=mean_fit, fill=sex)) +
-	geom_bar(stat="identity", position=position_dodge()) +
+	geom_col(position=position_dodge()) +
 	scale_fill_manual(name=NULL,
 		values=c("lightgreen", "orange"),
 		breaks=c("female", "male"),
@@ -204,7 +204,7 @@ shannon_by_diagnosis_sex <- meta_alpha %>%
 		summarize(mean_shannon = mean(shannon), sd_fit = sd(shannon))
 
 ggplot(shannon_by_diagnosis_sex, aes(x=sex, y=mean_shannon, fill=diagnosis)) +
-	geom_bar(stat="identity", position=position_dodge()) +
+	geom_col(position=position_dodge()) +
 	scale_fill_manual(name=NULL,
 		values=c("blue", "red", "black"),
 		breaks=c("normal", "adenoma", "cancer"),
@@ -290,7 +290,7 @@ Better. This is kind of a ridiculous example, but it helps to underscore the pro
 
 
 ### Activity 2
-Create a bar plot with error bars that shows the Shannon diversity for each diagnosis group. Add error bars representing the standard deviations to the bar plots.
+Create a bar plot with error bars that shows the Shannon diversity for each diagnosis group grouped by sex along the x-axis. Add error bars representing the standard deviations to the bar plots.
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
@@ -302,8 +302,8 @@ shannon_by_diagnosis_sex <- meta_alpha %>%
 		summarize(mean_shannon = mean(shannon), sd_shannon = sd(shannon))
 
 ggplot(shannon_by_diagnosis_sex, aes(x=sex, y=mean_shannon, fill=diagnosis)) +
-	geom_bar(stat="identity", position=position_dodge()) +
-	geom_errorbar(width=0.5, aes(ymax=mean_shannon+sd_shannon, ymin=mean_shannon-sd_shannon)) +
+	geom_errorbar(position=position_dodge(width=0.9), width=0.5, aes(ymax=mean_shannon+sd_shannon, ymin=mean_shannon-sd_shannon)) +
+	geom_col(position=position_dodge()) +
 	scale_fill_manual(name=NULL,
 		values=c("blue", "red", "black"),
 		breaks=c("normal", "adenoma", "cancer"),
@@ -610,13 +610,9 @@ In the last box plot example, we plotted the data points on top of the box plot.
 
 
 ```r
-ggplot(meta_alpha, aes(x=diagnosis, y=fit_result, fill=diagnosis, color=diagnosis)) +
+ggplot(meta_alpha, aes(x=diagnosis, y=fit_result, fill=diagnosis)) +
 	geom_violin() +
 	scale_fill_manual(name=NULL,
-		values=c("blue", "red", "black"),
-		breaks=c("normal", "adenoma", "cancer"),
-		labels=c("Normal", "Adenoma", "Cancer")) +
-	scale_color_manual(name=NULL,
 		values=c("blue", "red", "black"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +

@@ -188,7 +188,7 @@ Before we move on to generating line graphs, I want to leave you with a stylisti
 
 
 ### Activity 1
-Modify get_metadata to add a bmi, bmi_category, and is_obese column to the `metadata` data frame. Confirm that your edits worked by running `source('code/baxter.R')`  and then looking at the values in `metadata`
+Modify get_metadata to add a bmi, bmi_category, and is_obese column to the `metadata` data frame. Confirm that your edits worked by running `source('code/baxter.R')` and then looking at the values in `metadata`
 
 
 <input type="button" class="hideshow">
@@ -211,7 +211,7 @@ Modify get_metadata to add a bmi, bmi_category, and is_obese column to the `meta
 
 
 ### Activity 2
-Create a new file in the `code` directory called `plot_ordination.R` that contains the code to build the first figure that we talked about in this series of lessons.
+Create a new file in the `code` directory called `plot_ordination.R` that contains the code to build the first figure that we talked about in this series of lessons. Create a `figures` directory and output a pdf version of your plot to `figures`.
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
