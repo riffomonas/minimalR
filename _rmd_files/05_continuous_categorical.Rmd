@@ -75,7 +75,6 @@ Let's start by building a data frame that contains the mean FIT result for each 
 
 ```{r}
 fit_by_diagnosis <- meta_alpha %>%
-		select(diagnosis, fit_result) %>%
 		group_by(diagnosis) %>%
 		summarize(mean_fit = mean(fit_result), sd_fit = sd(fit_result))
 ```
@@ -158,13 +157,13 @@ ggplot(fit_by_diagnosis, aes(x=diagnosis, y=mean_fit, fill=diagnosis)) +
 	theme_classic()
 ```
 
-Awesome. Now let's figure out how we can alter this code to plot the mean FIT result by diagnosis group and sex. After creating `fit_by_diagnosis_sex`, we'll map our `fill` aesthetic to the "sex" variable and we'll alter the `scale_fill_manual` syntax to color the bars for females and males differently. Next, we'll bring back in the legend and we'll add a `position="dodge"` argument to `geom_col`. The "dodge" will bump the bars to the side so they don't stack on top of each other.
+Awesome. Now let's figure out how we can alter this code to plot the mean FIT result by diagnosis group and sex. Note that if we group by "sex" and "diagnosis", then we need to add an `ungroup` function call to the end of our pipeline to remove the grouping. After creating `fit_by_diagnosis_sex`, we'll map our `fill` aesthetic to the "sex" variable and we'll alter the `scale_fill_manual` syntax to color the bars for females and males differently. Next, we'll bring back in the legend and we'll add a `position="dodge"` argument to `geom_col`. The "dodge" will bump the bars to the side so they don't stack on top of each other.
 
 ```{r}
 fit_by_diagnosis_sex <- meta_alpha %>%
-		select(diagnosis, sex, fit_result) %>%
-		group_by(sex, diagnosis) %>%  # sex needs to come first since we'll want to group by sex
-		summarize(mean_fit = mean(fit_result), sd_fit = sd(fit_result))
+		group_by(sex, diagnosis) %>%
+		summarize(mean_fit = mean(fit_result), sd_fit = sd(fit_result)) %>%
+		ungroup()
 
 ggplot(fit_by_diagnosis_sex, aes(x=diagnosis, y=mean_fit, fill=sex)) +
 	geom_col(position=position_dodge()) +
@@ -187,9 +186,9 @@ Modify the code we just used to make a grouped bar chart that plots the mean Sha
 <div markdown="1" style="display:none;">
 ```{r}
 shannon_by_diagnosis_sex <- meta_alpha %>%
-		select(diagnosis, sex, shannon) %>%
-		group_by(diagnosis, sex) %>%  # diagnosis comes first since we'll want to group by dx
-		summarize(mean_shannon = mean(shannon), sd_fit = sd(shannon))
+		group_by(diagnosis, sex) %>%
+		summarize(mean_shannon = mean(shannon), sd_fit = sd(shannon)) %>%
+		ungroup()
 
 ggplot(shannon_by_diagnosis_sex, aes(x=sex, y=mean_shannon, fill=diagnosis)) +
 	geom_col(position=position_dodge()) +
@@ -273,9 +272,9 @@ Create a bar plot with error bars that shows the Shannon diversity for each diag
 <div markdown="1" style="display:none;">
 ```{r}
 shannon_by_diagnosis_sex <- meta_alpha %>%
-		select(diagnosis, sex, shannon) %>%
-		group_by(diagnosis, sex) %>%  # diagnosis comes first since we'll want to group by dx
-		summarize(mean_shannon = mean(shannon), sd_shannon = sd(shannon))
+		group_by(diagnosis, sex) %>%
+		summarize(mean_shannon = mean(shannon), sd_shannon = sd(shannon)) %>%
+		ungroup()
 
 ggplot(shannon_by_diagnosis_sex, aes(x=sex, y=mean_shannon, fill=diagnosis)) +
 	geom_errorbar(position=position_dodge(width=0.9), width=0.5, aes(ymax=mean_shannon+sd_shannon, ymin=mean_shannon-sd_shannon)) +

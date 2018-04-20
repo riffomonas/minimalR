@@ -14,7 +14,7 @@ output: markdown_document
 
 
 ## Working with data in a data frame
-In the previous lesson we saw how we can merge two data frames together and how we can select rows and/or columns from a single data frame. We ended by discussing how the pipe operator (i.e. `%>%`) can be used to connect functions to direct the flow of data through a pipeline. We now want to take the next step in analyzing our data. Let's think of some questions we might have about the data in our data frame
+In the previous lesson we saw how we can merge two data frames together and how we can `filter` for rows and/or `select` columns from a single data frame. We ended by discussing how the pipe operator (i.e. `%>%`) can be used to connect functions to direct the flow of data through a pipeline. We now want to take the next step in analyzing our data. Let's think of some questions we might have about the data in our data frame
 
 * What is the mean diversity across the three diagnosis groups?
 * What is the richness among people with and without a history of polyps?
@@ -58,20 +58,66 @@ alpha <- read_tsv(file="raw_data/baxter.groups.ave-std.summary",
 meta_alpha <- inner_join(metadata, alpha, by=c('sample'='group'))
 ```
 
-Let's take on the first question I posed above, "What is the mean diversity across the three diagnosis groups?" We'll break the problem down by steps. An outline of what we want to get R to do is to consider the "diagnosis" and "shannon" column from `meta_alpha`. With the smaller data frame we want to separate out the Shannon diversity values for the three groups. Then on each set of diagnoses, we will calculate the mean. We've already seen how to do the first step. We can write this two different ways and get the same result
+Let's take on the first question I posed above, "What is the mean diversity across the three diagnosis groups?" We'll break the problem down by steps. An outline of what we want to get R to do is to group our data frame by a categorical variable (e.g. `diagnosis`) and then within each value of `diagnosis` we want it to calculate a summary statistic on another column (e.g. `shannon`). The first step will use a new verb - `group_by` - to group our data frame by a column. The output of this function will only be slightly different to us. See if you can spot the added wrinkle to the output that is created by using `group_by`
 
-```R
-select(meta_alpha, diagnosis, shannon)
+
+```r
+group_by(meta_alpha, diagnosis)
 ```
 
-or
+```
+## # A tibble: 490 x 21
+## # Groups:   diagnosis [3]
+##    sample  fit_result site      diagnosis_bin   diagnosis previous_history
+##    <chr>        <dbl> <chr>     <chr>           <chr>     <lgl>           
+##  1 2003650       0    U Michig… High Risk Norm… normal    F               
+##  2 2005650       0    U Michig… High Risk Norm… normal    F               
+##  3 2007660      26.0  U Michig… High Risk Norm… normal    F               
+##  4 2009650      10.0  Toronto   Adenoma         adenoma   F               
+##  5 2013660       0    U Michig… Normal          normal    F               
+##  6 2015650       0    Dana Far… High Risk Norm… normal    F               
+##  7 2017660       7.00 Dana Far… Cancer          cancer    T               
+##  8 2019651      19.0  U Michig… Normal          normal    F               
+##  9 2023680       0    Dana Far… High Risk Norm… normal    T               
+## 10 2025653    1509    U Michig… Cancer          cancer    T               
+## # ... with 480 more rows, and 15 more variables: history_of_polyps <lgl>,
+## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
+## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
+## #   diabetes_med <lgl>, stage <chr>, sobs <dbl>, shannon <dbl>,
+## #   invsimpson <dbl>, coverage <dbl>
+```
 
-```R
+You should notice that above the column headings it says `Groups:  diagnosis[3]`. This indicates that we now have three groups in our data. We can actually write this two different ways and get the same result. The second way and the way that I prefer is
+
+
+```r
 meta_alpha %>%
-	select(diagnosis, shannon)
+	group_by(diagnosis)
 ```
 
-I prefer this second approach because it breaks up the commands a bit more and makes it more clear that the source of the data is the `meta_alpha` data frame. Again, the result is the same. For the next step we will use a new function, `group_by` from the `dplyr` package. The output of this function will only be slightly different to us. See if you can spot the added wrinkle to the output from adding `group_by(diagnosis)`
+```
+## # A tibble: 490 x 21
+## # Groups:   diagnosis [3]
+##    sample  fit_result site      diagnosis_bin   diagnosis previous_history
+##    <chr>        <dbl> <chr>     <chr>           <chr>     <lgl>           
+##  1 2003650       0    U Michig… High Risk Norm… normal    F               
+##  2 2005650       0    U Michig… High Risk Norm… normal    F               
+##  3 2007660      26.0  U Michig… High Risk Norm… normal    F               
+##  4 2009650      10.0  Toronto   Adenoma         adenoma   F               
+##  5 2013660       0    U Michig… Normal          normal    F               
+##  6 2015650       0    Dana Far… High Risk Norm… normal    F               
+##  7 2017660       7.00 Dana Far… Cancer          cancer    T               
+##  8 2019651      19.0  U Michig… Normal          normal    F               
+##  9 2023680       0    Dana Far… High Risk Norm… normal    T               
+## 10 2025653    1509    U Michig… Cancer          cancer    T               
+## # ... with 480 more rows, and 15 more variables: history_of_polyps <lgl>,
+## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
+## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
+## #   diabetes_med <lgl>, stage <chr>, sobs <dbl>, shannon <dbl>,
+## #   invsimpson <dbl>, coverage <dbl>
+```
+
+I prefer this second approach because it breaks up the commands a bit more and makes it more clear that the source of the data is the `meta_alpha` data frame. Again, the result is the same. If I had a huge data frame and didn't want to pipe every column through the pipeline, I could easily add a select line before the `group_by` line.
 
 
 ```r
@@ -98,12 +144,37 @@ meta_alpha %>%
 ## # ... with 480 more rows
 ```
 
-You should notice that above the column headings it says `Groups:  diagnosis[3]`. This indicates that we now have three groups in our data. For the final step, we'd like to summarize the diversity values within the groups by presenting the mean value. We can do this using the `summarize` function from the `dplyr` package
+Adding the same `select` function to the first approach would require more typing and moving things around. It isn't as flexible.
+
+
+```r
+select(meta_alpha, diagnosis) %>%
+	group_by(diagnosis)
+```
+
+```
+## # A tibble: 490 x 1
+## # Groups:   diagnosis [3]
+##    diagnosis
+##    <chr>    
+##  1 normal   
+##  2 normal   
+##  3 normal   
+##  4 adenoma  
+##  5 normal   
+##  6 normal   
+##  7 cancer   
+##  8 normal   
+##  9 normal   
+## 10 cancer   
+## # ... with 480 more rows
+```
+
+For the final step, we'd like to summarize the diversity values within the groups by presenting the mean value. We can do this using the `summarize` function from the `dplyr` package
 
 
 ```r
 meta_alpha %>%
-	select(diagnosis, shannon) %>%
 	group_by(diagnosis) %>%
 	summarize(mean_shannon = mean(shannon))
 ```
@@ -127,7 +198,6 @@ Let's say that we realized our Shannon diversity indices are not normally distri
 
 ```r
 meta_alpha %>%
-	select(diagnosis, shannon) %>%
 	group_by(diagnosis) %>%
 	summarize(median_shannon = median(shannon))
 ```
@@ -147,7 +217,6 @@ We can use `summarize` to present various summaries of the groups. Let's create 
 
 ```r
 meta_alpha %>%
-	select(diagnosis, shannon) %>%
 	group_by(diagnosis) %>%
 	summarize(mean_shannon = mean(shannon), sd_shannon = sd(shannon))
 ```
@@ -171,7 +240,6 @@ Add the number of individuals in each category to our summary data frame
 
 ```r
 meta_alpha %>%
-	select(diagnosis, shannon) %>%
 	group_by(diagnosis) %>%
 	summarize(mean_shannon = mean(shannon), sd_shannon = sd(shannon), N=n())
 ```
@@ -191,7 +259,6 @@ Now let's ask a slightly more complicated question, "what is the mean diversity 
 
 ```r
 meta_alpha %>%
-	select(diagnosis, sex, shannon) %>%
 	group_by(diagnosis, sex) %>%
 	summarize(mean_shannon = mean(shannon), sd_shannon = sd(shannon), N=n())
 ```
@@ -220,7 +287,6 @@ What happens if you use `group_by(sex, diagnosis)` instead of `group_by(diagnosi
 
 ```r
 meta_alpha %>%
-	select(diagnosis, sex, shannon) %>%
 	group_by(sex, diagnosis) %>%
 	summarize(mean_shannon = mean(shannon), sd_shannon = sd(shannon), N=n())
 ```
@@ -247,7 +313,6 @@ What is the richness among people with and without a history of polyps?
 
 ```r
 meta_alpha %>%
-	select(history_of_polyps, sobs) %>%
 	group_by(history_of_polyps) %>%
 	summarize(mean_sobs = mean(sobs), sd_sobs = sd(sobs), N=n())
 ```
@@ -272,7 +337,6 @@ What is the mean age and standard deviation among males and females?
 
 ```r
 meta_alpha %>%
-	select(sex, age) %>%
 	group_by(sex) %>%
 	summarize(mean_age = mean(age), sd_sobs = sd(age), N=n())
 ```
@@ -293,7 +357,6 @@ Looking at these data frames can make us go a bit cross eyed if we want to find 
 
 ```r
 meta_alpha %>%
-	select(site, shannon) %>%
 	group_by(site) %>%
 	summarize(mean_shannon = mean(shannon), sd_shannon = sd(shannon), N=n())
 ```
@@ -313,7 +376,6 @@ This gets us a new data frame. Because it only has four rows, it's easiest to se
 
 ```r
 meta_alpha %>%
-	select(site, shannon) %>%
 	group_by(site) %>%
 	summarize(mean_shannon = mean(shannon), sd_shannon = sd(shannon), N=n()) %>%
 	arrange(mean_shannon)
@@ -334,7 +396,6 @@ Note that we gave the `arrange` function the column that we wanted to sort on. Y
 
 ```r
 meta_alpha %>%
-	select(site, shannon) %>%
 	group_by(site) %>%
 	summarize(mean_shannon = mean(shannon), sd_shannon = sd(shannon), N=n()) %>%
 	arrange(desc(mean_shannon))
@@ -355,7 +416,6 @@ To get the first row we would add the `head` function.
 
 ```r
 meta_alpha %>%
-	select(site, shannon) %>%
 	group_by(site) %>%
 	summarize(mean_shannon = mean(shannon), sd_shannon = sd(shannon), N=n()) %>%
 	arrange(desc(mean_shannon)) %>%
@@ -374,7 +434,6 @@ The nice thing about the pipes is that it enables us to add functions to our pip
 
 ```r
 meta_alpha %>%
-	select(site, shannon) %>%
 	group_by(site) %>%
 	summarize(mean_shannon = mean(shannon), sd_shannon = sd(shannon), N=n()) %>%
 	top_n(n=1, mean_shannon)
@@ -392,7 +451,6 @@ Of course we could look at the output from R to see the name of the site, but if
 
 ```r
 meta_alpha %>%
-	select(site, shannon) %>%
 	group_by(site) %>%
 	summarize(mean_shannon = mean(shannon), sd_shannon = sd(shannon), N=n()) %>%
 	top_n(n=1, mean_shannon) %>%
@@ -411,7 +469,6 @@ Write the code that tells us the site that had the lowest mean diversity?
 
 ```r
 meta_alpha %>%
-	select(site, shannon) %>%
 	group_by(site) %>%
 	summarize(mean_shannon = mean(shannon), sd_shannon = sd(shannon), N=n()) %>%
 	arrange(mean_shannon) %>%
@@ -432,25 +489,28 @@ Let's say we want to compare the diversity of people in the different diagnosis 
 
 ```r
 meta_alpha %>%
-	select(diagnosis, fit_result, shannon) %>%
 	mutate(high_fit=fit_result>=100)
 ```
 
 ```
-## # A tibble: 490 x 4
-##    diagnosis fit_result shannon high_fit
-##    <chr>          <dbl>   <dbl> <lgl>   
-##  1 normal          0       4.02 F       
-##  2 normal          0       3.98 F       
-##  3 normal         26.0     3.91 F       
-##  4 adenoma        10.0     4.16 F       
-##  5 normal          0       3.33 F       
-##  6 normal          0       3.74 F       
-##  7 cancer          7.00    3.98 F       
-##  8 normal         19.0     3.69 F       
-##  9 normal          0       4.01 F       
-## 10 cancer       1509       3.39 T       
-## # ... with 480 more rows
+## # A tibble: 490 x 22
+##    sample  fit_result site      diagnosis_bin   diagnosis previous_history
+##    <chr>        <dbl> <chr>     <chr>           <chr>     <lgl>           
+##  1 2003650       0    U Michig… High Risk Norm… normal    F               
+##  2 2005650       0    U Michig… High Risk Norm… normal    F               
+##  3 2007660      26.0  U Michig… High Risk Norm… normal    F               
+##  4 2009650      10.0  Toronto   Adenoma         adenoma   F               
+##  5 2013660       0    U Michig… Normal          normal    F               
+##  6 2015650       0    Dana Far… High Risk Norm… normal    F               
+##  7 2017660       7.00 Dana Far… Cancer          cancer    T               
+##  8 2019651      19.0  U Michig… Normal          normal    F               
+##  9 2023680       0    Dana Far… High Risk Norm… normal    T               
+## 10 2025653    1509    U Michig… Cancer          cancer    T               
+## # ... with 480 more rows, and 16 more variables: history_of_polyps <lgl>,
+## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
+## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
+## #   diabetes_med <lgl>, stage <chr>, sobs <dbl>, shannon <dbl>,
+## #   invsimpson <dbl>, coverage <dbl>, high_fit <lgl>
 ```
 
 Nice! Instead of getting back a boolean, I'd rather have it output as "high fit" or "low fit". We can get this using the `if_else` function from the `dplyr` package. This function asks a logical question (e.g. `fit_result>=100`) and if it is true then will return the second argument and if it is false, will return the third argument. We might do something like `if_else(fit_result>=100, "high fit", "low fit")`
@@ -458,25 +518,28 @@ Nice! Instead of getting back a boolean, I'd rather have it output as "high fit"
 
 ```r
 meta_alpha %>%
-	select(diagnosis, fit_result, shannon) %>%
 	mutate(fit_category=if_else(fit_result>=100, "high fit", "low fit"))
 ```
 
 ```
-## # A tibble: 490 x 4
-##    diagnosis fit_result shannon fit_category
-##    <chr>          <dbl>   <dbl> <chr>       
-##  1 normal          0       4.02 low fit     
-##  2 normal          0       3.98 low fit     
-##  3 normal         26.0     3.91 low fit     
-##  4 adenoma        10.0     4.16 low fit     
-##  5 normal          0       3.33 low fit     
-##  6 normal          0       3.74 low fit     
-##  7 cancer          7.00    3.98 low fit     
-##  8 normal         19.0     3.69 low fit     
-##  9 normal          0       4.01 low fit     
-## 10 cancer       1509       3.39 high fit    
-## # ... with 480 more rows
+## # A tibble: 490 x 22
+##    sample  fit_result site      diagnosis_bin   diagnosis previous_history
+##    <chr>        <dbl> <chr>     <chr>           <chr>     <lgl>           
+##  1 2003650       0    U Michig… High Risk Norm… normal    F               
+##  2 2005650       0    U Michig… High Risk Norm… normal    F               
+##  3 2007660      26.0  U Michig… High Risk Norm… normal    F               
+##  4 2009650      10.0  Toronto   Adenoma         adenoma   F               
+##  5 2013660       0    U Michig… Normal          normal    F               
+##  6 2015650       0    Dana Far… High Risk Norm… normal    F               
+##  7 2017660       7.00 Dana Far… Cancer          cancer    T               
+##  8 2019651      19.0  U Michig… Normal          normal    F               
+##  9 2023680       0    Dana Far… High Risk Norm… normal    T               
+## 10 2025653    1509    U Michig… Cancer          cancer    T               
+## # ... with 480 more rows, and 16 more variables: history_of_polyps <lgl>,
+## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
+## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
+## #   diabetes_med <lgl>, stage <chr>, sobs <dbl>, shannon <dbl>,
+## #   invsimpson <dbl>, coverage <dbl>, fit_category <chr>
 ```
 
 If you have more than two cases (e.g. TRUE and FALSE) then you might want to use the `case_when` function from the `dplyr` package. We might define three levels of fit categories. The `case_when` function takes on a different syntax. The arguements to `case_when` consist of a logical comparison followed by a `~`, followed by what to do if the logical comparison is true. The arguments are tested in order, so the ordering matters. It's also good to add one argument where the logical comparison is `TRUE` so that there is a default value if something goes wrong.
@@ -484,7 +547,6 @@ If you have more than two cases (e.g. TRUE and FALSE) then you might want to use
 
 ```r
 meta_alpha %>%
-	select(diagnosis, fit_result, shannon) %>%
 	mutate(fit_category=case_when(fit_result>=100 ~ "high fit",
  				fit_result >= 50 ~ "moderate fit",
 				TRUE ~ "low fit")
@@ -506,7 +568,6 @@ I also added a call to the `count` function from the `dplyr` package to count th
 
 ```r
 meta_alpha %>%
-	select(diagnosis, fit_result, shannon) %>%
 	mutate(fit_category=case_when(fit_result>=100 ~ "high fit",
  				fit_result >= 50 ~ "moderate fit",
 				TRUE ~ "low fit")
@@ -532,32 +593,35 @@ meta_alpha %>%
 ## 9 low fit      cancer            3.64      0.402    25
 ```
 
-In this example you'll notice that the "fit_result" column does not show up in our final data frame because we were grouping by the "fit_category" and "diagnosis" columns to summarize the data in the "shannon" column. If we had stopped the pipeline after the mutate, then our data frame would have contained the columns "diagnosis", "fit_result", "shannon", and "fit_category". Perhaps we didn't want to include the "fit_result" column in an output table since that information was captured in "fit_category". We could use `select(-fit_result)`. Alternatively, we could also use the `mutate_at` function from the `dplyr` package. This function will replace one column with a new column. The syntax is a bit tricky, but boils down to `mutate_at(vars(column_to_replace), funs(code_that_generates_new_column))`. Here it is for our example
+In this example you'll notice that the "fit_result" column does not show up in our final data frame because we were grouping by the "fit_category" and "diagnosis" columns to summarize the data in the "shannon" column. If we had stopped the pipeline after the mutate, then our data frame would have contained all of our previous columns as well as the "fit_category" column. Perhaps we didn't want to include the "fit_result" column in an output table since that information was captured in "fit_category". We could use `select(-fit_result)`. Alternatively, we could also use the `mutate_at` function from the `dplyr` package. This function will replace one column with a new column. The syntax is a bit tricky, but boils down to `mutate_at(vars(column_to_replace), funs(code_that_generates_new_column))`. Here it is for our example
 
 
 ```r
 meta_alpha %>%
-	select(diagnosis, fit_result, shannon) %>%
 	mutate_at(vars(fit_result), funs(case_when(fit_result>=100 ~ "high fit",
 		 				fit_result >= 50 ~ "moderate fit",
 						TRUE ~ "low fit")))
 ```
 
 ```
-## # A tibble: 490 x 3
-##    diagnosis fit_result shannon
-##    <chr>     <chr>        <dbl>
-##  1 normal    low fit       4.02
-##  2 normal    low fit       3.98
-##  3 normal    low fit       3.91
-##  4 adenoma   low fit       4.16
-##  5 normal    low fit       3.33
-##  6 normal    low fit       3.74
-##  7 cancer    low fit       3.98
-##  8 normal    low fit       3.69
-##  9 normal    low fit       4.01
-## 10 cancer    high fit      3.39
-## # ... with 480 more rows
+## # A tibble: 490 x 21
+##    sample  fit_result site      diagnosis_bin   diagnosis previous_history
+##    <chr>   <chr>      <chr>     <chr>           <chr>     <lgl>           
+##  1 2003650 low fit    U Michig… High Risk Norm… normal    F               
+##  2 2005650 low fit    U Michig… High Risk Norm… normal    F               
+##  3 2007660 low fit    U Michig… High Risk Norm… normal    F               
+##  4 2009650 low fit    Toronto   Adenoma         adenoma   F               
+##  5 2013660 low fit    U Michig… Normal          normal    F               
+##  6 2015650 low fit    Dana Far… High Risk Norm… normal    F               
+##  7 2017660 low fit    Dana Far… Cancer          cancer    T               
+##  8 2019651 low fit    U Michig… Normal          normal    F               
+##  9 2023680 low fit    Dana Far… High Risk Norm… normal    T               
+## 10 2025653 high fit   U Michig… Cancer          cancer    T               
+## # ... with 480 more rows, and 15 more variables: history_of_polyps <lgl>,
+## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
+## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
+## #   diabetes_med <lgl>, stage <chr>, sobs <dbl>, shannon <dbl>,
+## #   invsimpson <dbl>, coverage <dbl>
 ```
 
 
@@ -571,7 +635,6 @@ There are several ways to do this, here is how I would do it with `mutate`
 
 ```r
 meta_alpha %>%
-	select(smoke, age) %>%
 	mutate(smoke_status = if_else(smoke, "smoker", "non-smoker")) %>%
 	group_by(smoke_status) %>%
 	summarize(median_age = median(age), IQR_age = IQR(age), N=n())
@@ -591,7 +654,6 @@ meta_alpha %>%
 
 ```r
 meta_alpha %>%
-	select(smoke, age) %>%
 	mutate_at(vars(smoke), funs(if_else(smoke, "smoker", "non-smoker"))) %>%
 	group_by(smoke) %>%
 	summarize(median_age = median(age), IQR_age = IQR(age), N=n())
@@ -616,7 +678,6 @@ Create a summary table that gives the mean BMI and standard deviation for people
 
 ```r
 meta_alpha %>%
-	select(diagnosis, weight, height, age) %>%
 	mutate(bmi = weight / (height/100) ^2) %>%
 	group_by(diagnosis) %>%
 	summarize(median_bmi = mean(bmi, na.rm=T), sd_bmi = sd(bmi, na.rm=T))
@@ -664,7 +725,6 @@ Once we've got the function defined, we can then add it to our pipeline...
 
 ```r
 meta_alpha %>%
-	select(diagnosis, weight, height) %>%
 	mutate(bmi = get_bmi(weight_kg = weight, height_m = height/100)) %>%
 	group_by(diagnosis) %>%
 	summarize(median_bmi = mean(bmi, na.rm=T), sd_bmi = sd(bmi, na.rm=T))
@@ -694,7 +754,6 @@ I could then run the same code as before
 
 ```r
 meta_alpha %>%
-	select(diagnosis, weight, height) %>%
 	mutate(bmi = get_bmi(weight_kg = weight, height_m = height/100)) %>%
 	group_by(diagnosis) %>%
 	summarize(median_bmi = mean(bmi, na.rm=T), sd_bmi = sd(bmi, na.rm=T))
@@ -730,7 +789,6 @@ Then I could do...
 
 ```r
 meta_alpha %>%
-	select(weight, height, age) %>%
 	mutate(bmi_category = get_bmi_category(weight_kg = weight, height_m = height/100)) %>%
 	group_by(bmi_category) %>%
 	summarize(mean_age = mean(age, na.rm=T), sd_age = sd(age, na.rm=T))
@@ -762,7 +820,6 @@ is_obese <- function(weight_kg, height_m){
 }
 
 meta_alpha %>%
-	select(weight, height, shannon) %>%
 	mutate(obese = is_obese(weight_kg = weight, height_m = height/100)) %>%
 	group_by(obese) %>%
 	summarize(mean_shannon = mean(shannon, na.rm=T), sd_shannon = sd(shannon, na.rm=T), N=n())
@@ -787,7 +844,6 @@ Modify the code we used previously to generate a scatter chart with BMI on the x
 
 ```r
 meta_alpha %>%
-	select(diagnosis, weight, height, shannon) %>%
 	mutate(bmi = get_bmi(weight_kg = weight, height_m = height/100)) %>%
 	ggplot(aes(x=bmi, y=shannon, color=diagnosis)) +
 		geom_point(pch=19, size=2) +
@@ -802,5 +858,5 @@ meta_alpha %>%
 		theme_classic()
 ```
 
-<img src="assets/images/04_aggregating_data//unnamed-chunk-33-1.png" title="plot of chunk unnamed-chunk-33" alt="plot of chunk unnamed-chunk-33" width="504" />
+<img src="assets/images/04_aggregating_data//unnamed-chunk-36-1.png" title="plot of chunk unnamed-chunk-36" alt="plot of chunk unnamed-chunk-36" width="504" />
 </div>
