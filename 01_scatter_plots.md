@@ -63,7 +63,7 @@ What's going on in this chunk of code? One of the nice things about working in R
 
 ### Activity 2
 
-The `library(tidyverse)` code loaded the `tidyverse` package, which is a bundle of other packages. Pick three of packages it loaded and find a description of each.
+The `library(tidyverse)` code loaded the `tidyverse` package, which is a bundle of other packages. You can see which packages are loaded by by running `tidyverse_packages()`. Pick three of packages it loaded and find a description of each.
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
