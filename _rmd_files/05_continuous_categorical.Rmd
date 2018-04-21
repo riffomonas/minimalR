@@ -179,6 +179,8 @@ ggplot(fit_by_diagnosis_sex, aes(x=diagnosis, y=mean_fit, fill=sex)) +
 	theme_classic()
 ```
 
+---
+
 ### Activity 1
 Modify the code we just used to make a grouped bar chart that plots the mean Shannon diversity index by diagnosis group and sex. Group the bars by sex rather than by diagnosis group. Don't worry about the bars being in the correct order for now. See if you can lengthen the y-axis to go from zero to five by using the `coord_cartesian` function
 
@@ -206,7 +208,7 @@ ggplot(shannon_by_diagnosis_sex, aes(x=sex, y=mean_shannon, fill=diagnosis)) +
 ```
 </div>
 
-
+---
 
 One last thing with bar plots is to represent the variation in the data with error bars. We can do this with the `geom_errorbar`. This geoms will take `x`, `y`, `ymax`, `ymin`, `alpha`, `color`, `linetype`, `size`, `width` as aesthetics. The two that we haven't seen before are `ymax` and `ymin`, which you can probably deduce from their names refer to where the top and bottom lines should be drawn on the error bars, respectively. To try this out, let's return to our `fit_by_diagnosis` data frame
 
@@ -265,6 +267,8 @@ ggplot(fit_by_diagnosis, aes(x=diagnosis, y=mean_fit, fill=diagnosis)) +
 Better. This is kind of a ridiculous example, but it helps to underscore the problems with bar plots. Let's look at a few other ways to represent continuous data from multiple categories. We'll find that much of the syntax we used with `geom_col` is the same for these other `geom`s.
 
 
+---
+
 ### Activity 2
 Create a bar plot with error bars that shows the Shannon diversity for each diagnosis group grouped by sex along the x-axis. Add error bars representing the standard deviations to the bar plots.
 
@@ -291,6 +295,8 @@ ggplot(shannon_by_diagnosis_sex, aes(x=sex, y=mean_shannon, fill=diagnosis)) +
 	theme_classic()
 ```
 </div>
+
+---
 
 
 ## Strip charts
@@ -328,6 +334,8 @@ ggplot(meta_alpha, aes(x=diagnosis, y=fit_result, color=diagnosis)) +
 	theme_classic()
 ```
 
+---
+
 ### Activity 3
 Create a strip chart that shows the Shannon diversity for each diagnosis category. You'll notice that the y-axis does not seem to extend down to zero. Use the `coord_cartesian` function to include zero.
 
@@ -350,6 +358,7 @@ ggplot(meta_alpha, aes(x=diagnosis, y=shannon, color=diagnosis)) +
 ```
 </div>
 
+---
 
 Great. How about comparing FIT results for combinations of sex and diagnosis? One option is to place the points along the x-axis by sex and color by diagnosis.
 
@@ -405,6 +414,8 @@ ggplot(meta_alpha, aes(x=sex, y=fit_result, color=diagnosis)) +
 The order of the diagnosis groups is still out of whack. We'll come back to that later.
 
 
+---
+
 ### Activity 4
 Create a strip chart that shows the Shannon diversity for each diagnosis category and sex. Again, make sure that the y-axis includes zero.
 
@@ -427,6 +438,7 @@ ggplot(meta_alpha, aes(x=sex, y=shannon, color=diagnosis)) +
 ```
 </div>
 
+---
 
 ## Box plots
 I like strip charts because I can see all of the data. These get a bit messy when there are a large number of observations. They are also problematic because although they show all of the data, we aren't great at identifying the median or the intraquartile ranges. An alternative to the strip chart that solves these problems is the box plot. That being said, a box plot may not be meaningful if there aren't many observations. We can generate a box plot using the `geom_boxplot` function in much the same way we did earlier with the `geom_jitter`
@@ -482,6 +494,8 @@ ggplot(meta_alpha, aes(x=diagnosis, y=fit_result, color=diagnosis)) +
 ```
 
 
+---
+
 ### Activity 5
 Make a box plot that shows the Shannon diversity for each sex grouped by the subjects' diagnosis. Make the same plot, but group by diagnosis. Which is better? When would you want to group by sex? By diagnosis?
 
@@ -519,6 +533,7 @@ ggplot(meta_alpha, aes(x=sex, y=shannon, color=diagnosis)) +
 It depends on the question, which is better! If we are interested in comparing the two sexes, then we want to group by sex. If we want to compare the diagnosis groups, then we'll want to group by diagnosis groups.
 </div>
 
+---
 
 ### Activity 6
 Our box plots have only had color on the rectangle, median line, whiskers, and outliers. Generate a box plot for the relationship between the patients' Shannon diversity and their diagnosis. Add a complimentary fill color that allows you to still see the cardinal values of the box plot.
@@ -541,6 +556,7 @@ ggplot(meta_alpha, aes(x=diagnosis, y=shannon, color=diagnosis, fill=diagnosis))
 <div markdown="1" style="display:none;">
 </div>
 
+---
 
 ## Violin plots
 In the last box plot example, we plotted the data points on top of the box plot. This is pretty cluttered and ugly. An alternative is the violin plot, where the position along the left axis indicates the density of values at that position on the y-axis. You can create violin plots very much in the same way as strip carts and box plots using the `geom_violin`
@@ -560,6 +576,7 @@ ggplot(meta_alpha, aes(x=diagnosis, y=fit_result, fill=diagnosis)) +
 	theme_classic()
 ```
 
+---
 
 ### Activity 7
 In the previous violin plot we created the outline color to the violins was black. Can you get the outline color to match that of the fill color?
@@ -586,6 +603,7 @@ ggplot(meta_alpha, aes(x=diagnosis, y=fit_result, fill=diagnosis, color=diagnosi
 ```
 </div>
 
+---
 
 ### Activity 8
 Create a violin plot comparing diversity across diagnosis groups and sex
@@ -612,6 +630,7 @@ ggplot(meta_alpha, aes(x=sex, y=shannon, fill=diagnosis, color=diagnosis)) +
 ```
 </div>
 
+---
 
 ### Activity 9
 A new variant of the types of plots discussed in this lesson is the ridgeline plot (aka ["joy plot"](http://www.houstonpress.com/music/five-joy-division-covers-that-dont-suck-6518316)). Install the `ggridges` package and see if you can figure out how to build a ridgeline plot of Shannon diversity values for the three diagnosis groups.
@@ -641,6 +660,7 @@ ggplot(meta_alpha, aes(x=shannon, y=diagnosis, color=diagnosis, fill=diagnosis))
 ```
 </div>
 
+---
 
 ## Ordering our groups
 Whenever we've grouped our data by sex, the diagnosis groups are ordered alphabetically within each group (i.e. Adenoma, Cancer, Normal) rather than in our desired order of disease progression (i.e. Normal, Adenoma, Cancer). To fix the ordering, we need to cast these variables as factors. Factors are a troublesome feature within R. Thankfully, there's the `forcats` package within the tidyverse, which makes working with factors much easier. Factors are a type of data for representing categorical data. Characters are another type of data for representing categorical data, but the categories are ordered alphabetically. Sometimes we want to order them in another way. For example, if we have a column that has months, then when we plot with month on the x-axis, "April" will come first rather than "January". We can also rename factors so that "jan" is displayed as "January".  We've kind of already seen this when we relabeled "normal" with "Normal".
@@ -683,6 +703,7 @@ meta_alpha %>%
 
 Nice, eh? There are a variety of things you can do with factors including reordering the factors by another variable, aggregating multiple values, and renaming variables. These are really outside the scope of this tutorial and I rarely use them in my work. You can learn more about them in the [R4DS book](http://r4ds.had.co.nz/factors.html).
 
+---
 
 ### Activity 10
 Generate a box plot clustering Shannon diversity data by diagnosis and then sex. Have the strips for males go before the females. Why didn't we have to worry about factors before with the sex variable?

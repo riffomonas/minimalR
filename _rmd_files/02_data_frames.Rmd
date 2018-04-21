@@ -171,6 +171,8 @@ pcoa <- read_tsv(file="raw_data/baxter.thetayc.pcoa.axes", col_names=FALSE)
 
 These reading functions are pretty smart and can generally figure out the type of data that is in each column.
 
+---
+
 ### Activity 1
 Pretend that the data we want is actually on the second page of the `data/baxter.metadata.xlsx` workbook. Can you rewrite the `read_excel` command to read that page?
 
@@ -181,6 +183,7 @@ metadata <- read_excel(path="raw_data/baxter.metadata.xlsx", sheet=2)
 ```
 </div>
 
+---
 
 ### Activity 2
 Open one of the spreadsheets where you keep the metadata for your project
@@ -189,6 +192,7 @@ Open one of the spreadsheets where you keep the metadata for your project
 * How would you want to organize your metadata to make it easier to use with R?
 * Look at the formatting of your data. Are all of the dates consistently formatted? Do you use a consistent capitalization style? Do you use non-text information (e.g. color) to represent values?
 
+---
 
 The output of the read functions that are part of the `tidyverse` are a special type of data frame called a `tibble`. To back up a step, what is a data frame? A data frame can be thought of as a table where each row represents a different entity and each column represents a different aspect of that entity. For example, the `metadata` variable stores the value of a data frame where each row represents a different person and each column represents various attributes of those people whether its their subject identification number, weight, height, location, diagnosis, smoking status, etc. Each row has the same number of columns. If a piece of data is missing, then R will denote the value for that entity with the `NA` value. Got it? Moving on, a `tibble` is a special type of data frame that is a stripped down version of the `data.frame` structure that is core to R. Keeping with the `.` for `_` theme, `data_frame` can be used as an alias for `tibble`.
 
@@ -200,10 +204,12 @@ metadata
 
 The output gives me the first ten columns and the first ten rows of the data frame. You'll notice that at the top of the output, it tells us that there are 490 rows and 17 columns. The column headings for the 7 columns that weren't outputted are listed at the bottom of the output. It also indicates, that 480 rows were not included in the output. In addition, the output tells us what type of variable each column contains. For example, the `fit_result` column contains `dbl` or double precision numbers and the `dx` column contains `chr` or character values. You'll also notice that zero values have a lighter color and that the `NA` for the first value in the `Smoke` column is red. These are all meant to improve the visualization of the data.
 
+---
+
 ### Activity 3
 Compare the output from typing `metadata` at the prompt to the output of typing `as.data.frame(metadata)` at the prompt.
 
-
+---
 
 ## Exploring our metadata
 Let's dig into the metadata to think about how we'd like to use it to improve our scatter plot or perhaps visualize the variation in our cohort. Whenever we read in a data frame there are a few things to do get a handle on your data. First, as we've already done, entering the name of the data frame at the prompt will tell us a lot of information. We might also want to get access to those individual chunks of data
@@ -242,10 +248,12 @@ summary(metadata)
 ```
 
 
+---
+
 ### Activity 4
 What do you notice about the output of running `glimpse(metadata)`? What types of data are there? Thinking about the list of data types outlined above, are there columns that are improperly formatted? Do the column names match the type of data in the column? Looking at the output of `summary(metadata)`, what do you notice about how the different data types were summarized?
 
-
+---
 
 ## Cleaning our metadata
 After a quick look at the metadata we can see that there are a few things that aren't quite right that we might want to fix. Some of the columns are the wrong type and some of the values in the data frame don't make sense. For example, the `sample` column is a `double` and it should be a `character`. Let's start by fixing the column types. There are multiple ways to do this, but it is probably easiest, in the long run, to use the `col_types` argument in `read_excel` and `read_tsv`. Unfortunately, they have slightly different syntax. For `read_excel` the `col_type` options are "skip", "guess", "logical", "numeric", "date", "text" or "list". We'll normally only use "logical", "numeric", "text", and "date". It is important to list the column types in order. Although we provide the column names for the `col_types` value, `read_excel` doesn't actually look at these values. Including them helps me to organize the column types when there are more than a handful of columns.
@@ -315,6 +323,8 @@ metadata[["Site"]] <- recode(.x=metadata[["Site"]], "U of Michigan"="U Michigan"
 count(metadata, Site)
 ```
 
+---
+
 ### Activity 5
 You should notice that in the "Dx_Bin" column there is a subject with the value "Cancer." rather than "Cancer". Using `recode`, can you fix this value?
 
@@ -326,6 +336,7 @@ count(metadata, Dx_Bin)
 ```
 </div>
 
+---
 
 ### Activity 6
 It might be obvious to us what is contained in the "Gender" column - "f" and "m" are the only two values. What if we wanted to make the values a little more meaningful and have them read as "female" and "male"? Write a recode function(s) to convert the single character to the longer name. Confirm that you get the correct result
@@ -339,9 +350,7 @@ count(metadata, Gender)
 ```
 </div>
 
-
-
-
+---
 
 ## Cleaning up column names
 
@@ -365,6 +374,8 @@ metadata <- rename(.data=metadata,
 		diagnosis=dx)
 ```
 
+---
+
 ### Activity 7
 As was mentioned, the "gender" column contains the sex of each individual ("f" or "m"). Change our `rename` function to also include code to change the name of that column.
 
@@ -381,6 +392,8 @@ metadata <- rename(.data=metadata,
 ```
 </div>
 
+---
+
 We'll stop here, but it's also worth noting that we might want to add units to some of our columns. For example, we might rename the "height" column to "height_cm". Although manipulating the column headings and to be lowercase or to be more clear is a matter of personal preference, it makes your analysis easier to implement. This is especially true if you have to pause the project for a few weeks or months (e.g. the paper goes out for review, you go on vacation, etc.). When you come back to it, you won't have to recall what "Hx" means. Making sure the values in the data frame are correct by removing typos (e.g. "U of Michigan") and ensuring they are properly bounded (e.g. no heights of zero) is critical to the validity of your analysis. I want to reemphasize the importance of leaving your raw data raw. Our manipulations of the `metadata` data frame have not altered `raw_data/baxter.metadata.xlsx`. Perhaps we would like to export the cleaned up data frame to share with others. Similar to the `read_tsv` function from the `readr` package, that package also contains a `write_tsv` function that we can use to write the cleaned data to a text file. Before we do this, we'll create a directory in our project directory called `processed_data`.
 
 ```{r}
@@ -388,6 +401,8 @@ dir.create("processed_data", showWarnings=FALSE)
 write_tsv(x=metadata, path='processed_data/baxter.metadata.tsv')
 ```
 
+
+---
 
 ### Activity 8
 Now that we have the `metadata` data frame looking spiffy, we want to run the next line:
@@ -408,6 +423,7 @@ metadata_pcoa <- inner_join(metadata, pcoa, by=c('sample'='group'))
 ```
 </div>
 
+---
 
 Because we've been keeping track of all of our commands we have a transcript of what we've done to the data. Let's rewrite that initial code chunk to have all of the processing steps together. We need to remember to update our column names in our new code:
 

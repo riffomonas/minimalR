@@ -184,6 +184,8 @@ wilcox.test(scaled_shannon~sex, data=meta_alpha)
 Both of these tests allow you perform a paired test if you have pre and post data from the same experimental units. Again, this is not a statistics tutorial...
 
 
+---
+
 ### Activity 1
 Is the number of OTUs normally distributed? Repeat the analyses we performed above to see whether there is a significant difference in the number of OTUs by diagnosis group.
 
@@ -235,6 +237,8 @@ summary(diagnosis_sobs_aov)
 Not significant.
 </div>
 
+---
+
 ### Activity 2
 Is there a significant difference in the FIT result by diagnosis group?
 
@@ -276,6 +280,7 @@ pairwise.wilcox.test(g=meta_alpha[["diagnosis"]], x=meta_alpha[["fit_result"]], 
 The three diagnosis groups have significantly different FIT results even after comparing for multiple comparisons.
 </div>
 
+---
 
 
 ## Comparing continuous by categorical variables
@@ -284,8 +289,6 @@ Sometimes we would like to know whether two variables are correlated with each o
 
 ```r
 cor.test(meta_alpha[["shannon"]], meta_alpha[["bmi"]])
-cor.test(meta_alpha[["fit_result"]], meta_alpha[["age"]])
-cor.test(meta_alpha[["fit_result"]], meta_alpha[["shannon"]])
 ```
 
 ```
@@ -299,8 +302,14 @@ cor.test(meta_alpha[["fit_result"]], meta_alpha[["shannon"]])
 ##  -0.19138925 -0.01578278
 ## sample estimates:
 ##        cor 
-## -0.1043997 
-## 
+## -0.1043997
+```
+
+```r
+cor.test(meta_alpha[["fit_result"]], meta_alpha[["age"]])
+```
+
+```
 ## 
 ## 	Pearson's product-moment correlation
 ## 
@@ -311,8 +320,14 @@ cor.test(meta_alpha[["fit_result"]], meta_alpha[["shannon"]])
 ##  -0.04284033  0.13395240
 ## sample estimates:
 ##        cor 
-## 0.04591557 
-## 
+## 0.04591557
+```
+
+```r
+cor.test(meta_alpha[["fit_result"]], meta_alpha[["shannon"]])
+```
+
+```
 ## 
 ## 	Pearson's product-moment correlation
 ## 
@@ -395,8 +410,6 @@ By default, `cor.test` performs a Pearson correlation, which assumes a linear re
 
 ```r
 cor.test(meta_alpha[["shannon"]], meta_alpha[["bmi"]], method="spearman")
-cor.test(meta_alpha[["fit_result"]], meta_alpha[["age"]], method="spearman")
-cor.test(meta_alpha[["fit_result"]], meta_alpha[["shannon"]], method="spearman")
 ```
 
 ```
@@ -408,8 +421,14 @@ cor.test(meta_alpha[["fit_result"]], meta_alpha[["shannon"]], method="spearman")
 ## alternative hypothesis: true rho is not equal to 0
 ## sample estimates:
 ##        rho 
-## -0.1103069 
-## 
+## -0.1103069
+```
+
+```r
+cor.test(meta_alpha[["fit_result"]], meta_alpha[["age"]], method="spearman")
+```
+
+```
 ## 
 ## 	Spearman's rank correlation rho
 ## 
@@ -418,8 +437,14 @@ cor.test(meta_alpha[["fit_result"]], meta_alpha[["shannon"]], method="spearman")
 ## alternative hypothesis: true rho is not equal to 0
 ## sample estimates:
 ##     rho 
-## 0.11271 
-## 
+## 0.11271
+```
+
+```r
+cor.test(meta_alpha[["fit_result"]], meta_alpha[["shannon"]], method="spearman")
+```
+
+```
 ## 
 ## 	Spearman's rank correlation rho
 ## 
@@ -471,6 +496,8 @@ ggplot(meta_alpha, aes(x=bmi, y=shannon, color=diagnosis)) +
 
 <img src="assets/images/07_statistical_analyses//unnamed-chunk-22-1.png" title="plot of chunk unnamed-chunk-22" alt="plot of chunk unnamed-chunk-22" width="504" />
 
+---
+
 ### Activity 3
 In the scatter plot where we drew three regression lines the legend changed to have a gray background behind the points and a line was drawn with the points. This is effectively a merge between the legend of the `geom_point` and `geom_smooth` layers. How do we remove the `geom_smooth` legend so that our legend only contains the simple plotting character?
 
@@ -494,6 +521,8 @@ ggplot(meta_alpha, aes(x=bmi, y=shannon, color=diagnosis)) +
 <img src="assets/images/07_statistical_analyses//unnamed-chunk-23-1.png" title="plot of chunk unnamed-chunk-23" alt="plot of chunk unnamed-chunk-23" width="504" />
 </div>
 
+
+---
 
 ### Activity 4
 Is there a significant association between the number of OTUs in a person's fecal samples and their BMI and sex? Run the test and show a plot of the relevant fit of the data.
@@ -550,6 +579,7 @@ ggplot(meta_alpha, aes(x=bmi, y=sobs, color=sex)) +
 <img src="assets/images/07_statistical_analyses//unnamed-chunk-25-1.png" title="plot of chunk unnamed-chunk-25" alt="plot of chunk unnamed-chunk-25" width="504" />
 </div>
 
+---
 
 ## Comparing discrete variables
 We might also be interested in knowing whether two discrete variables have the same distribution. For example, within our cohort, are men and women equally likely to have adenomas and carcinomas? Is there variation in obesity status and diagnosis? Let's start with the first question and leave the second for an activity for you to work on. We can test this association using a Chi-Squared test of association using the `chisq.test` function
@@ -591,6 +621,8 @@ ggplot(meta_alpha, aes(x=sex, y=diagnosis)) +
 
 Not that size of circles is generally pretty hard for people to differentiate, so this isn't necessarily the best visualization tool. To see how to scale the circles by proportions you should see the examples in the `?geom_count` documentation.
 
+
+---
 
 ### Activity 5
 Is there variation in obesity status and diagnosis?

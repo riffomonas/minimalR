@@ -49,6 +49,8 @@ What's going on in this chunk of code? One of the nice things about working in R
 * Addition (i.e. `+`) isn't always for adding numbers!
 
 
+---
+
 ### Activity 1
 
 * Put a `#` at the start of the lines with `geom_point` and `coord_fixed`. What do these lines do?
@@ -60,6 +62,7 @@ What's going on in this chunk of code? One of the nice things about working in R
 * As we'll see later, the `+` when used with the `ggplot` function allows you to add things to a plot. Just like numerical addition, the order of the values does not matter
 </div>
 
+---
 
 ### Activity 2
 
@@ -78,6 +81,7 @@ The library command loads the following packages and versions from the `tidyvers
 You can learn about these and the other package that are loaded as part of the tidyverse at the [project's homepage](https://www.tidyverse.org).
 </div>
 
+---
 
 ### Activity 3
 * Change the plotting symbol from a circle to a diamond
@@ -108,6 +112,7 @@ ggsave("ordination.png")
 
 </div>
 
+---
 
 ### Activity 4
 * Write code for a new plot, and adapt the code to make the color represent the "Gender" variable
@@ -133,6 +138,7 @@ ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2, color=Gender)) +
 <img src="assets/images/01_scatter_plots//unnamed-chunk-3-1.png" title="plot of chunk unnamed-chunk-3" alt="plot of chunk unnamed-chunk-3" width="504" />
 </div>
 
+---
 
 ## ggplot2
 
@@ -281,6 +287,7 @@ ggsave("ordination.pdf")
 
 This has been a quick run through the various ggplot-related functions that we can use to build our plot. We'll spend more time talking about colors and shapes in a moment. In later chapters we'll also discuss the various geometries, coordinates, and theming elements that we might use to represent our data.
 
+---
 
 ### Activity 5
 Altering the size of the plotting symbol is commonly called a ["bubble chart"](https://en.wikipedia.org/wiki/Bubble_chart). Create a plot where the value of `axis3` (the z-axis) is mapped on to the size of the plotting symbol. Don't worry about manipulating the legend.
@@ -306,6 +313,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, size=axis3, color=dx)) +
 <img src="assets/images/01_scatter_plots//unnamed-chunk-18-1.png" title="plot of chunk unnamed-chunk-18" alt="plot of chunk unnamed-chunk-18" width="504" />
 </div>
 
+---
 
 ### Activity 6
 One problem with the original ordination is that there is a tendency for the points to fall on top of each other making for a big mass of point. One of the aesthetic properties of `geom_point` is `alpha`, which allows you to set the transparency of each point. Alter the original ggplot code we used to change the alpha of our points to get a better sense of how many points overlap at the same location.
@@ -332,6 +340,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 
 </div>
 
+---
 
 ### Activity 7
 * Think about the data in your research. What variables would you depict by changing the plotting symbol? The symbol color? The symbol's size?
@@ -339,10 +348,13 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 * Freehand draw a scatter chart plot of your data. What question are you trying to answer with your plot? What variable goes on the x-axis? y-axis? How do you use color? symbols? size?
 * What more do you need to learn to make the plot for your own data?
 
+---
+
 ### Activity 8
 * What do you think of our original ordination? What works? What doesn't?
 * What question(s) is it seeking to answer?
 
+---
 
 
 ## Plotting symbols
@@ -707,6 +719,8 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 
 <img src="assets/images/01_scatter_plots//unnamed-chunk-33-1.png" title="plot of chunk unnamed-chunk-33" alt="plot of chunk unnamed-chunk-33" width="504" />
 
+---
+
 ### Activity 9
 What if you run `brewer.pal(n=3, name="Dark2")` at the prompt in R?
 
@@ -722,6 +736,8 @@ brewer.pal(n=3, name="Dark2")
 ```
 </div>
 
+
+---
 
 ### Activity 10
 Install the `wesanderson` R package and pick a theme to color the ordination

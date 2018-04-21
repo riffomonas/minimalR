@@ -190,6 +190,8 @@ meta_alpha %>%
 
 The output is a new data frame that has three rows, one for each diagnosis category, and two columns, which contain the diagnosis categories and the mean of the Shannon diversity values. This is a very powerful set of tools!
 
+---
+
 ### Activity 1
 Let's say that we realized our Shannon diversity indices are not normally distributed. This revelation makes us realize that instead of the mean, we should instead present the median. Change the previous code to present the median Shannon diversity for each group. Make sure you pick a better column name!
 
@@ -212,6 +214,8 @@ meta_alpha %>%
 ```
 </div>
 
+---
+
 We can use `summarize` to present various summaries of the groups. Let's create a new table with the mean Shannon diversity index and standard deviation for each group.
 
 
@@ -231,6 +235,8 @@ meta_alpha %>%
 ```
 
 Slick, eh? We can continue to add summary statistics by adding columns to the arguments in the `summarize` function. Other built-in functions that you can use with the `summarize` function include `n`, `sum`, `first`, `last`, `nth`, `quantile`, `min`, `max`, `IQR`, and `var`. Note that `n` is unique in that it does not take any arguments. If you want to get a count of the number of rows in that group you would use it as `n()` rather than as `n(shannon)`.
+
+---
 
 ### Activity 2
 Add the number of individuals in each category to our summary data frame
@@ -253,6 +259,8 @@ meta_alpha %>%
 ## 3 normal            3.58      0.467   172
 ```
 </div>
+
+---
 
 Now let's ask a slightly more complicated question, "what is the mean diversity among males and females across the three diagnosis categories?" In other words, we would like the mean diversity, standard deviation, and number of observations for each sex and diagnosis combination. Can you see what we will need to change from the code in the previous activity? First, we'll need to get the "sex" column from `meta_alpha` and we'll also want to group by each subject's diagnosis and sex.
 
@@ -278,6 +286,8 @@ meta_alpha %>%
 
 Now we have a new column to indicate the sex and we now have six rows instead of three because we have the three diagnosis categories for both of the sexes.
 
+
+---
 
 ### Activity 3
 What happens if you use `group_by(sex, diagnosis)` instead of `group_by(diagnosis, sex)`?
@@ -305,6 +315,8 @@ meta_alpha %>%
 ```
 </div>
 
+---
+
 ### Activity 4
 What is the richness among people with and without a history of polyps?
 
@@ -327,7 +339,7 @@ meta_alpha %>%
 ```
 </div>
 
-
+---
 
 ### Activity 5
 What is the mean age and standard deviation among males and females?
@@ -349,6 +361,8 @@ meta_alpha %>%
 ## 2 male       61.9    11.6   247
 ```
 </div>
+
+---
 
 
 ## Sorting data frames
@@ -461,8 +475,10 @@ meta_alpha %>%
 ## [1] "Toronto"
 ```
 
+---
+
 ### Activity 6
-Write the code that tells us the site that had the lowest mean diversity?
+Write the code that tells us the site that had the lowest mean diversity? You may need to consult the help documentation and examples for the `top_n` function
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
@@ -472,7 +488,7 @@ meta_alpha %>%
 	group_by(site) %>%
 	summarize(mean_shannon = mean(shannon), sd_shannon = sd(shannon), N=n()) %>%
 	arrange(mean_shannon) %>%
-	head(n=1) %>%
+	top_n(-1) %>%
 	pull(site)
 ```
 
@@ -481,6 +497,7 @@ meta_alpha %>%
 ```
 </div>
 
+---
 
 
 ## Creating new columns
@@ -624,8 +641,9 @@ meta_alpha %>%
 ## #   invsimpson <dbl>, coverage <dbl>
 ```
 
+---
 
-### Activity 6
+### Activity 7
 Create a summary table that gives the median age and intraquartile range of smokers in our cohort. Instead of having TRUE and FALSE as the values in the "smoke" column, convert those to "smoker" and "non-smoker"
 
 <input type="button" class="hideshow">
@@ -669,8 +687,9 @@ meta_alpha %>%
 ```
 </div>
 
+---
 
-### Activity 7
+### Activity 8
 Create a summary table that gives the mean BMI and standard deviation for people in each of the diagnosis groups. You can calculate BMI as the person's weight in kilograms divided by their height in meters squared.
 
 <input type="button" class="hideshow">
@@ -695,7 +714,7 @@ meta_alpha %>%
 A small trick is needed to make this work :). If you look at `?mean` and `?sd` you'll see that by default these functions keep `NA` values in their calculations. We don't want to do that because the output will be `NA`. By setting `na.rm=T` as one of the arguments when calling the `mean` and `sd` functions we will get the mean and standard deviations when `NA` values are removed.
 </div>
 
-
+---
 
 ## Custom functions
 In the last activity you added a column that required calculating the BMI. This is a relatively straightforward calculation. I could imagine perhaps adding some "special sauce" such as checking to see whether the height is reasonable for meters or if it's more likely to be in centimeters. Alternatively, I might really want the BMI category rather than the actual BMI. I might also need to calculate the BMI of people in different cohorts or multiple times across a study. In each of these cases, I would be likely to encapsulate the code in a function.
@@ -806,7 +825,9 @@ meta_alpha %>%
 
 
 
-### Activity 8
+---
+
+### Activity 9
 Generate a function `is_obese` that takes in a person's height and weight and returns a `TRUE` or `FALSE` value indicating whether the person is obese. Then return the mean and standard deviation for the shannon diversity and the number of people in each category.
 
 <input type="button" class="hideshow">
@@ -834,8 +855,9 @@ meta_alpha %>%
 ```
 </div>
 
+---
 
-### Activity 9
+### Activity 10
 Modify the code we used previously to generate a scatter chart with BMI on the x-axis and Shannon diversity on the y-axis. Color the points by diagnosis.
 
 

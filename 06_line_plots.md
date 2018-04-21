@@ -1,6 +1,6 @@
 ---
 layout: lesson
-title: "Session 7: Line Plots"
+title: "Session 6: Line Plots"
 output: markdown_document
 ---
 
@@ -187,6 +187,8 @@ We now have a DRY way of providing the code to generate a consistent `metadata` 
 Before we move on to generating line graphs, I want to leave you with a stylistic note. In your R script files, it helps to put all your `library` and `source` function calls at the top of the script. This way it is obvious to anyone that picks up your script what packages they need to install and what other R scripts your script depends on.
 
 
+---
+
 ### Activity 1
 Modify get_metadata to add a bmi, bmi_category, and is_obese column to the `metadata` data frame. Confirm that your edits worked by running `source('code/baxter.R')` and then looking at the values in `metadata`
 
@@ -209,6 +211,7 @@ Modify get_metadata to add a bmi, bmi_category, and is_obese column to the `meta
 ```
 </div>
 
+---
 
 ### Activity 2
 Create a new file in the `code` directory called `plot_ordination.R` that contains the code to build the first figure that we talked about in this series of lessons. Create a `figures` directory and output a pdf version of your plot to `figures`.
@@ -248,6 +251,7 @@ Once `code/plot-ordination.R` is saved, in your terminal you can run `source('co
 <img src="assets/images/06_line_plots//unnamed-chunk-5-1.png" title="plot of chunk unnamed-chunk-5" alt="plot of chunk unnamed-chunk-5" width="504" />
 </div>
 
+---
 
 ## Plotting associated data with line plots
 
@@ -333,13 +337,15 @@ rarefy <- read_tsv(file="raw_data/baxter.rarefaction") %>%
 Both of these work, it's a matter of how explicit you want to be with the steps in your analysis. Note that we used `-contains(...)`, which removes those columns that contain the offending columns. If you look at `rarefy`, you'll see that we now have all of the columns that start with `0.03`, which is what we want.
 
 
+---
+
 ### Activity 3
-Rewrite the previous code chunk to get the columns using the `starts_with` function rather than the `contains` function.
+Rewrite the previous code chunk to get the columns we want without using negative signs.
 
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
-Note that if we do what seems obvious, then we will lose our numsampled column, which we need to know how many sequences have been sampled from each sample
+Note that if we do what seems obvious, then we will lose our "numsampled" column, which we need to know how many sequences have been sampled from each sample
 
 ```r
 read_tsv(file="raw_data/baxter.rarefaction") %>%
@@ -405,6 +411,7 @@ read_tsv(file="raw_data/baxter.rarefaction") %>%
 ```
 </div>
 
+---
 
 ## Tidying data
 We've made it all this way using various tools from the "tidyverse" without ever describing what the tidyverse is! "Tidy data" refers to the structure of a data frame where similar measurements are in the same column. For example, consider if we had the temperatures of various cities over time. We might be inclined to make a column for the date and then separate columns for each city. Then each row would contain the temperature for that date and city. This produces a wide-formatted data frame. This ends up being hard to work with. If you think about how we've been using `dplyr` and `ggplot` functions we want to apply their functions to columns. If we wanted to plot the temperature (or number of OTUs) by city, we would like to have a city column and a temperature column. Not a bunch of temperature columns for different cities. If you think about our `metadata` data frame it is tidy. Each column is distinct and measures a different thing about each person. Depending on the context, our `alpha` data frame could be considered to be non-tidy. We have numerous parameters (e.g. `shannon`, `invsimpson`, `sobs`, `coverage`) for each subject. If we wanted to compare those parameters to each other for each person, then we'd want them to be in the same column. Usually we wouldn't want to compare `shannon` to `invsimpson` data so it isn't a big deal. But we would want to compare Chicago to Nashville temperatures, so they should be in the same column. Similarly, we want to compare the rarefaction data for samples `2003650` and `2005650`. Within the tidyverse there is a `tidyr` package that has functions we will now use to make our `rarefy` data frame tidy.
@@ -472,6 +479,8 @@ rarefy <- read_tsv(file="raw_data/baxter.rarefaction") %>%
 Our `rarefy` data frame now has 450,310 rows and three columns. It has gone from being really wide to being skinny and really long. As we'll see in the next section, it is now much easier to do a join between `rarefy` and `metadata` than it would have been with the samples across the columns.
 
 
+---
+
 ### Activity 4
 Use the `gather` function with our `alpha` data frame to gather together the `sobs`, `shannon`, `invsimpson`, and `coverage` columns. The key column should be called "metric" and the value column should be called "value".
 
@@ -486,6 +495,7 @@ alpha <- read_tsv(file="raw_data/baxter.groups.ave-std.summary",
 # gather(sobs, shannon, invsimpson, coverage, key=metric, value=values)
 </div>
 
+---
 
 ## Cleaning up our sample names
 What we want to be able to do is connect our sample identifiers in the column names of `rarefy` with the sample identifiers in `metadata`. The names in the "sample" column aren't quite where they need to be. We need to remove the `0.03-` from each identifier. R has several options for manipulating strings. Basically, we want to use one of those functions that will do a find all/replace all operation for us. There are two options: `gsub` and `str_replace_all`. The former is part of the base R package while the latter is part of `tidyr`. They do the same thing, but `str_replace_all` is a bit preferable since it's more readable. Let's try it out...
@@ -531,6 +541,8 @@ metadata_rarefy <- inner_join(metadata, rarefy)
 
 If we were interested in plotting the rarefaction curves and coloring them by diagnosis of the person the sample came from, we could use `select` to get the "sample" and "dianosis" columns from `metadata` before joining. This would make the data frame much smaller. It isn't that big, so we'll stick with what we've got.
 
+---
+
 ### Activity 5
 Create a new data frame called `roman_metadata` where the numbers in the "stage" column of metadata is represented as a roman numeral. This will require multiple lines of code.
 
@@ -560,6 +572,7 @@ roman_metadata %>% count(stage)
 ```
 </div>
 
+---
 
 
 ## Plotting rarefaction curves
@@ -677,6 +690,8 @@ ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=dia
 There are six different `linetype`s that you can set with a number from 1 to 6.
 
 
+---
+
 ### Activity 6
 Map the diagnosis value for each subject on to the line type. Make sure that you only have one legend.
 
@@ -705,7 +720,7 @@ ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=dia
 <img src="assets/images/06_line_plots//unnamed-chunk-26-1.png" title="plot of chunk unnamed-chunk-26" alt="plot of chunk unnamed-chunk-26" width="504" />
 </div>
 
-
+---
 
 ### Activity 7
 Map the diagnosis value for each subject onto color and their sex to the line type.
@@ -734,8 +749,9 @@ ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=dia
 <img src="assets/images/06_line_plots//unnamed-chunk-27-1.png" title="plot of chunk unnamed-chunk-27" alt="plot of chunk unnamed-chunk-27" width="504" />
 </div>
 
+---
 
-### Activity 7
+### Activity 8
 Map the diagnosis value for each subject onto color and their sex to shape of the plotting symbol.
 
 <input type="button" class="hideshow">
@@ -791,6 +807,7 @@ ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=dia
 The `%%` function is the modulus operator, which returns the remainder of dividing one number by another. If you do `233 %% 100` the value would be `33`. If you did `2000 %% 1000`, the remainder would be `0`.
 </div>
 
+---
 
 ## Using lines to annotate a plot
 
@@ -874,7 +891,9 @@ ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=dia
 
 <img src="assets/images/06_line_plots//unnamed-chunk-33-1.png" title="plot of chunk unnamed-chunk-33" alt="plot of chunk unnamed-chunk-33" width="504" />
 
-### Activity 8
+---
+
+### Activity 9
 Create a scatter plot with the subjects' FIT result on the x-axis and the Shannon diversity index on the y-axis. Color the points by diagnosis group and draw a vertical line to cross the x-axis at 100.
 
 <input type="button" class="hideshow">
@@ -908,9 +927,10 @@ ggplot(meta_alpha, aes(x=fit_result, y=shannon, color=diagnosis)) +
 <img src="assets/images/06_line_plots//unnamed-chunk-34-1.png" title="plot of chunk unnamed-chunk-34" alt="plot of chunk unnamed-chunk-34" width="504" />
 </div>
 
+---
 
-### Activity 9
-Create a file in `code/` that is called `plot_rarefaction_curves.R` that contains the code needed to generate the 490 rarefaction curves colored by diagnosis. Draw a vertical gray line behind the curves to indicate where the 10,530 sequence threshold was. Restart R and run `source("code/plot_rarefaction_curves.R", echo=T)` to make sure it runs as intended.
+### Activity 10
+Create a file in `code/` that is called `plot_rarefaction_curves.R` that contains the code needed to generate the 490 rarefaction curves colored by diagnosis. Draw a vertical gray line behind the curves to indicate where the 10,530 sequence threshold was. Restart R and run `source("code/plot_rarefaction_curves.R")` to make sure it runs as intended.
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">

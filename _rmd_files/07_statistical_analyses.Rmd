@@ -115,6 +115,8 @@ wilcox.test(scaled_shannon~sex, data=meta_alpha)
 Both of these tests allow you perform a paired test if you have pre and post data from the same experimental units. Again, this is not a statistics tutorial...
 
 
+---
+
 ### Activity 1
 Is the number of OTUs normally distributed? Repeat the analyses we performed above to see whether there is a significant difference in the number of OTUs by diagnosis group.
 
@@ -150,6 +152,8 @@ summary(diagnosis_sobs_aov)
 Not significant.
 </div>
 
+---
+
 ### Activity 2
 Is there a significant difference in the FIT result by diagnosis group?
 
@@ -168,12 +172,13 @@ pairwise.wilcox.test(g=meta_alpha[["diagnosis"]], x=meta_alpha[["fit_result"]], 
 The three diagnosis groups have significantly different FIT results even after comparing for multiple comparisons.
 </div>
 
+---
 
 
 ## Comparing continuous by categorical variables
 Sometimes we would like to know whether two variables are correlated with each other. For example, is someone's BMI correlated with their Shannon diversity? Is FIT result correlated with age? Is the FIT result correlated with their Shannon diversity? To test for these types of correlations we can use the `cor.test` function
 
-```{r}
+```{r, results="markup"}
 cor.test(meta_alpha[["shannon"]], meta_alpha[["bmi"]])
 cor.test(meta_alpha[["fit_result"]], meta_alpha[["age"]])
 cor.test(meta_alpha[["fit_result"]], meta_alpha[["shannon"]])
@@ -197,7 +202,7 @@ We see that the impact of BMI is significant, but that there's no meaninful diff
 
 By default, `cor.test` performs a Pearson correlation, which assumes a linear relationship between the two variables. Having seen the FIT result distribution a few times now, we might suspect that it has a non-linear association with other variables. We can test the association with a Spearman correlation.
 
-```{r}
+```{r, results="markup"}
 cor.test(meta_alpha[["shannon"]], meta_alpha[["bmi"]], method="spearman")
 cor.test(meta_alpha[["fit_result"]], meta_alpha[["age"]], method="spearman")
 cor.test(meta_alpha[["fit_result"]], meta_alpha[["shannon"]], method="spearman")
@@ -237,6 +242,8 @@ ggplot(meta_alpha, aes(x=bmi, y=shannon, color=diagnosis)) +
 	theme_classic()
 ```
 
+---
+
 ### Activity 3
 In the scatter plot where we drew three regression lines the legend changed to have a gray background behind the points and a line was drawn with the points. This is effectively a merge between the legend of the `geom_point` and `geom_smooth` layers. How do we remove the `geom_smooth` legend so that our legend only contains the simple plotting character?
 
@@ -257,6 +264,8 @@ ggplot(meta_alpha, aes(x=bmi, y=shannon, color=diagnosis)) +
 ```
 </div>
 
+
+---
 
 ### Activity 4
 Is there a significant association between the number of OTUs in a person's fecal samples and their BMI and sex? Run the test and show a plot of the relevant fit of the data.
@@ -286,6 +295,7 @@ ggplot(meta_alpha, aes(x=bmi, y=sobs, color=sex)) +
 ```
 </div>
 
+---
 
 ## Comparing discrete variables
 We might also be interested in knowing whether two discrete variables have the same distribution. For example, within our cohort, are men and women equally likely to have adenomas and carcinomas? Is there variation in obesity status and diagnosis? Let's start with the first question and leave the second for an activity for you to work on. We can test this association using a Chi-Squared test of association using the `chisq.test` function
@@ -315,6 +325,8 @@ ggplot(meta_alpha, aes(x=sex, y=diagnosis)) +
 
 Not that size of circles is generally pretty hard for people to differentiate, so this isn't necessarily the best visualization tool. To see how to scale the circles by proportions you should see the examples in the `?geom_count` documentation.
 
+
+---
 
 ### Activity 5
 Is there variation in obesity status and diagnosis?

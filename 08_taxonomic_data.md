@@ -43,6 +43,14 @@ This was a relatively simple pattern. Looking at the values in the "taxonomy" co
 
 ```r
 string <- "My phone number is (555)555-1234"
+str_replace_all(pattern='\\s', replacement="_", string)
+```
+
+```
+## [1] "My_phone_number_is_(555)555-1234"
+```
+
+```r
 str_replace(pattern='\\s', replacement="_", string) #str_replace does what str_replace_all does once
 ```
 
@@ -51,31 +59,31 @@ str_replace(pattern='\\s', replacement="_", string) #str_replace does what str_r
 ```
 
 ```r
-str_replace(pattern='\\d', replacement="#", string)
+str_replace_all(pattern='\\d', replacement="#", string)
 ```
 
 ```
-## [1] "My phone number is (#55)555-1234"
-```
-
-```r
-str_replace(pattern='\\w', replacement="*", string)
-```
-
-```
-## [1] "*y phone number is (555)555-1234"
+## [1] "My phone number is (###)###-####"
 ```
 
 ```r
-str_replace(pattern='.', replacement="x", string)
+str_replace_all(pattern='\\w', replacement="*", string)
 ```
 
 ```
-## [1] "xy phone number is (555)555-1234"
+## [1] "** ***** ****** ** (***)***-****"
 ```
 
 ```r
-str_replace(pattern='[-]', replacement=" ", string)
+str_replace_all(pattern='.', replacement="x", string)
+```
+
+```
+## [1] "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+```
+
+```r
+str_replace_all(pattern='[-]', replacement=" ", string)
 ```
 
 ```
@@ -83,53 +91,53 @@ str_replace(pattern='[-]', replacement=" ", string)
 ```
 
 ```r
-str_replace(pattern='[()-]', replacement=" ", string)
+str_replace_all(pattern='[()-]', replacement=" ", string)
 ```
 
 ```
-## [1] "My phone number is  555)555-1234"
-```
-
-```r
-str_replace(pattern='[^()-]', replacement=" ", string)
-```
-
-```
-## [1] " y phone number is (555)555-1234"
+## [1] "My phone number is  555 555 1234"
 ```
 
 ```r
-str_replace(pattern='\\d', replacement="#", string)
+str_replace_all(pattern='[^()-]', replacement=" ", string)
 ```
 
 ```
-## [1] "My phone number is (#55)555-1234"
+## [1] "                   (   )   -    "
 ```
 
 ```r
-str_replace(pattern='m', replacement="*", string, ignore.case=T)
+str_replace_all(pattern='\\d', replacement="#", string)
 ```
 
 ```
-## Error in str_replace(pattern = "m", replacement = "*", string, ignore.case = T): unused argument (ignore.case = T)
+## [1] "My phone number is (###)###-####"
+```
+
+```r
+str_replace_all(pattern='m', replacement="*", string, ignore.case=T)
+```
+
+```
+## Error in str_replace_all(pattern = "m", replacement = "*", string, ignore.case = T): unused argument (ignore.case = T)
 ```
 
 Got it? We can string these together to produce a pattern to represent a phone number:
 
 
 ```r
-str_replace(pattern='[(]\\d\\d\\d[)]\\d\\d\\d-\\d\\d\\d\\d', replacement="<redacted>", string)
+str_replace_all(pattern='[(]\\d\\d\\d[)]\\d\\d\\d-\\d\\d\\d\\d', replacement="<redacted>", string)
 ```
 
 ```
 ## [1] "My phone number is <redacted>"
 ```
 
-Do you see what's happening there? If we want to match parentheses, we used `[(]` and `[)]`. Alternatively, we could have used `\\(` and `\\)`. The `\\` is necessary because the naked parentheses will be useful in a moment. For now let's stick with the bracket notation. We match the parentheses and the three numbers (i.e. `\\d\\d\\d`) within them. Then we match another three numbers, a hyphen and then four more numbers. If our phone number has a different pattern - say we don't use parentheses around the area code, `gsub` won't work like we want. Instead of repeating `\\d` over and over, we can use a quantifier to match the numbers.
+Do you see what's happening there? If we want to match parentheses, we used `[(]` and `[)]`. Alternatively, we could have used `\\(` and `\\)`. The `\\` is necessary because the naked parentheses will be useful in a moment. For now let's stick with the bracket notation. We match the parentheses and the three numbers (i.e. `\\d\\d\\d`) within them. Then we match another three numbers, a hyphen and then four more numbers. If our phone number has a different pattern - say we don't use parentheses around the area code, `str_replace_all` won't work like we want. Instead of repeating `\\d` over and over, we can use a quantifier to match the numbers.
 
 
 ```r
-str_replace(pattern='[(]\\d{3}[)]\\d{3}-\\d{4}', replacement="<redacted>", string)
+str_replace_all(pattern='[(]\\d{3}[)]\\d{3}-\\d{4}', replacement="<redacted>", string)
 ```
 
 ```
@@ -141,7 +149,7 @@ This is the same pattern as we had before, but much simpler. It's worth noting t
 
 ```r
 string <- c("My phone number is (555)555-1234", "Suzy's phone number is 555-555-9876")
-str_replace(pattern='[(]\\d{3}[)]\\d{3}-\\d{4}', replacement="<redacted>", string)
+str_replace_all(pattern='[(]\\d{3}[)]\\d{3}-\\d{4}', replacement="<redacted>", string)
 ```
 
 ```
@@ -154,19 +162,19 @@ You should see that Suzy's phone number was not redacted. We would like to manip
 
 ```r
 string <- c("My phone number is (555)555-1234", "Suzy's phone number is 555-555-9876")
-str_replace(pattern='[(]?\\d{3}[)-]?\\d{3}-\\d{4}', replacement="<redacted>", string)
+str_replace_all(pattern='[(]?\\d{3}[)-]?\\d{3}-\\d{4}', replacement="<redacted>", string)
 ```
 
 ```
 ## [1] "My phone number is <redacted>"     "Suzy's phone number is <redacted>"
 ```
 
-See that? By putting a `?` after the `[()]` we ask `gsub` to match a patten that may or may not start with an opening parentheses. Similarly, after three numbers, we ask `gsub` to match a string that may or may not contain a `)` or a `-`. Another quantifier we might want to use is `*`. This matches zero or more instances of the preceding character.
+See that? By putting a `?` after the `[()]` we ask `str_replace_all` to match a patten that may or may not start with an opening parentheses. Similarly, after three numbers, we ask `str_replace_all` to match a string that may or may not contain a `)` or a `-`. Another quantifier we might want to use is `*`. This matches zero or more instances of the preceding character.
 
 
 ```r
 string <- c("My phone number is (555)555-1234", "Suzy's phone number is 555-555-9876")
-str_replace(pattern='.* ', replacement="", string)
+str_replace_all(pattern='.* ', replacement="", string)
 ```
 
 ```
@@ -178,7 +186,7 @@ The last tool that we can use is to replace an entire string with a substring. T
 
 ```r
 string <- c("My phone number is (555)555-1234", "Suzy's phone number is 555-555-9876")
-str_replace(pattern='[(]?(\\d{3})[)-]?\\d{3}-\\d{4}', replacement="\\1", string)
+str_replace_all(pattern='[(]?(\\d{3})[)-]?\\d{3}-\\d{4}', replacement="\\1", string)
 ```
 
 ```
@@ -186,7 +194,7 @@ str_replace(pattern='[(]?(\\d{3})[)-]?\\d{3}-\\d{4}', replacement="\\1", string)
 ```
 
 ```r
-str_replace(pattern='.*[(]?(\\d{3})[)-]?\\d{3}-\\d{4}', replacement="\\1", string)
+str_replace_all(pattern='.*[(]?(\\d{3})[)-]?\\d{3}-\\d{4}', replacement="\\1", string)
 ```
 
 ```
@@ -194,7 +202,7 @@ str_replace(pattern='.*[(]?(\\d{3})[)-]?\\d{3}-\\d{4}', replacement="\\1", strin
 ```
 
 ```r
-str_replace(pattern='.*[(]?(\\d{3})[)-]?\\d{3}-\\d{4}', replacement="Area code: \\1", string)
+str_replace_all(pattern='.*[(]?(\\d{3})[)-]?\\d{3}-\\d{4}', replacement="Area code: \\1", string)
 ```
 
 ```
@@ -202,13 +210,15 @@ str_replace(pattern='.*[(]?(\\d{3})[)-]?\\d{3}-\\d{4}', replacement="Area code: 
 ```
 
 ```r
-str_replace(pattern='.*[(]?(\\d{3})[)-]?(\\d{3})-(\\d{4})', replacement="Area code: \\1, Central office code: \\2, Private extension: \\3", string)
+str_replace_all(pattern='.*[(]?(\\d{3})[)-]?(\\d{3})-(\\d{4})', replacement="Area code: \\1, Central office code: \\2, Private extension: \\3", string)
 ```
 
 ```
 ## [1] "Area code: 555, Central office code: 555, Private extension: 1234"
 ## [2] "Area code: 555, Central office code: 555, Private extension: 9876"
 ```
+
+---
 
 ### Activity 1
 
@@ -258,7 +268,7 @@ string_df %>%
 ```
 </div>
 
-
+---
 
 As we were reminded in the last Activity, the taxonomy strings in `taxonomy` have this general format:
 
@@ -371,6 +381,8 @@ taxonomy <- read_tsv(file="raw_data/baxter.cons.taxonomy") %>%
 		separate(taxonomy, into=c("kingdom", "phylum", "class", "order", "family", "genus"), sep=";")
 ```
 
+---
+
 ### Activity 2
 Looking at the values in `taxonomy` we see a number of columns have "unclassified" as the value. Instead of parsing the taxonomy string to return all taxonomic names, can you find a way to generate a column that contains the deepest taxonomy that isn't "unclassified"? For example, if this was the taxonomy:
 
@@ -410,6 +422,7 @@ read_tsv(file="raw_data/baxter.cons.taxonomy") %>%
 ```
 </div>
 
+---
 
 What I'd really like is a strip chart or box plot showing the relative abundance of each phylum in each subject segregated by diagnosis. We'll need to get our OTU data, make it tidy, join it with `taxonomy`, and then run it through the rest of our `dplyr` and `ggplot` steps. The OTU data is in `raw_data/baxter.subsample.shared`.
 
@@ -569,9 +582,10 @@ agg_phylum_data %>%
 
 <img src="assets/images/08_taxonomic_data//unnamed-chunk-28-1.png" title="plot of chunk unnamed-chunk-28" alt="plot of chunk unnamed-chunk-28" width="504" />
 
-### Activity 3
-Can you convert our box plot to a stripchart?
+---
 
+### Activity 3
+Can you convert our box plot to a stripchart? Put the diagnosis groups in order of increasing severity.
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
@@ -580,10 +594,11 @@ Can you convert our box plot to a stripchart?
 agg_phylum_data %>%
 	filter(phylum %in% top_phyla) %>%
 	mutate(phylum=factor(phylum, levels=top_phyla)) %>%
+	mutate(diagnosis=factor(diagnosis, levels=c('normal', 'adenoma', 'cancer'))) %>%
 	ggplot(aes(x=phylum, y=agg_rel_abund, color=diagnosis)) +
 		geom_jitter(pos=position_jitterdodge(jitter.width=0.2, dodge.width=0.8)) +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		labs(title="There are no obvious phylum-level differences between the\ndiagnosis groups",
@@ -595,6 +610,7 @@ agg_phylum_data %>%
 <img src="assets/images/08_taxonomic_data//unnamed-chunk-29-1.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="504" />
 </div>
 
+---
 
 ### Activity 4
 Our y-axis is formatted to go from 0 to 1. Can you change it to go from 0 to 100?
@@ -607,16 +623,17 @@ There are a few ways to do this. This might be the most direct:
 agg_phylum_data %>%
 	filter(phylum %in% top_phyla) %>%
 	mutate(phylum=factor(phylum, levels=top_phyla)) %>%
+	mutate(diagnosis=factor(diagnosis, levels=c('normal', 'adenoma', 'cancer'))) %>%
 	mutate(agg_rel_abund=100 * agg_rel_abund) %>%
 	ggplot(aes(x=phylum, y=agg_rel_abund, color=diagnosis)) +
-		geom_boxplot() +
+		geom_jitter(pos=position_jitterdodge(jitter.width=0.2, dodge.width=0.8)) +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		labs(title="There are no obvious phylum-level differences between the\ndiagnosis groups",
 			x=NULL,
-			y="Relative abundance (%)") +
+			y="Relative abundance") +
 		theme_classic()
 ```
 
@@ -629,10 +646,11 @@ An alternative approach uses `scale_y_continuous`
 agg_phylum_data %>%
 	filter(phylum %in% top_phyla) %>%
 	mutate(phylum=factor(phylum, levels=top_phyla)) %>%
+	mutate(diagnosis=factor(diagnosis, levels=c('normal', 'adenoma', 'cancer'))) %>%
 	ggplot(aes(x=phylum, y=agg_rel_abund, color=diagnosis)) +
 		geom_boxplot() +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		scale_y_continuous(breaks=c(0, 0.25, 0.5, 0.75, 1.0), labels=c(0, 25, 50, 75, 100)) +
@@ -647,6 +665,7 @@ agg_phylum_data %>%
 This approach is a bit more flexible since you can specify the reference values you want on the y-axis.
 </div>
 
+---
 
 You might notice that with the exception of the *Firmicutes*, the relative abundances of the other phyla are concentrated towards the bottom of the y-axis. Sometimes it is helpful to plot relative abundance data on a log-scaled y-axis. We can use `scale_y_log10` to get a log-scaled y-axis.
 
@@ -670,14 +689,47 @@ agg_phylum_data %>%
 
 <img src="assets/images/08_taxonomic_data//unnamed-chunk-32-1.png" title="plot of chunk unnamed-chunk-32" alt="plot of chunk unnamed-chunk-32" width="504" />
 
-If you did the previous Activity, you might be thinking about how we can better label that y-axis and to express the relative abundances as percentages.
+This spits out two Warning messages:
+
+```r
+Warning messages:
+1: Transformation introduced infinite values in continuous y-axis
+2: Removed 23 rows containing non-finite values (stat_boxplot).
+```
+
+These warnings come from the fact that `log10(0)` is infinity. To correct this, we can add a small number. Say less than 1/10530.
 
 
 ```r
 agg_phylum_data %>%
 	filter(phylum %in% top_phyla) %>%
 	mutate(phylum=factor(phylum, levels=top_phyla)) %>%
+	mutate(agg_rel_abund = agg_rel_abund + 1/21000) %>%
 	ggplot(aes(x=phylum, y=agg_rel_abund, color=diagnosis)) +
+		geom_boxplot() +
+		scale_color_manual(name=NULL,
+			values=c("blue", "red", "black"),
+			breaks=c("normal", "adenoma", "cancer"),
+			labels=c("Normal", "Adenoma", "Cancer")) +
+		labs(title="There are no obvious phylum-level differences between the\ndiagnosis groups",
+			x=NULL,
+			y="Relative abundance") +
+		scale_y_log10() +
+		theme_classic()
+```
+
+<img src="assets/images/08_taxonomic_data//unnamed-chunk-33-1.png" title="plot of chunk unnamed-chunk-33" alt="plot of chunk unnamed-chunk-33" width="504" />
+
+That took care of the warning messages. If you did the previous Activity, you might be thinking about how we can better label that y-axis. Since we added a small number to everything, we should also add a line to indicate the limit of detection at 1/10530.
+
+
+```r
+agg_phylum_data %>%
+	filter(phylum %in% top_phyla) %>%
+	mutate(phylum=factor(phylum, levels=top_phyla)) %>%
+	mutate(agg_rel_abund = agg_rel_abund + 1/21000) %>%
+	ggplot(aes(x=phylum, y=agg_rel_abund, color=diagnosis)) +
+		geom_hline(yintercept=1/10530, color="gray") +
 		geom_boxplot() +
 		scale_color_manual(name=NULL,
 			values=c("blue", "red", "black"),
@@ -690,8 +742,9 @@ agg_phylum_data %>%
 		theme_classic()
 ```
 
-<img src="assets/images/08_taxonomic_data//unnamed-chunk-33-1.png" title="plot of chunk unnamed-chunk-33" alt="plot of chunk unnamed-chunk-33" width="504" />
+<img src="assets/images/08_taxonomic_data//unnamed-chunk-34-1.png" title="plot of chunk unnamed-chunk-34" alt="plot of chunk unnamed-chunk-34" width="504" />
 
+---
 
 ### Activity 5
 In this session we focused on phylum-level data. Let's generate a box plot for the five most abundant taxa that are defined as deep as we can classify them. See Activity 2 for the code to generate the taxonomy data. Be careful not to write over your other data frames
@@ -725,10 +778,13 @@ top_deep_taxa <- agg_deep_data %>%
 agg_deep_data %>%
 	filter(taxonomy %in% top_deep_taxa) %>%
 	mutate(taxonomy=factor(taxonomy, levels=top_deep_taxa)) %>%
+	mutate(diagnosis=factor(diagnosis, levels=c("normal", "adenoma", "cancer"))) %>%
+	mutate(agg_rel_abund=agg_rel_abund+1/21000) %>%
 	ggplot(aes(x=taxonomy, y=agg_rel_abund, color=diagnosis)) +
 		geom_boxplot() +
+		geom_hline(yintercept=1/10530, color="gray") +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		labs(title="There are no obvious phylum-level differences between the\ndiagnosis groups",
@@ -738,9 +794,10 @@ agg_deep_data %>%
 		theme_classic()
 ```
 
-<img src="assets/images/08_taxonomic_data//unnamed-chunk-34-1.png" title="plot of chunk unnamed-chunk-34" alt="plot of chunk unnamed-chunk-34" width="504" />
+<img src="assets/images/08_taxonomic_data//unnamed-chunk-35-1.png" title="plot of chunk unnamed-chunk-35" alt="plot of chunk unnamed-chunk-35" width="504" />
 </div>
 
+---
 
 ## Hypothesis testing
 We've been able to generate strip charts and box plots for the most abundant phyla, but it would be nice to know whether any of these phyla have a significantly different representation across the diagnosis groups. We saw in a previous lesson how we can use the Kruskal-Wallis test to test for significance when we have data that are not normally distributed. But how do we do that across groups within a data frame? As we've seen before, we'll group our data by the "phylum" column. Then for each group we'll use the `do` function from `dplyr` to run `kruskal.test` as we did previously. The only difference is that we will wrap the `kruskal.test` function call in the `tidy` function from `broom`, which converts the output of `kruskal.test` into a data frame.
@@ -777,7 +834,9 @@ As we did before, let's make a box plot of the significant phyla
 agg_phylum_data %>%
 	filter(phylum %in% sig_phyla) %>%
 	mutate(phylum=factor(phylum, levels=sig_phyla)) %>%
+	mutate(agg_rel_abund=agg_rel_abund+1/21000) %>%
 	ggplot(aes(x=phylum, y=agg_rel_abund, color=diagnosis)) +
+		geom_hline(yintercept=1/10530, color="gray") +
 		geom_boxplot() +
 		scale_color_manual(name=NULL,
 			values=c("blue", "red", "black"),
@@ -790,34 +849,11 @@ agg_phylum_data %>%
 		theme_classic()
 ```
 
-<img src="assets/images/08_taxonomic_data//unnamed-chunk-37-1.png" title="plot of chunk unnamed-chunk-37" alt="plot of chunk unnamed-chunk-37" width="504" />
-
-We get warning messages because we have a bunch of zero values and it isn't happy. Let's add a very small number to `agg_rel_abund` to get it to be quiet.
-
-
-```r
-agg_phylum_data %>%
-	filter(phylum %in% sig_phyla) %>%
-	mutate(phylum=factor(phylum, levels=sig_phyla)) %>%
-	mutate(agg_rel_abund=agg_rel_abund + 1/10531) %>%
-	ggplot(aes(x=phylum, y=agg_rel_abund, color=diagnosis)) +
-		geom_boxplot() +
-		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
-			breaks=c("normal", "adenoma", "cancer"),
-			labels=c("Normal", "Adenoma", "Cancer")) +
-		labs(title="Two phyla are significantly associated with disease progression",
-			x=NULL,
-			y="Relative abundance (%)") +
-		scale_y_log10(breaks=c(1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1), labels=c(0, 1e-2, 1e-1, 1, 10, 100)) +
-		theme_classic()
-```
-
 <img src="assets/images/08_taxonomic_data//unnamed-chunk-38-1.png" title="plot of chunk unnamed-chunk-38" alt="plot of chunk unnamed-chunk-38" width="504" />
 
 These plots are far preferable to the standard pie and stacked bar charts because they focus on those taxa that are significantly different from each other, allow you to perceive the variation in the data, and give a side-by-side comparison of the taxa.
 
-
+---
 
 ### Activity 6
 In the last plot we generated, the order of the three box plots is out of whack. Can you order them to reflect disease progression?
@@ -830,24 +866,25 @@ agg_phylum_data %>%
 	filter(phylum %in% sig_phyla) %>%
 	mutate(phylum=factor(phylum, levels=sig_phyla)) %>%
 	mutate(diagnosis=factor(diagnosis, levels=c("normal", "adenoma", "cancer"))) %>%
-	mutate(agg_rel_abund=agg_rel_abund + 1/10531) %>%
+	mutate(agg_rel_abund=agg_rel_abund+1/21000) %>%
 	ggplot(aes(x=phylum, y=agg_rel_abund, color=diagnosis)) +
+		geom_hline(yintercept=1/10530, color="gray") +
 		geom_boxplot() +
 		scale_color_manual(name=NULL,
-			values=c("black", "blue", "red"),
+			values=c("blue", "red", "black"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		labs(title="Two phyla are significantly associated with disease progression",
 			x=NULL,
 			y="Relative abundance (%)") +
-		scale_y_log10(breaks=c(1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1), labels=c(0, 1e-2, 1e-1, 1, 10, 100)) +
+		scale_y_log10(breaks=c(1e-4, 1e-3, 1e-2, 1e-1, 1), labels=c(1e-2, 1e-1, 1, 10, 100)) +
 		theme_classic()
 ```
 
 <img src="assets/images/08_taxonomic_data//unnamed-chunk-39-1.png" title="plot of chunk unnamed-chunk-39" alt="plot of chunk unnamed-chunk-39" width="504" />
 </div>
 
-
+---
 
 ### Activity 7
 Following up on an earlier Activity, identify those taxa that are significantly different between the diagnosis states, when defining them to their deepest classification.
@@ -868,7 +905,6 @@ agg_deep_data <- inner_join(otu_data, deep_taxonomy) %>%
 		summarize(agg_rel_abund=sum(rel_abund)) %>%
 		inner_join(., get_metadata()) %>%
 		ungroup() #without this, the sample and phylum columns remain grouped
-
 
 deep_tests <- agg_deep_data %>%
 					group_by(taxonomy) %>%
@@ -927,6 +963,7 @@ agg_deep_data %>%
 <img src="assets/images/08_taxonomic_data//unnamed-chunk-41-1.png" title="plot of chunk unnamed-chunk-41" alt="plot of chunk unnamed-chunk-41" width="504" />
 </div>
 
+---
 
 ### Activity 8
 Instead of grouping individuals by three diagnosis groups, group them as having normal colons or a lesion (i.e. adenoma or cancer diagnosis). Identify those taxa that are significantly different between the diagnosis states, when defining them to their deepest classification. Sort the populations by overall mean relative abundance.
