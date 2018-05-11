@@ -36,10 +36,13 @@ dir.create("code", showWarnings=FALSE)
 
 Open a text file either using `RStudio`, `atom`, or another text editor and copy and paste this code to the file:
 
-```R
-library(tidyverse)
-library(readxl)
 
+```{r echo=F}
+x <- 'library(tidyverse)
+library(readxl)
+'
+
+y <- '
 metadata <- read_excel(path="raw_data/baxter.metadata.xlsx",
 		col_types=c(sample = "text", fit_result = "numeric", Site = "text", Dx_Bin = "text",
 				dx = "text", Hx_Prev = "logical", Hx_of_Polyps = "logical", Age = "numeric",
@@ -62,13 +65,20 @@ metadata <- rename(.data=metadata,
 		diagnosis_bin=dx_bin,
 		diagnosis=dx,
 		sex=gender)
+'
+write(paste(x, y), "code/baxter.R")
+```
+
+```r
+```{r child="../code/baxter.R"}
+```
 ```
 
 Within your new `code` directory, save the file as `baxter.R`. Re-start `R` and type `metadata` at the prompt. You should get an error saying **`Error: object 'metadata' not found`**. If you don't this would be a good time to remind you that you should not save your session on quitting and you should not load your previous session on starting. R will prompt you about the former and automatically to the latter unless you have R properly configured. You can set this in the RStudio preferences. Trust me, these things causes major headaches and reduce the reproducibility of your analyses.
 
 How do we get metadata back into R? We can load code from external files in a few different ways. One that we've already seen is with the `library` function, which loads code from external packages. We can also use the `source` command. Before running `source`, let's see what variables are already loaded into R with the `ls` function.
 
-```R
+```{r results="hide"}
 ls()
 source('code/baxter.R')
 ls()
@@ -77,7 +87,11 @@ metadata
 
 Nice, eh? Before we ran `source`, the result of `ls` was `character(0)`, which means there is nothing. After running `source`, `ls` tells us that the `metadata` variable is loaded. Our source file only contains variable - `metadata` - it's pretty simple. Do you remember that we previously created a couple of functions related to the BMI? Let's bring those into our `baxter.R` file as functions below our metadata code.
 
-```R
+```{r echo=F}
+z <- 'get_bmi <- function(weight_kg, height_m){
+	return(weight_kg / height_m ^ 2)
+}
+
 is_obese <- function(weight_kg, height_m){
 	bmi_category <- get_bmi_category(weight_kg, height_m)
 	return(bmi_category == "obese")
@@ -97,19 +111,27 @@ get_bmi_category <- function(weight_kg, height_m){
 is_obese <- function(weight_kg, height_m){
 	bmi_category <- get_bmi_category(weight_kg, height_m)
 	return(bmi_category == "obese")
-}
+}'
+
+write(paste(x, y, z), "code/baxter.R")
+write(z, "code/stub.R" )
+```
+
+```r
+```{r child="../code/stub.R"}
+```
 ```
 
 Save `baxter.R` and re-run the `source` and `ls` functions.
 
-```R
-source('code/baxter.R')
+```{r results="hide"}
+source("code/baxter.R")
 ls()
 ```
 
 We now see `get_bmi`, `get_bmi_category`, `is_obese`, and `metadata`. Remember that functions are variables. To make sure it all works, let's test our functions
 
-```{r}
+```{r, results="markup"}
 get_bmi(height=2, weight=130)
 get_bmi_category(height=2, weight=130)
 is_obese(height=2, weight=130)
@@ -117,7 +139,7 @@ is_obese(height=2, weight=130)
 
 The cool thing about this is that wherever we want to calculate a BMI value in our project, `get_bmi` is available to us after we source `baxter.R`. In the grand scheme of things, the code to generate the `metadata` data frame was pretty simple - there's only one variable: `metadata`. If our code had been more complex and we had used multiple variables to generate `metadata`, then all those variables would be available to us. That would probably be less than ideal. What happens if you enter `bmi_cat` at the prompt? You get an error message, right? That's because it's within the body of the `get_bmi_category` function and is hidden to any code outside that function. Let's convert our metadata code into a function we'll call `get_metadata`. You will need to edit `baxter.R` like this...
 
-```R
+```r
 library(tidyverse)
 library(readxl)
 
@@ -133,9 +155,15 @@ get_metadata <- function(){
 }
 ```
 
+```{r echo=F}
+f <- paste(x, "\n\nget_metadata <- function(){\n\n", y, "\nreturn(metadata)\n}\n\n", z)
+
+write(f, "code/baxter.R")
+```
+
 Go ahead and restart R. Now try this
 
-```{r}
+```{r, results="hide"}
 source('code/baxter.R')
 ls()
 ```
@@ -185,16 +213,16 @@ Create a new file in the `code` directory called `plot_ordination.R` that contai
 <div markdown="1" style="display:none;">
 This code would go into `code/plot_ordination.R`. Note that the the `library(tidyverse)` line isn't necessary since it's already being loaded in `baxter.R`
 
-```r
-library(tidyverse)
-source('code/baxter.R')
+```{r, echo=FALSE}
+x <- 'library(tidyverse)
+source("code/baxter.R")
 
 pcoa <- read_tsv(file="raw_data/baxter.thetayc.pcoa.axes",
 		col_types=cols(group=col_character())
 	)
 
 metadata <- get_metadata()
-metadata_pcoa <- inner_join(metadata, pcoa, by=c('sample'='group'))
+metadata_pcoa <- inner_join(metadata, pcoa, by=c("sample"="group"))
 
 ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
 	geom_point(shape=19, size=2) +
@@ -209,35 +237,19 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
 	theme_classic()
 
 ggsave("ordination.pdf")
+'
+write(x, "code/plot_ordination.R")
 ```
 
-Once `code/plot-ordination.R` is saved, in your terminal you can run `source('code/plot_ordination.R')` to generate the following
+```r
+```{r child='../code/plot_ordination.R', results="markup"}
+```
+```
 
-```{r echo=FALSE}
-library(tidyverse)
-source('code/baxter.R')
+Once `code/plot_ordination.R` is saved, in your terminal you can run `source('code/plot_ordination.R')` to generate the following
 
-pcoa <- read_tsv(file="raw_data/baxter.thetayc.pcoa.axes",
-		col_types=cols(group=col_character())
-	)
-
-metadata <- get_metadata()
-metadata_pcoa <- inner_join(metadata, pcoa, by=c('sample'='group'))
-
-ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
-	geom_point(shape=19, size=2) +
-	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
-		breaks=c("normal", "adenoma", "cancer"),
-		labels=c("Normal", "Adenoma", "Cancer")) +
-	coord_fixed() +
-	labs(title="PCoA of ThetaYC Distances Between Stool Samples",
-		x="PCo Axis 1",
-		y="PCo Axis 2") +
-	theme_classic()
-
-dir.create("figures", showWarnings=FALSE)
-ggsave("figures/ordination.pdf")
+```{r echo=FALSE, results="hide"}
+source('code/plot_ordination.R', echo=TRUE)
 ```
 </div>
 
@@ -338,6 +350,7 @@ Use the `gather` function with our `alpha` data frame to gather together the `so
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
+```{r}
 alpha <- read_tsv(file="raw_data/baxter.groups.ave-std.summary",
 		col_types=cols(group = col_character())) %>%
 	filter(method=='ave') %>%
@@ -345,6 +358,7 @@ alpha <- read_tsv(file="raw_data/baxter.groups.ave-std.summary",
 	gather(-group, key=metric, value=value)
 # or
 # gather(sobs, shannon, invsimpson, coverage, key=metric, value=values)
+```
 </div>
 
 ---
@@ -718,8 +732,8 @@ Create a file in `code/` that is called `plot_rarefaction_curves.R` that contain
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
-```{r}
-source('code/baxter.R')
+```{r echo=FALSE}
+x <-'source("code/baxter.R")
 metadata <- get_metadata()
 
 rarefy <- read_tsv(file="raw_data/baxter.rarefaction") %>%
@@ -743,5 +757,22 @@ ggplot(metadata_rarefy, aes(x=numsampled, y=sobs, group=sample, color=diagnosis)
 		x="Number of Sequences Sampled per Subject",
 		y="Number of OTUs per Subject") +
 	theme_classic()
+'
+write(x, "code/plot_rarefaction_curves.R")
 ```
+
+```r
+```{r child="../code/plot_rarefaction_curves.R"}
+```
+```
+
+```{r echo=FALSE, results="hide"}
+source('code/plot_rarefaction_curves.R', echo=TRUE)
+```
+
 <div>
+
+
+```{r results='hide', echo=FALSE}
+file.remove("code/stub.R")
+```

@@ -25,10 +25,14 @@ dir.create("code", showWarnings=FALSE)
 
 Open a text file either using `RStudio`, `atom`, or another text editor and copy and paste this code to the file:
 
-```R
+
+
+
+```r
+
 library(tidyverse)
 library(readxl)
-
+ 
 metadata <- read_excel(path="raw_data/baxter.metadata.xlsx",
 		col_types=c(sample = "text", fit_result = "numeric", Site = "text", Dx_Bin = "text",
 				dx = "text", Hx_Prev = "logical", Hx_of_Polyps = "logical", Age = "numeric",
@@ -51,13 +55,15 @@ metadata <- rename(.data=metadata,
 		diagnosis_bin=dx_bin,
 		diagnosis=dx,
 		sex=gender)
+
 ```
 
 Within your new `code` directory, save the file as `baxter.R`. Re-start `R` and type `metadata` at the prompt. You should get an error saying **`Error: object 'metadata' not found`**. If you don't this would be a good time to remind you that you should not save your session on quitting and you should not load your previous session on starting. R will prompt you about the former and automatically to the latter unless you have R properly configured. You can set this in the RStudio preferences. Trust me, these things causes major headaches and reduce the reproducibility of your analyses.
 
 How do we get metadata back into R? We can load code from external files in a few different ways. One that we've already seen is with the `library` function, which loads code from external packages. We can also use the `source` command. Before running `source`, let's see what variables are already loaded into R with the `ls` function.
 
-```R
+
+```r
 ls()
 source('code/baxter.R')
 ls()
@@ -66,7 +72,14 @@ metadata
 
 Nice, eh? Before we ran `source`, the result of `ls` was `character(0)`, which means there is nothing. After running `source`, `ls` tells us that the `metadata` variable is loaded. Our source file only contains variable - `metadata` - it's pretty simple. Do you remember that we previously created a couple of functions related to the BMI? Let's bring those into our `baxter.R` file as functions below our metadata code.
 
-```R
+
+
+```r
+
+get_bmi <- function(weight_kg, height_m){
+	return(weight_kg / height_m ^ 2)
+}
+
 is_obese <- function(weight_kg, height_m){
 	bmi_category <- get_bmi_category(weight_kg, height_m)
 	return(bmi_category == "obese")
@@ -91,8 +104,9 @@ is_obese <- function(weight_kg, height_m){
 
 Save `baxter.R` and re-run the `source` and `ls` functions.
 
-```R
-source('code/baxter.R')
+
+```r
+source("code/baxter.R")
 ls()
 ```
 
@@ -104,7 +118,7 @@ get_bmi(height=2, weight=130)
 ```
 
 ```
-## Error in get_bmi(height = 2, weight = 130): could not find function "get_bmi"
+## [1] 32.5
 ```
 
 ```r
@@ -112,7 +126,7 @@ get_bmi_category(height=2, weight=130)
 ```
 
 ```
-## Error in get_bmi_category(height = 2, weight = 130): could not find function "get_bmi_category"
+## [1] "obese"
 ```
 
 ```r
@@ -120,12 +134,12 @@ is_obese(height=2, weight=130)
 ```
 
 ```
-## Error in is_obese(height = 2, weight = 130): could not find function "is_obese"
+## [1] TRUE
 ```
 
 The cool thing about this is that wherever we want to calculate a BMI value in our project, `get_bmi` is available to us after we source `baxter.R`. In the grand scheme of things, the code to generate the `metadata` data frame was pretty simple - there's only one variable: `metadata`. If our code had been more complex and we had used multiple variables to generate `metadata`, then all those variables would be available to us. That would probably be less than ideal. What happens if you enter `bmi_cat` at the prompt? You get an error message, right? That's because it's within the body of the `get_bmi_category` function and is hidden to any code outside that function. Let's convert our metadata code into a function we'll call `get_metadata`. You will need to edit `baxter.R` like this...
 
-```R
+```r
 library(tidyverse)
 library(readxl)
 
@@ -141,16 +155,14 @@ get_metadata <- function(){
 }
 ```
 
+
+
 Go ahead and restart R. Now try this
 
 
 ```r
 source('code/baxter.R')
 ls()
-```
-
-```
-## character(0)
 ```
 
 Instead of seeing `metadata` we now see `get_metadata`. But how do we get a `metadata` data frame?
@@ -162,24 +174,23 @@ metadata
 ```
 
 ```
-## # A tibble: 490 x 20
+## # A tibble: 490 x 17
 ##    sample  fit_result site      diagnosis_bin   diagnosis previous_history
 ##    <chr>        <dbl> <chr>     <chr>           <chr>     <lgl>           
-##  1 2003650       0    U Michig… High Risk Norm… normal    F               
-##  2 2005650       0    U Michig… High Risk Norm… normal    F               
-##  3 2007660      26.0  U Michig… High Risk Norm… normal    F               
-##  4 2009650      10.0  Toronto   Adenoma         adenoma   F               
-##  5 2013660       0    U Michig… Normal          normal    F               
-##  6 2015650       0    Dana Far… High Risk Norm… normal    F               
-##  7 2017660       7.00 Dana Far… Cancer          cancer    T               
-##  8 2019651      19.0  U Michig… Normal          normal    F               
-##  9 2023680       0    Dana Far… High Risk Norm… normal    T               
-## 10 2025653    1509    U Michig… Cancer          cancer    T               
-## # ... with 480 more rows, and 14 more variables: history_of_polyps <lgl>,
+##  1 2003650          0 U Michig… High Risk Norm… normal    FALSE           
+##  2 2005650          0 U Michig… High Risk Norm… normal    FALSE           
+##  3 2007660         26 U Michig… High Risk Norm… normal    FALSE           
+##  4 2009650         10 Toronto   Adenoma         adenoma   FALSE           
+##  5 2013660          0 U Michig… Normal          normal    FALSE           
+##  6 2015650          0 Dana Far… High Risk Norm… normal    FALSE           
+##  7 2017660          7 Dana Far… Cancer          cancer    TRUE            
+##  8 2019651         19 U Michig… Normal          normal    FALSE           
+##  9 2023680          0 Dana Far… High Risk Norm… normal    TRUE            
+## 10 2025653       1509 U Michig… Cancer          cancer    TRUE            
+## # ... with 480 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>, bmi <dbl>, bmi_category <chr>,
-## #   obese <lgl>
+## #   diabetes_med <lgl>, stage <chr>
 ```
 
 We now have a DRY way of providing the code to generate a consistent `metadata` data frame across our project.  You might be thinking that this isn't so special since you can dump all of your code for your project into `baxter.R`. Sure, you could. Most people who have been working to make their code reusable and reproducible find value to breaking their code up across multiple files. For example, we might want to make an ordination figure like we started with, a strip chart of FIT result by diagnosis group, and a strip chart of diversity by diagnosis group. My preference is to have a separate R script file to build each of these figures. That way if I want to come back and change my diversity value from Shannon to inverse Simpson indices in the third figure, I would only need to re-run the code for that figure. Similarly, having a primary "utility" R script that has a lot of common features in it, I can now source `baxter.R` in each of the figures where I need metadata. Also, if I were really on the ball, I could define my color scheme in `baxter.R` as a variable and then use that variable throughout my figures. Ultimately, as a project gets larger, it helps to break up your code in to different R scripts as a way of organizing your code.
@@ -220,16 +231,19 @@ Create a new file in the `code` directory called `plot_ordination.R` that contai
 <div markdown="1" style="display:none;">
 This code would go into `code/plot_ordination.R`. Note that the the `library(tidyverse)` line isn't necessary since it's already being loaded in `baxter.R`
 
+
+
 ```r
+
 library(tidyverse)
-source('code/baxter.R')
+source("code/baxter.R")
 
 pcoa <- read_tsv(file="raw_data/baxter.thetayc.pcoa.axes",
 		col_types=cols(group=col_character())
 	)
 
 metadata <- get_metadata()
-metadata_pcoa <- inner_join(metadata, pcoa, by=c('sample'='group'))
+metadata_pcoa <- inner_join(metadata, pcoa, by=c("sample"="group"))
 
 ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
 	geom_point(shape=19, size=2) +
@@ -244,11 +258,12 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
 	theme_classic()
 
 ggsave("ordination.pdf")
+
 ```
 
-Once `code/plot-ordination.R` is saved, in your terminal you can run `source('code/plot_ordination.R')` to generate the following
+Once `code/plot_ordination.R` is saved, in your terminal you can run `source('code/plot_ordination.R')` to generate the following
 
-<img src="assets/images/06_line_plots//unnamed-chunk-5-1.png" title="plot of chunk unnamed-chunk-5" alt="plot of chunk unnamed-chunk-5" width="504" />
+<img src="assets/images/06_line_plots//unnamed-chunk-14-1.png" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" width="504" />
 </div>
 
 ---
@@ -271,16 +286,16 @@ rarefy
 ## # A tibble: 919 x 1,471
 ##    numsampled `0.03-2003650` `lci-2003650` `hci-2003650` `0.03-2005650`
 ##         <int>          <dbl>         <dbl>         <dbl>          <dbl>
-##  1          1           1.00          1.00          1.00           1.00
-##  2       1000         111            99.0         121            121   
-##  3       2000         143           129           154            159   
-##  4       3000         166           151           176            186   
-##  5       4000         185           174           197            206   
-##  6       5000         199           189           208            224   
-##  7       6000         213           200           223            240   
-##  8       7000         225           212           238            253   
-##  9       8000         237           223           249            265   
-## 10       9000         248           235           262            276   
+##  1          1             1              1             1             1 
+##  2       1000           111.            99           121           121.
+##  3       2000           143.           129           154           159.
+##  4       3000           166.           151           176           186.
+##  5       4000           185.           174           197           206.
+##  6       5000           199.           189           208           224.
+##  7       6000           213.           200           223           240.
+##  8       7000           225.           212           238           253.
+##  9       8000           237.           223           249           265.
+## 10       9000           248.           235           262           276.
 ## # ... with 909 more rows, and 1,466 more variables: `lci-2005650` <dbl>,
 ## #   `hci-2005650` <dbl>, `0.03-2007660` <dbl>, `lci-2007660` <dbl>,
 ## #   `hci-2007660` <dbl>, `0.03-2009650` <dbl>, `lci-2009650` <dbl>,
@@ -364,16 +379,16 @@ read_tsv(file="raw_data/baxter.rarefaction") %>%
 ## # A tibble: 919 x 491
 ##    numsampled `0.03-2003650` `0.03-2005650` `0.03-2007660` `0.03-2009650`
 ##         <int>          <dbl>          <dbl>          <dbl>          <dbl>
-##  1          1           1.00           1.00           1.00           1.00
-##  2       1000         111            121            121            141   
-##  3       2000         143            159            158            185   
-##  4       3000         166            186            184            215   
-##  5       4000         185            206            204            237   
-##  6       5000         199            224            221            255   
-##  7       6000         213            240            235            271   
-##  8       7000         225            253            247            284   
-##  9       8000         237            265            258            297   
-## 10       9000         248            276            269            308   
+##  1          1             1              1              1              1 
+##  2       1000           111.           121.           121.           141.
+##  3       2000           143.           159.           158.           185.
+##  4       3000           166.           186.           184.           215.
+##  5       4000           185.           206.           204.           237.
+##  6       5000           199.           224.           221.           255.
+##  7       6000           213.           240.           235.           271.
+##  8       7000           225.           253.           247.           284.
+##  9       8000           237.           265.           258.           297.
+## 10       9000           248.           276.           269.           308.
 ## # ... with 909 more rows, and 486 more variables: `0.03-2013660` <dbl>,
 ## #   `0.03-2015650` <dbl>, `0.03-2017660` <dbl>, `0.03-2019651` <dbl>,
 ## #   `0.03-2023680` <dbl>, `0.03-2025653` <dbl>, `0.03-2027653` <dbl>,
@@ -434,15 +449,15 @@ gather(temps, chicago, detroit, nashville, key='city', value='temperatures')
 ## # A tibble: 9 x 3
 ##     day city      temperatures
 ##   <dbl> <chr>            <dbl>
-## 1  1.00 chicago           75.0
-## 2  2.00 chicago           77.0
-## 3  3.00 chicago           74.0
-## 4  1.00 detroit           69.0
-## 5  2.00 detroit           71.0
-## 6  3.00 detroit           70.0
-## 7  1.00 nashville         79.0
-## 8  2.00 nashville         80.0
-## 9  3.00 nashville         78.0
+## 1     1 chicago             75
+## 2     2 chicago             77
+## 3     3 chicago             74
+## 4     1 detroit             69
+## 5     2 detroit             71
+## 6     3 detroit             70
+## 7     1 nashville           79
+## 8     2 nashville           80
+## 9     3 nashville           78
 ```
 
 Note that if we had a bunch of cities, it would be a pain to write them all out. We could use the helper functions that we used with `select`. Alternatively, if there's only one other column (e.g. "day" or "numsampled"), you could use the `-` to tell `gather` to ignore that columns
@@ -456,15 +471,15 @@ gather(temps, -day, key='city', value='temperatures')
 ## # A tibble: 9 x 3
 ##     day city      temperatures
 ##   <dbl> <chr>            <dbl>
-## 1  1.00 chicago           75.0
-## 2  2.00 chicago           77.0
-## 3  3.00 chicago           74.0
-## 4  1.00 detroit           69.0
-## 5  2.00 detroit           71.0
-## 6  3.00 detroit           70.0
-## 7  1.00 nashville         79.0
-## 8  2.00 nashville         80.0
-## 9  3.00 nashville         78.0
+## 1     1 chicago             75
+## 2     2 chicago             77
+## 3     3 chicago             74
+## 4     1 detroit             69
+## 5     2 detroit             71
+## 6     3 detroit             70
+## 7     1 nashville           79
+## 8     2 nashville           80
+## 9     3 nashville           78
 ```
 
 Let's apply this to our rarefaction data
@@ -486,6 +501,8 @@ Use the `gather` function with our `alpha` data frame to gather together the `so
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
+
+```r
 alpha <- read_tsv(file="raw_data/baxter.groups.ave-std.summary",
 		col_types=cols(group = col_character())) %>%
 	filter(method=='ave') %>%
@@ -493,6 +510,7 @@ alpha <- read_tsv(file="raw_data/baxter.groups.ave-std.summary",
 	gather(-group, key=metric, value=value)
 # or
 # gather(sobs, shannon, invsimpson, coverage, key=metric, value=values)
+```
 </div>
 
 ---
@@ -584,7 +602,7 @@ ggplot(metadata_rarefy, aes(x=numsampled, y=sobs)) +
 	geom_line()
 ```
 
-<img src="assets/images/06_line_plots//unnamed-chunk-19-1.png" title="plot of chunk unnamed-chunk-19" alt="plot of chunk unnamed-chunk-19" width="504" />
+<img src="assets/images/06_line_plots//unnamed-chunk-29-1.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="504" />
 
 Whoa. That my friends is what we call [#accidentalaRt](https://twitter.com/search?q=rstats%20accidentalart&src=typd). It appears that the points were all connected by a single line. We want separate lines for each sample. Looking at the aesthetics that we can use with `geom_line`, we see that there is a `group` option. We want to use that to group our samples by `sample`.
 
@@ -594,7 +612,7 @@ ggplot(metadata_rarefy, aes(x=numsampled, y=sobs, group=sample)) +
 	geom_line()
 ```
 
-<img src="assets/images/06_line_plots//unnamed-chunk-20-1.png" title="plot of chunk unnamed-chunk-20" alt="plot of chunk unnamed-chunk-20" width="504" />
+<img src="assets/images/06_line_plots//unnamed-chunk-30-1.png" title="plot of chunk unnamed-chunk-30" alt="plot of chunk unnamed-chunk-30" width="504" />
 
 That's more like it! Let's map the `diagnosis` to the `color` aesthetic so our lines are colored by the subjects' diagnosis group.
 
@@ -604,7 +622,7 @@ ggplot(metadata_rarefy, aes(x=numsampled, y=sobs, group=sample, color=diagnosis)
 	geom_line()
 ```
 
-<img src="assets/images/06_line_plots//unnamed-chunk-21-1.png" title="plot of chunk unnamed-chunk-21" alt="plot of chunk unnamed-chunk-21" width="504" />
+<img src="assets/images/06_line_plots//unnamed-chunk-31-1.png" title="plot of chunk unnamed-chunk-31" alt="plot of chunk unnamed-chunk-31" width="504" />
 
 To keep our coloring scheme consistent, let's add our `scale_color_manual` function. While we're at it, let's add our titling and theme.
 
@@ -622,7 +640,7 @@ ggplot(metadata_rarefy, aes(x=numsampled, y=sobs, group=sample, color=diagnosis)
 	theme_classic()
 ```
 
-<img src="assets/images/06_line_plots//unnamed-chunk-22-1.png" title="plot of chunk unnamed-chunk-22" alt="plot of chunk unnamed-chunk-22" width="504" />
+<img src="assets/images/06_line_plots//unnamed-chunk-32-1.png" title="plot of chunk unnamed-chunk-32" alt="plot of chunk unnamed-chunk-32" width="504" />
 
 One thing we might notice is that most of the action is occurring inside of 20,000 sequences sampled. We'd like to zoom in on the x and y-axes. Recall that we can do this with the `coord_cartesian` function.
 
@@ -641,7 +659,7 @@ ggplot(metadata_rarefy, aes(x=numsampled, y=sobs, group=sample, color=diagnosis)
 	theme_classic()
 ```
 
-<img src="assets/images/06_line_plots//unnamed-chunk-23-1.png" title="plot of chunk unnamed-chunk-23" alt="plot of chunk unnamed-chunk-23" width="504" />
+<img src="assets/images/06_line_plots//unnamed-chunk-33-1.png" title="plot of chunk unnamed-chunk-33" alt="plot of chunk unnamed-chunk-33" width="504" />
 
 This plot is a bit much. There are way too many lines. To illustrate some other features of `geom_line`, let's reduce the number of samples. We can do this with the `sample_n` or `sample_frac` functions from the `dplyr` package.
 
@@ -665,7 +683,7 @@ ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=dia
 		theme_classic()
 ```
 
-<img src="assets/images/06_line_plots//unnamed-chunk-24-1.png" title="plot of chunk unnamed-chunk-24" alt="plot of chunk unnamed-chunk-24" width="504" />
+<img src="assets/images/06_line_plots//unnamed-chunk-34-1.png" title="plot of chunk unnamed-chunk-34" alt="plot of chunk unnamed-chunk-34" width="504" />
 
 
 Here we have solid lines. What if we want to have some hashing to the lines or want to change their width? Let's start with the hashing, which is controlled by the `linetype` aesthetic
@@ -685,7 +703,7 @@ ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=dia
 		theme_classic()
 ```
 
-<img src="assets/images/06_line_plots//unnamed-chunk-25-1.png" title="plot of chunk unnamed-chunk-25" alt="plot of chunk unnamed-chunk-25" width="504" />
+<img src="assets/images/06_line_plots//unnamed-chunk-35-1.png" title="plot of chunk unnamed-chunk-35" alt="plot of chunk unnamed-chunk-35" width="504" />
 
 There are six different `linetype`s that you can set with a number from 1 to 6.
 
@@ -717,7 +735,7 @@ ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=dia
 		theme_classic()
 ```
 
-<img src="assets/images/06_line_plots//unnamed-chunk-26-1.png" title="plot of chunk unnamed-chunk-26" alt="plot of chunk unnamed-chunk-26" width="504" />
+<img src="assets/images/06_line_plots//unnamed-chunk-36-1.png" title="plot of chunk unnamed-chunk-36" alt="plot of chunk unnamed-chunk-36" width="504" />
 </div>
 
 ---
@@ -746,7 +764,7 @@ ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=dia
 		theme_classic()
 ```
 
-<img src="assets/images/06_line_plots//unnamed-chunk-27-1.png" title="plot of chunk unnamed-chunk-27" alt="plot of chunk unnamed-chunk-27" width="504" />
+<img src="assets/images/06_line_plots//unnamed-chunk-37-1.png" title="plot of chunk unnamed-chunk-37" alt="plot of chunk unnamed-chunk-37" width="504" />
 </div>
 
 ---
@@ -776,7 +794,7 @@ ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=dia
 		theme_classic()
 ```
 
-<img src="assets/images/06_line_plots//unnamed-chunk-28-1.png" title="plot of chunk unnamed-chunk-28" alt="plot of chunk unnamed-chunk-28" width="504" />
+<img src="assets/images/06_line_plots//unnamed-chunk-38-1.png" title="plot of chunk unnamed-chunk-38" alt="plot of chunk unnamed-chunk-38" width="504" />
 
 You'll notice some clumping in the points along the lines. This occurs because if a sample got to 9331 sequences, then mothur outputted the data for all of the samples at 9331 sequences. We could change the output to make sure that the data outputted every 1000 or 5000 or whatever sequences by making a second data frame to use with the `geom_line` function.
 
@@ -802,7 +820,7 @@ ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=dia
 		theme_classic()
 ```
 
-<img src="assets/images/06_line_plots//unnamed-chunk-29-1.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="504" />
+<img src="assets/images/06_line_plots//unnamed-chunk-39-1.png" title="plot of chunk unnamed-chunk-39" alt="plot of chunk unnamed-chunk-39" width="504" />
 
 The `%%` function is the modulus operator, which returns the remainder of dividing one number by another. If you do `233 %% 100` the value would be `33`. If you did `2000 %% 1000`, the remainder would be `0`.
 </div>
@@ -829,7 +847,7 @@ ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=dia
 		theme_classic()
 ```
 
-<img src="assets/images/06_line_plots//unnamed-chunk-30-1.png" title="plot of chunk unnamed-chunk-30" alt="plot of chunk unnamed-chunk-30" width="504" />
+<img src="assets/images/06_line_plots//unnamed-chunk-40-1.png" title="plot of chunk unnamed-chunk-40" alt="plot of chunk unnamed-chunk-40" width="504" />
 
 As with `geom_line`, we can change the line type, color, and width. Let's make the line a bit thicker and have it be gray. To put the vertical line behind the curves, we will call `geom_vline` before `geom_line`
 
@@ -849,7 +867,7 @@ ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=dia
 		theme_classic()
 ```
 
-<img src="assets/images/06_line_plots//unnamed-chunk-31-1.png" title="plot of chunk unnamed-chunk-31" alt="plot of chunk unnamed-chunk-31" width="504" />
+<img src="assets/images/06_line_plots//unnamed-chunk-41-1.png" title="plot of chunk unnamed-chunk-41" alt="plot of chunk unnamed-chunk-41" width="504" />
 
 You might have seen this coming, but if you want a horizontal line, you would use `geom_hline` with the `yintercept` attribute.
 
@@ -869,7 +887,7 @@ ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=dia
 		theme_classic()
 ```
 
-<img src="assets/images/06_line_plots//unnamed-chunk-32-1.png" title="plot of chunk unnamed-chunk-32" alt="plot of chunk unnamed-chunk-32" width="504" />
+<img src="assets/images/06_line_plots//unnamed-chunk-42-1.png" title="plot of chunk unnamed-chunk-42" alt="plot of chunk unnamed-chunk-42" width="504" />
 
 A third type of line that doesn't exactly fit with rarefaction data is `geom_abline` or a straight line with a defined y-intercept and slope
 
@@ -889,7 +907,7 @@ ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=dia
 		theme_classic()
 ```
 
-<img src="assets/images/06_line_plots//unnamed-chunk-33-1.png" title="plot of chunk unnamed-chunk-33" alt="plot of chunk unnamed-chunk-33" width="504" />
+<img src="assets/images/06_line_plots//unnamed-chunk-43-1.png" title="plot of chunk unnamed-chunk-43" alt="plot of chunk unnamed-chunk-43" width="504" />
 
 ---
 
@@ -924,7 +942,7 @@ ggplot(meta_alpha, aes(x=fit_result, y=shannon, color=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/06_line_plots//unnamed-chunk-34-1.png" title="plot of chunk unnamed-chunk-34" alt="plot of chunk unnamed-chunk-34" width="504" />
+<img src="assets/images/06_line_plots//unnamed-chunk-44-1.png" title="plot of chunk unnamed-chunk-44" alt="plot of chunk unnamed-chunk-44" width="504" />
 </div>
 
 ---
@@ -935,8 +953,10 @@ Create a file in `code/` that is called `plot_rarefaction_curves.R` that contain
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
 
+
 ```r
-source('code/baxter.R')
+
+source("code/baxter.R")
 metadata <- get_metadata()
 
 rarefy <- read_tsv(file="raw_data/baxter.rarefaction") %>%
@@ -960,7 +980,12 @@ ggplot(metadata_rarefy, aes(x=numsampled, y=sobs, group=sample, color=diagnosis)
 		x="Number of Sequences Sampled per Subject",
 		y="Number of OTUs per Subject") +
 	theme_classic()
+
 ```
 
-<img src="assets/images/06_line_plots//unnamed-chunk-35-1.png" title="plot of chunk unnamed-chunk-35" alt="plot of chunk unnamed-chunk-35" width="504" />
+<img src="assets/images/06_line_plots//unnamed-chunk-47-1.png" title="plot of chunk unnamed-chunk-47" alt="plot of chunk unnamed-chunk-47" width="504" />
+
 <div>
+
+
+
