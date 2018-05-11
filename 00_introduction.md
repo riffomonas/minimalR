@@ -14,13 +14,16 @@ I suspect that you will understand the first chunk of code we write. We will str
 
 The final philosophical point I will make is that I believe it is important to eat your own dog food as an educator. Everything I teach, is how I want to code and how I want those that work for me to code. There is definitely always room for improvement, but be confident that I'm not trying to sell you on something that I do not use myself. That being said, although I don't claim that the plots we'll make are works of aRt, I do think that they're pretty close to being publication quality. Why make a crappy plot, when you could make a good one that pus your work in the best possible light?
 
-If you notice a bug, something that is unclear, have an idea for a better approach, or want to see something added, please file an issue or, even better, a pull request at the project's [GitHub repository](href="https://github.com/riffomonas/minimalR">minimalR GitHub repository).
-
+If you notice a bug, something that is unclear, have an idea for a better approach, or want to see something added, please file an issue or, even better, a pull request at the project's [GitHub repository](https://github.com/riffomonas/minimalR).
 
 ## Why R
+If you're looking for some big "pound your chest" explanation for why you should learn R, then you're looking in the wrong place. I know R. That's why I teach R. Why did I learn R? There were people around me that new R and I knew I could depend on them to help me learn R if I ran into any problems. Less important than which language you should learn is that you learn *A* language. Any language, really.
 
+The way I see it there are several credible languages if you are a scientist: R, Python, C/C++, Java. R and Python are "high level" languages that have a lot of built in goodies to make your life easy. As you'll see, it's pretty easy to build a graph or to calculate a mean in R (and python). These languages are engineered to make it easier on the programmer than the person running the code. In contrast, C/C++ and Java are not as easy to program, but are far more efficient and run blazing fast. You'll hear about others like Julia, Ruby, or Perl. These aren't quite mainstream for biologists or aren't fully developed yet or are past their sell by date. Unless you have needs for high performance, I'd probably stay away from C/C++ and Java isn't really all that high performance. If you need the speed of C++ you can write C++ in R.
 
+This leaves you to chose between R and Python. You can google "Should I learn R or Python" and you'll get screed after screed telling you why one language is the best. Do not read these. They're next to worthless and smack of all sorts of machismo. I block accounts on Twitter that go off on R vs. Python screeds. I know R's warts and I know that Python could possibly cure these warts. But I also know that Python has its own warts. Rather than carry the cognitive baggage of learning both, I do what I need in R. At least a few times a year I tell myself I should learn Python to know it, but when it comes to doing it, I'm just not sold. To be honest, to really appreciate the differences between the languages you probably need a fair bit more experience than someone that is reading this. Note that someone else could/should easily rewrite this paragraph switching R and Python.
 
+But really! What should you learn? Depends. What does your research group use? What do your collaborators use? What do the people around you use? If you have a problem, who are you going to get help from? For me, the answers to these questions were generally: R. Again, it's more important that you learn your first language than which language you learn. Master your first language and then start noodling with others. I always cringe when I see someone encouraging a novice to learn other languages. It can only sow confusion and frustration. Since you're here, I suspect someone has encouraged you to learn R or that your local community has some R chops. Welcome! I want to challenge you to not just use your community to help you, but to also nourish your community to help it grow.
 
 
 ## What you need to do these tutorials...
@@ -31,17 +34,48 @@ If you notice a bug, something that is unclear, have an idea for a better approa
 
 ## Set up our minimalR project...
 * In your home directory or desktop create a directory called `minimalR`
-* Move your decompressed `raw_data` directory into `minimalR`. There should only be one thing in `minimalR`, which is the `raw_data` directory.
-* To make life easier, you should start with RStudio. Open `RStudio` and do "File->New Project->Existing Directory". Use the "Browse" button to find `minimalR`. Once you're there (you should only see `raw_data` in the directory), select open. My copy of `minimalR` is on the desktop and it lists my "Project working directory" as `~/Desktop/minimalR`. Click "Create Project"
-* In the lower right corner you will see that the "Files" tab is selected. In the panel it will have a file called `minimalR.Rproj` and a directory called `raw_data`.
+* Move your decompressed `raw_data` directory into `minimalR`. There should only be one thing in `minimalR`, which is the `raw_data` directory. If you look at your Finder window or Window Explorer window, you should have something that looks like this when `raw_data` is expanded
+
+<img src="assets/images/folder_setup.png" width="50%">
+
+* To make life easier, you should start with RStudio. Open `RStudio` and do "File->New Project->Existing Directory".
+
+<img src="assets/images/file_menu.png" width="50%">
+
+* Once you're in the "Create Project" dialog click on the "Existing Directory" link.
+
+<img src="assets/images/new_project.png" width="50%">
+
+
+* Use the "Browse" button to find `minimalR`. Once you're there (you should only see `raw_data` in the directory), select open.
+
+<img src="assets/images/browse_to_project.png" width="50%">
+
+* My copy of `minimalR` is on the desktop and it lists my "Project working directory" as `~/Desktop/minimalR`. Click "Create Project"
+
+<img src="assets/images/create_project.png" width="50%">
+
+* In the lower right corner of the RStudio program window you will see that the "Files" tab is selected. In the panel it will have a file called `minimalR.Rproj` and a directory called `raw_data`.
+
+<img src="assets/images/files_panel.png" width="50%">
+
 * Quit RStudio
 * Use your finder to navigate to your `minimalR` directory
 * Double click on `minimalR.Rproj`. This is probably the quickest way to have RStudio open up in your desired working directory.
 
+<img src="assets/images/start_w_project.png" width="50%">
+
 
 ## Customizing RStudio
 * There are many ways to customize RStudio. You can find the options by going to the Preferences window.
-* In the first tab, "General" the following items **should never be checked**. You likely don't need any of these to be checked except to be notified of RStudio:
+
+<img src="assets/images/launch_preferences.png" width="50%">
+
+* In the first tab, "General" the following items **should never be checked**.
+
+<img src="assets/images/general_preferences_tab.png" width="50%">
+
+* You likely don't need any of these to be checked except to be notified of RStudio:
 	- Restore .RData into workspace at startup
 	- Save workspace to .RData on exit (toggle should say "Never")
 	- Always save history
@@ -68,15 +102,58 @@ Now type the following at the prompt (feel free to use your own name)
 my_name <- "Pat Schloss"
 ```
 
-Now look in the upper right panel. In the "Environment" tab you'll see that there's a new variable - `my_name` and the value you just assigned it. We'll talk more about variables later, but for now, know that you can see the variables you've defined in this pane. Go ahead and click on the "History" tab. There you'll see the last two commands we've entered.
+Now look in the upper right panel. In the "Environment" tab you'll see that there's a new variable - `my_name` and the value you just assigned it. We'll talk more about variables later, but for now, know that you can see the variables you've defined in this pane.
+
+<img src="assets/images/environment_tab.png" width="50%">
+
+Go ahead and click on the "History" tab. There you'll see the last two commands we've entered.
+
+<img src="assets/images/history_tab.png" width="50%">
 
 
 ## Working through tutorials
-As you go through the tutorials you should be saving your code in a text file. Note that a Microsoft Word docx file is not a text file! We want a simple file that only contains text, no formatting. Go "File->New File->Rscript". This will open a file called "Untitled1" in the upper left panel and it will push the "Console" panel down along the left side. Save "Untitled1" as `lesson_00.R`. You should now see `lesson_00.R` listed in the "Files" tab in the lower right corner. Go ahead and enter `2+2` in `lesson_00.R`. One of the nice features of RStudio is that you can put your cursor on the line or highlight the lines you want to run in `lesson_00.R` and then press the "Run" button and it will copy, paste, and run the line(s) in the "Console" window. Alternatively, you can check the "Source on Save" button and every time you save the file, it will run the code in that file. Keep in mind that it will run every command so if you have some non-R code in the file, it will likely gag and complain. I would suggest you create a separate `lesson_XX.R` file for each lesson that we do as we work through the lessons.
+As you go through the tutorials you should be saving your code in a text file. Note that a Microsoft Word docx file is not a text file! We want a simple file that only contains text, no formatting. Go "File->New File->Rscript". This will open a file called "Untitled1" in the upper left panel and it will push the "Console" panel down along the left side.
+
+<img src="assets/images/new_r_script.png" width="50%">
+
+Save "Untitled1" as `lesson_00.R` in your `minimalR` directory with the `Rproj` file. You should now see `lesson_00.R` listed in the "Files" tab in the lower right corner. Go ahead and enter `2+2` in `lesson_00.R`.
+
+<img src="assets/images/new_r_script_code.png" width="50%">
+
+One of the nice features of RStudio is that you can put your cursor on the line or highlight the lines you want to run in `lesson_00.R` and then press the "Run" button and it will copy, paste, and run the line(s) in the "Console" window.
+
+<img src="assets/images/new_r_script_executed.png" width="50%">
+
+Alternatively, you can check the "Source on Save" button and every time you save the file, it will run the code in that file. Keep in mind that it will run every command so if you have some non-R code in the file, it will likely gag and complain. I would suggest you create a separate `lesson_XX.R` file for each lesson that we do as we work through the lessons.
+
+
+## Installing packages
+
+We will use several R packages throughout the lessons. The first that we'll use is called `tidyverse`. We'll be talking a lot about this package as we go along. But for now, we need to install this package. In the lower right panel of RStudio, select the "Package" tab. You'll get something that looks like this:
+
+<img src="assets/images/package_tab.png" width="50%">
+
+In the search window, type in "tidyverse" (without the quotes). If it isn't already installed, you won't see it. If it is installed, it will be listed. The package isn't installed on my computer.
+
+<img src="assets/images/tidyverse_search_v1.png" width="50%">
+
+If it isn't installed on your computer either, go ahead and click the Install button and type "tidyverse" into the "Packages" window:
+
+<img src="assets/images/tidyverse_install_window.png" width="50%">
+
+Once you press the "Install" button, the dialog will close and RStudio will install the package. You'll notice a couple things have happened. In the Packages tab in the lower right panel, you now see the "tidyverse" package is there. You'll also notice that in the lower left corner that R ran the command `install.packages("tidyverse")`.
+
+<img src="assets/images/install_packages_tidyverse.png" width="50%">
+
+Finally, to make all of the tidyverse goodness available as we go through the tutorials, you can either click the small square next to "tidyverse" in the "Packages" tab or you can run `library(tidyverse)` in the console tab in the lower left panel of RStudio.
+
+<img src="assets/images/library_tidyverse.png" width="50%">
 
 
 ## My setup
-If you run `sessionInfo` at the console, you will see the version of R and the packages you have installed and attached (more about what this all means later). Here's what mine looks like. It's pretty vanilla.
+If you run `sessionInfo` at the console, you will see the version of R and the packages you have installed and attached (more about what this all means later). Here's what mine looks like.
+
+
 
 
 ```r
@@ -84,13 +161,13 @@ sessionInfo()
 ```
 
 ```
-## R version 3.4.4 (2018-03-15)
+## R version 3.5.0 (2018-04-23)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
 ## Running under: macOS High Sierra 10.13.4
 ## 
 ## Matrix products: default
-## BLAS: /Library/Frameworks/R.framework/Versions/3.4/Resources/lib/libRblas.0.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/3.4/Resources/lib/libRlapack.dylib
+## BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRlapack.dylib
 ## 
 ## locale:
 ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -99,10 +176,24 @@ sessionInfo()
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] knitr_1.20.1 ezknitr_0.6 
+##  [1] forcats_0.3.0   stringr_1.3.0   dplyr_0.7.4     purrr_0.2.4    
+##  [5] readr_1.1.1     tidyr_0.8.0     tibble_1.4.2    ggplot2_2.2.1  
+##  [9] tidyverse_1.2.1 knitr_1.20      ezknitr_0.6    
 ## 
 ## loaded via a namespace (and not attached):
-## [1] compiler_3.4.4    magrittr_1.5      tools_3.4.4       stringi_1.1.7    
-## [5] R.methodsS3_1.7.1 stringr_1.3.0     R.utils_2.6.0     evaluate_0.10.1  
-## [9] R.oo_1.21.0
+##  [1] Rcpp_0.12.16      cellranger_1.1.0  pillar_1.2.2     
+##  [4] compiler_3.5.0    plyr_1.8.4        bindr_0.1.1      
+##  [7] R.methodsS3_1.7.1 R.utils_2.6.0     tools_3.5.0      
+## [10] lubridate_1.7.4   jsonlite_1.5      evaluate_0.10.1  
+## [13] nlme_3.1-137      gtable_0.2.0      lattice_0.20-35  
+## [16] pkgconfig_2.0.1   rlang_0.2.0       psych_1.8.3.3    
+## [19] cli_1.0.0         rstudioapi_0.7    parallel_3.5.0   
+## [22] haven_1.1.1       bindrcpp_0.2.2    xml2_1.2.0       
+## [25] httr_1.3.1        hms_0.4.2         grid_3.5.0       
+## [28] glue_1.2.0        R6_2.2.2          readxl_1.1.0     
+## [31] foreign_0.8-70    modelr_0.1.1      reshape2_1.4.3   
+## [34] magrittr_1.5      scales_0.5.0      rvest_0.3.2      
+## [37] assertthat_0.2.0  mnormt_1.5-5      colorspace_1.3-2 
+## [40] stringi_1.1.7     lazyeval_0.2.1    munsell_0.4.3    
+## [43] broom_0.4.4       crayon_1.3.4      R.oo_1.22.0
 ```
