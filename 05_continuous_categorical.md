@@ -601,6 +601,7 @@ It depends on the question, which is better! If we are interested in comparing t
 Our box plots have only had color on the rectangle, median line, whiskers, and outliers. Generate a box plot for the relationship between the patients' Shannon diversity and their diagnosis. Add a complimentary fill color that allows you to still see the cardinal values of the box plot.
 
 <input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
 
 ```r
 ggplot(meta_alpha, aes(x=diagnosis, y=shannon, color=diagnosis, fill=diagnosis)) +
@@ -620,7 +621,6 @@ ggplot(meta_alpha, aes(x=diagnosis, y=shannon, color=diagnosis, fill=diagnosis))
 ```
 
 <img src="assets/images/05_continuous_categorical//unnamed-chunk-27-1.png" title="plot of chunk unnamed-chunk-27" alt="plot of chunk unnamed-chunk-27" width="504" />
-<div markdown="1" style="display:none;">
 </div>
 
 ---
