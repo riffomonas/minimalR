@@ -601,6 +601,8 @@ It depends on the question, which is better! If we are interested in comparing t
 Our box plots have only had color on the rectangle, median line, whiskers, and outliers. Generate a box plot for the relationship between the patients' Shannon diversity and their diagnosis. Add a complimentary fill color that allows you to still see the cardinal values of the box plot.
 
 <input type="button" class="hideshow">
+
+```r
 ggplot(meta_alpha, aes(x=diagnosis, y=shannon, color=diagnosis, fill=diagnosis)) +
 	geom_boxplot() +
 	scale_color_manual(name=NULL,
@@ -615,6 +617,9 @@ ggplot(meta_alpha, aes(x=diagnosis, y=shannon, color=diagnosis, fill=diagnosis))
 		x=NULL,
 		y="FIT Result") +
 	theme_classic()
+```
+
+<img src="assets/images/05_continuous_categorical//unnamed-chunk-27-1.png" title="plot of chunk unnamed-chunk-27" alt="plot of chunk unnamed-chunk-27" width="504" />
 <div markdown="1" style="display:none;">
 </div>
 
@@ -639,7 +644,7 @@ ggplot(meta_alpha, aes(x=diagnosis, y=fit_result, fill=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-27-1.png" title="plot of chunk unnamed-chunk-27" alt="plot of chunk unnamed-chunk-27" width="504" />
+<img src="assets/images/05_continuous_categorical//unnamed-chunk-28-1.png" title="plot of chunk unnamed-chunk-28" alt="plot of chunk unnamed-chunk-28" width="504" />
 
 ---
 
@@ -668,7 +673,7 @@ ggplot(meta_alpha, aes(x=diagnosis, y=fit_result, fill=diagnosis, color=diagnosi
 	theme_classic()
 ```
 
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-28-1.png" title="plot of chunk unnamed-chunk-28" alt="plot of chunk unnamed-chunk-28" width="504" />
+<img src="assets/images/05_continuous_categorical//unnamed-chunk-29-1.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="504" />
 </div>
 
 ---
@@ -698,7 +703,7 @@ ggplot(meta_alpha, aes(x=sex, y=shannon, fill=diagnosis, color=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-29-1.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="504" />
+<img src="assets/images/05_continuous_categorical//unnamed-chunk-30-1.png" title="plot of chunk unnamed-chunk-30" alt="plot of chunk unnamed-chunk-30" width="504" />
 </div>
 
 ---
@@ -712,7 +717,13 @@ A new variant of the types of plots discussed in this lesson is the ridgeline pl
 ```r
 #install.packages("ggridges")
 library(ggridges)
+```
 
+```
+## Error in library(ggridges): there is no package called 'ggridges'
+```
+
+```r
 ggplot(meta_alpha, aes(x=shannon, y=diagnosis, color=diagnosis, fill=diagnosis)) +
 	geom_density_ridges(alpha=0.5) +
 	scale_fill_manual(name=NULL,
@@ -731,7 +742,9 @@ ggplot(meta_alpha, aes(x=shannon, y=diagnosis, color=diagnosis, fill=diagnosis))
 	theme_classic()
 ```
 
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-30-1.png" title="plot of chunk unnamed-chunk-30" alt="plot of chunk unnamed-chunk-30" width="504" />
+```
+## Error in geom_density_ridges(alpha = 0.5): could not find function "geom_density_ridges"
+```
 </div>
 
 ---
@@ -757,7 +770,7 @@ ggplot(meta_alpha, aes(x=sex, y=fit_result, color=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-31-1.png" title="plot of chunk unnamed-chunk-31" alt="plot of chunk unnamed-chunk-31" width="504" />
+<img src="assets/images/05_continuous_categorical//unnamed-chunk-32-1.png" title="plot of chunk unnamed-chunk-32" alt="plot of chunk unnamed-chunk-32" width="504" />
 
 We can reorder the diagnosis variable by using the `factor` function where we give it the levels for the factor in the order we want it in. You might notice that we previously used a bit of a hack to set the `values` argument in `scale_color_manual`. This argument was taking our diagnosis values in alphabetical order. The values for `breaks` and `labels` were the order we wanted. Now we can use the "correct" order for our `values` argument
 
@@ -779,7 +792,7 @@ meta_alpha %>%
 		theme_classic()
 ```
 
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-32-1.png" title="plot of chunk unnamed-chunk-32" alt="plot of chunk unnamed-chunk-32" width="504" />
+<img src="assets/images/05_continuous_categorical//unnamed-chunk-33-1.png" title="plot of chunk unnamed-chunk-33" alt="plot of chunk unnamed-chunk-33" width="504" />
 
 Nice, eh? There are a variety of things you can do with factors including reordering the factors by another variable, aggregating multiple values, and renaming variables. These are really outside the scope of this tutorial and I rarely use them in my work. You can learn more about them in the [R4DS book](http://r4ds.had.co.nz/factors.html).
 
@@ -810,5 +823,5 @@ ggplot(aes(x=diagnosis, y=shannon, color=sex)) +
 	theme_classic()
 ```
 
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-33-1.png" title="plot of chunk unnamed-chunk-33" alt="plot of chunk unnamed-chunk-33" width="504" />
+<img src="assets/images/05_continuous_categorical//unnamed-chunk-34-1.png" title="plot of chunk unnamed-chunk-34" alt="plot of chunk unnamed-chunk-34" width="504" />
 </div>
