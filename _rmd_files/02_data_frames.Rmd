@@ -348,6 +348,13 @@ metadata[["Gender"]] <- recode(.x=metadata[["Gender"]], "m"="male")
 metadata[["Gender"]] <- recode(.x=metadata[["Gender"]], "f"="female")
 count(metadata, Gender)
 ```
+
+Alternatively, we could do
+
+```{r}
+metadata[["Gender"]] <- recode(.x=metadata[["Gender"]], "m"="male", "f"="female")
+count(metadata, Gender)
+```
 </div>
 
 ---
@@ -417,7 +424,7 @@ This throws an error. It is complaining because the "group" column in our `pcoa`
 <div markdown="1" style="display:none;">
 ```{r}
 pcoa <- read_tsv(file="raw_data/baxter.thetayc.pcoa.axes",
-		col_types=cols(group=col_character())
+		col_types=cols(group=col_character()))
 
 metadata_pcoa <- inner_join(metadata, pcoa, by=c('sample'='group'))
 ```

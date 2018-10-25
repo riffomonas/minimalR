@@ -47,9 +47,9 @@ b
 ## # A tibble: 3 x 2
 ##   sample previous_history
 ##   <chr>  <lgl>           
-## 1 A      T               
-## 2 B      F               
-## 3 D      T
+## 1 A      TRUE            
+## 2 B      FALSE           
+## 3 D      TRUE
 ```
 
 We'll do a "left join" ...
@@ -63,8 +63,8 @@ left_join(a, b, by="sample")
 ## # A tibble: 3 x 3
 ##   sample diagnosis previous_history
 ##   <chr>  <chr>     <lgl>           
-## 1 A      normal    T               
-## 2 B      cancer    F               
+## 1 A      normal    TRUE            
+## 2 B      cancer    FALSE           
 ## 3 C      adenoma   NA
 ```
 
@@ -79,9 +79,9 @@ right_join(a, b, by="sample")
 ## # A tibble: 3 x 3
 ##   sample diagnosis previous_history
 ##   <chr>  <chr>     <lgl>           
-## 1 A      normal    T               
-## 2 B      cancer    F               
-## 3 D      <NA>      T
+## 1 A      normal    TRUE            
+## 2 B      cancer    FALSE           
+## 3 D      <NA>      TRUE
 ```
 
 We see the opposite result - sample "C" is missing in the new data frame and the value in column "x2" for sample "D" is `NA`. If we now do a "full join"...
@@ -95,10 +95,10 @@ full_join(a, b, by="sample")
 ## # A tibble: 4 x 3
 ##   sample diagnosis previous_history
 ##   <chr>  <chr>     <lgl>           
-## 1 A      normal    T               
-## 2 B      cancer    F               
+## 1 A      normal    TRUE            
+## 2 B      cancer    FALSE           
 ## 3 C      adenoma   NA              
-## 4 D      <NA>      T
+## 4 D      <NA>      TRUE
 ```
 
 Here we see that all four samples are represented, but that the "x2" and "x3" columns have `NA` values for samples D and C, respectively. Finally, returning to our old friend, "inner join"...
@@ -112,8 +112,8 @@ inner_join(a, b, by="sample")
 ## # A tibble: 2 x 3
 ##   sample diagnosis previous_history
 ##   <chr>  <chr>     <lgl>           
-## 1 A      normal    T               
-## 2 B      cancer    F
+## 1 A      normal    TRUE            
+## 2 B      cancer    FALSE
 ```
 
 We now get a data frame that has two rows representing the two samples that were found in `a` and `b`. Depending on your goals, you will need to chose the appropriate join function. Most of the time I use an `inner_join` since I will only want the values (e.g. the axes in `pcoa`) that I have metadata for and I will only want the descriptors (e.g. the values in `metadata`) that I have community data for.
@@ -138,27 +138,27 @@ inner_join(b, a, by="sample")
 ## # A tibble: 3 x 3
 ##   sample previous_history diagnosis
 ##   <chr>  <lgl>            <chr>    
-## 1 A      T                normal   
-## 2 B      F                cancer   
-## 3 D      T                <NA>     
+## 1 A      TRUE             normal   
+## 2 B      FALSE            cancer   
+## 3 D      TRUE             <NA>     
 ## # A tibble: 3 x 3
 ##   sample previous_history diagnosis
 ##   <chr>  <lgl>            <chr>    
-## 1 A      T                normal   
-## 2 B      F                cancer   
+## 1 A      TRUE             normal   
+## 2 B      FALSE            cancer   
 ## 3 C      NA               adenoma  
 ## # A tibble: 4 x 3
 ##   sample previous_history diagnosis
 ##   <chr>  <lgl>            <chr>    
-## 1 A      T                normal   
-## 2 B      F                cancer   
-## 3 D      T                <NA>     
+## 1 A      TRUE             normal   
+## 2 B      FALSE            cancer   
+## 3 D      TRUE             <NA>     
 ## 4 C      NA               adenoma  
 ## # A tibble: 2 x 3
 ##   sample previous_history diagnosis
 ##   <chr>  <lgl>            <chr>    
-## 1 A      T                normal   
-## 2 B      F                cancer
+## 1 A      TRUE             normal   
+## 2 B      FALSE            cancer
 ```
 
 We see that the order of the columns is reversed
@@ -181,8 +181,8 @@ inner_join(a, b)
 ## # A tibble: 2 x 3
 ##   sample diagnosis previous_history
 ##   <chr>  <chr>     <lgl>           
-## 1 A      normal    T               
-## 2 B      cancer    F
+## 1 A      normal    TRUE            
+## 2 B      cancer    FALSE
 ```
 
 The commands are smart enough to figure out that since there's only one column name in common between the two data frames, then it should join using the "sample" column.
@@ -212,7 +212,7 @@ anti_join(b, a, by="sample")
 ## # A tibble: 1 x 2
 ##   sample previous_history
 ##   <chr>  <lgl>           
-## 1 D      T
+## 1 D      TRUE
 ```
 
 We can see that for the first case, the row for sample "C" is found in `a`, but not `b`. In the second case, sample "D" is found in `b`, but not `a`.
@@ -240,8 +240,8 @@ semi_join(b, a, by="sample")
 ## # A tibble: 2 x 2
 ##   sample previous_history
 ##   <chr>  <lgl>           
-## 1 A      T               
-## 2 B      F
+## 1 A      TRUE            
+## 2 B      FALSE
 ```
 
 
@@ -279,40 +279,40 @@ select(pcoa, -axis1)
 
 ```
 ## # A tibble: 490 x 490
-##    group     axis2   axis3    axis4    axis5    axis6   axis7   axis8
-##    <chr>     <dbl>   <dbl>    <dbl>    <dbl>    <dbl>   <dbl>   <dbl>
-##  1 2003650  0.0279 -0.200  -0.199    0.0891   0.00139 -0.0142 -0.116 
-##  2 2005650  0.169  -0.0667  0.00512 -0.0816  -0.0478   0.118   0.0840
-##  3 2007660 -0.0389 -0.147   0.00898 -0.00153 -0.0361   0.136   0.0885
-##  4 2009650 -0.0237 -0.155  -0.0321  -0.0882   0.109    0.151  -0.119 
-##  5 2013660  0.0136 -0.0494  0.00922 -0.0757  -0.240   -0.0645  0.104 
-##  6 2015650  0.172  -0.0871 -0.185    0.374   -0.0999  -0.0331  0.0943
-##  7 2017660 -0.155  -0.0670 -0.0939  -0.0938   0.0298  -0.154  -0.0244
-##  8 2019651 -0.0903  0.0112 -0.0738   0.0538   0.159   -0.209   0.198 
-##  9 2023680  0.122  -0.144  -0.117    0.114    0.0295   0.231   0.0778
-## 10 2025653  0.0280  0.0304  0.113    0.0410   0.0774   0.161  -0.0367
-## # ... with 480 more rows, and 482 more variables: axis9 <dbl>,
-## #   axis10 <dbl>, axis11 <dbl>, axis12 <dbl>, axis13 <dbl>, axis14 <dbl>,
-## #   axis15 <dbl>, axis16 <dbl>, axis17 <dbl>, axis18 <dbl>, axis19 <dbl>,
-## #   axis20 <dbl>, axis21 <dbl>, axis22 <dbl>, axis23 <dbl>, axis24 <dbl>,
-## #   axis25 <dbl>, axis26 <dbl>, axis27 <dbl>, axis28 <dbl>, axis29 <dbl>,
-## #   axis30 <dbl>, axis31 <dbl>, axis32 <dbl>, axis33 <dbl>, axis34 <dbl>,
-## #   axis35 <dbl>, axis36 <dbl>, axis37 <dbl>, axis38 <dbl>, axis39 <dbl>,
-## #   axis40 <dbl>, axis41 <dbl>, axis42 <dbl>, axis43 <dbl>, axis44 <dbl>,
-## #   axis45 <dbl>, axis46 <dbl>, axis47 <dbl>, axis48 <dbl>, axis49 <dbl>,
-## #   axis50 <dbl>, axis51 <dbl>, axis52 <dbl>, axis53 <dbl>, axis54 <dbl>,
-## #   axis55 <dbl>, axis56 <dbl>, axis57 <dbl>, axis58 <dbl>, axis59 <dbl>,
-## #   axis60 <dbl>, axis61 <dbl>, axis62 <dbl>, axis63 <dbl>, axis64 <dbl>,
-## #   axis65 <dbl>, axis66 <dbl>, axis67 <dbl>, axis68 <dbl>, axis69 <dbl>,
-## #   axis70 <dbl>, axis71 <dbl>, axis72 <dbl>, axis73 <dbl>, axis74 <dbl>,
-## #   axis75 <dbl>, axis76 <dbl>, axis77 <dbl>, axis78 <dbl>, axis79 <dbl>,
-## #   axis80 <dbl>, axis81 <dbl>, axis82 <dbl>, axis83 <dbl>, axis84 <dbl>,
-## #   axis85 <dbl>, axis86 <dbl>, axis87 <dbl>, axis88 <dbl>, axis89 <dbl>,
-## #   axis90 <dbl>, axis91 <dbl>, axis92 <dbl>, axis93 <dbl>, axis94 <dbl>,
-## #   axis95 <dbl>, axis96 <dbl>, axis97 <dbl>, axis98 <dbl>, axis99 <dbl>,
-## #   axis100 <dbl>, axis101 <dbl>, axis102 <dbl>, axis103 <dbl>,
-## #   axis104 <dbl>, axis105 <dbl>, axis106 <dbl>, axis107 <dbl>,
-## #   axis108 <dbl>, …
+##    group   axis2   axis3    axis4    axis5    axis6   axis7   axis8   axis9
+##    <chr>   <dbl>   <dbl>    <dbl>    <dbl>    <dbl>   <dbl>   <dbl>   <dbl>
+##  1 2003…  0.0279 -0.200  -0.199    0.0891   0.00139 -0.0142 -0.116   0.0842
+##  2 2005…  0.169  -0.0667  0.00512 -0.0816  -0.0478   0.118   0.0840  0.0326
+##  3 2007… -0.0389 -0.147   0.00898 -0.00153 -0.0361   0.136   0.0885 -0.0284
+##  4 2009… -0.0237 -0.155  -0.0321  -0.0882   0.109    0.151  -0.119   0.0830
+##  5 2013…  0.0136 -0.0494  0.00922 -0.0757  -0.240   -0.0645  0.104  -0.0361
+##  6 2015…  0.172  -0.0871 -0.185    0.374   -0.0999  -0.0331  0.0943 -0.118 
+##  7 2017… -0.155  -0.0670 -0.0939  -0.0938   0.0298  -0.154  -0.0244 -0.279 
+##  8 2019… -0.0903  0.0112 -0.0738   0.0538   0.159   -0.209   0.198   0.172 
+##  9 2023…  0.122  -0.144  -0.117    0.114    0.0295   0.231   0.0778 -0.0352
+## 10 2025…  0.0280  0.0304  0.113    0.0410   0.0774   0.161  -0.0367 -0.182 
+## # ... with 480 more rows, and 481 more variables: axis10 <dbl>,
+## #   axis11 <dbl>, axis12 <dbl>, axis13 <dbl>, axis14 <dbl>, axis15 <dbl>,
+## #   axis16 <dbl>, axis17 <dbl>, axis18 <dbl>, axis19 <dbl>, axis20 <dbl>,
+## #   axis21 <dbl>, axis22 <dbl>, axis23 <dbl>, axis24 <dbl>, axis25 <dbl>,
+## #   axis26 <dbl>, axis27 <dbl>, axis28 <dbl>, axis29 <dbl>, axis30 <dbl>,
+## #   axis31 <dbl>, axis32 <dbl>, axis33 <dbl>, axis34 <dbl>, axis35 <dbl>,
+## #   axis36 <dbl>, axis37 <dbl>, axis38 <dbl>, axis39 <dbl>, axis40 <dbl>,
+## #   axis41 <dbl>, axis42 <dbl>, axis43 <dbl>, axis44 <dbl>, axis45 <dbl>,
+## #   axis46 <dbl>, axis47 <dbl>, axis48 <dbl>, axis49 <dbl>, axis50 <dbl>,
+## #   axis51 <dbl>, axis52 <dbl>, axis53 <dbl>, axis54 <dbl>, axis55 <dbl>,
+## #   axis56 <dbl>, axis57 <dbl>, axis58 <dbl>, axis59 <dbl>, axis60 <dbl>,
+## #   axis61 <dbl>, axis62 <dbl>, axis63 <dbl>, axis64 <dbl>, axis65 <dbl>,
+## #   axis66 <dbl>, axis67 <dbl>, axis68 <dbl>, axis69 <dbl>, axis70 <dbl>,
+## #   axis71 <dbl>, axis72 <dbl>, axis73 <dbl>, axis74 <dbl>, axis75 <dbl>,
+## #   axis76 <dbl>, axis77 <dbl>, axis78 <dbl>, axis79 <dbl>, axis80 <dbl>,
+## #   axis81 <dbl>, axis82 <dbl>, axis83 <dbl>, axis84 <dbl>, axis85 <dbl>,
+## #   axis86 <dbl>, axis87 <dbl>, axis88 <dbl>, axis89 <dbl>, axis90 <dbl>,
+## #   axis91 <dbl>, axis92 <dbl>, axis93 <dbl>, axis94 <dbl>, axis95 <dbl>,
+## #   axis96 <dbl>, axis97 <dbl>, axis98 <dbl>, axis99 <dbl>, axis100 <dbl>,
+## #   axis101 <dbl>, axis102 <dbl>, axis103 <dbl>, axis104 <dbl>,
+## #   axis105 <dbl>, axis106 <dbl>, axis107 <dbl>, axis108 <dbl>,
+## #   axis109 <dbl>, …
 ```
 
 The result is that the "axis1" column has been removed. If we consider our `metadata` data frame, we could also select the sample column any column that starts with "diagnosis"
@@ -350,20 +350,20 @@ select(metadata, sample, contains("history"))
 ## # A tibble: 490 x 4
 ##    sample  previous_history history_of_polyps family_history_of_crc
 ##    <chr>   <lgl>            <lgl>             <lgl>                
-##  1 2003650 F                T                 T                    
-##  2 2005650 F                T                 F                    
-##  3 2007660 F                T                 T                    
-##  4 2009650 F                T                 F                    
-##  5 2013660 F                F                 F                    
-##  6 2015650 F                T                 F                    
-##  7 2017660 T                T                 F                    
-##  8 2019651 F                F                 F                    
-##  9 2023680 T                T                 F                    
-## 10 2025653 T                T                 F                    
+##  1 2003650 FALSE            TRUE              TRUE                 
+##  2 2005650 FALSE            TRUE              FALSE                
+##  3 2007660 FALSE            TRUE              TRUE                 
+##  4 2009650 FALSE            TRUE              FALSE                
+##  5 2013660 FALSE            FALSE             FALSE                
+##  6 2015650 FALSE            TRUE              FALSE                
+##  7 2017660 TRUE             TRUE              FALSE                
+##  8 2019651 FALSE            FALSE             FALSE                
+##  9 2023680 TRUE             TRUE              FALSE                
+## 10 2025653 TRUE             TRUE              FALSE                
 ## # ... with 480 more rows
 ```
 
-This generates a data frame that contains the columns "sample", "previous_history", "history_of_polyps", and "family_history_of_crc". There are other helper functions including `ends_with`, `matches`, `num_range`, and `one _of` that you can learn more about by using the `?` helper.
+This generates a data frame that contains the columns "sample", "previous_history", "history_of_polyps", and "family_history_of_crc". There are other helper functions including `ends_with`, `matches`, `num_range`, and `one_of` that you can learn more about by using the `?` helper.
 
 
 
@@ -377,18 +377,18 @@ filter(metadata, site=="U Michigan")
 
 ```
 ## # A tibble: 107 x 17
-##    sample  fit_result site      diagnosis_bin   diagnosis previous_history
-##    <chr>        <dbl> <chr>     <chr>           <chr>     <lgl>           
-##  1 2003650        0   U Michig… High Risk Norm… normal    F               
-##  2 2005650        0   U Michig… High Risk Norm… normal    F               
-##  3 2007660       26.0 U Michig… High Risk Norm… normal    F               
-##  4 2013660        0   U Michig… Normal          normal    F               
-##  5 2019651       19.0 U Michig… Normal          normal    F               
-##  6 2025653     1509   U Michig… Cancer          cancer    T               
-##  7 2029650        0   U Michig… Adenoma         adenoma   F               
-##  8 2041650        0   U Michig… Adenoma         adenoma   F               
-##  9 2045653        0   U Michig… Normal          normal    F               
-## 10 2057650        0   U Michig… High Risk Norm… normal    F               
+##    sample fit_result site  diagnosis_bin diagnosis previous_history
+##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
+##  2 20056…          0 U Mi… High Risk No… normal    FALSE           
+##  3 20076…         26 U Mi… High Risk No… normal    FALSE           
+##  4 20136…          0 U Mi… Normal        normal    FALSE           
+##  5 20196…         19 U Mi… Normal        normal    FALSE           
+##  6 20256…       1509 U Mi… Cancer        cancer    TRUE            
+##  7 20296…          0 U Mi… Adenoma       adenoma   FALSE           
+##  8 20416…          0 U Mi… Adenoma       adenoma   FALSE           
+##  9 20456…          0 U Mi… Normal        normal    FALSE           
+## 10 20576…          0 U Mi… High Risk No… normal    FALSE           
 ## # ... with 97 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
@@ -426,18 +426,18 @@ filter(metadata, fit_result >= 100)
 
 ```
 ## # A tibble: 126 x 17
-##    sample  fit_result site        diagnosis_bin diagnosis previous_history
-##    <chr>        <dbl> <chr>       <chr>         <chr>     <lgl>           
-##  1 2025653       1509 U Michigan  Cancer        cancer    T               
-##  2 2093650        286 Dana Farber Normal        normal    T               
-##  3 2105652        314 U Michigan  Normal        normal    F               
-##  4 2185670        982 Toronto     Adv Adenoma   adenoma   F               
-##  5 2187680       1200 Toronto     Cancer        cancer    F               
-##  6 2203653       1992 U Michigan  Cancer        cancer    T               
-##  7 2255653        140 Dana Farber Cancer        cancer    T               
-##  8 2267653        149 Dana Farber Cancer        cancer    T               
-##  9 2283670       1346 Toronto     Cancer        cancer    F               
-## 10 2287660        939 Dana Farber Cancer        cancer    T               
+##    sample fit_result site  diagnosis_bin diagnosis previous_history
+##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##  1 20256…       1509 U Mi… Cancer        cancer    TRUE            
+##  2 20936…        286 Dana… Normal        normal    TRUE            
+##  3 21056…        314 U Mi… Normal        normal    FALSE           
+##  4 21856…        982 Toro… Adv Adenoma   adenoma   FALSE           
+##  5 21876…       1200 Toro… Cancer        cancer    FALSE           
+##  6 22036…       1992 U Mi… Cancer        cancer    TRUE            
+##  7 22556…        140 Dana… Cancer        cancer    TRUE            
+##  8 22676…        149 Dana… Cancer        cancer    TRUE            
+##  9 22836…       1346 Toro… Cancer        cancer    FALSE           
+## 10 22876…        939 Dana… Cancer        cancer    TRUE            
 ## # ... with 116 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
@@ -453,18 +453,18 @@ filter(metadata, previous_history)
 
 ```
 ## # A tibble: 138 x 17
-##    sample  fit_result site      diagnosis_bin   diagnosis previous_history
-##    <chr>        <dbl> <chr>     <chr>           <chr>     <lgl>           
-##  1 2017660       7.00 Dana Far… Cancer          cancer    T               
-##  2 2023680       0    Dana Far… High Risk Norm… normal    T               
-##  3 2025653    1509    U Michig… Cancer          cancer    T               
-##  4 2033650       0    Toronto   High Risk Norm… normal    T               
-##  5 2051660       0    Dana Far… Adenoma         adenoma   T               
-##  6 2055690       0    Dana Far… Adv Adenoma     adenoma   T               
-##  7 2063650       0    Dana Far… High Risk Norm… normal    T               
-##  8 2087650       5.00 Dana Far… High Risk Norm… normal    T               
-##  9 2093650     286    Dana Far… Normal          normal    T               
-## 10 2109653       0    Dana Far… Normal          normal    T               
+##    sample fit_result site  diagnosis_bin diagnosis previous_history
+##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##  1 20176…          7 Dana… Cancer        cancer    TRUE            
+##  2 20236…          0 Dana… High Risk No… normal    TRUE            
+##  3 20256…       1509 U Mi… Cancer        cancer    TRUE            
+##  4 20336…          0 Toro… High Risk No… normal    TRUE            
+##  5 20516…          0 Dana… Adenoma       adenoma   TRUE            
+##  6 20556…          0 Dana… Adv Adenoma   adenoma   TRUE            
+##  7 20636…          0 Dana… High Risk No… normal    TRUE            
+##  8 20876…          5 Dana… High Risk No… normal    TRUE            
+##  9 20936…        286 Dana… Normal        normal    TRUE            
+## 10 21096…          0 Dana… Normal        normal    TRUE            
 ## # ... with 128 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
@@ -480,18 +480,18 @@ filter(metadata, !previous_history)
 
 ```
 ## # A tibble: 349 x 17
-##    sample  fit_result site      diagnosis_bin   diagnosis previous_history
-##    <chr>        <dbl> <chr>     <chr>           <chr>     <lgl>           
-##  1 2003650        0   U Michig… High Risk Norm… normal    F               
-##  2 2005650        0   U Michig… High Risk Norm… normal    F               
-##  3 2007660       26.0 U Michig… High Risk Norm… normal    F               
-##  4 2009650       10.0 Toronto   Adenoma         adenoma   F               
-##  5 2013660        0   U Michig… Normal          normal    F               
-##  6 2015650        0   Dana Far… High Risk Norm… normal    F               
-##  7 2019651       19.0 U Michig… Normal          normal    F               
-##  8 2027653        0   Toronto   Normal          normal    F               
-##  9 2029650        0   U Michig… Adenoma         adenoma   F               
-## 10 2031650        0   Toronto   Adenoma         adenoma   F               
+##    sample fit_result site  diagnosis_bin diagnosis previous_history
+##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
+##  2 20056…          0 U Mi… High Risk No… normal    FALSE           
+##  3 20076…         26 U Mi… High Risk No… normal    FALSE           
+##  4 20096…         10 Toro… Adenoma       adenoma   FALSE           
+##  5 20136…          0 U Mi… Normal        normal    FALSE           
+##  6 20156…          0 Dana… High Risk No… normal    FALSE           
+##  7 20196…         19 U Mi… Normal        normal    FALSE           
+##  8 20276…          0 Toro… Normal        normal    FALSE           
+##  9 20296…          0 U Mi… Adenoma       adenoma   FALSE           
+## 10 20316…          0 Toro… Adenoma       adenoma   FALSE           
 ## # ... with 339 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
@@ -507,18 +507,18 @@ filter(metadata, diagnosis != 'normal')
 
 ```
 ## # A tibble: 318 x 17
-##    sample  fit_result site        diagnosis_bin diagnosis previous_history
-##    <chr>        <dbl> <chr>       <chr>         <chr>     <lgl>           
-##  1 2009650      10.0  Toronto     Adenoma       adenoma   F               
-##  2 2017660       7.00 Dana Farber Cancer        cancer    T               
-##  3 2025653    1509    U Michigan  Cancer        cancer    T               
-##  4 2029650       0    U Michigan  Adenoma       adenoma   F               
-##  5 2031650       0    Toronto     Adenoma       adenoma   F               
-##  6 2035650       0    Toronto     Adv Adenoma   adenoma   F               
-##  7 2037653      72.0  Toronto     Cancer        cancer    F               
-##  8 2041650       0    U Michigan  Adenoma       adenoma   F               
-##  9 2049653       0    Dana Farber Adenoma       adenoma   F               
-## 10 2051660       0    Dana Farber Adenoma       adenoma   T               
+##    sample fit_result site  diagnosis_bin diagnosis previous_history
+##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##  1 20096…         10 Toro… Adenoma       adenoma   FALSE           
+##  2 20176…          7 Dana… Cancer        cancer    TRUE            
+##  3 20256…       1509 U Mi… Cancer        cancer    TRUE            
+##  4 20296…          0 U Mi… Adenoma       adenoma   FALSE           
+##  5 20316…          0 Toro… Adenoma       adenoma   FALSE           
+##  6 20356…          0 Toro… Adv Adenoma   adenoma   FALSE           
+##  7 20376…         72 Toro… Cancer        cancer    FALSE           
+##  8 20416…          0 U Mi… Adenoma       adenoma   FALSE           
+##  9 20496…          0 Dana… Adenoma       adenoma   FALSE           
+## 10 20516…          0 Dana… Adenoma       adenoma   TRUE            
 ## # ... with 308 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
@@ -545,18 +545,18 @@ filter(metadata, diagnosis=="cancer")
 
 ```
 ## # A tibble: 120 x 17
-##    sample  fit_result site        diagnosis_bin diagnosis previous_history
-##    <chr>        <dbl> <chr>       <chr>         <chr>     <lgl>           
-##  1 2017660       7.00 Dana Farber Cancer        cancer    T               
-##  2 2025653    1509    U Michigan  Cancer        cancer    T               
-##  3 2037653      72.0  Toronto     Cancer        cancer    F               
-##  4 2187680    1200    Toronto     Cancer        cancer    F               
-##  5 2203653    1992    U Michigan  Cancer        cancer    T               
-##  6 2255653     140    Dana Farber Cancer        cancer    T               
-##  7 2267653     149    Dana Farber Cancer        cancer    T               
-##  8 2283670    1346    Toronto     Cancer        cancer    F               
-##  9 2285653       0    U Michigan  Cancer        cancer    F               
-## 10 2287660     939    Dana Farber Cancer        cancer    T               
+##    sample fit_result site  diagnosis_bin diagnosis previous_history
+##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##  1 20176…          7 Dana… Cancer        cancer    TRUE            
+##  2 20256…       1509 U Mi… Cancer        cancer    TRUE            
+##  3 20376…         72 Toro… Cancer        cancer    FALSE           
+##  4 21876…       1200 Toro… Cancer        cancer    FALSE           
+##  5 22036…       1992 U Mi… Cancer        cancer    TRUE            
+##  6 22556…        140 Dana… Cancer        cancer    TRUE            
+##  7 22676…        149 Dana… Cancer        cancer    TRUE            
+##  8 22836…       1346 Toro… Cancer        cancer    FALSE           
+##  9 22856…          0 U Mi… Cancer        cancer    FALSE           
+## 10 22876…        939 Dana… Cancer        cancer    TRUE            
 ## # ... with 110 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
@@ -573,24 +573,24 @@ Create a data frame that contains only females
 <div markdown="1" style="display:none;">
 
 ```r
-filter(metadata, sex=="male")
+filter(metadata, sex=="female")
 ```
 
 ```
-## # A tibble: 247 x 17
-##    sample  fit_result site      diagnosis_bin   diagnosis previous_history
-##    <chr>        <dbl> <chr>     <chr>           <chr>     <lgl>           
-##  1 2003650       0    U Michig… High Risk Norm… normal    F               
-##  2 2005650       0    U Michig… High Risk Norm… normal    F               
-##  3 2017660       7.00 Dana Far… Cancer          cancer    T               
-##  4 2019651      19.0  U Michig… Normal          normal    F               
-##  5 2025653    1509    U Michig… Cancer          cancer    T               
-##  6 2029650       0    U Michig… Adenoma         adenoma   F               
-##  7 2033650       0    Toronto   High Risk Norm… normal    T               
-##  8 2035650       0    Toronto   Adv Adenoma     adenoma   F               
-##  9 2041650       0    U Michig… Adenoma         adenoma   F               
-## 10 2043650       5.00 Toronto   High Risk Norm… normal    F               
-## # ... with 237 more rows, and 11 more variables: history_of_polyps <lgl>,
+## # A tibble: 243 x 17
+##    sample fit_result site  diagnosis_bin diagnosis previous_history
+##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##  1 20076…         26 U Mi… High Risk No… normal    FALSE           
+##  2 20096…         10 Toro… Adenoma       adenoma   FALSE           
+##  3 20136…          0 U Mi… Normal        normal    FALSE           
+##  4 20156…          0 Dana… High Risk No… normal    FALSE           
+##  5 20236…          0 Dana… High Risk No… normal    TRUE            
+##  6 20276…          0 Toro… Normal        normal    FALSE           
+##  7 20316…          0 Toro… Adenoma       adenoma   FALSE           
+##  8 20376…         72 Toro… Cancer        cancer    FALSE           
+##  9 20396…          0 Toro… Normal        normal    FALSE           
+## 10 20456…          0 U Mi… Normal        normal    FALSE           
+## # ... with 233 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>
@@ -611,18 +611,18 @@ filter(metadata, age <= 50)
 
 ```
 ## # A tibble: 96 x 17
-##    sample  fit_result site      diagnosis_bin   diagnosis previous_history
-##    <chr>        <dbl> <chr>     <chr>           <chr>     <lgl>           
-##  1 2007660      26.0  U Michig… High Risk Norm… normal    F               
-##  2 2013660       0    U Michig… Normal          normal    F               
-##  3 2061650       0    Dana Far… High Risk Norm… normal    F               
-##  4 2073650       0    U Michig… High Risk Norm… normal    F               
-##  5 2077653       0    U Michig… Normal          normal    F               
-##  6 2081660       0    U Michig… High Risk Norm… normal    F               
-##  7 2083650       0    Dana Far… High Risk Norm… normal    F               
-##  8 2085653       7.00 Dana Far… Normal          normal    F               
-##  9 2087650       5.00 Dana Far… High Risk Norm… normal    T               
-## 10 2093650     286    Dana Far… Normal          normal    T               
+##    sample fit_result site  diagnosis_bin diagnosis previous_history
+##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##  1 20076…         26 U Mi… High Risk No… normal    FALSE           
+##  2 20136…          0 U Mi… Normal        normal    FALSE           
+##  3 20616…          0 Dana… High Risk No… normal    FALSE           
+##  4 20736…          0 U Mi… High Risk No… normal    FALSE           
+##  5 20776…          0 U Mi… Normal        normal    FALSE           
+##  6 20816…          0 U Mi… High Risk No… normal    FALSE           
+##  7 20836…          0 Dana… High Risk No… normal    FALSE           
+##  8 20856…          7 Dana… Normal        normal    FALSE           
+##  9 20876…          5 Dana… High Risk No… normal    TRUE            
+## 10 20936…        286 Dana… Normal        normal    TRUE            
 ## # ... with 86 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
@@ -641,13 +641,13 @@ filter(metadata, fit_result >= 100 & diagnosis == "normal")
 
 ```
 ## # A tibble: 5 x 17
-##   sample  fit_result site       diagnosis_bin   diagnosis previous_history
-##   <chr>        <dbl> <chr>      <chr>           <chr>     <lgl>           
-## 1 2093650        286 Dana Farb… Normal          normal    T               
-## 2 2105652        314 U Michigan Normal          normal    F               
-## 3 2321650        148 Dana Farb… Normal          normal    F               
-## 4 3099680        356 Dana Farb… High Risk Norm… normal    T               
-## 5 3137650        118 U Michigan Normal          normal    F               
+##   sample fit_result site  diagnosis_bin diagnosis previous_history
+##   <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+## 1 20936…        286 Dana… Normal        normal    TRUE            
+## 2 21056…        314 U Mi… Normal        normal    FALSE           
+## 3 23216…        148 Dana… Normal        normal    FALSE           
+## 4 30996…        356 Dana… High Risk No… normal    TRUE            
+## 5 31376…        118 U Mi… Normal        normal    FALSE           
 ## # ... with 11 more variables: history_of_polyps <lgl>, age <dbl>,
 ## #   sex <chr>, smoke <lgl>, diabetic <lgl>, family_history_of_crc <lgl>,
 ## #   height <dbl>, weight <dbl>, nsaid <lgl>, diabetes_med <lgl>,
@@ -663,18 +663,18 @@ filter(metadata, fit_result >= 100 | diagnosis == "cancer")
 
 ```
 ## # A tibble: 156 x 17
-##    sample  fit_result site        diagnosis_bin diagnosis previous_history
-##    <chr>        <dbl> <chr>       <chr>         <chr>     <lgl>           
-##  1 2017660       7.00 Dana Farber Cancer        cancer    T               
-##  2 2025653    1509    U Michigan  Cancer        cancer    T               
-##  3 2037653      72.0  Toronto     Cancer        cancer    F               
-##  4 2093650     286    Dana Farber Normal        normal    T               
-##  5 2105652     314    U Michigan  Normal        normal    F               
-##  6 2185670     982    Toronto     Adv Adenoma   adenoma   F               
-##  7 2187680    1200    Toronto     Cancer        cancer    F               
-##  8 2203653    1992    U Michigan  Cancer        cancer    T               
-##  9 2255653     140    Dana Farber Cancer        cancer    T               
-## 10 2267653     149    Dana Farber Cancer        cancer    T               
+##    sample fit_result site  diagnosis_bin diagnosis previous_history
+##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##  1 20176…          7 Dana… Cancer        cancer    TRUE            
+##  2 20256…       1509 U Mi… Cancer        cancer    TRUE            
+##  3 20376…         72 Toro… Cancer        cancer    FALSE           
+##  4 20936…        286 Dana… Normal        normal    TRUE            
+##  5 21056…        314 U Mi… Normal        normal    FALSE           
+##  6 21856…        982 Toro… Adv Adenoma   adenoma   FALSE           
+##  7 21876…       1200 Toro… Cancer        cancer    FALSE           
+##  8 22036…       1992 U Mi… Cancer        cancer    TRUE            
+##  9 22556…        140 Dana… Cancer        cancer    TRUE            
+## 10 22676…        149 Dana… Cancer        cancer    TRUE            
 ## # ... with 146 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
@@ -695,18 +695,18 @@ filter(metadata, age <= 50 & diagnosis != "normal")
 
 ```
 ## # A tibble: 46 x 17
-##    sample  fit_result site        diagnosis_bin diagnosis previous_history
-##    <chr>        <dbl> <chr>       <chr>         <chr>     <lgl>           
-##  1 2203653     1992   U Michigan  Cancer        cancer    T               
-##  2 2307650        0   Dana Farber Adv Adenoma   adenoma   T               
-##  3 2339651     1278   Dana Farber Cancer        cancer    T               
-##  4 2379653        0   Toronto     Adv Adenoma   adenoma   F               
-##  5 2421651      133   MD Anderson Cancer        cancer    T               
-##  6 2463651       45.0 Dana Farber Cancer        cancer    T               
-##  7 2465680     1185   Dana Farber Cancer        cancer    T               
-##  8 2523653      392   MD Anderson Cancer        cancer    T               
-##  9 2545651      301   Dana Farber Adv Adenoma   adenoma   F               
-## 10 2555653        0   Toronto     Adv Adenoma   adenoma   F               
+##    sample fit_result site  diagnosis_bin diagnosis previous_history
+##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##  1 22036…       1992 U Mi… Cancer        cancer    TRUE            
+##  2 23076…          0 Dana… Adv Adenoma   adenoma   TRUE            
+##  3 23396…       1278 Dana… Cancer        cancer    TRUE            
+##  4 23796…          0 Toro… Adv Adenoma   adenoma   FALSE           
+##  5 24216…        133 MD A… Cancer        cancer    TRUE            
+##  6 24636…         45 Dana… Cancer        cancer    TRUE            
+##  7 24656…       1185 Dana… Cancer        cancer    TRUE            
+##  8 25236…        392 MD A… Cancer        cancer    TRUE            
+##  9 25456…        301 Dana… Adv Adenoma   adenoma   FALSE           
+## 10 25556…          0 Toro… Adv Adenoma   adenoma   FALSE           
 ## # ... with 36 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
@@ -728,18 +728,18 @@ filter(metadata, previous_history | family_history_of_crc)
 
 ```
 ## # A tibble: 199 x 17
-##    sample  fit_result site      diagnosis_bin   diagnosis previous_history
-##    <chr>        <dbl> <chr>     <chr>           <chr>     <lgl>           
-##  1 2003650       0    U Michig… High Risk Norm… normal    F               
-##  2 2007660      26.0  U Michig… High Risk Norm… normal    F               
-##  3 2017660       7.00 Dana Far… Cancer          cancer    T               
-##  4 2023680       0    Dana Far… High Risk Norm… normal    T               
-##  5 2025653    1509    U Michig… Cancer          cancer    T               
-##  6 2029650       0    U Michig… Adenoma         adenoma   F               
-##  7 2033650       0    Toronto   High Risk Norm… normal    T               
-##  8 2041650       0    U Michig… Adenoma         adenoma   F               
-##  9 2043650       5.00 Toronto   High Risk Norm… normal    F               
-## 10 2045653       0    U Michig… Normal          normal    F               
+##    sample fit_result site  diagnosis_bin diagnosis previous_history
+##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
+##  2 20076…         26 U Mi… High Risk No… normal    FALSE           
+##  3 20176…          7 Dana… Cancer        cancer    TRUE            
+##  4 20236…          0 Dana… High Risk No… normal    TRUE            
+##  5 20256…       1509 U Mi… Cancer        cancer    TRUE            
+##  6 20296…          0 U Mi… Adenoma       adenoma   FALSE           
+##  7 20336…          0 Toro… High Risk No… normal    TRUE            
+##  8 20416…          0 U Mi… Adenoma       adenoma   FALSE           
+##  9 20436…          5 Toro… High Risk No… normal    FALSE           
+## 10 20456…          0 U Mi… Normal        normal    FALSE           
 ## # ... with 189 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
@@ -761,7 +761,7 @@ This file has a number of columns that aren't that interesting for us. You will 
 * Write the code needed to read in the file to a new data frame called `alpha`. Make sure that the group column is read in as characters
 * Filter out the rows that contain the standard deviation data
 * Select the columns that contain the subject identifier, the number of observed OTUs (i.e "sobs"), the Shannon diversity index (i.e. "shannon"), the inverse Simpson diversity index (i.e. "invsimpson"), and Good's coverage (i.e. "coverage")
-* Use the appropriate join function to create a data frame called `alpha_metadata` that is a join between `alpha` and `metadata`
+* Use the appropriate join function to create a data frame called `meta_alpha` that is a join between `metadata` and `alpha`
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
@@ -770,13 +770,13 @@ This file has a number of columns that aren't that interesting for us. You will 
 alpha <- read_tsv(file="raw_data/baxter.groups.ave-std.summary", col_types=cols(group = col_character()))
 alpha <- filter(alpha, method=='ave')
 alpha <- select(alpha, group, sobs, shannon, invsimpson, coverage)
-metadata_alpha <- inner_join(metadata, alpha, by=c("sample"="group"))
+meta_alpha <- inner_join(metadata, alpha, by=c("sample"="group"))
 ```
 </div>
 
 ---
 
-Hopefully that was a good review of what we've done in this and the previous lessons. The approach we've taken to generate `metadata_alpha` works perfectly. I'd like to show you a different way to think about the code. If you look at these four lines of code, you should see that the data kind of "flows" from the `tsv` file to the final version of `alpha` before we join it to `metadata`. There's a package installed with `dplyr` called `magrittr` that has a funny looking function called a pipe - `%>%`. The pipe, directs the flow of data from one command to the next. Instead of writing over `alpha` multiple times, we can write it once as the output of the data flow through the pipes.
+Hopefully that was a good review of what we've done in this and the previous lessons. The approach we've taken to generate `meta_alpha` works perfectly. I'd like to show you a different way to think about the code. If you look at these four lines of code, you should see that the data kind of "flows" from the `tsv` file to the final version of `alpha` before we join it to `metadata`. There's a package installed with `dplyr` called `magrittr` that has a funny looking function called a pipe - `%>%`. The pipe, directs the flow of data from one command to the next. Instead of writing over `alpha` multiple times, we can write it once as the output of the data flow through the pipes.
 
 
 ```r
@@ -790,16 +790,16 @@ alpha
 ## # A tibble: 490 x 5
 ##    group    sobs shannon invsimpson coverage
 ##    <chr>   <dbl>   <dbl>      <dbl>    <dbl>
-##  1 2005650   291    3.98       26.6    0.990
-##  2 2003650   262    4.02       35.6    0.991
-##  3 2009650   324    4.16       30.1    0.991
-##  4 2013660   133    3.33       17.4    0.997
-##  5 2015650   233    3.74       20.8    0.993
-##  6 2017660   238    3.98       28.6    0.994
-##  7 2019651   191    3.69       20.1    0.996
-##  8 2023680   300    4.01       28.9    0.992
-##  9 2025653   179    3.39       14.6    0.995
-## 10 2027653   127    3.54       19.2    0.998
+##  1 2005650  291.    3.98       26.6    0.990
+##  2 2003650  262.    4.02       35.6    0.991
+##  3 2009650  324.    4.16       30.1    0.991
+##  4 2013660  133.    3.33       17.4    0.997
+##  5 2015650  233.    3.74       20.8    0.993
+##  6 2017660  238.    3.98       28.6    0.994
+##  7 2019651  191.    3.69       20.1    0.996
+##  8 2023680  300.    4.01       28.9    0.992
+##  9 2025653  179.    3.39       14.6    0.995
+## 10 2027653  127.    3.54       19.2    0.998
 ## # ... with 480 more rows
 ```
 
@@ -807,27 +807,27 @@ Viola! Cool, eh? You may not see the benefit of the pipes here, but in subsequen
 
 
 ```r
-metadata_alpha <- read_tsv(file="raw_data/baxter.groups.ave-std.summary", col_types=cols(group = col_character())) %>%
+meta_alpha <- read_tsv(file="raw_data/baxter.groups.ave-std.summary", col_types=cols(group = col_character())) %>%
 	filter(method=='ave') %>%
 	select(group, sobs, shannon, invsimpson, coverage) %>%
 	inner_join(metadata, ., by=c("sample"="group"))
-metadata_alpha
+meta_alpha
 ```
 
 ```
 ## # A tibble: 490 x 21
-##    sample  fit_result site      diagnosis_bin   diagnosis previous_history
-##    <chr>        <dbl> <chr>     <chr>           <chr>     <lgl>           
-##  1 2003650       0    U Michig… High Risk Norm… normal    F               
-##  2 2005650       0    U Michig… High Risk Norm… normal    F               
-##  3 2007660      26.0  U Michig… High Risk Norm… normal    F               
-##  4 2009650      10.0  Toronto   Adenoma         adenoma   F               
-##  5 2013660       0    U Michig… Normal          normal    F               
-##  6 2015650       0    Dana Far… High Risk Norm… normal    F               
-##  7 2017660       7.00 Dana Far… Cancer          cancer    T               
-##  8 2019651      19.0  U Michig… Normal          normal    F               
-##  9 2023680       0    Dana Far… High Risk Norm… normal    T               
-## 10 2025653    1509    U Michig… Cancer          cancer    T               
+##    sample fit_result site  diagnosis_bin diagnosis previous_history
+##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
+##  2 20056…          0 U Mi… High Risk No… normal    FALSE           
+##  3 20076…         26 U Mi… High Risk No… normal    FALSE           
+##  4 20096…         10 Toro… Adenoma       adenoma   FALSE           
+##  5 20136…          0 U Mi… Normal        normal    FALSE           
+##  6 20156…          0 Dana… High Risk No… normal    FALSE           
+##  7 20176…          7 Dana… Cancer        cancer    TRUE            
+##  8 20196…         19 U Mi… Normal        normal    FALSE           
+##  9 20236…          0 Dana… High Risk No… normal    TRUE            
+## 10 20256…       1509 U Mi… Cancer        cancer    TRUE            
 ## # ... with 480 more rows, and 15 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,

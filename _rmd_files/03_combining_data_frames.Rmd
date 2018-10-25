@@ -183,7 +183,7 @@ This gets us a new data frame with the columns "sample", "diagnosis_bin", and "d
 select(metadata, sample, contains("history"))
 ```
 
-This generates a data frame that contains the columns "sample", "previous_history", "history_of_polyps", and "family_history_of_crc". There are other helper functions including `ends_with`, `matches`, `num_range`, and `one _of` that you can learn more about by using the `?` helper.
+This generates a data frame that contains the columns "sample", "previous_history", "history_of_polyps", and "family_history_of_crc". There are other helper functions including `ends_with`, `matches`, `num_range`, and `one_of` that you can learn more about by using the `?` helper.
 
 
 
@@ -263,7 +263,7 @@ Create a data frame that contains only females
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
 ```{r}
-filter(metadata, sex=="male")
+filter(metadata, sex=="female")
 ```
 </div>
 
@@ -331,7 +331,7 @@ This file has a number of columns that aren't that interesting for us. You will 
 * Write the code needed to read in the file to a new data frame called `alpha`. Make sure that the group column is read in as characters
 * Filter out the rows that contain the standard deviation data
 * Select the columns that contain the subject identifier, the number of observed OTUs (i.e "sobs"), the Shannon diversity index (i.e. "shannon"), the inverse Simpson diversity index (i.e. "invsimpson"), and Good's coverage (i.e. "coverage")
-* Use the appropriate join function to create a data frame called `alpha_metadata` that is a join between `alpha` and `metadata`
+* Use the appropriate join function to create a data frame called `meta_alpha` that is a join between `metadata` and `alpha`
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
@@ -339,13 +339,13 @@ This file has a number of columns that aren't that interesting for us. You will 
 alpha <- read_tsv(file="raw_data/baxter.groups.ave-std.summary", col_types=cols(group = col_character()))
 alpha <- filter(alpha, method=='ave')
 alpha <- select(alpha, group, sobs, shannon, invsimpson, coverage)
-metadata_alpha <- inner_join(metadata, alpha, by=c("sample"="group"))
+meta_alpha <- inner_join(metadata, alpha, by=c("sample"="group"))
 ```
 </div>
 
 ---
 
-Hopefully that was a good review of what we've done in this and the previous lessons. The approach we've taken to generate `metadata_alpha` works perfectly. I'd like to show you a different way to think about the code. If you look at these four lines of code, you should see that the data kind of "flows" from the `tsv` file to the final version of `alpha` before we join it to `metadata`. There's a package installed with `dplyr` called `magrittr` that has a funny looking function called a pipe - `%>%`. The pipe, directs the flow of data from one command to the next. Instead of writing over `alpha` multiple times, we can write it once as the output of the data flow through the pipes.
+Hopefully that was a good review of what we've done in this and the previous lessons. The approach we've taken to generate `meta_alpha` works perfectly. I'd like to show you a different way to think about the code. If you look at these four lines of code, you should see that the data kind of "flows" from the `tsv` file to the final version of `alpha` before we join it to `metadata`. There's a package installed with `dplyr` called `magrittr` that has a funny looking function called a pipe - `%>%`. The pipe, directs the flow of data from one command to the next. Instead of writing over `alpha` multiple times, we can write it once as the output of the data flow through the pipes.
 
 ```{r}
 alpha <- read_tsv(file="raw_data/baxter.groups.ave-std.summary", col_types=cols(group = col_character())) %>%
@@ -357,11 +357,11 @@ alpha
 Viola! Cool, eh? You may not see the benefit of the pipes here, but in subsequent lessons we will pipe together numerous functions to direct the flow of data. Instead of writing over `alpha` as we did in the previous code chunks, some people would rather write each update to a new variable name. Both approaches get tedious and so the ability to pipe becomes pretty handy. In fact, we can skip the creation of the `alpha` data frame all together by piping this flow right into the `inner_join` function call. Notice that in the code below, the `inner_join` function call has a `.` where `alpha` had been before. The `.` tells `inner_join` to use the data that is flowing through the pipe.
 
 ```{r}
-metadata_alpha <- read_tsv(file="raw_data/baxter.groups.ave-std.summary", col_types=cols(group = col_character())) %>%
+meta_alpha <- read_tsv(file="raw_data/baxter.groups.ave-std.summary", col_types=cols(group = col_character())) %>%
 	filter(method=='ave') %>%
 	select(group, sobs, shannon, invsimpson, coverage) %>%
 	inner_join(metadata, ., by=c("sample"="group"))
-metadata_alpha
+meta_alpha
 ```
 
 But wait... there's more!

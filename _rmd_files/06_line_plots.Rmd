@@ -88,17 +88,12 @@ metadata
 Nice, eh? Before we ran `source`, the result of `ls` was `character(0)`, which means there is nothing. After running `source`, `ls` tells us that the `metadata` variable is loaded. Our source file only contains variable - `metadata` - it's pretty simple. Do you remember that we previously created a couple of functions related to the BMI? Let's bring those into our `baxter.R` file as functions below our metadata code.
 
 ```{r echo=F}
-z <- 'get_bmi <- function(weight_kg, height_m){
-	return(weight_kg / height_m ^ 2)
+z <- 'get_bmi <- function(weight_kg, height_cm){
+	return(weight_kg / (height_cm/100) ^ 2)
 }
 
-is_obese <- function(weight_kg, height_m){
-	bmi_category <- get_bmi_category(weight_kg, height_m)
-	return(bmi_category == "obese")
-}
-
-get_bmi_category <- function(weight_kg, height_m){
-	bmi <- get_bmi(weight_kg, height_m)
+get_bmi_category <- function(weight_kg, height_cm){
+	bmi <- get_bmi(weight_kg, height_cm)
 
 	bmi_cat <- case_when(bmi >= 30 ~ "obese",
 			bmi >= 25 ~ "overweight",
@@ -108,8 +103,8 @@ get_bmi_category <- function(weight_kg, height_m){
 	return(bmi_cat)
 }
 
-is_obese <- function(weight_kg, height_m){
-	bmi_category <- get_bmi_category(weight_kg, height_m)
+is_obese <- function(weight_kg, height_cm){
+	bmi_category <- get_bmi_category(weight_kg, height_cm)
 	return(bmi_category == "obese")
 }'
 
@@ -236,7 +231,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
 		y="PCo Axis 2") +
 	theme_classic()
 
-ggsave("ordination.pdf")
+ggsave("figures/ordination.pdf")
 '
 write(x, "code/plot_ordination.R")
 ```
@@ -757,6 +752,7 @@ ggplot(metadata_rarefy, aes(x=numsampled, y=sobs, group=sample, color=diagnosis)
 		x="Number of Sequences Sampled per Subject",
 		y="Number of OTUs per Subject") +
 	theme_classic()
+ggsave("figures/rarefaction.pdf")
 '
 write(x, "code/plot_rarefaction_curves.R")
 ```

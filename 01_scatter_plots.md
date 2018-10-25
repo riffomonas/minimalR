@@ -20,8 +20,8 @@ output: markdown_document
 library(tidyverse)
 library(readxl)
 
-pcoa <- read_tsv(file="raw_data//baxter.thetayc.pcoa.axes")
-metadata <- read_excel(path="raw_data//baxter.metadata.xlsx")
+pcoa <- read_tsv(file="raw_data/baxter.thetayc.pcoa.axes")
+metadata <- read_excel(path="raw_data/baxter.metadata.xlsx")
 metadata_pcoa <- inner_join(metadata, pcoa, by=c('sample'='group'))
 
 ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
@@ -142,7 +142,7 @@ ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2, color=Gender)) +
 
 ## ggplot2
 
-The `ggplot2` package or just "ggplot" as it is commonly known, is a powerful tool for generating figures. The *gg* in the name refers to the "Grammar of Graphics", which is a way of thinking of figures as being a series of layers consisting. Originally described by [Leland Wilkinson](https://www.amazon.com/Grammar-Graphics-Statistics-Computing/dp/0387245448), the grammar has been updated and applied to [R by Hadley Wickham](http://vita.had.co.nz/papers/layered-grammar.html), the package's creator. According to the grammar, a figure consists of the underlying **data**, **aes**thetic mappings, **geom**etric objects, **scales**, a **coord**inate system, statistical transformations, and facet specifications. As we have seen already, each of these elements can be manipulated in ggplot2. As we proceed through the tutorials we will gain a greater appreciation for the variety of ways we can manipulate these elements within ggplot2 to make attractive images. ******
+The `ggplot2` package or just "ggplot" as it is commonly known, is a powerful tool for generating figures. The *gg* in the name refers to the "Grammar of Graphics", which is a way of thinking of figures as being a series of layers consisting. Originally described by [Leland Wilkinson](https://www.amazon.com/Grammar-Graphics-Statistics-Computing/dp/0387245448), the grammar has been updated and applied to [R by Hadley Wickham](http://vita.had.co.nz/papers/layered-grammar.html), the package's creator. According to the grammar, a figure consists of the underlying **data**, **aes**thetic mappings, **geom**etric objects, **scales**, a **coord**inate system, statistical transformations, and facet specifications. As we have seen already, each of these elements can be manipulated in ggplot2. As we proceed through the tutorials we will gain a greater appreciation for the variety of ways we can manipulate these elements within ggplot2 to make attractive images. ****
 
 As an introduction to ggplot, let's break down the plotting section of the code chunk we've been working with.
 
@@ -170,66 +170,45 @@ ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2, color=dx)) +
 
 <img src="assets/images/01_scatter_plots//unnamed-chunk-6-1.png" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" width="504" />
 
-Now it's starting to look like a figure. Before we go on, let's see how far we can push the addition metaphor. In R we can assign a value to a variable and then we can use that variable over and over instead of having to rewrite the value of the variable. For example,
+Now it's starting to look like a figure. There is a subtle point to notice in our `geom_point` function call. You'll notice that we are assigning aesthetics to our points without using the `aes` function in the `geom_point`. By default, the mapping values in the `ggplot` function call are applied to subsequent layers of the figure. That means that the points we plot will be colored according to the `dx` value. We could have done this instead
 
 
 ```r
-a <- 2
-b <- 3
-a * b
+ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2)) +
+ 	geom_point(shape=19, size=2, mapping=aes(color=dx))
 ```
 
-```
-## [1] 6
-```
-
-Now check this out
-
-
-```r
-p <- ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2, color=dx))
-p + geom_point(shape=19, size=2)
-```
-
-<img src="assets/images/01_scatter_plots//unnamed-chunk-8-1.png" title="plot of chunk unnamed-chunk-8" alt="plot of chunk unnamed-chunk-8" width="504" />
-
-We get the same result. There is a subtle point to notice in our `geom_point` function call. You'll notice that we are assigning aesthetics to our points without using the `aes` function in the `geom_point`. By default, the mapping values in the `ggplot` function call are applied to subsequent layers of the figure. That means that the points we plot will be colored according to the `dx` value. We could have done this instead
-
-
-```r
-p <- ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2))
-p + geom_point(shape=19, size=2, mapping=aes(color=dx))
-```
-
-<img src="assets/images/01_scatter_plots//unnamed-chunk-9-1.png" title="plot of chunk unnamed-chunk-9" alt="plot of chunk unnamed-chunk-9" width="504" />
+<img src="assets/images/01_scatter_plots//unnamed-chunk-7-1.png" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" width="504" />
 
 Again, we get the same plot. Stylistically, it's generally best to put your aesthetics mappings as close to the `ggplot` function call as possible. So, we'll put it back where we had it. Also, notice that we have two things that we might think of aesthetics outside of the mapping - the shape and size of the points to be plotted. When we set attributes for a plotting aesthetic outside of the mapping, that value gets applied to all of the points in that layer. Notice what happens Here
 
 
 ```r
-p <- ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2, color=dx))
-p + geom_point(shape=19, size=2, color="black")
+ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2, color=dx)) +
+	geom_point(shape=19, size=2, color="black")
 ```
 
-<img src="assets/images/01_scatter_plots//unnamed-chunk-10-1.png" title="plot of chunk unnamed-chunk-10" alt="plot of chunk unnamed-chunk-10" width="504" />
+<img src="assets/images/01_scatter_plots//unnamed-chunk-8-1.png" title="plot of chunk unnamed-chunk-8" alt="plot of chunk unnamed-chunk-8" width="504" />
 
 Our new color aesthetic, black, is overwriting the colors for the three diagnosis groups. There are numerous aesthetic values that we can apply to all of the points or that we can map to a specific variable. For example, in addition to color, we could also map the shape of the plotting symbol to the `dx` column.
 
 
 ```r
-p <- ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2, color=dx, shape=dx))
-p + geom_point(size=2)
+ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2, color=dx, shape=dx)) +
+ geom_point(size=2)
 ```
 
-<img src="assets/images/01_scatter_plots//unnamed-chunk-11-1.png" title="plot of chunk unnamed-chunk-11" alt="plot of chunk unnamed-chunk-11" width="504" />
+<img src="assets/images/01_scatter_plots//unnamed-chunk-9-1.png" title="plot of chunk unnamed-chunk-9" alt="plot of chunk unnamed-chunk-9" width="504" />
 
 Each geometry (e.g. `geom_point`) has a set of aesthetics that it will map onto variables. `geom_point` will use mappings for x, y, size, shape, alpha (i.e. the opacity of the point), and fill and stroke (i.e. the color to use when using plotting symbols 21 through 25). We'll talk about color and shapes later. For now, let's go back to the diamond shape, which we had before.
 
 
 ```r
-p <- ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2, color=dx))
-p <- p + geom_point(shape=19, size=2)
+ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2, color=dx)) +
+	geom_point(shape=19, size=2)
 ```
+
+<img src="assets/images/01_scatter_plots//unnamed-chunk-10-1.png" title="plot of chunk unnamed-chunk-10" alt="plot of chunk unnamed-chunk-10" width="504" />
 
 Notice that we needed to add the `geom_point` function call to `p` to update the value of `p`. This way, when we add the next component to the plot, we have the `geom_point` layer already included in the figure. You might notice that the values of `a` and `b` are still `2` and `3`, respectively, since we didn't update their values when we multiplied them. One quirky thing you've no doubt noticed is that to assign values in R people typically use the `<-` operator. You can also use `=`, but the equals sign is generally saved for assigning values to arguments in a function call (e.g. `color=dx`). You cannot use the `<-` operator for arguments. When you use the `<-` or `=` operator you don't get any output, the assignment is silent. If you want the value of the new variable, you need to write it out. This is what we did by putting `p` on its own line.
 
@@ -237,46 +216,67 @@ Moving along, we would now like specify the color of our plotting symbols to som
 
 
 ```r
-p <- p + scale_color_manual(name=NULL,
+ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2, color=dx)) +
+	geom_point(shape=19, size=2) +
+	scale_color_manual(name=NULL,
 		values=c("blue", "red", "black"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer"))
-p
 ```
 
-<img src="assets/images/01_scatter_plots//unnamed-chunk-13-1.png" title="plot of chunk unnamed-chunk-13" alt="plot of chunk unnamed-chunk-13" width="504" />
+<img src="assets/images/01_scatter_plots//unnamed-chunk-11-1.png" title="plot of chunk unnamed-chunk-11" alt="plot of chunk unnamed-chunk-11" width="504" />
 
 Next, I'd like to set the scale of the axes. We do this with one of the `coord` functions. By default, the coordinate system is `coord_cartesian`. For this ordination diagram I would like the shape of the plot to be square, rather than rectangular. We can achieve this with the `coord_fixed` function
 
 
 ```r
-p <- p + coord_fixed()
-p
+ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2, color=dx)) +
+	geom_point(shape=19, size=2) +
+	scale_color_manual(name=NULL,
+		values=c("blue", "red", "black"),
+		breaks=c("normal", "adenoma", "cancer"),
+		labels=c("Normal", "Adenoma", "Cancer")) +
+	coord_fixed()
 ```
 
-<img src="assets/images/01_scatter_plots//unnamed-chunk-14-1.png" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" width="504" />
+<img src="assets/images/01_scatter_plots//unnamed-chunk-12-1.png" title="plot of chunk unnamed-chunk-12" alt="plot of chunk unnamed-chunk-12" width="504" />
 
 The scatter plot has "axis1" and "axis2" as the x and y-axis labels and lacks an overall title. Let's give them something a bit more descriptive and professionally formatted. We can do this with the `labs` function:
 
 
 ```r
-p <- p + labs(title="PCoA of ThetaYC Distances Between Stool Samples",
+ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2, color=dx)) +
+	geom_point(shape=19, size=2) +
+	scale_color_manual(name=NULL,
+		values=c("blue", "red", "black"),
+		breaks=c("normal", "adenoma", "cancer"),
+		labels=c("Normal", "Adenoma", "Cancer")) +
+	coord_fixed() +
+	labs(title="PCoA of ThetaYC Distances Between Stool Samples",
 		x="PCo Axis 1",
 		y="PCo Axis 2")
-p
 ```
 
-<img src="assets/images/01_scatter_plots//unnamed-chunk-15-1.png" title="plot of chunk unnamed-chunk-15" alt="plot of chunk unnamed-chunk-15" width="504" />
+<img src="assets/images/01_scatter_plots//unnamed-chunk-13-1.png" title="plot of chunk unnamed-chunk-13" alt="plot of chunk unnamed-chunk-13" width="504" />
 
 That looks pretty good! One thing that I'm not a fan of is the gray background color or the gridlines. There are many, many options for establishing the theme of the figure. We'll explore these themes later, but be comforted (or scared) by the fact that you can change virtually everything about the theming of your plots
 
 
 ```r
-p <- p + theme_classic()
-p
+ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2, color=dx)) +
+	geom_point(shape=19, size=2) +
+	scale_color_manual(name=NULL,
+		values=c("blue", "red", "black"),
+		breaks=c("normal", "adenoma", "cancer"),
+		labels=c("Normal", "Adenoma", "Cancer")) +
+	coord_fixed() +
+	labs(title="PCoA of ThetaYC Distances Between Stool Samples",
+		x="PCo Axis 1",
+		y="PCo Axis 2") +
+	theme_classic()
 ```
 
-<img src="assets/images/01_scatter_plots//unnamed-chunk-16-1.png" title="plot of chunk unnamed-chunk-16" alt="plot of chunk unnamed-chunk-16" width="504" />
+<img src="assets/images/01_scatter_plots//unnamed-chunk-14-1.png" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" width="504" />
 
 Finally, we'd like to save our figure with the `ggsave` function. This function is smart enough to know to format the figure as a PDF since the "pdf" extension is in the name. You could also generate a PNG, TIFF, or JPG-formatted imaage.
 
@@ -310,7 +310,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, size=axis3, color=dx)) +
 	theme_classic()
 ```
 
-<img src="assets/images/01_scatter_plots//unnamed-chunk-18-1.png" title="plot of chunk unnamed-chunk-18" alt="plot of chunk unnamed-chunk-18" width="504" />
+<img src="assets/images/01_scatter_plots//unnamed-chunk-16-1.png" title="plot of chunk unnamed-chunk-16" alt="plot of chunk unnamed-chunk-16" width="504" />
 </div>
 
 ---
@@ -336,7 +336,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 	theme_classic()
 ```
 
-<img src="assets/images/01_scatter_plots//unnamed-chunk-19-1.png" title="plot of chunk unnamed-chunk-19" alt="plot of chunk unnamed-chunk-19" width="504" />
+<img src="assets/images/01_scatter_plots//unnamed-chunk-17-1.png" title="plot of chunk unnamed-chunk-17" alt="plot of chunk unnamed-chunk-17" width="504" />
 
 </div>
 
@@ -359,9 +359,9 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 
 ## Plotting symbols
 
-There are 25 different plotting symbols in R that can be set by giving the `shape` argument a value from 1 to 25. I tend to limit myself to a handful of these: open and closed squares, circles, or triangles. To keep myself from hunting for the right pch value, I made a cheat sheet:
+There are 25 different plotting symbols in R that can be set by giving the `shape` argument a value from 1 to 25. I tend to limit myself to a handful of these: open and closed squares, circles, or triangles. To keep myself from hunting for the right shape value, I made a cheat sheet:
 
-<img src="assets/images/01_scatter_plots//unnamed-chunk-20-1.png" title="plot of chunk unnamed-chunk-20" alt="plot of chunk unnamed-chunk-20" width="504" />
+<img src="assets/images/01_scatter_plots//unnamed-chunk-18-1.png" title="plot of chunk unnamed-chunk-18" alt="plot of chunk unnamed-chunk-18" width="504" />
 
 Among these 25 symbols, symbols 21 to 25 are unique. The color of these symbol is taken from the value of `fill` and the color of the border comes from the value of `color`. The width of the border can be set with the `stroke` aesthetic. Let's give this a shot with our ordination.
 
@@ -380,7 +380,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, fill=dx)) +
 	theme_classic()
 ```
 
-<img src="assets/images/01_scatter_plots//unnamed-chunk-21-1.png" title="plot of chunk unnamed-chunk-21" alt="plot of chunk unnamed-chunk-21" width="504" />
+<img src="assets/images/01_scatter_plots//unnamed-chunk-19-1.png" title="plot of chunk unnamed-chunk-19" alt="plot of chunk unnamed-chunk-19" width="504" />
 
 We have a small bug in our code now - our colors don't seem to be taking. What do you think we need to change to fix the problem?
 
@@ -399,7 +399,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, fill=dx)) +
 	theme_classic()
 ```
 
-<img src="assets/images/01_scatter_plots//unnamed-chunk-22-1.png" title="plot of chunk unnamed-chunk-22" alt="plot of chunk unnamed-chunk-22" width="504" />
+<img src="assets/images/01_scatter_plots//unnamed-chunk-20-1.png" title="plot of chunk unnamed-chunk-20" alt="plot of chunk unnamed-chunk-20" width="504" />
 
 Let's change our ordination a bit to color our point by the `dx` column of our data frame and change the shape of the point based on the `Gender` column. Can you do this without looking ahead?
 
@@ -418,7 +418,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx, shape=Gender)) +
 	theme_classic()
 ```
 
-<img src="assets/images/01_scatter_plots//unnamed-chunk-23-1.png" title="plot of chunk unnamed-chunk-23" alt="plot of chunk unnamed-chunk-23" width="504" />
+<img src="assets/images/01_scatter_plots//unnamed-chunk-21-1.png" title="plot of chunk unnamed-chunk-21" alt="plot of chunk unnamed-chunk-21" width="504" />
 
 Here again, we have the poorly formatted legend for the shape. Similar to our use of `scale_color_manual` we can solve the formatting problem using `scale_shape_manual`
 
@@ -441,7 +441,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx, shape=Gender)) +
 	theme_classic()
 ```
 
-<img src="assets/images/01_scatter_plots//unnamed-chunk-24-1.png" title="plot of chunk unnamed-chunk-24" alt="plot of chunk unnamed-chunk-24" width="504" />
+<img src="assets/images/01_scatter_plots//unnamed-chunk-22-1.png" title="plot of chunk unnamed-chunk-22" alt="plot of chunk unnamed-chunk-22" width="504" />
 
 Nothing really pops out in the ordination to suggest that there's a difference between diagnosis group or sex. Instead of mapping the subject's sex onto the shape, let's map the diagnosis onto the shape and color.
 
@@ -464,7 +464,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx, shape=dx)) +
 	theme_classic()
 ```
 
-<img src="assets/images/01_scatter_plots//unnamed-chunk-25-1.png" title="plot of chunk unnamed-chunk-25" alt="plot of chunk unnamed-chunk-25" width="504" />
+<img src="assets/images/01_scatter_plots//unnamed-chunk-23-1.png" title="plot of chunk unnamed-chunk-23" alt="plot of chunk unnamed-chunk-23" width="504" />
 
 
 
@@ -494,7 +494,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 	theme_classic()
 ```
 
-<img src="assets/images/01_scatter_plots//unnamed-chunk-27-1.png" title="plot of chunk unnamed-chunk-27" alt="plot of chunk unnamed-chunk-27" width="504" />
+<img src="assets/images/01_scatter_plots//unnamed-chunk-25-1.png" title="plot of chunk unnamed-chunk-25" alt="plot of chunk unnamed-chunk-25" width="504" />
 
 There are numerous color palette options available. Unfortunately, the palettes that are built into R leave a bit to be desired. Several R packages are available for picking colors that work well together. One popular website for identifying good palettes is [ColorBrewer](http://colorbrewer2.org/#type=sequential&scheme=BuGn&n=3) and these palettes are available as the `RColorBrewer` package. You can install a packages with the `install.packages` function
 
@@ -679,7 +679,7 @@ The `?` function is useful for getting help pages on our favorite functions. Use
 display.brewer.all(n=3, type="qual", colorblindFriendly=TRUE)
 ```
 
-<img src="assets/images/01_scatter_plots//unnamed-chunk-31-1.png" title="plot of chunk unnamed-chunk-31" alt="plot of chunk unnamed-chunk-31" width="504" />
+<img src="assets/images/01_scatter_plots//unnamed-chunk-29-1.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="504" />
 
 This pops up a set of three options that we can now use for our ordination with the `brewer.pal` function. The "Set2" palette are the default ggplot colors. Instead, let's use the `Dark2` palette.
 
@@ -698,7 +698,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 	theme_classic()
 ```
 
-<img src="assets/images/01_scatter_plots//unnamed-chunk-32-1.png" title="plot of chunk unnamed-chunk-32" alt="plot of chunk unnamed-chunk-32" width="504" />
+<img src="assets/images/01_scatter_plots//unnamed-chunk-30-1.png" title="plot of chunk unnamed-chunk-30" alt="plot of chunk unnamed-chunk-30" width="504" />
 
 Some more whimsical options include the [`beyonce`](https://github.com/dill/beyonce) and [`wesanderson`](https://github.com/karthik/wesanderson) color palettes. Another option is to find a website who's color scheme you really like and use a color picker browser extension or `Adobe Photoshop` to get the HTML code for colors you like. For example, the two dominant colors on this site are `#FFAC63` and `#2857D6`. These HTML color codes are hexidecimal numbers and can be used like you would a named color. Instead of using named colors, we could use these two colors along with `black` to color our ordination
 
@@ -717,7 +717,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 	theme_classic()
 ```
 
-<img src="assets/images/01_scatter_plots//unnamed-chunk-33-1.png" title="plot of chunk unnamed-chunk-33" alt="plot of chunk unnamed-chunk-33" width="504" />
+<img src="assets/images/01_scatter_plots//unnamed-chunk-31-1.png" title="plot of chunk unnamed-chunk-31" alt="plot of chunk unnamed-chunk-31" width="504" />
 
 ---
 
@@ -766,11 +766,16 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 
 
 ```
-##  [1] "GrandBudapest"  "Moonrise1"      "Royal1"         "Moonrise2"     
-##  [5] "Cavalcanti"     "Royal2"         "GrandBudapest2" "Moonrise3"     
-##  [9] "Chevalier"      "Zissou"         "FantasticFox"   "Darjeeling"    
-## [13] "Rushmore"       "BottleRocket"   "Darjeeling2"
+##  [1] "BottleRocket1"  "BottleRocket2"  "Rushmore1"      "Rushmore"      
+##  [5] "Royal1"         "Royal2"         "Zissou1"        "Darjeeling1"   
+##  [9] "Darjeeling2"    "Chevalier1"     "FantasticFox1"  "Moonrise1"     
+## [13] "Moonrise2"      "Moonrise3"      "Cavalcanti1"    "GrandBudapest1"
+## [17] "GrandBudapest2" "IsleofDogs1"    "IsleofDogs2"
 ```
 
-<img src="assets/images/01_scatter_plots//unnamed-chunk-36-1.png" title="plot of chunk unnamed-chunk-36" alt="plot of chunk unnamed-chunk-36" width="504" />
+```
+## Error in wes_palette(name = "Darjeeling", n = 3): Palette not found.
+```
+
+<img src="assets/images/01_scatter_plots//unnamed-chunk-34-1.png" title="plot of chunk unnamed-chunk-34" alt="plot of chunk unnamed-chunk-34" width="504" />
 </div>

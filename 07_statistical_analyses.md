@@ -67,7 +67,37 @@ ggplot(meta_alpha, aes(x=scaled_shannon)) + geom_histogram()
 
 <img src="assets/images/07_statistical_analyses//unnamed-chunk-4-1.png" title="plot of chunk unnamed-chunk-4" alt="plot of chunk unnamed-chunk-4" width="504" />
 
-That does look better. There are several other functions that you might find useful for plotting histograms including `geom_freqpoly`, `geom_dotplot`, and `geom_density`. As with `geom_qq`, you can specify the `group` and `color` or `fill` aesthetics to see the distribution for each category you are interested in.
+That does look better. There are several other functions that you might find useful for plotting histograms including `geom_freqpoly`, `geom_dotplot`, and `geom_density`. As with `geom_qq`, you can specify the `group` and `color` or `fill` aesthetics to see the distribution for each category you are interested in. We can also run a `shapiro.test`. The null hypothesis is that the data are normally distributed so a small p-value would mean that the data are not normally distributed.
+
+
+```r
+shapiro.test(meta_alpha$shannon)
+```
+
+```
+## 
+## 	Shapiro-Wilk normality test
+## 
+## data:  meta_alpha$shannon
+## W = 0.96978, p-value = 1.637e-08
+```
+
+That's a small p-value, which indicates that the data are not normally distributed. Let's try the scaled data
+
+
+```r
+shapiro.test(meta_alpha$scaled_shannon)
+```
+
+```
+## 
+## 	Shapiro-Wilk normality test
+## 
+## data:  meta_alpha$scaled_shannon
+## W = 0.99803, p-value = 0.8478
+```
+
+Wonderful - it's impossible to prove a null hypothesis, but we have a p-value that indicates support for the null hypothesis that our data are normally distributed. Great - we can move on with the scaled data for our parametric tests.
 
 
 Now that we are confident our data are properly distribute for an analysis of variance (ANOVA), we can run the test with the `aov` and `summary` functions.
@@ -169,14 +199,14 @@ We see that the P-value is 0.55 and is not significant. Alternatively, we could 
 
 
 ```r
-wilcox.test(scaled_shannon~sex, data=meta_alpha)
+wilcox.test(shannon~sex, data=meta_alpha)
 ```
 
 ```
 ## 
 ## 	Wilcoxon rank sum test with continuity correction
 ## 
-## data:  scaled_shannon by sex
+## data:  shannon by sex
 ## W = 29285, p-value = 0.6436
 ## alternative hypothesis: true location shift is not equal to 0
 ```
@@ -196,7 +226,7 @@ Is the number of OTUs normally distributed? Repeat the analyses we performed abo
 ggplot(meta_alpha, aes(sample=sobs, group=diagnosis, color=diagnosis)) + geom_qq() + stat_qq_line()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-11-1.png" title="plot of chunk unnamed-chunk-11" alt="plot of chunk unnamed-chunk-11" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-13-1.png" title="plot of chunk unnamed-chunk-13" alt="plot of chunk unnamed-chunk-13" width="504" />
 
 The curve holds water so we might try transforming with the square root
 
@@ -208,7 +238,7 @@ ggplot(meta_alpha, aes(sample=scaled_sobs, group=diagnosis, color=diagnosis)) +
 	geom_qq() + stat_qq_line()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-12-1.png" title="plot of chunk unnamed-chunk-12" alt="plot of chunk unnamed-chunk-12" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-14-1.png" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" width="504" />
 
 That doesn't look horrible...
 
@@ -218,7 +248,7 @@ ggplot(meta_alpha, aes(x=sobs)) + geom_histogram()
 ggplot(meta_alpha, aes(x=scaled_sobs)) + geom_histogram()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-13-1.png" title="plot of chunk unnamed-chunk-13" alt="plot of chunk unnamed-chunk-13" width="504" /><img src="assets/images/07_statistical_analyses//unnamed-chunk-13-2.png" title="plot of chunk unnamed-chunk-13" alt="plot of chunk unnamed-chunk-13" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-15-1.png" title="plot of chunk unnamed-chunk-15" alt="plot of chunk unnamed-chunk-15" width="504" /><img src="assets/images/07_statistical_analyses//unnamed-chunk-15-2.png" title="plot of chunk unnamed-chunk-15" alt="plot of chunk unnamed-chunk-15" width="504" />
 
 Good enough...
 
@@ -283,11 +313,14 @@ The three diagnosis groups have significantly different FIT results even after c
 ---
 
 
-## Comparing continuous by categorical variables
+## Comparing continuous by continuous variables
 Sometimes we would like to know whether two variables are correlated with each other. For example, is someone's BMI correlated with their Shannon diversity? Is FIT result correlated with age? Is the FIT result correlated with their Shannon diversity? To test for these types of correlations we can use the `cor.test` function
 
 
 ```r
+meta_alpha <- meta_alpha %>%
+	mutate(bmi = get_bmi(weight_kg=weight, height_cm=height))
+
 cor.test(meta_alpha[["shannon"]], meta_alpha[["bmi"]])
 ```
 
@@ -475,7 +508,7 @@ ggplot(meta_alpha, aes(x=bmi, y=shannon, color=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-21-1.png" title="plot of chunk unnamed-chunk-21" alt="plot of chunk unnamed-chunk-21" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-23-1.png" title="plot of chunk unnamed-chunk-23" alt="plot of chunk unnamed-chunk-23" width="504" />
 
 This plots the regression lines with the cloud around the line indicating the 95% confidence interval. We noted above that our regression analysis indicated that there wasn't a statistical difference between the diagnosis groups. If we want a single line through the data, then we can overwrite the `color` aesthetic in `geom_smooth`
 
@@ -494,7 +527,7 @@ ggplot(meta_alpha, aes(x=bmi, y=shannon, color=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-22-1.png" title="plot of chunk unnamed-chunk-22" alt="plot of chunk unnamed-chunk-22" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-24-1.png" title="plot of chunk unnamed-chunk-24" alt="plot of chunk unnamed-chunk-24" width="504" />
 
 ---
 
@@ -518,7 +551,7 @@ ggplot(meta_alpha, aes(x=bmi, y=shannon, color=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-23-1.png" title="plot of chunk unnamed-chunk-23" alt="plot of chunk unnamed-chunk-23" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-25-1.png" title="plot of chunk unnamed-chunk-25" alt="plot of chunk unnamed-chunk-25" width="504" />
 </div>
 
 
@@ -576,7 +609,7 @@ ggplot(meta_alpha, aes(x=bmi, y=sobs, color=sex)) +
 	theme_classic()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-25-1.png" title="plot of chunk unnamed-chunk-25" alt="plot of chunk unnamed-chunk-25" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-27-1.png" title="plot of chunk unnamed-chunk-27" alt="plot of chunk unnamed-chunk-27" width="504" />
 </div>
 
 ---
@@ -617,7 +650,7 @@ ggplot(meta_alpha, aes(x=sex, y=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-27-1.png" title="plot of chunk unnamed-chunk-27" alt="plot of chunk unnamed-chunk-27" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-29-1.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="504" />
 
 Not that size of circles is generally pretty hard for people to differentiate, so this isn't necessarily the best visualization tool. To see how to scale the circles by proportions you should see the examples in the `?geom_count` documentation.
 
@@ -635,11 +668,7 @@ chisq.test(x=meta_alpha[["obese"]], y=meta_alpha[["diagnosis"]])
 ```
 
 ```
-## 
-## 	Pearson's Chi-squared test
-## 
-## data:  meta_alpha[["obese"]] and meta_alpha[["diagnosis"]]
-## X-squared = 14.251, df = 2, p-value = 0.0008044
+## Error in chisq.test(x = meta_alpha[["obese"]], y = meta_alpha[["diagnosis"]]): 'x' and 'y' must have the same length
 ```
 
 The P-value is quite small
@@ -661,5 +690,9 @@ ggplot(meta_alpha, aes(x=obese, y=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-29-1.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="504" />
+```
+## Error in FUN(X[[i]], ...): object 'obese' not found
+```
+
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-31-1.png" title="plot of chunk unnamed-chunk-31" alt="plot of chunk unnamed-chunk-31" width="504" />
 </div>

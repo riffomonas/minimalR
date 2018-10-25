@@ -67,7 +67,19 @@ We see that the distribution is skewed to the left.
 ggplot(meta_alpha, aes(x=scaled_shannon)) + geom_histogram()
 ```
 
-That does look better. There are several other functions that you might find useful for plotting histograms including `geom_freqpoly`, `geom_dotplot`, and `geom_density`. As with `geom_qq`, you can specify the `group` and `color` or `fill` aesthetics to see the distribution for each category you are interested in.
+That does look better. There are several other functions that you might find useful for plotting histograms including `geom_freqpoly`, `geom_dotplot`, and `geom_density`. As with `geom_qq`, you can specify the `group` and `color` or `fill` aesthetics to see the distribution for each category you are interested in. We can also run a `shapiro.test`. The null hypothesis is that the data are normally distributed so a small p-value would mean that the data are not normally distributed.
+
+```{r}
+shapiro.test(meta_alpha$shannon)
+```
+
+That's a small p-value, which indicates that the data are not normally distributed. Let's try the scaled data
+
+```{r}
+shapiro.test(meta_alpha$scaled_shannon)
+```
+
+Wonderful - it's impossible to prove a null hypothesis, but we have a p-value that indicates support for the null hypothesis that our data are normally distributed. Great - we can move on with the scaled data for our parametric tests.
 
 
 Now that we are confident our data are properly distribute for an analysis of variance (ANOVA), we can run the test with the `aov` and `summary` functions.
@@ -109,7 +121,7 @@ t.test(scaled_shannon~sex, data=meta_alpha)
 We see that the P-value is 0.55 and is not significant. Alternatively, we could have used the Wilcoxon test
 
 ```{r}
-wilcox.test(scaled_shannon~sex, data=meta_alpha)
+wilcox.test(shannon~sex, data=meta_alpha)
 ```
 
 Both of these tests allow you perform a paired test if you have pre and post data from the same experimental units. Again, this is not a statistics tutorial...
@@ -175,10 +187,13 @@ The three diagnosis groups have significantly different FIT results even after c
 ---
 
 
-## Comparing continuous by categorical variables
+## Comparing continuous by continuous variables
 Sometimes we would like to know whether two variables are correlated with each other. For example, is someone's BMI correlated with their Shannon diversity? Is FIT result correlated with age? Is the FIT result correlated with their Shannon diversity? To test for these types of correlations we can use the `cor.test` function
 
 ```{r, results="markup"}
+meta_alpha <- meta_alpha %>%
+	mutate(bmi = get_bmi(weight_kg=weight, height_cm=height))
+
 cor.test(meta_alpha[["shannon"]], meta_alpha[["bmi"]])
 cor.test(meta_alpha[["fit_result"]], meta_alpha[["age"]])
 cor.test(meta_alpha[["fit_result"]], meta_alpha[["shannon"]])

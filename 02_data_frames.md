@@ -187,18 +187,18 @@ metadata
 
 ```
 ## # A tibble: 490 x 17
-##     sample fit_result Site  Dx_Bin dx    Hx_Prev Hx_of_Polyps   Age Gender
-##      <dbl>      <dbl> <chr> <chr>  <chr>   <dbl>        <dbl> <dbl> <chr> 
-##  1 2003650       0    U Mi… High … norm…    0            1.00  64.0 m     
-##  2 2005650       0    U Mi… High … norm…    0            1.00  61.0 m     
-##  3 2007660      26.0  U Mi… High … norm…    0            1.00  47.0 f     
-##  4 2009650      10.0  Toro… Adeno… aden…    0            1.00  81.0 f     
-##  5 2013660       0    U Mi… Normal norm…    0            0     44.0 f     
-##  6 2015650       0    Dana… High … norm…    0            1.00  51.0 f     
-##  7 2017660       7.00 Dana… Cancer canc…    1.00         1.00  78.0 m     
-##  8 2019651      19.0  U Mi… Normal norm…    0            0     59.0 m     
-##  9 2023680       0    Dana… High … norm…    1.00         1.00  63.0 f     
-## 10 2025653    1509    U Mi… Cance… canc…    1.00         1.00  67.0 m     
+##    sample fit_result Site  Dx_Bin dx    Hx_Prev Hx_of_Polyps   Age Gender
+##     <dbl>      <dbl> <chr> <chr>  <chr>   <dbl>        <dbl> <dbl> <chr> 
+##  1 2.00e6          0 U Mi… High … norm…       0            1    64 m     
+##  2 2.01e6          0 U Mi… High … norm…       0            1    61 m     
+##  3 2.01e6         26 U Mi… High … norm…       0            1    47 f     
+##  4 2.01e6         10 Toro… Adeno… aden…       0            1    81 f     
+##  5 2.01e6          0 U Mi… Normal norm…       0            0    44 f     
+##  6 2.02e6          0 Dana… High … norm…       0            1    51 f     
+##  7 2.02e6          7 Dana… Cancer canc…       1            1    78 m     
+##  8 2.02e6         19 U Mi… Normal norm…       0            0    59 m     
+##  9 2.02e6          0 Dana… High … norm…       1            1    63 f     
+## 10 2.03e6       1509 U Mi… Cance… canc…       1            1    67 m     
 ## # ... with 480 more rows, and 8 more variables: Smoke <dbl>,
 ## #   Diabetic <dbl>, Hx_Fam_CRC <dbl>, Height <dbl>, Weight <dbl>,
 ## #   NSAID <dbl>, Diabetes_Med <dbl>, stage <dbl>
@@ -265,14 +265,14 @@ head(metadata)
 
 ```
 ## # A tibble: 6 x 17
-##    sample fit_result Site  Dx_Bin  dx    Hx_Prev Hx_of_Polyps   Age Gender
-##     <dbl>      <dbl> <chr> <chr>   <chr>   <dbl>        <dbl> <dbl> <chr> 
-## 1 2003650        0   U Mi… High R… norm…       0         1.00  64.0 m     
-## 2 2005650        0   U Mi… High R… norm…       0         1.00  61.0 m     
-## 3 2007660       26.0 U Mi… High R… norm…       0         1.00  47.0 f     
-## 4 2009650       10.0 Toro… Adenoma aden…       0         1.00  81.0 f     
-## 5 2013660        0   U Mi… Normal  norm…       0         0     44.0 f     
-## 6 2015650        0   Dana… High R… norm…       0         1.00  51.0 f     
+##   sample fit_result Site  Dx_Bin dx    Hx_Prev Hx_of_Polyps   Age Gender
+##    <dbl>      <dbl> <chr> <chr>  <chr>   <dbl>        <dbl> <dbl> <chr> 
+## 1 2.00e6          0 U Mi… High … norm…       0            1    64 m     
+## 2 2.01e6          0 U Mi… High … norm…       0            1    61 m     
+## 3 2.01e6         26 U Mi… High … norm…       0            1    47 f     
+## 4 2.01e6         10 Toro… Adeno… aden…       0            1    81 f     
+## 5 2.01e6          0 U Mi… Normal norm…       0            0    44 f     
+## 6 2.02e6          0 Dana… High … norm…       0            1    51 f     
 ## # ... with 8 more variables: Smoke <dbl>, Diabetic <dbl>,
 ## #   Hx_Fam_CRC <dbl>, Height <dbl>, Weight <dbl>, NSAID <dbl>,
 ## #   Diabetes_Med <dbl>, stage <dbl>
@@ -284,14 +284,14 @@ tail(metadata)
 
 ```
 ## # A tibble: 6 x 17
-##    sample fit_result Site   Dx_Bin dx    Hx_Prev Hx_of_Polyps   Age Gender
-##     <dbl>      <dbl> <chr>  <chr>  <chr>   <dbl>        <dbl> <dbl> <chr> 
-## 1 3529653          0 Dana … Normal norm…    0            0     51.0 f     
-## 2 3531650          0 Dana … Normal norm…    1.00         0     53.0 f     
-## 3 3535650          0 U Mic… Adv A… aden…    0            1.00  75.0 m     
-## 4 3537650          0 U Mic… Normal norm…    0            0     56.0 f     
-## 5 3551650          0 Dana … Adeno… aden…    1.00         1.00  77.0 m     
-## 6 3561650          0 U Mic… Normal norm…    0            0     51.0 f     
+##   sample fit_result Site  Dx_Bin dx    Hx_Prev Hx_of_Polyps   Age Gender
+##    <dbl>      <dbl> <chr> <chr>  <chr>   <dbl>        <dbl> <dbl> <chr> 
+## 1 3.53e6          0 Dana… Normal norm…       0            0    51 f     
+## 2 3.53e6          0 Dana… Normal norm…       1            0    53 f     
+## 3 3.54e6          0 U Mi… Adv A… aden…       0            1    75 m     
+## 4 3.54e6          0 U Mi… Normal norm…       0            0    56 f     
+## 5 3.55e6          0 Dana… Adeno… aden…       1            1    77 m     
+## 6 3.56e6          0 U Mi… Normal norm…       0            0    51 f     
 ## # ... with 8 more variables: Smoke <dbl>, Diabetic <dbl>,
 ## #   Hx_Fam_CRC <dbl>, Height <dbl>, Weight <dbl>, NSAID <dbl>,
 ## #   Diabetes_Med <dbl>, stage <dbl>
@@ -403,18 +403,18 @@ metadata
 
 ```
 ## # A tibble: 490 x 17
-##    sample  fit_result Site  Dx_Bin dx    Hx_Prev Hx_of_Polyps   Age Gender
-##    <chr>        <dbl> <chr> <chr>  <chr> <lgl>   <lgl>        <dbl> <chr> 
-##  1 2003650       0    U Mi… High … norm… F       T             64.0 m     
-##  2 2005650       0    U Mi… High … norm… F       T             61.0 m     
-##  3 2007660      26.0  U Mi… High … norm… F       T             47.0 f     
-##  4 2009650      10.0  Toro… Adeno… aden… F       T             81.0 f     
-##  5 2013660       0    U Mi… Normal norm… F       F             44.0 f     
-##  6 2015650       0    Dana… High … norm… F       T             51.0 f     
-##  7 2017660       7.00 Dana… Cancer canc… T       T             78.0 m     
-##  8 2019651      19.0  U Mi… Normal norm… F       F             59.0 m     
-##  9 2023680       0    Dana… High … norm… T       T             63.0 f     
-## 10 2025653    1509    U Mi… Cance… canc… T       T             67.0 m     
+##    sample fit_result Site  Dx_Bin dx    Hx_Prev Hx_of_Polyps   Age Gender
+##    <chr>       <dbl> <chr> <chr>  <chr> <lgl>   <lgl>        <dbl> <chr> 
+##  1 20036…          0 U Mi… High … norm… FALSE   TRUE            64 m     
+##  2 20056…          0 U Mi… High … norm… FALSE   TRUE            61 m     
+##  3 20076…         26 U Mi… High … norm… FALSE   TRUE            47 f     
+##  4 20096…         10 Toro… Adeno… aden… FALSE   TRUE            81 f     
+##  5 20136…          0 U Mi… Normal norm… FALSE   FALSE           44 f     
+##  6 20156…          0 Dana… High … norm… FALSE   TRUE            51 f     
+##  7 20176…          7 Dana… Cancer canc… TRUE    TRUE            78 m     
+##  8 20196…         19 U Mi… Normal norm… FALSE   FALSE           59 m     
+##  9 20236…          0 Dana… High … norm… TRUE    TRUE            63 f     
+## 10 20256…       1509 U Mi… Cance… canc… TRUE    TRUE            67 m     
 ## # ... with 480 more rows, and 8 more variables: Smoke <lgl>,
 ## #   Diabetic <lgl>, Hx_Fam_CRC <lgl>, Height <dbl>, Weight <dbl>,
 ## #   NSAID <lgl>, Diabetes_Med <lgl>, stage <chr>
@@ -596,6 +596,22 @@ count(metadata, Gender)
 ## 1 female   243
 ## 2 male     247
 ```
+
+Alternatively, we could do
+
+
+```r
+metadata[["Gender"]] <- recode(.x=metadata[["Gender"]], "m"="male", "f"="female")
+count(metadata, Gender)
+```
+
+```
+## # A tibble: 2 x 2
+##   Gender     n
+##   <chr>  <int>
+## 1 female   243
+## 2 male     247
+```
 </div>
 
 ---
@@ -614,18 +630,18 @@ metadata
 
 ```
 ## # A tibble: 490 x 17
-##    sample  fit_result site  dx_bin dx    hx_prev hx_of_polyps   age gender
-##    <chr>        <dbl> <chr> <chr>  <chr> <lgl>   <lgl>        <dbl> <chr> 
-##  1 2003650       0    U Mi… High … norm… F       T             64.0 male  
-##  2 2005650       0    U Mi… High … norm… F       T             61.0 male  
-##  3 2007660      26.0  U Mi… High … norm… F       T             47.0 female
-##  4 2009650      10.0  Toro… Adeno… aden… F       T             81.0 female
-##  5 2013660       0    U Mi… Normal norm… F       F             44.0 female
-##  6 2015650       0    Dana… High … norm… F       T             51.0 female
-##  7 2017660       7.00 Dana… Cancer canc… T       T             78.0 male  
-##  8 2019651      19.0  U Mi… Normal norm… F       F             59.0 male  
-##  9 2023680       0    Dana… High … norm… T       T             63.0 female
-## 10 2025653    1509    U Mi… Cancer canc… T       T             67.0 male  
+##    sample fit_result site  dx_bin dx    hx_prev hx_of_polyps   age gender
+##    <chr>       <dbl> <chr> <chr>  <chr> <lgl>   <lgl>        <dbl> <chr> 
+##  1 20036…          0 U Mi… High … norm… FALSE   TRUE            64 male  
+##  2 20056…          0 U Mi… High … norm… FALSE   TRUE            61 male  
+##  3 20076…         26 U Mi… High … norm… FALSE   TRUE            47 female
+##  4 20096…         10 Toro… Adeno… aden… FALSE   TRUE            81 female
+##  5 20136…          0 U Mi… Normal norm… FALSE   FALSE           44 female
+##  6 20156…          0 Dana… High … norm… FALSE   TRUE            51 female
+##  7 20176…          7 Dana… Cancer canc… TRUE    TRUE            78 male  
+##  8 20196…         19 U Mi… Normal norm… FALSE   FALSE           59 male  
+##  9 20236…          0 Dana… High … norm… TRUE    TRUE            63 female
+## 10 20256…       1509 U Mi… Cancer canc… TRUE    TRUE            67 male  
 ## # ... with 480 more rows, and 8 more variables: smoke <lgl>,
 ## #   diabetic <lgl>, hx_fam_crc <lgl>, height <dbl>, weight <dbl>,
 ## #   nsaid <lgl>, diabetes_med <lgl>, stage <chr>
@@ -688,16 +704,9 @@ This throws an error. It is complaining because the "group" column in our `pcoa`
 
 ```r
 pcoa <- read_tsv(file="raw_data/baxter.thetayc.pcoa.axes",
-		col_types=cols(group=col_character())
+		col_types=cols(group=col_character()))
 
 metadata_pcoa <- inner_join(metadata, pcoa, by=c('sample'='group'))
-```
-
-```
-## Error: <text>:4:1: unexpected symbol
-## 3: 
-## 4: metadata_pcoa
-##    ^
 ```
 </div>
 
@@ -757,4 +766,4 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
 ggsave("ordination.pdf")
 ```
 
-<img src="assets/images/02_data_frames//unnamed-chunk-19-1.png" title="plot of chunk unnamed-chunk-19" alt="plot of chunk unnamed-chunk-19" width="504" />
+<img src="assets/images/02_data_frames//unnamed-chunk-20-1.png" title="plot of chunk unnamed-chunk-20" alt="plot of chunk unnamed-chunk-20" width="504" />

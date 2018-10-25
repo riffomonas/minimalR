@@ -29,7 +29,7 @@ But really! What should you learn? Depends. What does your research group use? W
 ## What you need to do these tutorials...
 * [R](https://cloud.r-project.org/)
 * Text editor (e.g. [atom]()) or [RStudio](https://www.rstudio.com/products/rstudio/download/#download)
-* [Raw data files](https://github.com/riffomonas/raw_data/archive/0.1.zip). This will download a directory called `raw_data-X.X` where the "X.X" is the version number. Remove the `-X.X` and make sure the directory is uncompressed
+* [Raw data files](https://github.com/riffomonas/raw_data/archive/0.1.zip). This will download a directory called `raw_data-X.X` where the "X.X" is the version number. Remove the `-X.X` and make sure the directory is uncompressed. ***This is super important!***
 
 
 ## Set up our minimalR project...
@@ -67,7 +67,7 @@ But really! What should you learn? Depends. What does your research group use? W
 
 
 ## Customizing RStudio
-* There are many ways to customize RStudio. You can find the options by going to the Preferences window.
+* There are many ways to customize RStudio. You can find the options by going to the Preferences window. If you are using windows you can get to the Preferences window by going Tools->Global Options. Here is a screenshot of how to do it for Mac OS X.
 
 <img src="assets/images/launch_preferences.png" width="50%">
 
@@ -163,7 +163,7 @@ sessionInfo()
 ```
 ## R version 3.5.0 (2018-04-23)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
-## Running under: macOS High Sierra 10.13.4
+## Running under: macOS  10.14
 ## 
 ## Matrix products: default
 ## BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
@@ -176,24 +176,24 @@ sessionInfo()
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] forcats_0.3.0   stringr_1.3.0   dplyr_0.7.4     purrr_0.2.4    
-##  [5] readr_1.1.1     tidyr_0.8.0     tibble_1.4.2    ggplot2_2.2.1  
+##  [1] forcats_0.3.0   stringr_1.3.1   dplyr_0.7.6     purrr_0.2.5    
+##  [5] readr_1.1.1     tidyr_0.8.1     tibble_1.4.2    ggplot2_3.0.0  
 ##  [9] tidyverse_1.2.1 knitr_1.20      ezknitr_0.6    
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_0.12.16      cellranger_1.1.0  pillar_1.2.2     
+##  [1] Rcpp_0.12.18      cellranger_1.1.0  pillar_1.3.0     
 ##  [4] compiler_3.5.0    plyr_1.8.4        bindr_0.1.1      
 ##  [7] R.methodsS3_1.7.1 R.utils_2.6.0     tools_3.5.0      
-## [10] lubridate_1.7.4   jsonlite_1.5      evaluate_0.10.1  
+## [10] lubridate_1.7.4   jsonlite_1.5      evaluate_0.11    
 ## [13] nlme_3.1-137      gtable_0.2.0      lattice_0.20-35  
-## [16] pkgconfig_2.0.1   rlang_0.2.0       psych_1.8.3.3    
-## [19] cli_1.0.0         rstudioapi_0.7    parallel_3.5.0   
-## [22] haven_1.1.1       bindrcpp_0.2.2    xml2_1.2.0       
-## [25] httr_1.3.1        hms_0.4.2         grid_3.5.0       
-## [28] glue_1.2.0        R6_2.2.2          readxl_1.1.0     
-## [31] foreign_0.8-70    modelr_0.1.1      reshape2_1.4.3   
-## [34] magrittr_1.5      scales_0.5.0      rvest_0.3.2      
-## [37] assertthat_0.2.0  mnormt_1.5-5      colorspace_1.3-2 
-## [40] stringi_1.1.7     lazyeval_0.2.1    munsell_0.4.3    
-## [43] broom_0.4.4       crayon_1.3.4      R.oo_1.22.0
+## [16] pkgconfig_2.0.1   rlang_0.2.1       cli_1.0.0        
+## [19] rstudioapi_0.7    haven_1.1.2       bindrcpp_0.2.2   
+## [22] withr_2.1.2       xml2_1.2.0        httr_1.3.1       
+## [25] hms_0.4.2         grid_3.5.0        tidyselect_0.2.4 
+## [28] glue_1.3.0        R6_2.2.2          readxl_1.1.0     
+## [31] modelr_0.1.2      magrittr_1.5      backports_1.1.2  
+## [34] scales_1.0.0      rvest_0.3.2       assertthat_0.2.0 
+## [37] colorspace_1.3-2  stringi_1.2.4     lazyeval_0.2.1   
+## [40] munsell_0.5.0     broom_0.5.0       crayon_1.3.4     
+## [43] R.oo_1.22.0
 ```

@@ -76,17 +76,12 @@ Nice, eh? Before we ran `source`, the result of `ls` was `character(0)`, which m
 
 ```r
 
-get_bmi <- function(weight_kg, height_m){
-	return(weight_kg / height_m ^ 2)
+get_bmi <- function(weight_kg, height_cm){
+	return(weight_kg / (height_cm/100) ^ 2)
 }
 
-is_obese <- function(weight_kg, height_m){
-	bmi_category <- get_bmi_category(weight_kg, height_m)
-	return(bmi_category == "obese")
-}
-
-get_bmi_category <- function(weight_kg, height_m){
-	bmi <- get_bmi(weight_kg, height_m)
+get_bmi_category <- function(weight_kg, height_cm){
+	bmi <- get_bmi(weight_kg, height_cm)
 
 	bmi_cat <- case_when(bmi >= 30 ~ "obese",
 			bmi >= 25 ~ "overweight",
@@ -96,8 +91,8 @@ get_bmi_category <- function(weight_kg, height_m){
 	return(bmi_cat)
 }
 
-is_obese <- function(weight_kg, height_m){
-	bmi_category <- get_bmi_category(weight_kg, height_m)
+is_obese <- function(weight_kg, height_cm){
+	bmi_category <- get_bmi_category(weight_kg, height_cm)
 	return(bmi_category == "obese")
 }
 ```
@@ -118,7 +113,7 @@ get_bmi(height=2, weight=130)
 ```
 
 ```
-## [1] 32.5
+## [1] 325000
 ```
 
 ```r
@@ -175,18 +170,18 @@ metadata
 
 ```
 ## # A tibble: 490 x 17
-##    sample  fit_result site      diagnosis_bin   diagnosis previous_history
-##    <chr>        <dbl> <chr>     <chr>           <chr>     <lgl>           
-##  1 2003650          0 U Michig… High Risk Norm… normal    FALSE           
-##  2 2005650          0 U Michig… High Risk Norm… normal    FALSE           
-##  3 2007660         26 U Michig… High Risk Norm… normal    FALSE           
-##  4 2009650         10 Toronto   Adenoma         adenoma   FALSE           
-##  5 2013660          0 U Michig… Normal          normal    FALSE           
-##  6 2015650          0 Dana Far… High Risk Norm… normal    FALSE           
-##  7 2017660          7 Dana Far… Cancer          cancer    TRUE            
-##  8 2019651         19 U Michig… Normal          normal    FALSE           
-##  9 2023680          0 Dana Far… High Risk Norm… normal    TRUE            
-## 10 2025653       1509 U Michig… Cancer          cancer    TRUE            
+##    sample fit_result site  diagnosis_bin diagnosis previous_history
+##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
+##  2 20056…          0 U Mi… High Risk No… normal    FALSE           
+##  3 20076…         26 U Mi… High Risk No… normal    FALSE           
+##  4 20096…         10 Toro… Adenoma       adenoma   FALSE           
+##  5 20136…          0 U Mi… Normal        normal    FALSE           
+##  6 20156…          0 Dana… High Risk No… normal    FALSE           
+##  7 20176…          7 Dana… Cancer        cancer    TRUE            
+##  8 20196…         19 U Mi… Normal        normal    FALSE           
+##  9 20236…          0 Dana… High Risk No… normal    TRUE            
+## 10 20256…       1509 U Mi… Cancer        cancer    TRUE            
 ## # ... with 480 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
@@ -257,7 +252,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
 		y="PCo Axis 2") +
 	theme_classic()
 
-ggsave("ordination.pdf")
+ggsave("figures/ordination.pdf")
 
 ```
 
@@ -980,6 +975,7 @@ ggplot(metadata_rarefy, aes(x=numsampled, y=sobs, group=sample, color=diagnosis)
 		x="Number of Sequences Sampled per Subject",
 		y="Number of OTUs per Subject") +
 	theme_classic()
+ggsave("figures/rarefaction.pdf")
 
 ```
 

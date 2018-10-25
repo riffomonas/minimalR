@@ -206,6 +206,32 @@ ggplot(shannon_by_diagnosis_sex, aes(x=sex, y=mean_shannon, fill=diagnosis)) +
 		y="Shannon Diversity Index") +
 	theme_classic()
 ```
+
+If the order of the bars is driving you nuts, try this
+
+```{r}
+shannon_by_diagnosis_sex <- meta_alpha %>%
+		mutate(diagnosis = factor(diagnosis, levels=c("normal", "adenoma", "cancer"))) %>%
+		group_by(diagnosis, sex) %>%
+		summarize(mean_shannon = mean(shannon), sd_fit = sd(shannon)) %>%
+		ungroup()
+
+ggplot(shannon_by_diagnosis_sex, aes(x=sex, y=mean_shannon, fill=diagnosis)) +
+	geom_col(position=position_dodge()) +
+	scale_fill_manual(name=NULL,
+		values=c("black", "blue", "red"),
+		breaks=c("normal", "adenoma", "cancer"),
+		labels=c("Normal", "Adenoma", "Cancer")) +
+	scale_x_discrete(limits=c("female", "male"),
+		labels=c("Female", "Male")) +
+	coord_cartesian(ylim=c(0,5)) +
+	labs(title="Relationship between diagnosis group, sex, and diversity",
+		x=NULL,
+		y="Shannon Diversity Index") +
+	theme_classic()
+```
+
+In the second chunk, we added a line to the calculation of `shannon_by_diagnosis_sex` to turn `diagnosis` from an unordered categorical variable into an ordered categorical variable, an ordinal variable. In R these are called factors and we'll talk about them more later. They're one of the more frustrating parts of R for beginners and experts. You should also notice that we also put the colors in `scale_fill_manual` into the desired order.
 </div>
 
 ---
@@ -304,7 +330,7 @@ As I mentioned above, one limitation of bar plots is that they obscure the data 
 
 ```{r}
 ggplot(meta_alpha, aes(x=diagnosis, y=fit_result, color=diagnosis)) +
-	geom_jitter(pch=19, size=2) +
+	geom_jitter(shape=19, size=2) +
 	scale_color_manual(name=NULL,
 		values=c("blue", "red", "black"),
 		breaks=c("normal", "adenoma", "cancer"),
@@ -321,7 +347,7 @@ Looks better, eh? Perhaps we'd like to alter the jitter along the x-axis, we can
 
 ```{r}
 ggplot(meta_alpha, aes(x=diagnosis, y=fit_result, color=diagnosis)) +
-	geom_jitter(pch=19, size=2, width=0.2) +
+	geom_jitter(shape=19, size=2, width=0.2) +
 	scale_color_manual(name=NULL,
 		values=c("blue", "red", "black"),
 		breaks=c("normal", "adenoma", "cancer"),
@@ -343,7 +369,7 @@ Create a strip chart that shows the Shannon diversity for each diagnosis categor
 <div markdown="1" style="display:none;">
 ```{r}
 ggplot(meta_alpha, aes(x=diagnosis, y=shannon, color=diagnosis)) +
-	geom_jitter(pch=19, size=2, width=0.2) +
+	geom_jitter(shape=19, size=2, width=0.2) +
 	scale_color_manual(name=NULL,
 		values=c("blue", "red", "black"),
 		breaks=c("normal", "adenoma", "cancer"),
@@ -364,7 +390,7 @@ Great. How about comparing FIT results for combinations of sex and diagnosis? On
 
 ```{r}
 ggplot(meta_alpha, aes(x=sex, y=fit_result, color=diagnosis)) +
-	geom_jitter(pch=19, size=2, width=0.2) +
+	geom_jitter(shape=19, size=2, width=0.2) +
 	scale_color_manual(name=NULL,
 		values=c("blue", "red", "black"),
 		breaks=c("normal", "adenoma", "cancer"),
@@ -381,7 +407,7 @@ Meh. Another option is to use a the `position_jitterdodge` function with the `po
 
 ```{r}
 ggplot(meta_alpha, aes(x=sex, y=fit_result, color=diagnosis)) +
-	geom_jitter(pch=19, size=2, position=position_jitterdodge()) +
+	geom_jitter(shape=19, size=2, position=position_jitterdodge()) +
 	scale_color_manual(name=NULL,
 		values=c("blue", "red", "black"),
 		breaks=c("normal", "adenoma", "cancer"),
@@ -398,7 +424,7 @@ It looks like our diagnosis groups are still overlapping a bit. We can give a ji
 
 ```{r}
 ggplot(meta_alpha, aes(x=sex, y=fit_result, color=diagnosis)) +
-	geom_jitter(pch=19, size=2, position=position_jitterdodge(dodge.width=0.7, jitter.width=0.2)) +
+	geom_jitter(shape=19, size=2, position=position_jitterdodge(dodge.width=0.7, jitter.width=0.2)) +
 	scale_color_manual(name=NULL,
 		values=c("blue", "red", "black"),
 		breaks=c("normal", "adenoma", "cancer"),
@@ -423,7 +449,7 @@ Create a strip chart that shows the Shannon diversity for each diagnosis categor
 <div markdown="1" style="display:none;">
 ```{r}
 ggplot(meta_alpha, aes(x=sex, y=shannon, color=diagnosis)) +
-	geom_jitter(pch=19, size=2, position=position_jitterdodge(dodge.width=0.7, jitter.width=0.2)) +
+	geom_jitter(shape=19, size=2, position=position_jitterdodge(dodge.width=0.7, jitter.width=0.2)) +
 	scale_color_manual(name=NULL,
 		values=c("blue", "red", "black"),
 		breaks=c("normal", "adenoma", "cancer"),
@@ -479,8 +505,8 @@ In this case, the notches extend to 1.58 times the difference between the 25th a
 
 ```{r}
 ggplot(meta_alpha, aes(x=diagnosis, y=fit_result, color=diagnosis)) +
-	geom_boxplot(outlier.color="white", pch=0) +
-	geom_jitter(pch=19, position=position_jitterdodge(jitter.width=0.75)) +
+	geom_boxplot(outlier.color="white", shape=0) +
+	geom_jitter(shape=19, position=position_jitterdodge(jitter.width=0.75)) +
 	scale_color_manual(name=NULL,
 		values=c("blue", "red", "black"),
 		breaks=c("normal", "adenoma", "cancer"),
@@ -550,6 +576,8 @@ ggplot(meta_alpha, aes(x=diagnosis, y=shannon, color=diagnosis, fill=diagnosis))
 	scale_fill_manual(name=NULL,
 		values=c("lightblue", "pink", "gray"),
 		breaks=c("normal", "adenoma", "cancer"),
+		labels=c("Normal", "Adenoma", "Cancer")) +
+	scale_x_discrete(limits=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	labs(title="Relationship between Shannon diversity and subject's diagnosis",
 		x=NULL,
@@ -671,7 +699,7 @@ Let's return to the example of generating the bar plot of plotting the FIT resul
 
 ```{r}
 ggplot(meta_alpha, aes(x=sex, y=fit_result, color=diagnosis)) +
-	geom_jitter(pch=19, size=2, position=position_jitterdodge(dodge.width=0.7, jitter.width=0.2)) +
+	geom_jitter(shape=19, size=2, position=position_jitterdodge(dodge.width=0.7, jitter.width=0.2)) +
 	scale_color_manual(name=NULL,
 		values=c("blue", "red", "black"),
 		breaks=c("normal", "adenoma", "cancer"),
@@ -690,7 +718,7 @@ We can reorder the diagnosis variable by using the `factor` function where we gi
 meta_alpha %>%
 	mutate(diagnosis = factor(diagnosis, levels=c("normal", "adenoma", "cancer"))) %>%
 	ggplot(aes(x=sex, y=fit_result, color=diagnosis)) +
-		geom_jitter(pch=19, size=2, position=position_jitterdodge(dodge.width=0.7, jitter.width=0.2)) +
+		geom_jitter(shape=19, size=2, position=position_jitterdodge(dodge.width=0.7, jitter.width=0.2)) +
 		scale_color_manual(name=NULL,
 			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),

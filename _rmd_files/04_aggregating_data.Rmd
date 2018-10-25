@@ -320,14 +320,7 @@ meta_alpha %>%
 	arrange(mean_shannon)
 ```
 
-In this example you'll notice that the "fit_result" column does not show up in our final data frame because we were grouping by the "fit_category" and "diagnosis" columns to summarize the data in the "shannon" column. If we had stopped the pipeline after the mutate, then our data frame would have contained all of our previous columns as well as the "fit_category" column. Perhaps we didn't want to include the "fit_result" column in an output table since that information was captured in "fit_category". We could use `select(-fit_result)`. Alternatively, we could also use the `mutate_at` function from the `dplyr` package. This function will replace one column with a new column. The syntax is a bit tricky, but boils down to `mutate_at(vars(column_to_replace), funs(code_that_generates_new_column))`. Here it is for our example
-
-```{r}
-meta_alpha %>%
-	mutate_at(vars(fit_result), funs(case_when(fit_result>=100 ~ "high fit",
-		 				fit_result >= 50 ~ "moderate fit",
-						TRUE ~ "low fit")))
-```
+In this example you'll notice that the "fit_result" column does not show up in our final data frame because we were grouping by the "fit_category" and "diagnosis" columns to summarize the data in the "shannon" column. If we had stopped the pipeline after the mutate, then our data frame would have contained all of our previous columns as well as the "fit_category" column. Perhaps we didn't want to include the "fit_result" column in an output table since that information was captured in "fit_category". We could use `select(-fit_result)`.
 
 ---
 
@@ -344,21 +337,12 @@ meta_alpha %>%
 	group_by(smoke_status) %>%
 	summarize(median_age = median(age), IQR_age = IQR(age), N=n())
 ```
-
-... and with `mutate_at`
-
-```{r}
-meta_alpha %>%
-	mutate_at(vars(smoke), funs(if_else(smoke, "smoker", "non-smoker"))) %>%
-	group_by(smoke) %>%
-	summarize(median_age = median(age), IQR_age = IQR(age), N=n())
-```
 </div>
 
 ---
 
 ### Activity 8
-Create a summary table that gives the mean BMI and standard deviation for people in each of the diagnosis groups. You can calculate BMI as the person's weight in kilograms divided by their height in meters squared.
+Create a summary table that gives the mean BMI and standard deviation for people in each of the diagnosis groups. You can calculate BMI as the person's weight in kilograms divided by their height in meters (or centimeters/100) squared.
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
@@ -391,8 +375,8 @@ my_killer_function <- function(argument1, argument2){
 The `return` function tells R to return `value` from `my_killer_function`. Alternatively, R will return the output from the last function called in the function. Again, thinking about our BMI calculations we could write it like this...
 
 ```{r}
-get_bmi <- function(weight_kg, height_m){
-	return(weight_kg / height_m ^ 2)
+get_bmi <- function(weight_kg, height_cm){
+	return(weight_kg / (height_cm/100) ^ 2)
 }
 ```
 
@@ -400,7 +384,7 @@ Once we've got the function defined, we can then add it to our pipeline...
 
 ```{r}
 meta_alpha %>%
-	mutate(bmi = get_bmi(weight_kg = weight, height_m = height/100)) %>%
+	mutate(bmi = get_bmi(weight_kg = weight, height_cm = height)) %>%
 	group_by(diagnosis) %>%
 	summarize(median_bmi = mean(bmi, na.rm=T), sd_bmi = sd(bmi, na.rm=T))
 ```
@@ -408,8 +392,8 @@ meta_alpha %>%
 The length of the new line of code is a bit longer than the original, but this is much easier to maintain. Again, say I have this function call at three or four places in my analysis. If I found that I forgot to divide the height in centimeters to meters, then I need to find and correct the bug in each case. This is a great way to cause problems. Functions allow you to practice the DRY principle: Don't Repeat Yourself. As an example, I could update my `get_bmi` function to make sure my heights and weights aren't zero and if they are I'd return an `NA` (note that `if_else` requires the true and false values to be the same type, so we need to use a special value of `NA` [see `?if_else`])
 
 ```{r}
-get_bmi <- function(weight_kg, height_m){
-	bmi <- if_else(weight_kg == 0 | height_m == 0, NA_real_, weight_kg / height_m ^ 2)
+get_bmi <- function(weight_kg, height_cm){
+	bmi <- if_else(weight_kg == 0 | height_cm == 0, NA_real_, weight_kg / (height_cm/100) ^ 2)
 	return(bmi)
 }
 ```
@@ -418,7 +402,7 @@ I could then run the same code as before
 
 ```{r}
 meta_alpha %>%
-	mutate(bmi = get_bmi(weight_kg = weight, height_m = height/100)) %>%
+	mutate(bmi = get_bmi(weight_kg = weight, height_cm = height)) %>%
 	group_by(diagnosis) %>%
 	summarize(median_bmi = mean(bmi, na.rm=T), sd_bmi = sd(bmi, na.rm=T))
 ```
@@ -426,8 +410,8 @@ meta_alpha %>%
 Alternatively, we might rather have a BMI category column. Instead of doing two mutates or having an even more complicated function, we can create a `get_bmi_category` function that calls `get_bmi` for us. This will be much easier than putting all of the code as an argument for `mutate`.
 
 ```{r}
-get_bmi_category <- function(weight_kg, height_m){
-	bmi <- get_bmi(weight_kg, height_m)
+get_bmi_category <- function(weight_kg, height_cm){
+	bmi <- get_bmi(weight_kg, height_cm)
 
 	bmi_cat <- case_when(bmi >= 30 ~ "obese",
 			bmi >= 25 ~ "overweight",
@@ -442,7 +426,7 @@ Then I could do...
 
 ```{r}
 meta_alpha %>%
-	mutate(bmi_category = get_bmi_category(weight_kg = weight, height_m = height/100)) %>%
+	mutate(bmi_category = get_bmi_category(weight_kg = weight, height_cm = height)) %>%
 	group_by(bmi_category) %>%
 	summarize(mean_age = mean(age, na.rm=T), sd_age = sd(age, na.rm=T))
 ```
@@ -458,13 +442,13 @@ Generate a function `is_obese` that takes in a person's height and weight and re
 <div markdown="1" style="display:none;">
 
 ```{r}
-is_obese <- function(weight_kg, height_m){
-	bmi_category <- get_bmi_category(weight_kg, height_m)
+is_obese <- function(weight_kg, height_cm){
+	bmi_category <- get_bmi_category(weight_kg, height_cm)
 	return(bmi_category == "obese")
 }
 
 meta_alpha %>%
-	mutate(obese = is_obese(weight_kg = weight, height_m = height/100)) %>%
+	mutate(obese = is_obese(weight_kg = weight, height_cm = height)) %>%
 	group_by(obese) %>%
 	summarize(mean_shannon = mean(shannon, na.rm=T), sd_shannon = sd(shannon, na.rm=T), N=n())
 ```
@@ -480,9 +464,9 @@ Modify the code we used previously to generate a scatter chart with BMI on the x
 <div markdown="1" style="display:none;">
 ```{r}
 meta_alpha %>%
-	mutate(bmi = get_bmi(weight_kg = weight, height_m = height/100)) %>%
+	mutate(bmi = get_bmi(weight_kg = weight, height_cm = height)) %>%
 	ggplot(aes(x=bmi, y=shannon, color=diagnosis)) +
-		geom_point(pch=19, size=2) +
+		geom_point(shape=19, size=2) +
 		coord_cartesian(xlim=c(0,60), ylim=c(0,5)) +
 		scale_color_manual(name=NULL,
 			values=c("blue", "red", "black"),

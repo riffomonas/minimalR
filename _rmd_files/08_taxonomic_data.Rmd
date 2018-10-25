@@ -330,7 +330,7 @@ agg_phylum_data %>%
 ---
 
 ### Activity 3
-Can you convert our box plot to a stripchart? Put the diagnosis groups in order of increasing severity.
+Can you convert our box plot to a strishapeart? Put the diagnosis groups in order of increasing severity.
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">

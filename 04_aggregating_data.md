@@ -68,18 +68,18 @@ group_by(meta_alpha, diagnosis)
 ```
 ## # A tibble: 490 x 21
 ## # Groups:   diagnosis [3]
-##    sample  fit_result site      diagnosis_bin   diagnosis previous_history
-##    <chr>        <dbl> <chr>     <chr>           <chr>     <lgl>           
-##  1 2003650       0    U Michig… High Risk Norm… normal    F               
-##  2 2005650       0    U Michig… High Risk Norm… normal    F               
-##  3 2007660      26.0  U Michig… High Risk Norm… normal    F               
-##  4 2009650      10.0  Toronto   Adenoma         adenoma   F               
-##  5 2013660       0    U Michig… Normal          normal    F               
-##  6 2015650       0    Dana Far… High Risk Norm… normal    F               
-##  7 2017660       7.00 Dana Far… Cancer          cancer    T               
-##  8 2019651      19.0  U Michig… Normal          normal    F               
-##  9 2023680       0    Dana Far… High Risk Norm… normal    T               
-## 10 2025653    1509    U Michig… Cancer          cancer    T               
+##    sample fit_result site  diagnosis_bin diagnosis previous_history
+##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
+##  2 20056…          0 U Mi… High Risk No… normal    FALSE           
+##  3 20076…         26 U Mi… High Risk No… normal    FALSE           
+##  4 20096…         10 Toro… Adenoma       adenoma   FALSE           
+##  5 20136…          0 U Mi… Normal        normal    FALSE           
+##  6 20156…          0 Dana… High Risk No… normal    FALSE           
+##  7 20176…          7 Dana… Cancer        cancer    TRUE            
+##  8 20196…         19 U Mi… Normal        normal    FALSE           
+##  9 20236…          0 Dana… High Risk No… normal    TRUE            
+## 10 20256…       1509 U Mi… Cancer        cancer    TRUE            
 ## # ... with 480 more rows, and 15 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
@@ -98,18 +98,18 @@ meta_alpha %>%
 ```
 ## # A tibble: 490 x 21
 ## # Groups:   diagnosis [3]
-##    sample  fit_result site      diagnosis_bin   diagnosis previous_history
-##    <chr>        <dbl> <chr>     <chr>           <chr>     <lgl>           
-##  1 2003650       0    U Michig… High Risk Norm… normal    F               
-##  2 2005650       0    U Michig… High Risk Norm… normal    F               
-##  3 2007660      26.0  U Michig… High Risk Norm… normal    F               
-##  4 2009650      10.0  Toronto   Adenoma         adenoma   F               
-##  5 2013660       0    U Michig… Normal          normal    F               
-##  6 2015650       0    Dana Far… High Risk Norm… normal    F               
-##  7 2017660       7.00 Dana Far… Cancer          cancer    T               
-##  8 2019651      19.0  U Michig… Normal          normal    F               
-##  9 2023680       0    Dana Far… High Risk Norm… normal    T               
-## 10 2025653    1509    U Michig… Cancer          cancer    T               
+##    sample fit_result site  diagnosis_bin diagnosis previous_history
+##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
+##  2 20056…          0 U Mi… High Risk No… normal    FALSE           
+##  3 20076…         26 U Mi… High Risk No… normal    FALSE           
+##  4 20096…         10 Toro… Adenoma       adenoma   FALSE           
+##  5 20136…          0 U Mi… Normal        normal    FALSE           
+##  6 20156…          0 Dana… High Risk No… normal    FALSE           
+##  7 20176…          7 Dana… Cancer        cancer    TRUE            
+##  8 20196…         19 U Mi… Normal        normal    FALSE           
+##  9 20236…          0 Dana… High Risk No… normal    TRUE            
+## 10 20256…       1509 U Mi… Cancer        cancer    TRUE            
 ## # ... with 480 more rows, and 15 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
@@ -333,9 +333,9 @@ meta_alpha %>%
 ## # A tibble: 3 x 4
 ##   history_of_polyps mean_sobs sd_sobs     N
 ##   <lgl>                 <dbl>   <dbl> <int>
-## 1 F                       200    63.8   162
-## 2 T                       209    63.2   327
-## 3 NA                      215    NA       1
+## 1 FALSE                  200.    63.8   162
+## 2 TRUE                   209.    63.2   327
+## 3 NA                     215.    NA       1
 ```
 </div>
 
@@ -511,18 +511,18 @@ meta_alpha %>%
 
 ```
 ## # A tibble: 490 x 22
-##    sample  fit_result site      diagnosis_bin   diagnosis previous_history
-##    <chr>        <dbl> <chr>     <chr>           <chr>     <lgl>           
-##  1 2003650       0    U Michig… High Risk Norm… normal    F               
-##  2 2005650       0    U Michig… High Risk Norm… normal    F               
-##  3 2007660      26.0  U Michig… High Risk Norm… normal    F               
-##  4 2009650      10.0  Toronto   Adenoma         adenoma   F               
-##  5 2013660       0    U Michig… Normal          normal    F               
-##  6 2015650       0    Dana Far… High Risk Norm… normal    F               
-##  7 2017660       7.00 Dana Far… Cancer          cancer    T               
-##  8 2019651      19.0  U Michig… Normal          normal    F               
-##  9 2023680       0    Dana Far… High Risk Norm… normal    T               
-## 10 2025653    1509    U Michig… Cancer          cancer    T               
+##    sample fit_result site  diagnosis_bin diagnosis previous_history
+##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
+##  2 20056…          0 U Mi… High Risk No… normal    FALSE           
+##  3 20076…         26 U Mi… High Risk No… normal    FALSE           
+##  4 20096…         10 Toro… Adenoma       adenoma   FALSE           
+##  5 20136…          0 U Mi… Normal        normal    FALSE           
+##  6 20156…          0 Dana… High Risk No… normal    FALSE           
+##  7 20176…          7 Dana… Cancer        cancer    TRUE            
+##  8 20196…         19 U Mi… Normal        normal    FALSE           
+##  9 20236…          0 Dana… High Risk No… normal    TRUE            
+## 10 20256…       1509 U Mi… Cancer        cancer    TRUE            
 ## # ... with 480 more rows, and 16 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
@@ -540,18 +540,18 @@ meta_alpha %>%
 
 ```
 ## # A tibble: 490 x 22
-##    sample  fit_result site      diagnosis_bin   diagnosis previous_history
-##    <chr>        <dbl> <chr>     <chr>           <chr>     <lgl>           
-##  1 2003650       0    U Michig… High Risk Norm… normal    F               
-##  2 2005650       0    U Michig… High Risk Norm… normal    F               
-##  3 2007660      26.0  U Michig… High Risk Norm… normal    F               
-##  4 2009650      10.0  Toronto   Adenoma         adenoma   F               
-##  5 2013660       0    U Michig… Normal          normal    F               
-##  6 2015650       0    Dana Far… High Risk Norm… normal    F               
-##  7 2017660       7.00 Dana Far… Cancer          cancer    T               
-##  8 2019651      19.0  U Michig… Normal          normal    F               
-##  9 2023680       0    Dana Far… High Risk Norm… normal    T               
-## 10 2025653    1509    U Michig… Cancer          cancer    T               
+##    sample fit_result site  diagnosis_bin diagnosis previous_history
+##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
+##  2 20056…          0 U Mi… High Risk No… normal    FALSE           
+##  3 20076…         26 U Mi… High Risk No… normal    FALSE           
+##  4 20096…         10 Toro… Adenoma       adenoma   FALSE           
+##  5 20136…          0 U Mi… Normal        normal    FALSE           
+##  6 20156…          0 Dana… High Risk No… normal    FALSE           
+##  7 20176…          7 Dana… Cancer        cancer    TRUE            
+##  8 20196…         19 U Mi… Normal        normal    FALSE           
+##  9 20236…          0 Dana… High Risk No… normal    TRUE            
+## 10 20256…       1509 U Mi… Cancer        cancer    TRUE            
 ## # ... with 480 more rows, and 16 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
@@ -610,36 +610,7 @@ meta_alpha %>%
 ## 9 low fit      cancer            3.64      0.402    25
 ```
 
-In this example you'll notice that the "fit_result" column does not show up in our final data frame because we were grouping by the "fit_category" and "diagnosis" columns to summarize the data in the "shannon" column. If we had stopped the pipeline after the mutate, then our data frame would have contained all of our previous columns as well as the "fit_category" column. Perhaps we didn't want to include the "fit_result" column in an output table since that information was captured in "fit_category". We could use `select(-fit_result)`. Alternatively, we could also use the `mutate_at` function from the `dplyr` package. This function will replace one column with a new column. The syntax is a bit tricky, but boils down to `mutate_at(vars(column_to_replace), funs(code_that_generates_new_column))`. Here it is for our example
-
-
-```r
-meta_alpha %>%
-	mutate_at(vars(fit_result), funs(case_when(fit_result>=100 ~ "high fit",
-		 				fit_result >= 50 ~ "moderate fit",
-						TRUE ~ "low fit")))
-```
-
-```
-## # A tibble: 490 x 21
-##    sample  fit_result site      diagnosis_bin   diagnosis previous_history
-##    <chr>   <chr>      <chr>     <chr>           <chr>     <lgl>           
-##  1 2003650 low fit    U Michig… High Risk Norm… normal    F               
-##  2 2005650 low fit    U Michig… High Risk Norm… normal    F               
-##  3 2007660 low fit    U Michig… High Risk Norm… normal    F               
-##  4 2009650 low fit    Toronto   Adenoma         adenoma   F               
-##  5 2013660 low fit    U Michig… Normal          normal    F               
-##  6 2015650 low fit    Dana Far… High Risk Norm… normal    F               
-##  7 2017660 low fit    Dana Far… Cancer          cancer    T               
-##  8 2019651 low fit    U Michig… Normal          normal    F               
-##  9 2023680 low fit    Dana Far… High Risk Norm… normal    T               
-## 10 2025653 high fit   U Michig… Cancer          cancer    T               
-## # ... with 480 more rows, and 15 more variables: history_of_polyps <lgl>,
-## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
-## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>, sobs <dbl>, shannon <dbl>,
-## #   invsimpson <dbl>, coverage <dbl>
-```
+In this example you'll notice that the "fit_result" column does not show up in our final data frame because we were grouping by the "fit_category" and "diagnosis" columns to summarize the data in the "shannon" column. If we had stopped the pipeline after the mutate, then our data frame would have contained all of our previous columns as well as the "fit_category" column. Perhaps we didn't want to include the "fit_result" column in an output table since that information was captured in "fit_category". We could use `select(-fit_result)`.
 
 ---
 
@@ -662,35 +633,16 @@ meta_alpha %>%
 ## # A tibble: 3 x 4
 ##   smoke_status median_age IQR_age     N
 ##   <chr>             <dbl>   <dbl> <int>
-## 1 non-smoker         58.0   16.0    262
-## 2 smoker             62.0   17.0    222
-## 3 <NA>               60.5    6.50     6
-```
-
-... and with `mutate_at`
-
-
-```r
-meta_alpha %>%
-	mutate_at(vars(smoke), funs(if_else(smoke, "smoker", "non-smoker"))) %>%
-	group_by(smoke) %>%
-	summarize(median_age = median(age), IQR_age = IQR(age), N=n())
-```
-
-```
-## # A tibble: 3 x 4
-##   smoke      median_age IQR_age     N
-##   <chr>           <dbl>   <dbl> <int>
-## 1 non-smoker       58.0   16.0    262
-## 2 smoker           62.0   17.0    222
-## 3 <NA>             60.5    6.50     6
+## 1 non-smoker         58      16     262
+## 2 smoker             62      17     222
+## 3 <NA>               60.5     6.5     6
 ```
 </div>
 
 ---
 
 ### Activity 8
-Create a summary table that gives the mean BMI and standard deviation for people in each of the diagnosis groups. You can calculate BMI as the person's weight in kilograms divided by their height in meters squared.
+Create a summary table that gives the mean BMI and standard deviation for people in each of the diagnosis groups. You can calculate BMI as the person's weight in kilograms divided by their height in meters (or centimeters/100) squared.
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
@@ -734,8 +686,8 @@ The `return` function tells R to return `value` from `my_killer_function`. Alter
 
 
 ```r
-get_bmi <- function(weight_kg, height_m){
-	return(weight_kg / height_m ^ 2)
+get_bmi <- function(weight_kg, height_cm){
+	return(weight_kg / (height_cm/100) ^ 2)
 }
 ```
 
@@ -744,7 +696,7 @@ Once we've got the function defined, we can then add it to our pipeline...
 
 ```r
 meta_alpha %>%
-	mutate(bmi = get_bmi(weight_kg = weight, height_m = height/100)) %>%
+	mutate(bmi = get_bmi(weight_kg = weight, height_cm = height)) %>%
 	group_by(diagnosis) %>%
 	summarize(median_bmi = mean(bmi, na.rm=T), sd_bmi = sd(bmi, na.rm=T))
 ```
@@ -762,8 +714,8 @@ The length of the new line of code is a bit longer than the original, but this i
 
 
 ```r
-get_bmi <- function(weight_kg, height_m){
-	bmi <- if_else(weight_kg == 0 | height_m == 0, NA_real_, weight_kg / height_m ^ 2)
+get_bmi <- function(weight_kg, height_cm){
+	bmi <- if_else(weight_kg == 0 | height_cm == 0, NA_real_, weight_kg / (height_cm/100) ^ 2)
 	return(bmi)
 }
 ```
@@ -773,7 +725,7 @@ I could then run the same code as before
 
 ```r
 meta_alpha %>%
-	mutate(bmi = get_bmi(weight_kg = weight, height_m = height/100)) %>%
+	mutate(bmi = get_bmi(weight_kg = weight, height_cm = height)) %>%
 	group_by(diagnosis) %>%
 	summarize(median_bmi = mean(bmi, na.rm=T), sd_bmi = sd(bmi, na.rm=T))
 ```
@@ -791,8 +743,8 @@ Alternatively, we might rather have a BMI category column. Instead of doing two 
 
 
 ```r
-get_bmi_category <- function(weight_kg, height_m){
-	bmi <- get_bmi(weight_kg, height_m)
+get_bmi_category <- function(weight_kg, height_cm){
+	bmi <- get_bmi(weight_kg, height_cm)
 
 	bmi_cat <- case_when(bmi >= 30 ~ "obese",
 			bmi >= 25 ~ "overweight",
@@ -808,7 +760,7 @@ Then I could do...
 
 ```r
 meta_alpha %>%
-	mutate(bmi_category = get_bmi_category(weight_kg = weight, height_m = height/100)) %>%
+	mutate(bmi_category = get_bmi_category(weight_kg = weight, height_cm = height)) %>%
 	group_by(bmi_category) %>%
 	summarize(mean_age = mean(age, na.rm=T), sd_age = sd(age, na.rm=T))
 ```
@@ -835,13 +787,13 @@ Generate a function `is_obese` that takes in a person's height and weight and re
 
 
 ```r
-is_obese <- function(weight_kg, height_m){
-	bmi_category <- get_bmi_category(weight_kg, height_m)
+is_obese <- function(weight_kg, height_cm){
+	bmi_category <- get_bmi_category(weight_kg, height_cm)
 	return(bmi_category == "obese")
 }
 
 meta_alpha %>%
-	mutate(obese = is_obese(weight_kg = weight, height_m = height/100)) %>%
+	mutate(obese = is_obese(weight_kg = weight, height_cm = height)) %>%
 	group_by(obese) %>%
 	summarize(mean_shannon = mean(shannon, na.rm=T), sd_shannon = sd(shannon, na.rm=T), N=n())
 ```
@@ -850,8 +802,8 @@ meta_alpha %>%
 ## # A tibble: 2 x 4
 ##   obese mean_shannon sd_shannon     N
 ##   <lgl>        <dbl>      <dbl> <int>
-## 1 F             3.60      0.445   370
-## 2 T             3.45      0.473   120
+## 1 FALSE         3.60      0.445   370
+## 2 TRUE          3.45      0.473   120
 ```
 </div>
 
@@ -866,9 +818,9 @@ Modify the code we used previously to generate a scatter chart with BMI on the x
 
 ```r
 meta_alpha %>%
-	mutate(bmi = get_bmi(weight_kg = weight, height_m = height/100)) %>%
+	mutate(bmi = get_bmi(weight_kg = weight, height_cm = height)) %>%
 	ggplot(aes(x=bmi, y=shannon, color=diagnosis)) +
-		geom_point(pch=19, size=2) +
+		geom_point(shape=19, size=2) +
 		coord_cartesian(xlim=c(0,60), ylim=c(0,5)) +
 		scale_color_manual(name=NULL,
 			values=c("blue", "red", "black"),
@@ -880,5 +832,5 @@ meta_alpha %>%
 		theme_classic()
 ```
 
-<img src="assets/images/04_aggregating_data//unnamed-chunk-36-1.png" title="plot of chunk unnamed-chunk-36" alt="plot of chunk unnamed-chunk-36" width="504" />
+<img src="assets/images/04_aggregating_data//unnamed-chunk-34-1.png" title="plot of chunk unnamed-chunk-34" alt="plot of chunk unnamed-chunk-34" width="504" />
 </div>
