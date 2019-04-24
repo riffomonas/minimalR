@@ -331,7 +331,7 @@ x<-1:25
 y<-rep(1, 25)
 plot(c(1,25), c(0,2), type="n", main="Symbol Values", xlab="", ylab="", axes=F)
 abline(v=x, col="gray")
-points(x,y, shape=x, cex=2, bg='gray', col='black', lwd=c(rep(1,20), rep(3,5)))
+points(x,y, pch=x, cex=2, bg='gray', col='black', lwd=c(rep(1,20), rep(3,5)))
 axis(1, label=1:25, at=1:25)
 ```
 

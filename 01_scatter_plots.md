@@ -776,6 +776,4 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 ```
 ## Error in wes_palette(name = "Darjeeling", n = 3): Palette not found.
 ```
-
-<img src="assets/images/01_scatter_plots//unnamed-chunk-34-1.png" title="plot of chunk unnamed-chunk-34" alt="plot of chunk unnamed-chunk-34" width="504" />
 </div>
