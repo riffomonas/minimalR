@@ -56,6 +56,8 @@ metadata <- rename(.data=metadata,
 		diagnosis=dx,
 		sex=gender)
 
+metadata <- mutate(metadata, diagnosis = factor(diagnosis, levels=c("normal", "adenoma", "cancer")))
+
 ```
 
 Within your new `code` directory, save the file as `baxter.R`. Re-start `R` and type `metadata` at the prompt. You should get an error saying **`Error: object 'metadata' not found`**. If you don't this would be a good time to remind you that you should not save your session on quitting and you should not load your previous session on starting. R will prompt you about the former and automatically to the latter unless you have R properly configured. You can set this in the RStudio preferences. Trust me, these things causes major headaches and reduce the reproducibility of your analyses.
@@ -171,7 +173,7 @@ metadata
 ```
 ## # A tibble: 490 x 17
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
-##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##    <chr>       <dbl> <chr> <chr>         <fct>     <lgl>           
 ##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
 ##  2 20056…          0 U Mi… High Risk No… normal    FALSE           
 ##  3 20076…         26 U Mi… High Risk No… normal    FALSE           
@@ -182,7 +184,7 @@ metadata
 ##  8 20196…         19 U Mi… Normal        normal    FALSE           
 ##  9 20236…          0 Dana… High Risk No… normal    TRUE            
 ## 10 20256…       1509 U Mi… Cancer        cancer    TRUE            
-## # ... with 480 more rows, and 11 more variables: history_of_polyps <lgl>,
+## # … with 480 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>
@@ -243,7 +245,7 @@ metadata_pcoa <- inner_join(metadata, pcoa, by=c("sample"="group"))
 ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
 	geom_point(shape=19, size=2) +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	coord_fixed() +
@@ -280,7 +282,7 @@ rarefy
 ```
 ## # A tibble: 919 x 1,471
 ##    numsampled `0.03-2003650` `lci-2003650` `hci-2003650` `0.03-2005650`
-##         <int>          <dbl>         <dbl>         <dbl>          <dbl>
+##         <dbl>          <dbl>         <dbl>         <dbl>          <dbl>
 ##  1          1             1              1             1             1 
 ##  2       1000           111.            99           121           121.
 ##  3       2000           143.           129           154           159.
@@ -291,7 +293,7 @@ rarefy
 ##  8       7000           225.           212           238           253.
 ##  9       8000           237.           223           249           265.
 ## 10       9000           248.           235           262           276.
-## # ... with 909 more rows, and 1,466 more variables: `lci-2005650` <dbl>,
+## # … with 909 more rows, and 1,466 more variables: `lci-2005650` <dbl>,
 ## #   `hci-2005650` <dbl>, `0.03-2007660` <dbl>, `lci-2007660` <dbl>,
 ## #   `hci-2007660` <dbl>, `0.03-2009650` <dbl>, `lci-2009650` <dbl>,
 ## #   `hci-2009650` <dbl>, `0.03-2013660` <dbl>, `lci-2013660` <dbl>,
@@ -373,7 +375,7 @@ read_tsv(file="raw_data/baxter.rarefaction") %>%
 ```
 ## # A tibble: 919 x 491
 ##    numsampled `0.03-2003650` `0.03-2005650` `0.03-2007660` `0.03-2009650`
-##         <int>          <dbl>          <dbl>          <dbl>          <dbl>
+##         <dbl>          <dbl>          <dbl>          <dbl>          <dbl>
 ##  1          1             1              1              1              1 
 ##  2       1000           111.           121.           121.           141.
 ##  3       2000           143.           159.           158.           185.
@@ -384,7 +386,7 @@ read_tsv(file="raw_data/baxter.rarefaction") %>%
 ##  8       7000           225.           253.           247.           284.
 ##  9       8000           237.           265.           258.           297.
 ## 10       9000           248.           276.           269.           308.
-## # ... with 909 more rows, and 486 more variables: `0.03-2013660` <dbl>,
+## # … with 909 more rows, and 486 more variables: `0.03-2013660` <dbl>,
 ## #   `0.03-2015650` <dbl>, `0.03-2017660` <dbl>, `0.03-2019651` <dbl>,
 ## #   `0.03-2023680` <dbl>, `0.03-2025653` <dbl>, `0.03-2027653` <dbl>,
 ## #   `0.03-2029650` <dbl>, `0.03-2031650` <dbl>, `0.03-2033650` <dbl>,
@@ -626,7 +628,7 @@ To keep our coloring scheme consistent, let's add our `scale_color_manual` funct
 ggplot(metadata_rarefy, aes(x=numsampled, y=sobs, group=sample, color=diagnosis)) +
 	geom_line() +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	labs(title="Rarefaction curves are pretty pointless at this scale",
@@ -644,7 +646,7 @@ One thing we might notice is that most of the action is occurring inside of 20,0
 ggplot(metadata_rarefy, aes(x=numsampled, y=sobs, group=sample, color=diagnosis)) +
 	geom_line() +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	coord_cartesian(xlim=c(0,20000), ylim=c(0,500)) +
@@ -668,7 +670,7 @@ metadata_rarefy_sample <- metadata %>%
 ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=diagnosis)) +
 		geom_line() +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		coord_cartesian(xlim=c(0,20000), ylim=c(0,500)) +
@@ -688,7 +690,7 @@ Here we have solid lines. What if we want to have some hashing to the lines or w
 ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=diagnosis)) +
 		geom_line(linetype=5) +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		coord_cartesian(xlim=c(0,20000), ylim=c(0,500)) +
@@ -716,7 +718,7 @@ Map the diagnosis value for each subject on to the line type. Make sure that you
 ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=diagnosis, linetype=diagnosis)) +
 		geom_line() +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		scale_linetype_manual(name=NULL,
@@ -745,7 +747,7 @@ Map the diagnosis value for each subject onto color and their sex to the line ty
 ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=diagnosis, linetype=sex)) +
 		geom_line() +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		scale_linetype_manual(name=NULL,
@@ -775,7 +777,7 @@ ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=dia
 		geom_line() +
 		geom_point() +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		scale_shape_manual(name=NULL,
@@ -801,7 +803,7 @@ ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=dia
 		geom_line() +
 		geom_point(data=metadata_rarefy_sample_dots, aes(x=numsampled, y=sobs, group=sample, color=diagnosis, shape=sex)) +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		scale_shape_manual(name=NULL,
@@ -832,7 +834,7 @@ ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=dia
 		geom_line() +
 		geom_vline(xintercept=10530) +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		coord_cartesian(xlim=c(0,20000), ylim=c(0,500)) +
@@ -852,7 +854,7 @@ ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=dia
 		geom_vline(xintercept=10530, color="gray", size=2) +
 		geom_line() +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		coord_cartesian(xlim=c(0,20000), ylim=c(0,500)) +
@@ -872,7 +874,7 @@ ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=dia
 		geom_hline(yintercept=200, color="gray", size=2) +
 		geom_line() +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		coord_cartesian(xlim=c(0,20000), ylim=c(0,500)) +
@@ -892,7 +894,7 @@ ggplot(metadata_rarefy_sample, aes(x=numsampled, y=sobs, group=sample, color=dia
 		geom_abline(intercept=150, slope=0.005, color="gray", size=2) +
 		geom_line() +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		coord_cartesian(xlim=c(0,20000), ylim=c(0,500)) +
@@ -927,7 +929,7 @@ ggplot(meta_alpha, aes(x=fit_result, y=shannon, color=diagnosis)) +
 	geom_vline(xintercept=100, color="gray") +
 	geom_point(size=2) +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	labs(title="No apparent relationship between Shannon diversity index and FIT result",
@@ -966,7 +968,7 @@ ggplot(metadata_rarefy, aes(x=numsampled, y=sobs, group=sample, color=diagnosis)
 	geom_vline(xintercept=10530, color="gray", size=2) +
 	geom_line() +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	coord_cartesian(xlim=c(0,20000), ylim=c(0,500)) +

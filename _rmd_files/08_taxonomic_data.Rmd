@@ -318,7 +318,7 @@ agg_phylum_data %>%
 	ggplot(aes(x=phylum, y=agg_rel_abund, color=diagnosis)) +
 		geom_boxplot() +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		labs(title="There are no obvious phylum-level differences between the\ndiagnosis groups",
@@ -338,7 +338,6 @@ Can you convert our box plot to a strishapeart? Put the diagnosis groups in orde
 agg_phylum_data %>%
 	filter(phylum %in% top_phyla) %>%
 	mutate(phylum=factor(phylum, levels=top_phyla)) %>%
-	mutate(diagnosis=factor(diagnosis, levels=c('normal', 'adenoma', 'cancer'))) %>%
 	ggplot(aes(x=phylum, y=agg_rel_abund, color=diagnosis)) +
 		geom_jitter(pos=position_jitterdodge(jitter.width=0.2, dodge.width=0.8)) +
 		scale_color_manual(name=NULL,
@@ -364,7 +363,6 @@ There are a few ways to do this. This might be the most direct:
 agg_phylum_data %>%
 	filter(phylum %in% top_phyla) %>%
 	mutate(phylum=factor(phylum, levels=top_phyla)) %>%
-	mutate(diagnosis=factor(diagnosis, levels=c('normal', 'adenoma', 'cancer'))) %>%
 	mutate(agg_rel_abund=100 * agg_rel_abund) %>%
 	ggplot(aes(x=phylum, y=agg_rel_abund, color=diagnosis)) +
 		geom_jitter(pos=position_jitterdodge(jitter.width=0.2, dodge.width=0.8)) +
@@ -384,7 +382,6 @@ An alternative approach uses `scale_y_continuous`
 agg_phylum_data %>%
 	filter(phylum %in% top_phyla) %>%
 	mutate(phylum=factor(phylum, levels=top_phyla)) %>%
-	mutate(diagnosis=factor(diagnosis, levels=c('normal', 'adenoma', 'cancer'))) %>%
 	ggplot(aes(x=phylum, y=agg_rel_abund, color=diagnosis)) +
 		geom_boxplot() +
 		scale_color_manual(name=NULL,
@@ -412,7 +409,7 @@ agg_phylum_data %>%
 	ggplot(aes(x=phylum, y=agg_rel_abund, color=diagnosis)) +
 		geom_boxplot() +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		labs(title="There are no obvious phylum-level differences between the\ndiagnosis groups",
@@ -440,7 +437,7 @@ agg_phylum_data %>%
 	ggplot(aes(x=phylum, y=agg_rel_abund, color=diagnosis)) +
 		geom_boxplot() +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		labs(title="There are no obvious phylum-level differences between the\ndiagnosis groups",
@@ -461,7 +458,7 @@ agg_phylum_data %>%
 		geom_hline(yintercept=1/10530, color="gray") +
 		geom_boxplot() +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		labs(title="There are no obvious phylum-level differences between the\ndiagnosis groups",
@@ -504,7 +501,6 @@ top_deep_taxa <- agg_deep_data %>%
 agg_deep_data %>%
 	filter(taxonomy %in% top_deep_taxa) %>%
 	mutate(taxonomy=factor(taxonomy, levels=top_deep_taxa)) %>%
-	mutate(diagnosis=factor(diagnosis, levels=c("normal", "adenoma", "cancer"))) %>%
 	mutate(agg_rel_abund=agg_rel_abund+1/21000) %>%
 	ggplot(aes(x=taxonomy, y=agg_rel_abund, color=diagnosis)) +
 		geom_boxplot() +
@@ -560,7 +556,7 @@ agg_phylum_data %>%
 		geom_hline(yintercept=1/10530, color="gray") +
 		geom_boxplot() +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		labs(title="Two phyla are significantly associated with disease progression",
@@ -583,13 +579,12 @@ In the last plot we generated, the order of the three box plots is out of whack.
 agg_phylum_data %>%
 	filter(phylum %in% sig_phyla) %>%
 	mutate(phylum=factor(phylum, levels=sig_phyla)) %>%
-	mutate(diagnosis=factor(diagnosis, levels=c("normal", "adenoma", "cancer"))) %>%
 	mutate(agg_rel_abund=agg_rel_abund+1/21000) %>%
 	ggplot(aes(x=phylum, y=agg_rel_abund, color=diagnosis)) +
 		geom_hline(yintercept=1/10530, color="gray") +
 		geom_boxplot() +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		labs(title="Two phyla are significantly associated with disease progression",
@@ -634,7 +629,6 @@ sig_deep <- deep_tests %>%
 agg_deep_data %>%
 	filter(taxonomy %in% sig_deep) %>%
 	mutate(taxonomy=factor(taxonomy, levels=sig_deep)) %>%
-	mutate(diagnosis=factor(diagnosis, levels=c("normal", "adenoma", "cancer"))) %>%
 	mutate(agg_rel_abund=agg_rel_abund + 1/10531) %>%
 	ggplot(aes(x=taxonomy, y=agg_rel_abund, color=diagnosis)) +
 		geom_boxplot() +
@@ -655,7 +649,6 @@ That's kind of hard to see. We can add `coord_flip` to turn the axes
 agg_deep_data %>%
 	filter(taxonomy %in% sig_deep) %>%
 	mutate(taxonomy=factor(taxonomy, levels=sig_deep)) %>%
-	mutate(diagnosis=factor(diagnosis, levels=c("normal", "adenoma", "cancer"))) %>%
 	mutate(agg_rel_abund=agg_rel_abund + 1/10531) %>%
 	ggplot(aes(x=taxonomy, y=agg_rel_abund, color=diagnosis)) +
 		geom_boxplot() +

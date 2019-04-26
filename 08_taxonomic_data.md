@@ -286,19 +286,19 @@ taxonomy %>%
 
 ```
 ## # A tibble: 9,467 x 3
-##    otu         size taxonomy                                              
-##    <chr>      <int> <chr>                                                 
-##  1 Otu0000… 1301902 Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnosp…
-##  2 Otu0000…  998089 Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bact…
-##  3 Otu0000…  826705 Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bact…
-##  4 Otu0000…  761110 Bacteria;Verrucomicrobia;Verrucomicrobiae;Verrucomicr…
-##  5 Otu0000…  740489 Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnosp…
-##  6 Otu0000…  694460 Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminoco…
-##  7 Otu0000…  682137 Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bact…
-##  8 Otu0000…  556768 Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnosp…
-##  9 Otu0000…  551496 Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnosp…
-## 10 Otu0000…  493735 Bacteria;Firmicutes;Clostridia;Clostridiales;unclassi…
-## # ... with 9,457 more rows
+##    otu         size taxonomy                                               
+##    <chr>      <dbl> <chr>                                                  
+##  1 Otu0000… 1301902 Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospi…
+##  2 Otu0000…  998089 Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacte…
+##  3 Otu0000…  826705 Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacte…
+##  4 Otu0000…  761110 Bacteria;Verrucomicrobia;Verrucomicrobiae;Verrucomicro…
+##  5 Otu0000…  740489 Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospi…
+##  6 Otu0000…  694460 Bacteria;Firmicutes;Clostridia;Clostridiales;Ruminococ…
+##  7 Otu0000…  682137 Bacteria;Bacteroidetes;Bacteroidia;Bacteroidales;Bacte…
+##  8 Otu0000…  556768 Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospi…
+##  9 Otu0000…  551496 Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospi…
+## 10 Otu0000…  493735 Bacteria;Firmicutes;Clostridia;Clostridiales;unclassif…
+## # … with 9,457 more rows
 ```
 
 The output is too big too look out both in terms of the number of rows and the width of our taxonomy column. Let's use another string matching tool to see whether any rows still have parentheses in them. This time we can use either the `grepl` or `str_detect` functions. These functions will return a `TRUE` or `FALSE` if our pattern matches the string. This makes them great for use with the `filter` function in a `dplyr` workflow. We'll also use the `select` function so we can see more of the "taxonomy" column.
@@ -325,7 +325,7 @@ taxonomy %>%
 ##  8 Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Blautia(88…
 ##  9 Bacteria;Firmicutes;Erysipelotrichia;Erysipelotrichales;Erysipelotricha…
 ## 10 Bacteria;Firmicutes;Clostridia;Clostridiales;Lachnospiraceae;Ruminococc…
-## # ... with 328 more rows
+## # … with 328 more rows
 ```
 
 It looks like we didn't remove all of the confidence scores - ruh roh! How can we change the pattern in our `mutate` function? We could use the `\\d` metacharacter with the `*` quantifier to remove any number between parentheses.
@@ -340,7 +340,7 @@ taxonomy %>%
 
 ```
 ## # A tibble: 0 x 1
-## # ... with 1 variable: taxonomy <chr>
+## # … with 1 variable: taxonomy <chr>
 ```
 
 Nice - there's nothing there, which means that our filter command returned nothing. Now we'd like to split the "taxonomy" column into separate columns for each taxonomic level. We can do this easily with the `separate` function. For this function to work, we need to give it a delimiter to separate the strings by (i.e. `sep=";"`) and values to place on the new columns (i.e. `into=c("kingdom", "phylum", ..., "genus")`). If it's going to separate data by the `;`, then we will end up with a seventh column that doesn't contain any information in it because the final character in our taxonomy strings is a `;`. We need an additional `mutate` line to remove that final semicolon before running `separate`. But how do we remove the last `;` and not all of them? Looking at the [cheat sheet](https://www.rstudio.com/wp-content/uploads/2016/09/RegExCheatsheet.pdf), can you figure out how we can tell `str_replace_all` to match the last semicolon in the strings?
@@ -355,19 +355,19 @@ taxonomy %>%
 
 ```
 ## # A tibble: 9,467 x 8
-##    otu        size kingdom  phylum    class    order    family    genus   
-##    <chr>     <int> <chr>    <chr>     <chr>    <chr>    <chr>     <chr>   
-##  1 Otu000… 1301902 Bacteria Firmicut… Clostri… Clostri… Lachnosp… Blautia 
-##  2 Otu000…  998089 Bacteria Bacteroi… Bactero… Bactero… Bacteroi… Bactero…
-##  3 Otu000…  826705 Bacteria Bacteroi… Bactero… Bactero… Bacteroi… Bactero…
-##  4 Otu000…  761110 Bacteria Verrucom… Verruco… Verruco… Verrucom… Akkerma…
-##  5 Otu000…  740489 Bacteria Firmicut… Clostri… Clostri… Lachnosp… Rosebur…
-##  6 Otu000…  694460 Bacteria Firmicut… Clostri… Clostri… Ruminoco… Faecali…
-##  7 Otu000…  682137 Bacteria Bacteroi… Bactero… Bactero… Bacteroi… Bactero…
-##  8 Otu000…  556768 Bacteria Firmicut… Clostri… Clostri… Lachnosp… Anaeros…
-##  9 Otu000…  551496 Bacteria Firmicut… Clostri… Clostri… Lachnosp… Blautia 
-## 10 Otu000…  493735 Bacteria Firmicut… Clostri… Clostri… unclassi… unclass…
-## # ... with 9,457 more rows
+##    otu        size kingdom  phylum   class    order     family     genus   
+##    <chr>     <dbl> <chr>    <chr>    <chr>    <chr>     <chr>      <chr>   
+##  1 Otu000… 1301902 Bacteria Firmicu… Clostri… Clostrid… Lachnospi… Blautia 
+##  2 Otu000…  998089 Bacteria Bactero… Bactero… Bacteroi… Bacteroid… Bactero…
+##  3 Otu000…  826705 Bacteria Bactero… Bactero… Bacteroi… Bacteroid… Bactero…
+##  4 Otu000…  761110 Bacteria Verruco… Verruco… Verrucom… Verrucomi… Akkerma…
+##  5 Otu000…  740489 Bacteria Firmicu… Clostri… Clostrid… Lachnospi… Rosebur…
+##  6 Otu000…  694460 Bacteria Firmicu… Clostri… Clostrid… Ruminococ… Faecali…
+##  7 Otu000…  682137 Bacteria Bactero… Bactero… Bacteroi… Bacteroid… Bactero…
+##  8 Otu000…  556768 Bacteria Firmicu… Clostri… Clostrid… Lachnospi… Anaeros…
+##  9 Otu000…  551496 Bacteria Firmicu… Clostri… Clostrid… Lachnospi… Blautia 
+## 10 Otu000…  493735 Bacteria Firmicu… Clostri… Clostrid… unclassif… unclass…
+## # … with 9,457 more rows
 ```
 
 That's exactly what we want, so let's go ahead and save this over our taxonomy data frame
@@ -407,7 +407,7 @@ read_tsv(file="raw_data/baxter.cons.taxonomy") %>%
 ```
 ## # A tibble: 9,467 x 3
 ##    otu          size taxonomy        
-##    <chr>       <int> <chr>           
+##    <chr>       <dbl> <chr>           
 ##  1 Otu000001 1301902 Blautia         
 ##  2 Otu000002  998089 Bacteroides     
 ##  3 Otu000003  826705 Bacteroides     
@@ -418,7 +418,7 @@ read_tsv(file="raw_data/baxter.cons.taxonomy") %>%
 ##  8 Otu000008  556768 Anaerostipes    
 ##  9 Otu000009  551496 Blautia         
 ## 10 Otu000010  493735 Clostridiales   
-## # ... with 9,457 more rows
+## # … with 9,457 more rows
 ```
 </div>
 
@@ -571,7 +571,7 @@ agg_phylum_data %>%
 	ggplot(aes(x=phylum, y=agg_rel_abund, color=diagnosis)) +
 		geom_boxplot() +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		labs(title="There are no obvious phylum-level differences between the\ndiagnosis groups",
@@ -594,7 +594,6 @@ Can you convert our box plot to a strishapeart? Put the diagnosis groups in orde
 agg_phylum_data %>%
 	filter(phylum %in% top_phyla) %>%
 	mutate(phylum=factor(phylum, levels=top_phyla)) %>%
-	mutate(diagnosis=factor(diagnosis, levels=c('normal', 'adenoma', 'cancer'))) %>%
 	ggplot(aes(x=phylum, y=agg_rel_abund, color=diagnosis)) +
 		geom_jitter(pos=position_jitterdodge(jitter.width=0.2, dodge.width=0.8)) +
 		scale_color_manual(name=NULL,
@@ -623,7 +622,6 @@ There are a few ways to do this. This might be the most direct:
 agg_phylum_data %>%
 	filter(phylum %in% top_phyla) %>%
 	mutate(phylum=factor(phylum, levels=top_phyla)) %>%
-	mutate(diagnosis=factor(diagnosis, levels=c('normal', 'adenoma', 'cancer'))) %>%
 	mutate(agg_rel_abund=100 * agg_rel_abund) %>%
 	ggplot(aes(x=phylum, y=agg_rel_abund, color=diagnosis)) +
 		geom_jitter(pos=position_jitterdodge(jitter.width=0.2, dodge.width=0.8)) +
@@ -646,7 +644,6 @@ An alternative approach uses `scale_y_continuous`
 agg_phylum_data %>%
 	filter(phylum %in% top_phyla) %>%
 	mutate(phylum=factor(phylum, levels=top_phyla)) %>%
-	mutate(diagnosis=factor(diagnosis, levels=c('normal', 'adenoma', 'cancer'))) %>%
 	ggplot(aes(x=phylum, y=agg_rel_abund, color=diagnosis)) +
 		geom_boxplot() +
 		scale_color_manual(name=NULL,
@@ -677,7 +674,7 @@ agg_phylum_data %>%
 	ggplot(aes(x=phylum, y=agg_rel_abund, color=diagnosis)) +
 		geom_boxplot() +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		labs(title="There are no obvious phylum-level differences between the\ndiagnosis groups",
@@ -708,7 +705,7 @@ agg_phylum_data %>%
 	ggplot(aes(x=phylum, y=agg_rel_abund, color=diagnosis)) +
 		geom_boxplot() +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		labs(title="There are no obvious phylum-level differences between the\ndiagnosis groups",
@@ -732,7 +729,7 @@ agg_phylum_data %>%
 		geom_hline(yintercept=1/10530, color="gray") +
 		geom_boxplot() +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		labs(title="There are no obvious phylum-level differences between the\ndiagnosis groups",
@@ -778,7 +775,6 @@ top_deep_taxa <- agg_deep_data %>%
 agg_deep_data %>%
 	filter(taxonomy %in% top_deep_taxa) %>%
 	mutate(taxonomy=factor(taxonomy, levels=top_deep_taxa)) %>%
-	mutate(diagnosis=factor(diagnosis, levels=c("normal", "adenoma", "cancer"))) %>%
 	mutate(agg_rel_abund=agg_rel_abund+1/21000) %>%
 	ggplot(aes(x=taxonomy, y=agg_rel_abund, color=diagnosis)) +
 		geom_boxplot() +
@@ -839,7 +835,7 @@ agg_phylum_data %>%
 		geom_hline(yintercept=1/10530, color="gray") +
 		geom_boxplot() +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		labs(title="Two phyla are significantly associated with disease progression",
@@ -865,13 +861,12 @@ In the last plot we generated, the order of the three box plots is out of whack.
 agg_phylum_data %>%
 	filter(phylum %in% sig_phyla) %>%
 	mutate(phylum=factor(phylum, levels=sig_phyla)) %>%
-	mutate(diagnosis=factor(diagnosis, levels=c("normal", "adenoma", "cancer"))) %>%
 	mutate(agg_rel_abund=agg_rel_abund+1/21000) %>%
 	ggplot(aes(x=phylum, y=agg_rel_abund, color=diagnosis)) +
 		geom_hline(yintercept=1/10530, color="gray") +
 		geom_boxplot() +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		labs(title="Two phyla are significantly associated with disease progression",
@@ -919,7 +914,6 @@ sig_deep <- deep_tests %>%
 agg_deep_data %>%
 	filter(taxonomy %in% sig_deep) %>%
 	mutate(taxonomy=factor(taxonomy, levels=sig_deep)) %>%
-	mutate(diagnosis=factor(diagnosis, levels=c("normal", "adenoma", "cancer"))) %>%
 	mutate(agg_rel_abund=agg_rel_abund + 1/10531) %>%
 	ggplot(aes(x=taxonomy, y=agg_rel_abund, color=diagnosis)) +
 		geom_boxplot() +
@@ -943,7 +937,6 @@ That's kind of hard to see. We can add `coord_flip` to turn the axes
 agg_deep_data %>%
 	filter(taxonomy %in% sig_deep) %>%
 	mutate(taxonomy=factor(taxonomy, levels=sig_deep)) %>%
-	mutate(diagnosis=factor(diagnosis, levels=c("normal", "adenoma", "cancer"))) %>%
 	mutate(agg_rel_abund=agg_rel_abund + 1/10531) %>%
 	ggplot(aes(x=taxonomy, y=agg_rel_abund, color=diagnosis)) +
 		geom_boxplot() +

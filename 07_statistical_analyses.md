@@ -129,9 +129,9 @@ TukeyHSD(diagnosis_shannon_aov)
 ## 
 ## $diagnosis
 ##                       diff       lwr      upr     p adj
+## adenoma-normal  0.04536102 -3.972517 4.063239 0.9996117
+## cancer-normal  -2.48940175 -7.074295 2.095492 0.4091780
 ## cancer-adenoma -2.53476277 -6.994230 1.924705 0.3757486
-## normal-adenoma -0.04536102 -4.063239 3.972517 0.9996117
-## normal-cancer   2.48940175 -2.095492 7.074295 0.4091780
 ```
 
 Again, all of our adjusted P-values are greater than 0.05.
@@ -165,9 +165,9 @@ pairwise.wilcox.test(g=meta_alpha[["diagnosis"]], x=meta_alpha[["shannon"]], p.a
 ## 
 ## data:  meta_alpha[["shannon"]] and meta_alpha[["diagnosis"]] 
 ## 
-##        adenoma cancer
-## cancer 0.19    -     
-## normal 0.95    0.19  
+##         normal adenoma
+## adenoma 0.95   -      
+## cancer  0.19   0.19   
 ## 
 ## P value adjustment method: BH
 ```
@@ -300,9 +300,9 @@ pairwise.wilcox.test(g=meta_alpha[["diagnosis"]], x=meta_alpha[["fit_result"]], 
 ## 
 ## data:  meta_alpha[["fit_result"]] and meta_alpha[["diagnosis"]] 
 ## 
-##        adenoma cancer 
-## cancer < 2e-16 -      
-## normal 1.2e-08 < 2e-16
+##         normal  adenoma
+## adenoma 1.2e-08 -      
+## cancer  < 2e-16 < 2e-16
 ## 
 ## P value adjustment method: BH
 ```
@@ -422,11 +422,11 @@ summary(lm_shannon_bmi)
 ## -2.36144 -0.26818  0.04287  0.32556  1.01510 
 ## 
 ## Coefficients:
-##                  Estimate Std. Error t value Pr(>|t|)    
-## (Intercept)      3.796834   0.106778  35.558   <2e-16 ***
-## bmi             -0.008249   0.003853  -2.141   0.0328 *  
-## diagnosiscancer -0.030757   0.053898  -0.571   0.5685    
-## diagnosisnormal  0.001477   0.047563   0.031   0.9752    
+##                   Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)       3.798312   0.109538  34.676   <2e-16 ***
+## bmi              -0.008249   0.003853  -2.141   0.0328 *  
+## diagnosisadenoma -0.001477   0.047563  -0.031   0.9752    
+## diagnosiscancer  -0.032234   0.054929  -0.587   0.5576    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
@@ -499,7 +499,7 @@ ggplot(meta_alpha, aes(x=bmi, y=shannon, color=diagnosis)) +
 	geom_point() +
 	geom_smooth(method="lm") +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	labs(title="There is a significant, but small negative association between a person's BMI\nand their Shannon diversity",
@@ -518,7 +518,7 @@ ggplot(meta_alpha, aes(x=bmi, y=shannon, color=diagnosis)) +
 	geom_point() +
 	geom_smooth(method="lm", color="gray") +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	labs(title="There is a significant, but small negative association between a person's BMI\nand their Shannon diversity",
@@ -542,7 +542,7 @@ ggplot(meta_alpha, aes(x=bmi, y=shannon, color=diagnosis)) +
 	geom_point() +
 	geom_smooth(method="lm", show.legend=FALSE) +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	labs(title="There is a significant, but small negative association between a person's BMI\nand their Shannon diversity",

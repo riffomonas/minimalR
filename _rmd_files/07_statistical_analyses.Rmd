@@ -232,7 +232,7 @@ ggplot(meta_alpha, aes(x=bmi, y=shannon, color=diagnosis)) +
 	geom_point() +
 	geom_smooth(method="lm") +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	labs(title="There is a significant, but small negative association between a person's BMI\nand their Shannon diversity",
@@ -248,7 +248,7 @@ ggplot(meta_alpha, aes(x=bmi, y=shannon, color=diagnosis)) +
 	geom_point() +
 	geom_smooth(method="lm", color="gray") +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	labs(title="There is a significant, but small negative association between a person's BMI\nand their Shannon diversity",
@@ -269,7 +269,7 @@ ggplot(meta_alpha, aes(x=bmi, y=shannon, color=diagnosis)) +
 	geom_point() +
 	geom_smooth(method="lm", show.legend=FALSE) +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	labs(title="There is a significant, but small negative association between a person's BMI\nand their Shannon diversity",
