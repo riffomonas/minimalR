@@ -528,7 +528,7 @@ library(purrr)
 
 phylum_tests <- agg_phylum_data %>%
 					group_by(phylum) %>%
-					do(tidy(kruskal.test(agg_rel_abund~factor(diagnosis), data=.)))
+					do(tidy(kruskal.test(agg_rel_abund~diagnosis, data=.)))
 ```
 
 Of course, because we're doing 17 hypothesis tests, we want to correct our P-values for multiple comparisons, sort the data frame in ascending order by corrected P-value, and then get the names of the phyla with significant differences
@@ -536,7 +536,8 @@ Of course, because we're doing 17 hypothesis tests, we want to correct our P-val
 ```{r}
 phylum_tests <- agg_phylum_data %>%
 					group_by(phylum) %>%
-					do(tidy(kruskal.test(agg_rel_abund~factor(diagnosis), data=.))) %>% ungroup() %>%
+					do(tidy(kruskal.test(agg_rel_abund~diagnosis, data=.))) %>%
+					ungroup() %>%
 					mutate(p.value.adj=p.adjust(p.value, method="BH")) %>%
 					arrange(p.value.adj)
 
@@ -618,7 +619,8 @@ agg_deep_data <- inner_join(otu_data, deep_taxonomy) %>%
 
 deep_tests <- agg_deep_data %>%
 					group_by(taxonomy) %>%
-					do(tidy(kruskal.test(agg_rel_abund~factor(diagnosis), data=.))) %>% ungroup() %>%
+					do(tidy(kruskal.test(agg_rel_abund~diagnosis, data=.))) %>%
+					ungroup() %>%
 					mutate(p.value.adj=p.adjust(p.value, method="BH")) %>%
 					arrange(p.value.adj)
 
@@ -690,7 +692,8 @@ agg_deep_data <- inner_join(otu_data, deep_taxonomy) %>%
 
 deep_tests <- agg_deep_data %>%
 					group_by(taxonomy) %>%
-					do(tidy(kruskal.test(agg_rel_abund~factor(lesion), data=.))) %>% ungroup() %>%
+					do(tidy(kruskal.test(agg_rel_abund~factor(lesion), data=.))) %>%
+					ungroup() %>%
 					mutate(p.value.adj=p.adjust(p.value, method="BH")) %>%
 					arrange(p.value.adj)
 

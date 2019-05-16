@@ -141,14 +141,14 @@ If instead of using the scaled Shannon values we had used the raw values, then w
 
 
 ```r
-kruskal.test(shannon~factor(diagnosis), data=meta_alpha)
+kruskal.test(shannon~diagnosis, data=meta_alpha)
 ```
 
 ```
 ## 
 ## 	Kruskal-Wallis rank sum test
 ## 
-## data:  shannon by factor(diagnosis)
+## data:  shannon by diagnosis
 ## Kruskal-Wallis chi-squared = 3.5804, df = 2, p-value = 0.1669
 ```
 
@@ -276,14 +276,14 @@ Is there a significant difference in the FIT result by diagnosis group?
 <div markdown="1" style="display:none;">
 
 ```r
-kruskal.test(fit_result~factor(diagnosis), data=meta_alpha)
+kruskal.test(fit_result~diagnosis, data=meta_alpha)
 ```
 
 ```
 ## 
 ## 	Kruskal-Wallis rank sum test
 ## 
-## data:  fit_result by factor(diagnosis)
+## data:  fit_result by diagnosis
 ## Kruskal-Wallis chi-squared = 218.91, df = 2, p-value < 2.2e-16
 ```
 

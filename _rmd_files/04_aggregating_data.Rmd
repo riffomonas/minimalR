@@ -272,8 +272,7 @@ Write the code that tells us the site that had the lowest mean diversity? You ma
 meta_alpha %>%
 	group_by(site) %>%
 	summarize(mean_shannon = mean(shannon), sd_shannon = sd(shannon), N=n()) %>%
-	arrange(mean_shannon) %>%
-	top_n(-1) %>%
+	top_n(-1, mean_shannon) %>%
 	pull(site)
 ```
 </div>

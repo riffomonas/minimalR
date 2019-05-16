@@ -209,9 +209,9 @@ Modify get_metadata to add a bmi, bmi_category, and is_obese column to the `meta
 			sex=gender)
 
 	metadata <- metadata %>%
-		mutate(bmi = get_bmi(weight=weight, height=height/100),
-			bmi_category = get_bmi_category(weight=weight, height=height/100),
-			obese = is_obese(weight=weight, height=height/100)
+		mutate(bmi = get_bmi(weight=weight, height=height),
+			bmi_category = get_bmi_category(weight=weight, height=height),
+			obese = is_obese(weight=weight, height=height)
 		)
 
 	return(metadata)
@@ -232,7 +232,6 @@ This code would go into `code/plot_ordination.R`. Note that the the `library(tid
 
 ```r
 
-library(tidyverse)
 source("code/baxter.R")
 
 pcoa <- read_tsv(file="raw_data/baxter.thetayc.pcoa.axes",

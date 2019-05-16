@@ -501,11 +501,11 @@ ggplot(meta_alpha, aes(x=diagnosis, y=fit_result, color=diagnosis)) +
 	theme_classic()
 ```
 
-In this case, the notches extend to 1.58 times the difference between the 25th and 75th percentiles divided by the square root of the number of observations. According to `?geom_boxplot` this gives a sense of the 95% confidence interval for comparing medians and "if the notches of two boxes do not overlap, this suggests that the medians are significantly different". Alternatively, you could generate an ugly and busy plot (but people seem to like them) where a strip chart and box plot (without the outliers) are overlapped using the `outlier.color="white"` argument in `geom_boxplot` (the `outlier.color` value should match your background)
+In this case, the notches extend to 1.58 times the difference between the 25th and 75th percentiles divided by the square root of the number of observations. According to `?geom_boxplot` this gives a sense of the 95% confidence interval for comparing medians and "if the notches of two boxes do not overlap, this suggests that the medians are significantly different". Alternatively, you could generate an ugly and busy plot (but people seem to like them) where a strip chart and box plot (without the outliers) are overlapped using the `outlier.shape=NA` argument in `geom_boxplot`.
 
 ```{r}
 ggplot(meta_alpha, aes(x=diagnosis, y=fit_result, color=diagnosis)) +
-	geom_boxplot(outlier.color="white", shape=0) +
+	geom_boxplot(outlier.shape=NA) +
 	geom_jitter(shape=19, position=position_jitterdodge(jitter.width=0.75)) +
 	scale_color_manual(name=NULL,
 		values=c("blue", "red", "black"),

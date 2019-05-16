@@ -80,7 +80,7 @@ group_by(meta_alpha, diagnosis)
 ##  8 20196…         19 U Mi… Normal        normal    FALSE           
 ##  9 20236…          0 Dana… High Risk No… normal    TRUE            
 ## 10 20256…       1509 U Mi… Cancer        cancer    TRUE            
-## # ... with 480 more rows, and 15 more variables: history_of_polyps <lgl>,
+## # … with 480 more rows, and 15 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>, sobs <dbl>, shannon <dbl>,
@@ -110,7 +110,7 @@ meta_alpha %>%
 ##  8 20196…         19 U Mi… Normal        normal    FALSE           
 ##  9 20236…          0 Dana… High Risk No… normal    TRUE            
 ## 10 20256…       1509 U Mi… Cancer        cancer    TRUE            
-## # ... with 480 more rows, and 15 more variables: history_of_polyps <lgl>,
+## # … with 480 more rows, and 15 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>, sobs <dbl>, shannon <dbl>,
@@ -141,7 +141,7 @@ meta_alpha %>%
 ##  8 normal       3.69
 ##  9 normal       4.01
 ## 10 cancer       3.39
-## # ... with 480 more rows
+## # … with 480 more rows
 ```
 
 Adding the same `select` function to the first approach would require more typing and moving things around. It isn't as flexible.
@@ -167,7 +167,7 @@ select(meta_alpha, diagnosis) %>%
 ##  8 normal   
 ##  9 normal   
 ## 10 cancer   
-## # ... with 480 more rows
+## # … with 480 more rows
 ```
 
 For the final step, we'd like to summarize the diversity values within the groups by presenting the mean value. We can do this using the `summarize` function from the `dplyr` package
@@ -273,7 +273,7 @@ meta_alpha %>%
 
 ```
 ## # A tibble: 6 x 5
-## # Groups:   diagnosis [?]
+## # Groups:   diagnosis [3]
 ##   diagnosis sex    mean_shannon sd_shannon     N
 ##   <chr>     <chr>         <dbl>      <dbl> <int>
 ## 1 adenoma   female         3.57      0.492    80
@@ -303,7 +303,7 @@ meta_alpha %>%
 
 ```
 ## # A tibble: 6 x 5
-## # Groups:   sex [?]
+## # Groups:   sex [2]
 ##   sex    diagnosis mean_shannon sd_shannon     N
 ##   <chr>  <chr>            <dbl>      <dbl> <int>
 ## 1 female adenoma           3.57      0.492    80
@@ -487,8 +487,7 @@ Write the code that tells us the site that had the lowest mean diversity? You ma
 meta_alpha %>%
 	group_by(site) %>%
 	summarize(mean_shannon = mean(shannon), sd_shannon = sd(shannon), N=n()) %>%
-	arrange(mean_shannon) %>%
-	top_n(-1) %>%
+	top_n(-1, mean_shannon) %>%
 	pull(site)
 ```
 
@@ -523,7 +522,7 @@ meta_alpha %>%
 ##  8 20196…         19 U Mi… Normal        normal    FALSE           
 ##  9 20236…          0 Dana… High Risk No… normal    TRUE            
 ## 10 20256…       1509 U Mi… Cancer        cancer    TRUE            
-## # ... with 480 more rows, and 16 more variables: history_of_polyps <lgl>,
+## # … with 480 more rows, and 16 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>, sobs <dbl>, shannon <dbl>,
@@ -552,7 +551,7 @@ meta_alpha %>%
 ##  8 20196…         19 U Mi… Normal        normal    FALSE           
 ##  9 20236…          0 Dana… High Risk No… normal    TRUE            
 ## 10 20256…       1509 U Mi… Cancer        cancer    TRUE            
-## # ... with 480 more rows, and 16 more variables: history_of_polyps <lgl>,
+## # … with 480 more rows, and 16 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>, sobs <dbl>, shannon <dbl>,
@@ -633,9 +632,9 @@ meta_alpha %>%
 ## # A tibble: 3 x 4
 ##   smoke_status median_age IQR_age     N
 ##   <chr>             <dbl>   <dbl> <int>
-## 1 non-smoker         58      16     262
-## 2 smoker             62      17     222
-## 3 <NA>               60.5     6.5     6
+## 1 <NA>               60.5     6.5     6
+## 2 non-smoker         58      16     262
+## 3 smoker             62      17     222
 ```
 </div>
 

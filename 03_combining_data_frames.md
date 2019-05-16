@@ -68,7 +68,7 @@ left_join(a, b, by="sample")
 ## 3 C      adenoma   NA
 ```
 
-Notice that because `b` doesn't have a value for "C" in column "x1", the resulting data frame has a `NA` in that cell. Because `a` doesn't have a value for "D" in column "x1" it is excluded from teh new data frame. If we instead do a "right join" ...
+Notice that because `b` doesn't have a value for "C" in column "sample", the resulting data frame has a `NA` in that cell. Because `a` doesn't have a value for "D" in column "sample" it is excluded from the new data frame. If we instead do a "right join" ...
 
 
 ```r
@@ -84,7 +84,7 @@ right_join(a, b, by="sample")
 ## 3 D      <NA>      TRUE
 ```
 
-We see the opposite result - sample "C" is missing in the new data frame and the value in column "x2" for sample "D" is `NA`. If we now do a "full join"...
+We see the opposite result - sample "C" is missing in the new data frame and the value in column "diagnosis" for sample "D" is `NA`. If we now do a "full join"...
 
 
 ```r
@@ -101,7 +101,7 @@ full_join(a, b, by="sample")
 ## 4 D      <NA>      TRUE
 ```
 
-Here we see that all four samples are represented, but that the "x2" and "x3" columns have `NA` values for samples D and C, respectively. Finally, returning to our old friend, "inner join"...
+Here we see that all four samples are represented, but that the "diagnosis" and "previous_history" columns have `NA` values for samples D and C, respectively. Finally, returning to our old friend, "inner join"...
 
 
 ```r
@@ -267,7 +267,7 @@ select(pcoa, group, axis1, axis2, axis3)
 ##  8 2019651  0.171   -0.0903  0.0112
 ##  9 2023680 -0.299    0.122  -0.144 
 ## 10 2025653  0.333    0.0280  0.0304
-## # ... with 480 more rows
+## # … with 480 more rows
 ```
 
 The resulting tibble still has 490 rows, but now it has the 4 columns we *selected*. If we want to remove specific columns we could also use a negative sign
@@ -291,7 +291,7 @@ select(pcoa, -axis1)
 ##  8 2019… -0.0903  0.0112 -0.0738   0.0538   0.159   -0.209   0.198   0.172 
 ##  9 2023…  0.122  -0.144  -0.117    0.114    0.0295   0.231   0.0778 -0.0352
 ## 10 2025…  0.0280  0.0304  0.113    0.0410   0.0774   0.161  -0.0367 -0.182 
-## # ... with 480 more rows, and 481 more variables: axis10 <dbl>,
+## # … with 480 more rows, and 481 more variables: axis10 <dbl>,
 ## #   axis11 <dbl>, axis12 <dbl>, axis13 <dbl>, axis14 <dbl>, axis15 <dbl>,
 ## #   axis16 <dbl>, axis17 <dbl>, axis18 <dbl>, axis19 <dbl>, axis20 <dbl>,
 ## #   axis21 <dbl>, axis22 <dbl>, axis23 <dbl>, axis24 <dbl>, axis25 <dbl>,
@@ -336,7 +336,7 @@ select(metadata, sample, starts_with("diagnosis"))
 ##  8 2019651 Normal           normal   
 ##  9 2023680 High Risk Normal normal   
 ## 10 2025653 Cancer           cancer   
-## # ... with 480 more rows
+## # … with 480 more rows
 ```
 
 This gets us a new data frame with the columns "sample", "diagnosis_bin", and "diagnosis". We could also get the "sample" column and any column that contains "history"
@@ -360,7 +360,7 @@ select(metadata, sample, contains("history"))
 ##  8 2019651 FALSE            FALSE             FALSE                
 ##  9 2023680 TRUE             TRUE              FALSE                
 ## 10 2025653 TRUE             TRUE              FALSE                
-## # ... with 480 more rows
+## # … with 480 more rows
 ```
 
 This generates a data frame that contains the columns "sample", "previous_history", "history_of_polyps", and "family_history_of_crc". There are other helper functions including `ends_with`, `matches`, `num_range`, and `one_of` that you can learn more about by using the `?` helper.
@@ -389,7 +389,7 @@ filter(metadata, site=="U Michigan")
 ##  8 20416…          0 U Mi… Adenoma       adenoma   FALSE           
 ##  9 20456…          0 U Mi… Normal        normal    FALSE           
 ## 10 20576…          0 U Mi… High Risk No… normal    FALSE           
-## # ... with 97 more rows, and 11 more variables: history_of_polyps <lgl>,
+## # … with 97 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>
@@ -438,7 +438,7 @@ filter(metadata, fit_result >= 100)
 ##  8 22676…        149 Dana… Cancer        cancer    TRUE            
 ##  9 22836…       1346 Toro… Cancer        cancer    FALSE           
 ## 10 22876…        939 Dana… Cancer        cancer    TRUE            
-## # ... with 116 more rows, and 11 more variables: history_of_polyps <lgl>,
+## # … with 116 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>
@@ -465,7 +465,7 @@ filter(metadata, previous_history)
 ##  8 20876…          5 Dana… High Risk No… normal    TRUE            
 ##  9 20936…        286 Dana… Normal        normal    TRUE            
 ## 10 21096…          0 Dana… Normal        normal    TRUE            
-## # ... with 128 more rows, and 11 more variables: history_of_polyps <lgl>,
+## # … with 128 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>
@@ -492,7 +492,7 @@ filter(metadata, !previous_history)
 ##  8 20276…          0 Toro… Normal        normal    FALSE           
 ##  9 20296…          0 U Mi… Adenoma       adenoma   FALSE           
 ## 10 20316…          0 Toro… Adenoma       adenoma   FALSE           
-## # ... with 339 more rows, and 11 more variables: history_of_polyps <lgl>,
+## # … with 339 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>
@@ -519,7 +519,7 @@ filter(metadata, diagnosis != 'normal')
 ##  8 20416…          0 U Mi… Adenoma       adenoma   FALSE           
 ##  9 20496…          0 Dana… Adenoma       adenoma   FALSE           
 ## 10 20516…          0 Dana… Adenoma       adenoma   TRUE            
-## # ... with 308 more rows, and 11 more variables: history_of_polyps <lgl>,
+## # … with 308 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>
@@ -557,7 +557,7 @@ filter(metadata, diagnosis=="cancer")
 ##  8 22836…       1346 Toro… Cancer        cancer    FALSE           
 ##  9 22856…          0 U Mi… Cancer        cancer    FALSE           
 ## 10 22876…        939 Dana… Cancer        cancer    TRUE            
-## # ... with 110 more rows, and 11 more variables: history_of_polyps <lgl>,
+## # … with 110 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>
@@ -590,7 +590,7 @@ filter(metadata, sex=="female")
 ##  8 20376…         72 Toro… Cancer        cancer    FALSE           
 ##  9 20396…          0 Toro… Normal        normal    FALSE           
 ## 10 20456…          0 U Mi… Normal        normal    FALSE           
-## # ... with 233 more rows, and 11 more variables: history_of_polyps <lgl>,
+## # … with 233 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>
@@ -623,7 +623,7 @@ filter(metadata, age <= 50)
 ##  8 20856…          7 Dana… Normal        normal    FALSE           
 ##  9 20876…          5 Dana… High Risk No… normal    TRUE            
 ## 10 20936…        286 Dana… Normal        normal    TRUE            
-## # ... with 86 more rows, and 11 more variables: history_of_polyps <lgl>,
+## # … with 86 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>
@@ -648,8 +648,8 @@ filter(metadata, fit_result >= 100 & diagnosis == "normal")
 ## 3 23216…        148 Dana… Normal        normal    FALSE           
 ## 4 30996…        356 Dana… High Risk No… normal    TRUE            
 ## 5 31376…        118 U Mi… Normal        normal    FALSE           
-## # ... with 11 more variables: history_of_polyps <lgl>, age <dbl>,
-## #   sex <chr>, smoke <lgl>, diabetic <lgl>, family_history_of_crc <lgl>,
+## # … with 11 more variables: history_of_polyps <lgl>, age <dbl>, sex <chr>,
+## #   smoke <lgl>, diabetic <lgl>, family_history_of_crc <lgl>,
 ## #   height <dbl>, weight <dbl>, nsaid <lgl>, diabetes_med <lgl>,
 ## #   stage <chr>
 ```
@@ -675,7 +675,7 @@ filter(metadata, fit_result >= 100 | diagnosis == "cancer")
 ##  8 22036…       1992 U Mi… Cancer        cancer    TRUE            
 ##  9 22556…        140 Dana… Cancer        cancer    TRUE            
 ## 10 22676…        149 Dana… Cancer        cancer    TRUE            
-## # ... with 146 more rows, and 11 more variables: history_of_polyps <lgl>,
+## # … with 146 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>
@@ -707,7 +707,7 @@ filter(metadata, age <= 50 & diagnosis != "normal")
 ##  8 25236…        392 MD A… Cancer        cancer    TRUE            
 ##  9 25456…        301 Dana… Adv Adenoma   adenoma   FALSE           
 ## 10 25556…          0 Toro… Adv Adenoma   adenoma   FALSE           
-## # ... with 36 more rows, and 11 more variables: history_of_polyps <lgl>,
+## # … with 36 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>
@@ -740,7 +740,7 @@ filter(metadata, previous_history | family_history_of_crc)
 ##  8 20416…          0 U Mi… Adenoma       adenoma   FALSE           
 ##  9 20436…          5 Toro… High Risk No… normal    FALSE           
 ## 10 20456…          0 U Mi… Normal        normal    FALSE           
-## # ... with 189 more rows, and 11 more variables: history_of_polyps <lgl>,
+## # … with 189 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>
@@ -800,7 +800,7 @@ alpha
 ##  8 2023680  300.    4.01       28.9    0.992
 ##  9 2025653  179.    3.39       14.6    0.995
 ## 10 2027653  127.    3.54       19.2    0.998
-## # ... with 480 more rows
+## # … with 480 more rows
 ```
 
 Viola! Cool, eh? You may not see the benefit of the pipes here, but in subsequent lessons we will pipe together numerous functions to direct the flow of data. Instead of writing over `alpha` as we did in the previous code chunks, some people would rather write each update to a new variable name. Both approaches get tedious and so the ability to pipe becomes pretty handy. In fact, we can skip the creation of the `alpha` data frame all together by piping this flow right into the `inner_join` function call. Notice that in the code below, the `inner_join` function call has a `.` where `alpha` had been before. The `.` tells `inner_join` to use the data that is flowing through the pipe.
@@ -828,7 +828,7 @@ meta_alpha
 ##  8 20196…         19 U Mi… Normal        normal    FALSE           
 ##  9 20236…          0 Dana… High Risk No… normal    TRUE            
 ## 10 20256…       1509 U Mi… Cancer        cancer    TRUE            
-## # ... with 480 more rows, and 15 more variables: history_of_polyps <lgl>,
+## # … with 480 more rows, and 15 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
 ## #   diabetes_med <lgl>, stage <chr>, sobs <dbl>, shannon <dbl>,

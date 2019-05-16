@@ -101,7 +101,7 @@ Again, all of our adjusted P-values are greater than 0.05.
 If instead of using the scaled Shannon values we had used the raw values, then we would want to use a Kruskal-Wallis test using the `kruskal.test` function. To run this test, we need to recast `diagnosis` as a factor.
 
 ```{r}
-kruskal.test(shannon~factor(diagnosis), data=meta_alpha)
+kruskal.test(shannon~diagnosis, data=meta_alpha)
 ```
 
 Again, our P-value is not significant. If the experiment-wise P-value had been less than 0.05, then we could use pairwise Wilcoxon rank sum tests with correction for multiple comparisons. **[Note that this is a bad idea if your experiment-wise P-value is greater than 0.05]**. Here we need to revert to using the `[[]]` notation that we learned earlier to select specific columns from our data frame.
@@ -172,7 +172,7 @@ Is there a significant difference in the FIT result by diagnosis group?
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
 ```{r}
-kruskal.test(fit_result~factor(diagnosis), data=meta_alpha)
+kruskal.test(fit_result~diagnosis, data=meta_alpha)
 ```
 
 Yes, the P-value is quite small. Let's perform the pairwise Wilcoxon tests
