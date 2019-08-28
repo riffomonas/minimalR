@@ -12,7 +12,7 @@ I have never taken a course or workshop in using R. I've read a lot of books on 
 
 I suspect that you will understand the first chunk of code we write. We will strive for readable code that is easy to understand. That being said, just because you suspect that the `geom_point` function will add points to a plot, doesn't mean that you know how to use `geom_point` or that you would know how to make a bar chart. Calmly accept your ignorance and know that all will be explained eventually. Learning experts have found that we do not learn best by taking on a topic and beating it to death until we've mastered it. Rather, we learn best when we learn something partially, move on to something else that we also learn partially, but can fold in the previous knowledge to help us improve our partial knowledge of the earlier topic. It's kind of like taking steps forward in a dark room only to get to the end and see that you knew the path all the way along. This is the approach that we will be taking with these lessons. My goal is not to provide a reference on R or to necessarily document every nook and cranny of the language and its myriad packages. I will empower you to do that.
 
-The final philosophical point I will make is that I believe it is important to eat your own dog food as an educator. Everything I teach, is how I want to code and how I want those that work for me to code. There is definitely always room for improvement, but be confident that I'm not trying to sell you on something that I do not use myself. That being said, although I don't claim that the plots we'll make are works of aRt, I do think that they're pretty close to being publication quality. Why make a crappy plot, when you could make a good one that pus your work in the best possible light?
+The final philosophical point I will make is that I believe it is important to eat your own dog food as an educator. Everything I teach, is how I want to code and how I want those that work for me to code. There is definitely always room for improvement, but be confident that I'm not trying to sell you on something that I do not use myself. That being said, although I don't claim that the plots we'll make are works of aRt, I do think that they're pretty close to being publication quality. Why make a crappy plot, when you could make a good one that puts your work in the best possible light?
 
 If you notice a bug, something that is unclear, have an idea for a better approach, or want to see something added, please file an issue or, even better, a pull request at the project's [GitHub repository](https://github.com/riffomonas/minimalR).
 
@@ -161,13 +161,13 @@ sessionInfo()
 ```
 
 ```
-## R version 3.5.0 (2018-04-23)
+## R version 3.6.1 (2019-07-05)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
-## Running under: macOS  10.14
+## Running under: macOS Mojave 10.14.6
 ## 
 ## Matrix products: default
-## BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRlapack.dylib
+## BLAS:   /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRblas.0.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
 ## 
 ## locale:
 ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -176,24 +176,24 @@ sessionInfo()
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] forcats_0.3.0   stringr_1.3.1   dplyr_0.7.6     purrr_0.2.5    
-##  [5] readr_1.1.1     tidyr_0.8.1     tibble_1.4.2    ggplot2_3.0.0  
-##  [9] tidyverse_1.2.1 knitr_1.20      ezknitr_0.6    
+##  [1] forcats_0.4.0   stringr_1.4.0   dplyr_0.8.3     purrr_0.3.2    
+##  [5] readr_1.3.1     tidyr_0.8.3     tibble_2.1.3    ggplot2_3.2.1  
+##  [9] tidyverse_1.2.1 knitr_1.24      ezknitr_0.6    
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_0.12.18      cellranger_1.1.0  pillar_1.3.0     
-##  [4] compiler_3.5.0    plyr_1.8.4        bindr_0.1.1      
-##  [7] R.methodsS3_1.7.1 R.utils_2.6.0     tools_3.5.0      
-## [10] lubridate_1.7.4   jsonlite_1.5      evaluate_0.11    
-## [13] nlme_3.1-137      gtable_0.2.0      lattice_0.20-35  
-## [16] pkgconfig_2.0.1   rlang_0.2.1       cli_1.0.0        
-## [19] rstudioapi_0.7    haven_1.1.2       bindrcpp_0.2.2   
-## [22] withr_2.1.2       xml2_1.2.0        httr_1.3.1       
-## [25] hms_0.4.2         grid_3.5.0        tidyselect_0.2.4 
-## [28] glue_1.3.0        R6_2.2.2          readxl_1.1.0     
-## [31] modelr_0.1.2      magrittr_1.5      backports_1.1.2  
-## [34] scales_1.0.0      rvest_0.3.2       assertthat_0.2.0 
-## [37] colorspace_1.3-2  stringi_1.2.4     lazyeval_0.2.1   
-## [40] munsell_0.5.0     broom_0.5.0       crayon_1.3.4     
-## [43] R.oo_1.22.0
+##  [1] Rcpp_1.0.2        cellranger_1.1.0  pillar_1.4.2     
+##  [4] compiler_3.6.1    R.methodsS3_1.7.1 R.utils_2.9.0    
+##  [7] tools_3.6.1       zeallot_0.1.0     lubridate_1.7.4  
+## [10] jsonlite_1.6      evaluate_0.14     nlme_3.1-140     
+## [13] gtable_0.3.0      lattice_0.20-38   pkgconfig_2.0.2  
+## [16] rlang_0.4.0       cli_1.1.0         rstudioapi_0.10  
+## [19] haven_2.1.1       xfun_0.9          withr_2.1.2      
+## [22] xml2_1.2.2        httr_1.4.1        vctrs_0.2.0      
+## [25] generics_0.0.2    hms_0.5.1         grid_3.6.1       
+## [28] tidyselect_0.2.5  glue_1.3.1        R6_2.4.0         
+## [31] readxl_1.3.1      modelr_0.1.5      magrittr_1.5     
+## [34] backports_1.1.4   scales_1.0.0      rvest_0.3.4      
+## [37] assertthat_0.2.1  colorspace_1.4-1  stringi_1.4.3    
+## [40] lazyeval_0.2.2    munsell_0.5.0     broom_0.5.2      
+## [43] crayon_1.3.4      R.oo_1.22.0
 ```
