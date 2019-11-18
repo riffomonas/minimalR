@@ -436,7 +436,7 @@ summary(lm_shannon_bmi)
 ## F-statistic: 1.917 on 3 and 484 DF,  p-value: 0.1258
 ```
 
-We see that the impact of BMI is significant, but that there's no meaninful difference between the three diagnosis groups.
+We see that the impact of BMI is significant, but that there's no meaningful difference between the three diagnosis groups.
 
 By default, `cor.test` performs a Pearson correlation, which assumes a linear relationship between the two variables. Having seen the FIT result distribution a few times now, we might suspect that it has a non-linear association with other variables. We can test the association with a Spearman correlation.
 
