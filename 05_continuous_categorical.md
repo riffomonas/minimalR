@@ -32,12 +32,11 @@ metadata <- read_excel(path="raw_data/baxter.metadata.xlsx",
 				Height = "numeric", Weight = "numeric", NSAID = "logical", Diabetes_Med = "logical",
 				stage = "text")
 	)
-metadata[["Height"]] <- na_if(metadata[["Height"]], 0)
-metadata[["Weight"]] <- na_if(metadata[["Weight"]], 0)
-metadata[["Site"]] <- recode(.x=metadata[["Site"]], "U of Michigan"="U Michigan")
-metadata[["Dx_Bin"]] <- recode(.x=metadata[["Dx_Bin"]], "Cancer."="Cancer")
-metadata[["Gender"]] <- recode(.x=metadata[["Gender"]], "m"="male")
-metadata[["Gender"]] <- recode(.x=metadata[["Gender"]], "f"="female")
+metadata <- mutate(metadata, na_if(Height, 0))
+metadata <- mutate(metadata, na_if(Weight, 0))
+metadata <- mutate(metadata, Site = recode(.x=Site, "U of Michigan"="U Michigan"))
+metadata <- mutate(metadata, Dx_Bin = recode(.x=Dx_Bin, "Cancer."="Cancer"))
+metadata <- mutate(metadata, Gender = recode(.x=Gender, "f"="female", "m"="male"))
 
 metadata <- rename_all(.tbl=metadata, .funs=tolower)
 metadata <- rename(.data=metadata,
@@ -634,13 +633,13 @@ Our box plots have only had color on the rectangle, median line, whiskers, and o
 
 ```r
 ggplot(meta_alpha, aes(x=diagnosis, y=shannon, color=diagnosis, fill=diagnosis)) +
-	geom_boxplot() +
+	geom_boxplot(alpha=0.3) +
 	scale_color_manual(name=NULL,
 		values=c("blue", "red", "black"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	scale_fill_manual(name=NULL,
-		values=c("lightblue", "pink", "gray"),
+		values=c("blue", "red", "black"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	scale_x_discrete(limits=c("normal", "adenoma", "cancer"),
@@ -748,7 +747,13 @@ A new variant of the types of plots discussed in this lesson is the ridgeline pl
 ```r
 #install.packages("ggridges")
 library(ggridges)
+```
 
+```
+## Error in library(ggridges): there is no package called 'ggridges'
+```
+
+```r
 ggplot(meta_alpha, aes(x=shannon, y=diagnosis, color=diagnosis, fill=diagnosis)) +
 	geom_density_ridges(alpha=0.5) +
 	scale_fill_manual(name=NULL,
@@ -767,7 +772,9 @@ ggplot(meta_alpha, aes(x=shannon, y=diagnosis, color=diagnosis, fill=diagnosis))
 	theme_classic()
 ```
 
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-32-1.png" title="plot of chunk unnamed-chunk-32" alt="plot of chunk unnamed-chunk-32" width="504" />
+```
+## Error in geom_density_ridges(alpha = 0.5): could not find function "geom_density_ridges"
+```
 </div>
 
 ---

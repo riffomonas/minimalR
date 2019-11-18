@@ -187,21 +187,20 @@ metadata
 
 ```
 ## # A tibble: 490 x 17
-##    sample fit_result Site  Dx_Bin dx    Hx_Prev Hx_of_Polyps   Age Gender
-##     <dbl>      <dbl> <chr> <chr>  <chr>   <dbl>        <dbl> <dbl> <chr> 
-##  1 2.00e6          0 U Mi… High … norm…       0            1    64 m     
-##  2 2.01e6          0 U Mi… High … norm…       0            1    61 m     
-##  3 2.01e6         26 U Mi… High … norm…       0            1    47 f     
-##  4 2.01e6         10 Toro… Adeno… aden…       0            1    81 f     
-##  5 2.01e6          0 U Mi… Normal norm…       0            0    44 f     
-##  6 2.02e6          0 Dana… High … norm…       0            1    51 f     
-##  7 2.02e6          7 Dana… Cancer canc…       1            1    78 m     
-##  8 2.02e6         19 U Mi… Normal norm…       0            0    59 m     
-##  9 2.02e6          0 Dana… High … norm…       1            1    63 f     
-## 10 2.03e6       1509 U Mi… Cance… canc…       1            1    67 m     
-## # ... with 480 more rows, and 8 more variables: Smoke <dbl>,
-## #   Diabetic <dbl>, Hx_Fam_CRC <dbl>, Height <dbl>, Weight <dbl>,
-## #   NSAID <dbl>, Diabetes_Med <dbl>, stage <dbl>
+##    sample fit_result Site  Dx_Bin dx    Hx_Prev Hx_of_Polyps   Age Gender Smoke
+##     <dbl>      <dbl> <chr> <chr>  <chr>   <dbl>        <dbl> <dbl> <chr>  <dbl>
+##  1 2.00e6          0 U Mi… High … norm…       0            1    64 m         NA
+##  2 2.01e6          0 U Mi… High … norm…       0            1    61 m          0
+##  3 2.01e6         26 U Mi… High … norm…       0            1    47 f          0
+##  4 2.01e6         10 Toro… Adeno… aden…       0            1    81 f          1
+##  5 2.01e6          0 U Mi… Normal norm…       0            0    44 f          0
+##  6 2.02e6          0 Dana… High … norm…       0            1    51 f          1
+##  7 2.02e6          7 Dana… Cancer canc…       1            1    78 m          1
+##  8 2.02e6         19 U Mi… Normal norm…       0            0    59 m          0
+##  9 2.02e6          0 Dana… High … norm…       1            1    63 f          1
+## 10 2.03e6       1509 U Mi… Cance… canc…       1            1    67 m          1
+## # … with 480 more rows, and 7 more variables: Diabetic <dbl>, Hx_Fam_CRC <dbl>,
+## #   Height <dbl>, Weight <dbl>, NSAID <dbl>, Diabetes_Med <dbl>, stage <dbl>
 ```
 
 The output gives me the first ten columns and the first ten rows of the data frame. You'll notice that at the top of the output, it tells us that there are 490 rows and 17 columns. The column headings for the 7 columns that weren't outputted are listed at the bottom of the output. It also indicates, that 480 rows were not included in the output. In addition, the output tells us what type of variable each column contains. For example, the `fit_result` column contains `dbl` or double precision numbers and the `dx` column contains `chr` or character values. You'll also notice that zero values have a lighter color and that the `NA` for the first value in the `Smoke` column is red. These are all meant to improve the visualization of the data.
@@ -249,11 +248,10 @@ colnames(metadata)
 ```
 
 ```
-##  [1] "sample"       "fit_result"   "Site"         "Dx_Bin"      
-##  [5] "dx"           "Hx_Prev"      "Hx_of_Polyps" "Age"         
-##  [9] "Gender"       "Smoke"        "Diabetic"     "Hx_Fam_CRC"  
-## [13] "Height"       "Weight"       "NSAID"        "Diabetes_Med"
-## [17] "stage"
+##  [1] "sample"       "fit_result"   "Site"         "Dx_Bin"       "dx"          
+##  [6] "Hx_Prev"      "Hx_of_Polyps" "Age"          "Gender"       "Smoke"       
+## [11] "Diabetic"     "Hx_Fam_CRC"   "Height"       "Weight"       "NSAID"       
+## [16] "Diabetes_Med" "stage"
 ```
 
 Are these column names informative? What type of information do you think each column might contain? If our data frame had names on the rows, we could get their value using the `rownames` command in a similar way. We can get a sense of the data frame using the `head` command, which returns the first 6 values of a variable or `tail`, which returns the last 6 values.
@@ -265,17 +263,16 @@ head(metadata)
 
 ```
 ## # A tibble: 6 x 17
-##   sample fit_result Site  Dx_Bin dx    Hx_Prev Hx_of_Polyps   Age Gender
-##    <dbl>      <dbl> <chr> <chr>  <chr>   <dbl>        <dbl> <dbl> <chr> 
-## 1 2.00e6          0 U Mi… High … norm…       0            1    64 m     
-## 2 2.01e6          0 U Mi… High … norm…       0            1    61 m     
-## 3 2.01e6         26 U Mi… High … norm…       0            1    47 f     
-## 4 2.01e6         10 Toro… Adeno… aden…       0            1    81 f     
-## 5 2.01e6          0 U Mi… Normal norm…       0            0    44 f     
-## 6 2.02e6          0 Dana… High … norm…       0            1    51 f     
-## # ... with 8 more variables: Smoke <dbl>, Diabetic <dbl>,
-## #   Hx_Fam_CRC <dbl>, Height <dbl>, Weight <dbl>, NSAID <dbl>,
-## #   Diabetes_Med <dbl>, stage <dbl>
+##   sample fit_result Site  Dx_Bin dx    Hx_Prev Hx_of_Polyps   Age Gender Smoke
+##    <dbl>      <dbl> <chr> <chr>  <chr>   <dbl>        <dbl> <dbl> <chr>  <dbl>
+## 1 2.00e6          0 U Mi… High … norm…       0            1    64 m         NA
+## 2 2.01e6          0 U Mi… High … norm…       0            1    61 m          0
+## 3 2.01e6         26 U Mi… High … norm…       0            1    47 f          0
+## 4 2.01e6         10 Toro… Adeno… aden…       0            1    81 f          1
+## 5 2.01e6          0 U Mi… Normal norm…       0            0    44 f          0
+## 6 2.02e6          0 Dana… High … norm…       0            1    51 f          1
+## # … with 7 more variables: Diabetic <dbl>, Hx_Fam_CRC <dbl>, Height <dbl>,
+## #   Weight <dbl>, NSAID <dbl>, Diabetes_Med <dbl>, stage <dbl>
 ```
 
 ```r
@@ -284,17 +281,16 @@ tail(metadata)
 
 ```
 ## # A tibble: 6 x 17
-##   sample fit_result Site  Dx_Bin dx    Hx_Prev Hx_of_Polyps   Age Gender
-##    <dbl>      <dbl> <chr> <chr>  <chr>   <dbl>        <dbl> <dbl> <chr> 
-## 1 3.53e6          0 Dana… Normal norm…       0            0    51 f     
-## 2 3.53e6          0 Dana… Normal norm…       1            0    53 f     
-## 3 3.54e6          0 U Mi… Adv A… aden…       0            1    75 m     
-## 4 3.54e6          0 U Mi… Normal norm…       0            0    56 f     
-## 5 3.55e6          0 Dana… Adeno… aden…       1            1    77 m     
-## 6 3.56e6          0 U Mi… Normal norm…       0            0    51 f     
-## # ... with 8 more variables: Smoke <dbl>, Diabetic <dbl>,
-## #   Hx_Fam_CRC <dbl>, Height <dbl>, Weight <dbl>, NSAID <dbl>,
-## #   Diabetes_Med <dbl>, stage <dbl>
+##   sample fit_result Site  Dx_Bin dx    Hx_Prev Hx_of_Polyps   Age Gender Smoke
+##    <dbl>      <dbl> <chr> <chr>  <chr>   <dbl>        <dbl> <dbl> <chr>  <dbl>
+## 1 3.53e6          0 Dana… Normal norm…       0            0    51 f          0
+## 2 3.53e6          0 Dana… Normal norm…       1            0    53 f          0
+## 3 3.54e6          0 U Mi… Adv A… aden…       0            1    75 m          1
+## 4 3.54e6          0 U Mi… Normal norm…       0            0    56 f          0
+## 5 3.55e6          0 Dana… Adeno… aden…       1            1    77 m          1
+## 6 3.56e6          0 U Mi… Normal norm…       0            0    51 f          0
+## # … with 7 more variables: Diabetic <dbl>, Hx_Fam_CRC <dbl>, Height <dbl>,
+## #   Weight <dbl>, NSAID <dbl>, Diabetes_Med <dbl>, stage <dbl>
 ```
 
 We can also use the `glimpse` command to get an idea about the structure of a variable.
@@ -307,23 +303,23 @@ glimpse(metadata)
 ```
 ## Observations: 490
 ## Variables: 17
-## $ sample       <dbl> 2003650, 2005650, 2007660, 2009650, 2013660, 2015...
-## $ fit_result   <dbl> 0, 0, 26, 10, 0, 0, 7, 19, 0, 1509, 0, 0, 0, 0, 0...
-## $ Site         <chr> "U Michigan", "U Michigan", "U Michigan", "Toront...
-## $ Dx_Bin       <chr> "High Risk Normal", "High Risk Normal", "High Ris...
-## $ dx           <chr> "normal", "normal", "normal", "adenoma", "normal"...
-## $ Hx_Prev      <dbl> 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0...
-## $ Hx_of_Polyps <dbl> 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1...
-## $ Age          <dbl> 64, 61, 47, 81, 44, 51, 78, 59, 63, 67, 65, 55, 7...
-## $ Gender       <chr> "m", "m", "f", "f", "f", "f", "m", "m", "f", "m",...
-## $ Smoke        <dbl> NA, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, ...
-## $ Diabetic     <dbl> 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0...
-## $ Hx_Fam_CRC   <dbl> 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0...
-## $ Height       <dbl> 182, 167, 170, 168, 170, 160, 172, 177, 154, 167,...
-## $ Weight       <dbl> 120, 78, 63, 65, 72, 67, 78, 65, 54, 58, 60, 90, ...
-## $ NSAID        <dbl> 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0...
-## $ Diabetes_Med <dbl> 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0...
-## $ stage        <dbl> 0, 0, 0, 0, 0, 0, 3, 0, 0, 4, 0, 0, 0, 0, 0, 3, 0...
+## $ sample       <dbl> 2003650, 2005650, 2007660, 2009650, 2013660, 2015650, 20…
+## $ fit_result   <dbl> 0, 0, 26, 10, 0, 0, 7, 19, 0, 1509, 0, 0, 0, 0, 0, 72, 0…
+## $ Site         <chr> "U Michigan", "U Michigan", "U Michigan", "Toronto", "U …
+## $ Dx_Bin       <chr> "High Risk Normal", "High Risk Normal", "High Risk Norma…
+## $ dx           <chr> "normal", "normal", "normal", "adenoma", "normal", "norm…
+## $ Hx_Prev      <dbl> 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0,…
+## $ Hx_of_Polyps <dbl> 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1,…
+## $ Age          <dbl> 64, 61, 47, 81, 44, 51, 78, 59, 63, 67, 65, 55, 72, 77, …
+## $ Gender       <chr> "m", "m", "f", "f", "f", "f", "m", "m", "f", "m", "f", "…
+## $ Smoke        <dbl> NA, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1…
+## $ Diabetic     <dbl> 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,…
+## $ Hx_Fam_CRC   <dbl> 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1,…
+## $ Height       <dbl> 182, 167, 170, 168, 170, 160, 172, 177, 154, 167, 167, 1…
+## $ Weight       <dbl> 120, 78, 63, 65, 72, 67, 78, 65, 54, 58, 60, 90, 57, 68,…
+## $ NSAID        <dbl> 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1,…
+## $ Diabetes_Med <dbl> 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,…
+## $ stage        <dbl> 0, 0, 0, 0, 0, 0, 3, 0, 0, 4, 0, 0, 0, 0, 0, 3, 0, 0, 0,…
 ```
 
 You'll commonly encounter numerical (`dbl`, `int`, or `num`), categorical (`fctr`), boolean (`lgl`), and text (`chr`) data. The `str` command will tell you the type of data you have in your variable.
@@ -403,21 +399,20 @@ metadata
 
 ```
 ## # A tibble: 490 x 17
-##    sample fit_result Site  Dx_Bin dx    Hx_Prev Hx_of_Polyps   Age Gender
-##    <chr>       <dbl> <chr> <chr>  <chr> <lgl>   <lgl>        <dbl> <chr> 
-##  1 20036…          0 U Mi… High … norm… FALSE   TRUE            64 m     
-##  2 20056…          0 U Mi… High … norm… FALSE   TRUE            61 m     
-##  3 20076…         26 U Mi… High … norm… FALSE   TRUE            47 f     
-##  4 20096…         10 Toro… Adeno… aden… FALSE   TRUE            81 f     
-##  5 20136…          0 U Mi… Normal norm… FALSE   FALSE           44 f     
-##  6 20156…          0 Dana… High … norm… FALSE   TRUE            51 f     
-##  7 20176…          7 Dana… Cancer canc… TRUE    TRUE            78 m     
-##  8 20196…         19 U Mi… Normal norm… FALSE   FALSE           59 m     
-##  9 20236…          0 Dana… High … norm… TRUE    TRUE            63 f     
-## 10 20256…       1509 U Mi… Cance… canc… TRUE    TRUE            67 m     
-## # ... with 480 more rows, and 8 more variables: Smoke <lgl>,
-## #   Diabetic <lgl>, Hx_Fam_CRC <lgl>, Height <dbl>, Weight <dbl>,
-## #   NSAID <lgl>, Diabetes_Med <lgl>, stage <chr>
+##    sample fit_result Site  Dx_Bin dx    Hx_Prev Hx_of_Polyps   Age Gender Smoke
+##    <chr>       <dbl> <chr> <chr>  <chr> <lgl>   <lgl>        <dbl> <chr>  <lgl>
+##  1 20036…          0 U Mi… High … norm… FALSE   TRUE            64 m      NA   
+##  2 20056…          0 U Mi… High … norm… FALSE   TRUE            61 m      FALSE
+##  3 20076…         26 U Mi… High … norm… FALSE   TRUE            47 f      FALSE
+##  4 20096…         10 Toro… Adeno… aden… FALSE   TRUE            81 f      TRUE 
+##  5 20136…          0 U Mi… Normal norm… FALSE   FALSE           44 f      FALSE
+##  6 20156…          0 Dana… High … norm… FALSE   TRUE            51 f      TRUE 
+##  7 20176…          7 Dana… Cancer canc… TRUE    TRUE            78 m      TRUE 
+##  8 20196…         19 U Mi… Normal norm… FALSE   FALSE           59 m      FALSE
+##  9 20236…          0 Dana… High … norm… TRUE    TRUE            63 f      TRUE 
+## 10 20256…       1509 U Mi… Cance… canc… TRUE    TRUE            67 m      TRUE 
+## # … with 480 more rows, and 7 more variables: Diabetic <lgl>, Hx_Fam_CRC <lgl>,
+## #   Height <dbl>, Weight <dbl>, NSAID <lgl>, Diabetes_Med <lgl>, stage <chr>
 ```
 
 In contrast, if we used `read_tsv` the syntax would look like this (note that this won't run since you don't have `data/baxter.metadata.tsv`)
@@ -441,21 +436,45 @@ Now that we have the types of variables correct, let's re-run the summary functi
 summary(metadata)
 ```
 
-Take a moment to look at the columns represented in your data frame and the information presented below the column names. Do all of the values seem reasonable? Need a hint? Check out the information below "Height" and "Weight". Think someone could weight 0 kg or be 0 cm tall? I think those should instead be `NA`. To look at and manipulate an individual column we have three options:
-
-```R
-select(metadata, "Height")
-metadata[["Height"]]
-metadata$Height
-metadata[[13]]
-```
-
-The first three options are pretty solid, the last option is a bit of a hassle since it requires us to count columns. Whichever approach you select, stick with it and be consistent in your coding. We will primarily use the first approach throughout this series of lessons. These commands pulls out a column from the data frame and converts it into a vector. We'll learn more about vectors later. For now, think of this as a column. Just like we saw how we could update our `p` variable when adding layers to our scatter plot by using the `<-` operator, we can update our columns this way as well. The `dplyr` package, which is one of the core package within the tidyverse, has a useful function called `na_if`. If it finds a value we specify in the vector, it will convert it to an `NA`.
+Take a moment to look at the columns represented in your data frame and the information presented below the column names. Do all of the values seem reasonable? Need a hint? Check out the information below "Height" and "Weight". Think someone could weight 0 kg or be 0 cm tall? I think those should instead be `NA`. We need to learn a few concepts before we can convert the 0 values to `NA` values. First, we need to know how to modify individual columns or create new columns. We can do this with the `mutate` function:
 
 
 ```r
-metadata[["Height"]] <- na_if(metadata[["Height"]], 0)
-metadata[["Weight"]] <- na_if(metadata[["Weight"]], 0)
+mutate(metadata, age_in_months = Age * 12)
+mutate(metadata, Height = Height/100)
+```
+
+The `mutate` function takes the `metadata` data frame and adds a new column that is the age of the person in months. Similarly, the second command edits the `Height` column to change it from centimeters to meters. If we do the following, what do you notice?
+
+
+```r
+metadata
+```
+
+```
+## # A tibble: 490 x 17
+##    sample fit_result Site  Dx_Bin dx    Hx_Prev Hx_of_Polyps   Age Gender Smoke
+##    <chr>       <dbl> <chr> <chr>  <chr> <lgl>   <lgl>        <dbl> <chr>  <lgl>
+##  1 20036…          0 U Mi… High … norm… FALSE   TRUE            64 m      NA   
+##  2 20056…          0 U Mi… High … norm… FALSE   TRUE            61 m      FALSE
+##  3 20076…         26 U Mi… High … norm… FALSE   TRUE            47 f      FALSE
+##  4 20096…         10 Toro… Adeno… aden… FALSE   TRUE            81 f      TRUE 
+##  5 20136…          0 U Mi… Normal norm… FALSE   FALSE           44 f      FALSE
+##  6 20156…          0 Dana… High … norm… FALSE   TRUE            51 f      TRUE 
+##  7 20176…          7 Dana… Cancer canc… TRUE    TRUE            78 m      TRUE 
+##  8 20196…         19 U Mi… Normal norm… FALSE   FALSE           59 m      FALSE
+##  9 20236…          0 Dana… High … norm… TRUE    TRUE            63 f      TRUE 
+## 10 20256…       1509 U Mi… Cance… canc… TRUE    TRUE            67 m      TRUE 
+## # … with 480 more rows, and 7 more variables: Diabetic <lgl>, Hx_Fam_CRC <lgl>,
+## #   Height <dbl>, Weight <dbl>, NSAID <lgl>, Diabetes_Med <lgl>, stage <chr>
+```
+
+Next, do you see that we don't have `age_in_months` as a column and the values in our `Height` column don't appear to be in meters? Why is that? Right! We didn't assign the modified data frames back to metadata. We won't do that with these two changes, but this is an important point to remember. The data frame will only change if we assign the new data frame to the name of the old data frame. Finally, the `dplyr` package, which is one of the core package within the tidyverse, has a useful function called `na_if`. If it finds a value we specify in the vector, it will convert it to an `NA`.
+
+
+```r
+metadata <- mutate(metadata, na_if(Height, 0))
+metadata <- mutate(metadata, na_if(Weight, 0))
 ```
 
 Running `summary(metadata)` again, we see that the ranges for the "Height" and "Weight" columns are more reasonable now. We'd like to look at the values for our columns that contain character values, but they're obfuscated. One way to check this out is with the `count` command
@@ -536,7 +555,7 @@ Notice anything weird here? Yup. In the "Site" column, it looks like our collabo
 
 
 ```r
-metadata[["Site"]] <- recode(.x=metadata[["Site"]], "U of Michigan"="U Michigan")
+metadata <- mutate(metadata, Site = recode(.x=Site, "U of Michigan"="U Michigan"))
 count(metadata, Site)
 ```
 
@@ -559,7 +578,7 @@ You should notice that in the "Dx_Bin" column there is a subject with the value 
 <div markdown="1" style="display:none;">
 
 ```r
-metadata[["Dx_Bin"]] <- recode(.x=metadata[["Dx_Bin"]], "Cancer."="Cancer")
+metadata <- mutate(metadata, Dx_Bin = recode(.x=Dx_Bin, "Cancer."="Cancer"))
 count(metadata, Dx_Bin)
 ```
 
@@ -584,8 +603,8 @@ It might be obvious to us what is contained in the "Gender" column - "f" and "m"
 <div markdown="1" style="display:none;">
 
 ```r
-metadata[["Gender"]] <- recode(.x=metadata[["Gender"]], "m"="male")
-metadata[["Gender"]] <- recode(.x=metadata[["Gender"]], "f"="female")
+metadata <- mutate(metadata, Gender = recode(.x=Gender, "m"="male"))
+metadata <- mutate(metadata, Gender = recode(.x=Gender, "f"="female"))
 count(metadata, Gender)
 ```
 
@@ -597,11 +616,11 @@ count(metadata, Gender)
 ## 2 male     247
 ```
 
-Alternatively, we could do
+Alternatively, we could have done both commands in one line:
 
 
 ```r
-metadata[["Gender"]] <- recode(.x=metadata[["Gender"]], "m"="male", "f"="female")
+metadata <- mutate(metadata, Gender = recode(.x=Gender, "f"="female", "m"="male"))
 count(metadata, Gender)
 ```
 
@@ -629,22 +648,22 @@ metadata
 ```
 
 ```
-## # A tibble: 490 x 17
-##    sample fit_result site  dx_bin dx    hx_prev hx_of_polyps   age gender
-##    <chr>       <dbl> <chr> <chr>  <chr> <lgl>   <lgl>        <dbl> <chr> 
-##  1 20036…          0 U Mi… High … norm… FALSE   TRUE            64 male  
-##  2 20056…          0 U Mi… High … norm… FALSE   TRUE            61 male  
-##  3 20076…         26 U Mi… High … norm… FALSE   TRUE            47 female
-##  4 20096…         10 Toro… Adeno… aden… FALSE   TRUE            81 female
-##  5 20136…          0 U Mi… Normal norm… FALSE   FALSE           44 female
-##  6 20156…          0 Dana… High … norm… FALSE   TRUE            51 female
-##  7 20176…          7 Dana… Cancer canc… TRUE    TRUE            78 male  
-##  8 20196…         19 U Mi… Normal norm… FALSE   FALSE           59 male  
-##  9 20236…          0 Dana… High … norm… TRUE    TRUE            63 female
-## 10 20256…       1509 U Mi… Cancer canc… TRUE    TRUE            67 male  
-## # ... with 480 more rows, and 8 more variables: smoke <lgl>,
-## #   diabetic <lgl>, hx_fam_crc <lgl>, height <dbl>, weight <dbl>,
-## #   nsaid <lgl>, diabetes_med <lgl>, stage <chr>
+## # A tibble: 490 x 19
+##    sample fit_result site  dx_bin dx    hx_prev hx_of_polyps   age gender smoke
+##    <chr>       <dbl> <chr> <chr>  <chr> <lgl>   <lgl>        <dbl> <chr>  <lgl>
+##  1 20036…          0 U Mi… High … norm… FALSE   TRUE            64 male   NA   
+##  2 20056…          0 U Mi… High … norm… FALSE   TRUE            61 male   FALSE
+##  3 20076…         26 U Mi… High … norm… FALSE   TRUE            47 female FALSE
+##  4 20096…         10 Toro… Adeno… aden… FALSE   TRUE            81 female TRUE 
+##  5 20136…          0 U Mi… Normal norm… FALSE   FALSE           44 female FALSE
+##  6 20156…          0 Dana… High … norm… FALSE   TRUE            51 female TRUE 
+##  7 20176…          7 Dana… Cancer canc… TRUE    TRUE            78 male   TRUE 
+##  8 20196…         19 U Mi… Normal norm… FALSE   FALSE           59 male   FALSE
+##  9 20236…          0 Dana… High … norm… TRUE    TRUE            63 female TRUE 
+## 10 20256…       1509 U Mi… Cancer canc… TRUE    TRUE            67 male   TRUE 
+## # … with 480 more rows, and 9 more variables: diabetic <lgl>, hx_fam_crc <lgl>,
+## #   height <dbl>, weight <dbl>, nsaid <lgl>, diabetes_med <lgl>, stage <chr>,
+## #   `na_if(height, 0)` <dbl>, `na_if(weight, 0)` <dbl>
 ```
 
 We can use the `rename` function in the `dplyr` package to rename specific column names, similar to how we used the `recode` function to correct the data entry typos. Let's change our column names with "hx" in them to "history" and "dx" in them to "diagnosis"
@@ -730,12 +749,11 @@ metadata <- read_excel(path="raw_data/baxter.metadata.xlsx",
 				Height = "numeric", Weight = "numeric", NSAID = "logical", Diabetes_Med = "logical",
 				stage = "text")
 	)
-metadata[["Height"]] <- na_if(metadata[["Height"]], 0)
-metadata[["Weight"]] <- na_if(metadata[["Weight"]], 0)
-metadata[["Site"]] <- recode(.x=metadata[["Site"]], "U of Michigan"="U Michigan")
-metadata[["Dx_Bin"]] <- recode(.x=metadata[["Dx_Bin"]], "Cancer."="Cancer")
-metadata[["Gender"]] <- recode(.x=metadata[["Gender"]], "m"="male")
-metadata[["Gender"]] <- recode(.x=metadata[["Gender"]], "f"="female")
+metadata <- mutate(metadata, na_if(Height, 0))
+metadata <- mutate(metadata, na_if(Weight, 0))
+metadata <- mutate(metadata, Site = recode(.x=Site, "U of Michigan"="U Michigan"))
+metadata <- mutate(metadata, Dx_Bin = recode(.x=Dx_Bin, "Cancer."="Cancer"))
+metadata <- mutate(metadata, Gender = recode(.x=Gender, "f"="female", "m"="male"))
 
 metadata <- rename_all(.tbl=metadata, .funs=tolower)
 metadata <- rename(.data=metadata,
@@ -766,4 +784,4 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
 ggsave("ordination.pdf")
 ```
 
-<img src="assets/images/02_data_frames//unnamed-chunk-20-1.png" title="plot of chunk unnamed-chunk-20" alt="plot of chunk unnamed-chunk-20" width="504" />
+<img src="assets/images/02_data_frames//unnamed-chunk-22-1.png" title="plot of chunk unnamed-chunk-22" alt="plot of chunk unnamed-chunk-22" width="504" />

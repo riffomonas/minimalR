@@ -176,24 +176,21 @@ sessionInfo()
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] forcats_0.4.0   stringr_1.4.0   dplyr_0.8.3     purrr_0.3.2    
-##  [5] readr_1.3.1     tidyr_0.8.3     tibble_2.1.3    ggplot2_3.2.1  
-##  [9] tidyverse_1.2.1 knitr_1.24      ezknitr_0.6    
+##  [1] forcats_0.4.0   stringr_1.4.0   dplyr_0.8.3     purrr_0.3.3    
+##  [5] readr_1.3.1     tidyr_1.0.0     tibble_2.1.3    ggplot2_3.2.1  
+##  [9] tidyverse_1.2.1 knitr_1.26      ezknitr_0.6    
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_1.0.2        cellranger_1.1.0  pillar_1.4.2     
-##  [4] compiler_3.6.1    R.methodsS3_1.7.1 R.utils_2.9.0    
-##  [7] tools_3.6.1       zeallot_0.1.0     lubridate_1.7.4  
-## [10] jsonlite_1.6      evaluate_0.14     nlme_3.1-140     
-## [13] gtable_0.3.0      lattice_0.20-38   pkgconfig_2.0.2  
-## [16] rlang_0.4.0       cli_1.1.0         rstudioapi_0.10  
-## [19] haven_2.1.1       xfun_0.9          withr_2.1.2      
-## [22] xml2_1.2.2        httr_1.4.1        vctrs_0.2.0      
-## [25] generics_0.0.2    hms_0.5.1         grid_3.6.1       
-## [28] tidyselect_0.2.5  glue_1.3.1        R6_2.4.0         
-## [31] readxl_1.3.1      modelr_0.1.5      magrittr_1.5     
-## [34] backports_1.1.4   scales_1.0.0      rvest_0.3.4      
-## [37] assertthat_0.2.1  colorspace_1.4-1  stringi_1.4.3    
-## [40] lazyeval_0.2.2    munsell_0.5.0     broom_0.5.2      
-## [43] crayon_1.3.4      R.oo_1.22.0
+##  [1] Rcpp_1.0.3        cellranger_1.1.0  pillar_1.4.2      compiler_3.6.1   
+##  [5] R.methodsS3_1.7.1 R.utils_2.9.0     tools_3.6.1       zeallot_0.1.0    
+##  [9] lubridate_1.7.4   jsonlite_1.6      evaluate_0.14     lifecycle_0.1.0  
+## [13] nlme_3.1-141      gtable_0.3.0      lattice_0.20-38   pkgconfig_2.0.3  
+## [17] rlang_0.4.1       cli_1.1.0         rstudioapi_0.10   haven_2.1.1      
+## [21] xfun_0.11         withr_2.1.2       xml2_1.2.2        httr_1.4.1       
+## [25] hms_0.5.1         generics_0.0.2    vctrs_0.2.0       grid_3.6.1       
+## [29] tidyselect_0.2.5  glue_1.3.1        R6_2.4.0          readxl_1.3.1     
+## [33] modelr_0.1.5      magrittr_1.5      backports_1.1.5   scales_1.0.0     
+## [37] rvest_0.3.4       assertthat_0.2.1  colorspace_1.4-1  stringi_1.4.3    
+## [41] lazyeval_0.2.2    munsell_0.5.0     broom_0.5.2       crayon_1.3.4     
+## [45] R.oo_1.22.0
 ```

@@ -34,12 +34,11 @@ metadata <- read_excel(path="raw_data/baxter.metadata.xlsx",
 				Height = "numeric", Weight = "numeric", NSAID = "logical", Diabetes_Med = "logical",
 				stage = "text")
 	)
-metadata[["Height"]] <- na_if(metadata[["Height"]], 0)
-metadata[["Weight"]] <- na_if(metadata[["Weight"]], 0)
-metadata[["Site"]] <- recode(.x=metadata[["Site"]], "U of Michigan"="U Michigan")
-metadata[["Dx_Bin"]] <- recode(.x=metadata[["Dx_Bin"]], "Cancer."="Cancer")
-metadata[["Gender"]] <- recode(.x=metadata[["Gender"]], "m"="male")
-metadata[["Gender"]] <- recode(.x=metadata[["Gender"]], "f"="female")
+metadata <- mutate(metadata, na_if(Height, 0))
+metadata <- mutate(metadata, na_if(Weight, 0))
+metadata <- mutate(metadata, Site = recode(.x=Site, "U of Michigan"="U Michigan"))
+metadata <- mutate(metadata, Dx_Bin = recode(.x=Dx_Bin, "Cancer."="Cancer"))
+metadata <- mutate(metadata, Gender = recode(.x=Gender, "f"="female", "m"="male"))
 
 metadata <- rename_all(.tbl=metadata, .funs=tolower)
 metadata <- rename(.data=metadata,
@@ -66,7 +65,7 @@ group_by(meta_alpha, diagnosis)
 ```
 
 ```
-## # A tibble: 490 x 21
+## # A tibble: 490 x 23
 ## # Groups:   diagnosis [3]
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
@@ -80,11 +79,11 @@ group_by(meta_alpha, diagnosis)
 ##  8 20196…         19 U Mi… Normal        normal    FALSE           
 ##  9 20236…          0 Dana… High Risk No… normal    TRUE            
 ## 10 20256…       1509 U Mi… Cancer        cancer    TRUE            
-## # … with 480 more rows, and 15 more variables: history_of_polyps <lgl>,
+## # … with 480 more rows, and 17 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>, sobs <dbl>, shannon <dbl>,
-## #   invsimpson <dbl>, coverage <dbl>
+## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
+## #   0)` <dbl>, sobs <dbl>, shannon <dbl>, invsimpson <dbl>, coverage <dbl>
 ```
 
 You should notice that above the column headings it says `Groups:  diagnosis[3]`. This indicates that we now have three groups in our data. We can actually write this two different ways and get the same result. The second way and the way that I prefer is
@@ -96,7 +95,7 @@ meta_alpha %>%
 ```
 
 ```
-## # A tibble: 490 x 21
+## # A tibble: 490 x 23
 ## # Groups:   diagnosis [3]
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
@@ -110,11 +109,11 @@ meta_alpha %>%
 ##  8 20196…         19 U Mi… Normal        normal    FALSE           
 ##  9 20236…          0 Dana… High Risk No… normal    TRUE            
 ## 10 20256…       1509 U Mi… Cancer        cancer    TRUE            
-## # … with 480 more rows, and 15 more variables: history_of_polyps <lgl>,
+## # … with 480 more rows, and 17 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>, sobs <dbl>, shannon <dbl>,
-## #   invsimpson <dbl>, coverage <dbl>
+## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
+## #   0)` <dbl>, sobs <dbl>, shannon <dbl>, invsimpson <dbl>, coverage <dbl>
 ```
 
 I prefer this second approach because it breaks up the commands a bit more and makes it more clear that the source of the data is the `meta_alpha` data frame. Again, the result is the same. If I had a huge data frame and didn't want to pipe every column through the pipeline, I could easily add a select line before the `group_by` line.
@@ -500,7 +499,7 @@ meta_alpha %>%
 
 
 ## Creating new columns
-Let's say we want to compare the diversity of people in the different diagnosis groups that have high and low fit results. Recall that the "fit result" column contains continuous values. Clinically, people with fit results over 100 will be referred for a colonoscopy. To get started, we'd like first create a new column that indicates whether someone has a low or high fit result. To achieve this we will make use of the `mutate` function in the `dplyr` package
+Let's say we want to compare the diversity of people in the different diagnosis groups that have high and low fit results. Recall that the "fit result" column contains continuous values. Clinically, people with fit results over 100 will be referred for a colonoscopy. To get started, we'd like first create a new column that indicates whether someone has a low or high fit result. To achieve this we will make use of the `mutate` function in the `dplyr` package. You'll recall we used this function to help us clean up our metadata.
 
 
 ```r
@@ -509,7 +508,7 @@ meta_alpha %>%
 ```
 
 ```
-## # A tibble: 490 x 22
+## # A tibble: 490 x 24
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
@@ -522,11 +521,12 @@ meta_alpha %>%
 ##  8 20196…         19 U Mi… Normal        normal    FALSE           
 ##  9 20236…          0 Dana… High Risk No… normal    TRUE            
 ## 10 20256…       1509 U Mi… Cancer        cancer    TRUE            
-## # … with 480 more rows, and 16 more variables: history_of_polyps <lgl>,
+## # … with 480 more rows, and 18 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>, sobs <dbl>, shannon <dbl>,
-## #   invsimpson <dbl>, coverage <dbl>, high_fit <lgl>
+## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
+## #   0)` <dbl>, sobs <dbl>, shannon <dbl>, invsimpson <dbl>, coverage <dbl>,
+## #   high_fit <lgl>
 ```
 
 Nice! Instead of getting back a boolean, I'd rather have it output as "high fit" or "low fit". We can get this using the `if_else` function from the `dplyr` package. This function asks a logical question (e.g. `fit_result>=100`) and if it is true then will return the second argument and if it is false, will return the third argument. We might do something like `if_else(fit_result>=100, "high fit", "low fit")`
@@ -538,7 +538,7 @@ meta_alpha %>%
 ```
 
 ```
-## # A tibble: 490 x 22
+## # A tibble: 490 x 24
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
@@ -551,11 +551,12 @@ meta_alpha %>%
 ##  8 20196…         19 U Mi… Normal        normal    FALSE           
 ##  9 20236…          0 Dana… High Risk No… normal    TRUE            
 ## 10 20256…       1509 U Mi… Cancer        cancer    TRUE            
-## # … with 480 more rows, and 16 more variables: history_of_polyps <lgl>,
+## # … with 480 more rows, and 18 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>, sobs <dbl>, shannon <dbl>,
-## #   invsimpson <dbl>, coverage <dbl>, fit_category <chr>
+## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
+## #   0)` <dbl>, sobs <dbl>, shannon <dbl>, invsimpson <dbl>, coverage <dbl>,
+## #   fit_category <chr>
 ```
 
 If you have more than two cases (e.g. TRUE and FALSE) then you might want to use the `case_when` function from the `dplyr` package. We might define three levels of fit categories. The `case_when` function takes on a different syntax. The arguements to `case_when` consist of a logical comparison followed by a `~`, followed by what to do if the logical comparison is true. The arguments are tested in order, so the ordering matters. It's also good to add one argument where the logical comparison is `TRUE` so that there is a default value if something goes wrong.
@@ -632,9 +633,9 @@ meta_alpha %>%
 ## # A tibble: 3 x 4
 ##   smoke_status median_age IQR_age     N
 ##   <chr>             <dbl>   <dbl> <int>
-## 1 <NA>               60.5     6.5     6
-## 2 non-smoker         58      16     262
-## 3 smoker             62      17     222
+## 1 non-smoker         58      16     262
+## 2 smoker             62      17     222
+## 3 <NA>               60.5     6.5     6
 ```
 </div>
 
@@ -748,6 +749,7 @@ get_bmi_category <- function(weight_kg, height_cm){
 	bmi_cat <- case_when(bmi >= 30 ~ "obese",
 			bmi >= 25 ~ "overweight",
  			bmi >= 18.5 ~ "normal",
+			is.na(bmi) ~ NA_character_,
 			TRUE ~ "underweight")
 
 	return(bmi_cat)
@@ -761,17 +763,18 @@ Then I could do...
 meta_alpha %>%
 	mutate(bmi_category = get_bmi_category(weight_kg = weight, height_cm = height)) %>%
 	group_by(bmi_category) %>%
-	summarize(mean_age = mean(age, na.rm=T), sd_age = sd(age, na.rm=T))
+	summarize(mean_age = mean(age, na.rm=T), sd_age = sd(age, na.rm=T), N=n())
 ```
 
 ```
-## # A tibble: 4 x 3
-##   bmi_category mean_age sd_age
-##   <chr>           <dbl>  <dbl>
-## 1 normal           59.6   13.4
-## 2 obese            58.8   11.9
-## 3 overweight       62.1   11.0
-## 4 underweight      54.5   12.2
+## # A tibble: 5 x 4
+##   bmi_category mean_age sd_age     N
+##   <chr>           <dbl>  <dbl> <int>
+## 1 normal           59.6   13.4   163
+## 2 obese            58.8   11.9   120
+## 3 overweight       62.1   11.0   196
+## 4 underweight      52.4   10.1     9
+## 5 <NA>             64     21.2     2
 ```
 
 
@@ -798,11 +801,12 @@ meta_alpha %>%
 ```
 
 ```
-## # A tibble: 2 x 4
+## # A tibble: 3 x 4
 ##   obese mean_shannon sd_shannon     N
 ##   <lgl>        <dbl>      <dbl> <int>
-## 1 FALSE         3.60      0.445   370
-## 2 TRUE          3.45      0.473   120
+## 1 FALSE         3.60    0.445     368
+## 2 TRUE          3.45    0.473     120
+## 3 NA            3.15    0.00978     2
 ```
 </div>
 

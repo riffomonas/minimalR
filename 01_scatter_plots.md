@@ -766,14 +766,14 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 
 
 ```
-##  [1] "BottleRocket1"  "BottleRocket2"  "Rushmore1"      "Rushmore"      
-##  [5] "Royal1"         "Royal2"         "Zissou1"        "Darjeeling1"   
-##  [9] "Darjeeling2"    "Chevalier1"     "FantasticFox1"  "Moonrise1"     
-## [13] "Moonrise2"      "Moonrise3"      "Cavalcanti1"    "GrandBudapest1"
-## [17] "GrandBudapest2" "IsleofDogs1"    "IsleofDogs2"
+## Error in library("wesanderson"): there is no package called 'wesanderson'
 ```
 
 ```
-## Error in wes_palette(name = "Darjeeling", n = 3): Palette not found.
+## Error in eval(expr, envir, enclos): object 'wes_palettes' not found
+```
+
+```
+## Error in wes_palette(name = "Darjeeling", n = 3): could not find function "wes_palette"
 ```
 </div>

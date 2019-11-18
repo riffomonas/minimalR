@@ -450,7 +450,7 @@ cor.test(meta_alpha[["shannon"]], meta_alpha[["bmi"]], method="spearman")
 ## 	Spearman's rank correlation rho
 ## 
 ## data:  meta_alpha[["shannon"]] and meta_alpha[["bmi"]]
-## S = 21505000, p-value = 0.01477
+## S = 21505495, p-value = 0.01477
 ## alternative hypothesis: true rho is not equal to 0
 ## sample estimates:
 ##        rho 
@@ -466,7 +466,7 @@ cor.test(meta_alpha[["fit_result"]], meta_alpha[["age"]], method="spearman")
 ## 	Spearman's rank correlation rho
 ## 
 ## data:  meta_alpha[["fit_result"]] and meta_alpha[["age"]]
-## S = 17398000, p-value = 0.01254
+## S = 17398058, p-value = 0.01254
 ## alternative hypothesis: true rho is not equal to 0
 ## sample estimates:
 ##     rho 
@@ -482,7 +482,7 @@ cor.test(meta_alpha[["fit_result"]], meta_alpha[["shannon"]], method="spearman")
 ## 	Spearman's rank correlation rho
 ## 
 ## data:  meta_alpha[["fit_result"]] and meta_alpha[["shannon"]]
-## S = 21405000, p-value = 0.04265
+## S = 21404548, p-value = 0.04265
 ## alternative hypothesis: true rho is not equal to 0
 ## sample estimates:
 ##         rho 

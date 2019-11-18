@@ -244,6 +244,49 @@ semi_join(b, a, by="sample")
 ## 2 B      FALSE
 ```
 
+One last thing to comment on is that our simple examples of joining `a` and `b` have been using `by="sample"` in all of the examples. If you look at the syntax of the command we used when building our ordination plot, the syntax was `by=c('sample'='group')`. This is because `sample` is a column shared by both `a` and `b`, while `sample` and `group` are columns that contain the same information (i.e. the subject's id number). Let's illustrate this with a new data frame, `c`, which has a column `group` instead of `sample`:
+
+
+```r
+c <- tibble(group=c("A", "B", "D"), previous_history=c(T, F, T))
+c
+```
+
+```
+## # A tibble: 3 x 2
+##   group previous_history
+##   <chr> <lgl>           
+## 1 A     TRUE            
+## 2 B     FALSE           
+## 3 D     TRUE
+```
+
+If we do our `inner_join` as before, we'll get an error...
+
+
+```r
+inner_join(a, c, by="sample")
+```
+
+```
+## Error: `by` can't contain join column `sample` which is missing from RHS
+```
+
+See that? It tells us that "column `sample` which is missing from RHS (right hand side)". To resolve this, we need to use the syntax we saw earlier. We can replace `by="sample"` with `by=c('sample'='group')`. This effectively tells `inner_join` to join the two data frames using the `sample` column from data frame `a` and the `group` column from data frame `b`.
+
+
+```r
+inner_join(a, c, by=c('sample'='group'))
+```
+
+```
+## # A tibble: 2 x 3
+##   sample diagnosis previous_history
+##   <chr>  <chr>     <lgl>           
+## 1 A      normal    TRUE            
+## 2 B      cancer    FALSE
+```
+
 
 ## Selecting columns from our data frames
 Looking at the ordination data that is in our `pcoa` data frame, we see that there were a few hundred columns. When this is joined to the `metadata` data frame we get a very wide and obnoxiously large data frame. We really only need the first four columns of the `pcoa` data frame (i.e. "group", "axis1", "axis2", and "axis3"). We can do this with the `select` function from the `dplyr` package.
@@ -291,28 +334,27 @@ select(pcoa, -axis1)
 ##  8 2019… -0.0903  0.0112 -0.0738   0.0538   0.159   -0.209   0.198   0.172 
 ##  9 2023…  0.122  -0.144  -0.117    0.114    0.0295   0.231   0.0778 -0.0352
 ## 10 2025…  0.0280  0.0304  0.113    0.0410   0.0774   0.161  -0.0367 -0.182 
-## # … with 480 more rows, and 481 more variables: axis10 <dbl>,
-## #   axis11 <dbl>, axis12 <dbl>, axis13 <dbl>, axis14 <dbl>, axis15 <dbl>,
-## #   axis16 <dbl>, axis17 <dbl>, axis18 <dbl>, axis19 <dbl>, axis20 <dbl>,
-## #   axis21 <dbl>, axis22 <dbl>, axis23 <dbl>, axis24 <dbl>, axis25 <dbl>,
-## #   axis26 <dbl>, axis27 <dbl>, axis28 <dbl>, axis29 <dbl>, axis30 <dbl>,
-## #   axis31 <dbl>, axis32 <dbl>, axis33 <dbl>, axis34 <dbl>, axis35 <dbl>,
-## #   axis36 <dbl>, axis37 <dbl>, axis38 <dbl>, axis39 <dbl>, axis40 <dbl>,
-## #   axis41 <dbl>, axis42 <dbl>, axis43 <dbl>, axis44 <dbl>, axis45 <dbl>,
-## #   axis46 <dbl>, axis47 <dbl>, axis48 <dbl>, axis49 <dbl>, axis50 <dbl>,
-## #   axis51 <dbl>, axis52 <dbl>, axis53 <dbl>, axis54 <dbl>, axis55 <dbl>,
-## #   axis56 <dbl>, axis57 <dbl>, axis58 <dbl>, axis59 <dbl>, axis60 <dbl>,
-## #   axis61 <dbl>, axis62 <dbl>, axis63 <dbl>, axis64 <dbl>, axis65 <dbl>,
-## #   axis66 <dbl>, axis67 <dbl>, axis68 <dbl>, axis69 <dbl>, axis70 <dbl>,
-## #   axis71 <dbl>, axis72 <dbl>, axis73 <dbl>, axis74 <dbl>, axis75 <dbl>,
-## #   axis76 <dbl>, axis77 <dbl>, axis78 <dbl>, axis79 <dbl>, axis80 <dbl>,
-## #   axis81 <dbl>, axis82 <dbl>, axis83 <dbl>, axis84 <dbl>, axis85 <dbl>,
-## #   axis86 <dbl>, axis87 <dbl>, axis88 <dbl>, axis89 <dbl>, axis90 <dbl>,
-## #   axis91 <dbl>, axis92 <dbl>, axis93 <dbl>, axis94 <dbl>, axis95 <dbl>,
-## #   axis96 <dbl>, axis97 <dbl>, axis98 <dbl>, axis99 <dbl>, axis100 <dbl>,
-## #   axis101 <dbl>, axis102 <dbl>, axis103 <dbl>, axis104 <dbl>,
-## #   axis105 <dbl>, axis106 <dbl>, axis107 <dbl>, axis108 <dbl>,
-## #   axis109 <dbl>, …
+## # … with 480 more rows, and 481 more variables: axis10 <dbl>, axis11 <dbl>,
+## #   axis12 <dbl>, axis13 <dbl>, axis14 <dbl>, axis15 <dbl>, axis16 <dbl>,
+## #   axis17 <dbl>, axis18 <dbl>, axis19 <dbl>, axis20 <dbl>, axis21 <dbl>,
+## #   axis22 <dbl>, axis23 <dbl>, axis24 <dbl>, axis25 <dbl>, axis26 <dbl>,
+## #   axis27 <dbl>, axis28 <dbl>, axis29 <dbl>, axis30 <dbl>, axis31 <dbl>,
+## #   axis32 <dbl>, axis33 <dbl>, axis34 <dbl>, axis35 <dbl>, axis36 <dbl>,
+## #   axis37 <dbl>, axis38 <dbl>, axis39 <dbl>, axis40 <dbl>, axis41 <dbl>,
+## #   axis42 <dbl>, axis43 <dbl>, axis44 <dbl>, axis45 <dbl>, axis46 <dbl>,
+## #   axis47 <dbl>, axis48 <dbl>, axis49 <dbl>, axis50 <dbl>, axis51 <dbl>,
+## #   axis52 <dbl>, axis53 <dbl>, axis54 <dbl>, axis55 <dbl>, axis56 <dbl>,
+## #   axis57 <dbl>, axis58 <dbl>, axis59 <dbl>, axis60 <dbl>, axis61 <dbl>,
+## #   axis62 <dbl>, axis63 <dbl>, axis64 <dbl>, axis65 <dbl>, axis66 <dbl>,
+## #   axis67 <dbl>, axis68 <dbl>, axis69 <dbl>, axis70 <dbl>, axis71 <dbl>,
+## #   axis72 <dbl>, axis73 <dbl>, axis74 <dbl>, axis75 <dbl>, axis76 <dbl>,
+## #   axis77 <dbl>, axis78 <dbl>, axis79 <dbl>, axis80 <dbl>, axis81 <dbl>,
+## #   axis82 <dbl>, axis83 <dbl>, axis84 <dbl>, axis85 <dbl>, axis86 <dbl>,
+## #   axis87 <dbl>, axis88 <dbl>, axis89 <dbl>, axis90 <dbl>, axis91 <dbl>,
+## #   axis92 <dbl>, axis93 <dbl>, axis94 <dbl>, axis95 <dbl>, axis96 <dbl>,
+## #   axis97 <dbl>, axis98 <dbl>, axis99 <dbl>, axis100 <dbl>, axis101 <dbl>,
+## #   axis102 <dbl>, axis103 <dbl>, axis104 <dbl>, axis105 <dbl>, axis106 <dbl>,
+## #   axis107 <dbl>, axis108 <dbl>, axis109 <dbl>, …
 ```
 
 The result is that the "axis1" column has been removed. If we consider our `metadata` data frame, we could also select the sample column any column that starts with "diagnosis"
@@ -376,7 +418,7 @@ filter(metadata, site=="U Michigan")
 ```
 
 ```
-## # A tibble: 107 x 17
+## # A tibble: 107 x 19
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
@@ -389,35 +431,14 @@ filter(metadata, site=="U Michigan")
 ##  8 20416…          0 U Mi… Adenoma       adenoma   FALSE           
 ##  9 20456…          0 U Mi… Normal        normal    FALSE           
 ## 10 20576…          0 U Mi… High Risk No… normal    FALSE           
-## # … with 97 more rows, and 11 more variables: history_of_polyps <lgl>,
+## # … with 97 more rows, and 13 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>
+## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
+## #   0)` <dbl>
 ```
 
-The resulting data frame has 107 samples. If we put this together with our previous code we can build the ordination...
-
-
-```r
-um_metadata <- filter(metadata, site=="U Michigan")
-um_metadata_pcoa <- inner_join(um_metadata, pcoa, by=c('sample'='group'))
-
-ggplot(um_metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
-	geom_point(shape=19, size=2) +
-	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
-		breaks=c("normal", "adenoma", "cancer"),
-		labels=c("Normal", "Adenoma", "Cancer")) +
-	coord_fixed() +
-	labs(title="PCoA of ThetaYC Distances Between Stool Samples\nCollected at the University of Michigan",
-		x="PCo Axis 1",
-		y="PCo Axis 2") +
-	theme_classic()
-```
-
-<img src="assets/images/03_combining_data_frames//unnamed-chunk-16-1.png" title="plot of chunk unnamed-chunk-16" alt="plot of chunk unnamed-chunk-16" width="504" />
-
-Returning to the syntax of `filter` you saw that I used `site=="U Michigan"`. This tells `filter` to identify those rows where the "site" column had a value equal to "U Michigan". The `==` is a logical comparison that asks whether the value on either side of the `==` are the same. The answer is either `TRUE` or `FALSE`. There are other logical operators that you should already be familiar with (but perhaps didn't know!) including `<`, `<=`, `>`, `>=`. These should be self explanatory. For example, if we want ever subject that has a `fit_result` greater than or equal to 100 we would write
+The resulting data frame has 107 samples. You'll notice that I used `site=="U Michigan"`. This tells `filter` to identify those rows where the "site" column had a value equal to "U Michigan". The `==` is a logical comparison that asks whether the value on either side of the `==` are the same. The answer is either `TRUE` or `FALSE`. There are other logical operators that you should already be familiar with (but perhaps didn't know!) including `<`, `<=`, `>`, `>=`. These should be self explanatory. For example, if we want ever subject that has a `fit_result` greater than or equal to 100 we would write
 
 
 ```r
@@ -425,7 +446,7 @@ filter(metadata, fit_result >= 100)
 ```
 
 ```
-## # A tibble: 126 x 17
+## # A tibble: 126 x 19
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ##  1 20256…       1509 U Mi… Cancer        cancer    TRUE            
@@ -438,10 +459,11 @@ filter(metadata, fit_result >= 100)
 ##  8 22676…        149 Dana… Cancer        cancer    TRUE            
 ##  9 22836…       1346 Toro… Cancer        cancer    FALSE           
 ## 10 22876…        939 Dana… Cancer        cancer    TRUE            
-## # … with 116 more rows, and 11 more variables: history_of_polyps <lgl>,
+## # … with 116 more rows, and 13 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>
+## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
+## #   0)` <dbl>
 ```
 
 Some of our columns are already logical. To get those individuals with a previous history of colorectal cancer we could do
@@ -452,7 +474,7 @@ filter(metadata, previous_history)
 ```
 
 ```
-## # A tibble: 138 x 17
+## # A tibble: 138 x 19
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ##  1 20176…          7 Dana… Cancer        cancer    TRUE            
@@ -465,10 +487,11 @@ filter(metadata, previous_history)
 ##  8 20876…          5 Dana… High Risk No… normal    TRUE            
 ##  9 20936…        286 Dana… Normal        normal    TRUE            
 ## 10 21096…          0 Dana… Normal        normal    TRUE            
-## # … with 128 more rows, and 11 more variables: history_of_polyps <lgl>,
+## # … with 128 more rows, and 13 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>
+## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
+## #   0)` <dbl>
 ```
 
 If we want those samples from people ***without*** a previous history we can use the `!` operator which turns `TRUE` to `FALSE` and `FALSE` to `TRUE`
@@ -479,7 +502,7 @@ filter(metadata, !previous_history)
 ```
 
 ```
-## # A tibble: 349 x 17
+## # A tibble: 349 x 19
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
@@ -492,10 +515,11 @@ filter(metadata, !previous_history)
 ##  8 20276…          0 Toro… Normal        normal    FALSE           
 ##  9 20296…          0 U Mi… Adenoma       adenoma   FALSE           
 ## 10 20316…          0 Toro… Adenoma       adenoma   FALSE           
-## # … with 339 more rows, and 11 more variables: history_of_polyps <lgl>,
+## # … with 339 more rows, and 13 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>
+## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
+## #   0)` <dbl>
 ```
 
 The `!` can also be used as `!=` to test whether two values are different from each other. We could use this to get the samples from people that do not have a normal diagnosis
@@ -506,7 +530,7 @@ filter(metadata, diagnosis != 'normal')
 ```
 
 ```
-## # A tibble: 318 x 17
+## # A tibble: 318 x 19
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ##  1 20096…         10 Toro… Adenoma       adenoma   FALSE           
@@ -519,11 +543,13 @@ filter(metadata, diagnosis != 'normal')
 ##  8 20416…          0 U Mi… Adenoma       adenoma   FALSE           
 ##  9 20496…          0 Dana… Adenoma       adenoma   FALSE           
 ## 10 20516…          0 Dana… Adenoma       adenoma   TRUE            
-## # … with 308 more rows, and 11 more variables: history_of_polyps <lgl>,
+## # … with 308 more rows, and 13 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>
+## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
+## #   0)` <dbl>
 ```
+
 
 ---
 
@@ -544,7 +570,7 @@ filter(metadata, diagnosis=="cancer")
 ```
 
 ```
-## # A tibble: 120 x 17
+## # A tibble: 120 x 19
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ##  1 20176…          7 Dana… Cancer        cancer    TRUE            
@@ -557,10 +583,11 @@ filter(metadata, diagnosis=="cancer")
 ##  8 22836…       1346 Toro… Cancer        cancer    FALSE           
 ##  9 22856…          0 U Mi… Cancer        cancer    FALSE           
 ## 10 22876…        939 Dana… Cancer        cancer    TRUE            
-## # … with 110 more rows, and 11 more variables: history_of_polyps <lgl>,
+## # … with 110 more rows, and 13 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>
+## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
+## #   0)` <dbl>
 ```
 </div>
 
@@ -577,7 +604,7 @@ filter(metadata, sex=="female")
 ```
 
 ```
-## # A tibble: 243 x 17
+## # A tibble: 243 x 19
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ##  1 20076…         26 U Mi… High Risk No… normal    FALSE           
@@ -590,10 +617,11 @@ filter(metadata, sex=="female")
 ##  8 20376…         72 Toro… Cancer        cancer    FALSE           
 ##  9 20396…          0 Toro… Normal        normal    FALSE           
 ## 10 20456…          0 U Mi… Normal        normal    FALSE           
-## # … with 233 more rows, and 11 more variables: history_of_polyps <lgl>,
+## # … with 233 more rows, and 13 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>
+## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
+## #   0)` <dbl>
 ```
 </div>
 
@@ -610,7 +638,7 @@ filter(metadata, age <= 50)
 ```
 
 ```
-## # A tibble: 96 x 17
+## # A tibble: 96 x 19
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ##  1 20076…         26 U Mi… High Risk No… normal    FALSE           
@@ -623,11 +651,42 @@ filter(metadata, age <= 50)
 ##  8 20856…          7 Dana… Normal        normal    FALSE           
 ##  9 20876…          5 Dana… High Risk No… normal    TRUE            
 ## 10 20936…        286 Dana… Normal        normal    TRUE            
-## # … with 86 more rows, and 11 more variables: history_of_polyps <lgl>,
+## # … with 86 more rows, and 13 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>
+## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
+## #   0)` <dbl>
 ```
+</div>
+
+---
+
+### Activity 6
+
+Use the filter command to generate an ordination of samples from the University of Michigan.
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+
+
+```r
+um_metadata <- filter(metadata, site=="U Michigan")
+um_metadata_pcoa <- inner_join(um_metadata, pcoa, by=c('sample'='group'))
+
+ggplot(um_metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
+	geom_point(shape=19, size=2) +
+	scale_color_manual(name=NULL,
+		values=c("blue", "red", "black"),
+		breaks=c("normal", "adenoma", "cancer"),
+		labels=c("Normal", "Adenoma", "Cancer")) +
+	coord_fixed() +
+	labs(title="PCoA of ThetaYC Distances Between Stool Samples\nCollected at the University of Michigan",
+		x="PCo Axis 1",
+		y="PCo Axis 2") +
+	theme_classic()
+```
+
+<img src="assets/images/03_combining_data_frames//unnamed-chunk-26-1.png" title="plot of chunk unnamed-chunk-26" alt="plot of chunk unnamed-chunk-26" width="504" />
 </div>
 
 ---
@@ -640,7 +699,7 @@ filter(metadata, fit_result >= 100 & diagnosis == "normal")
 ```
 
 ```
-## # A tibble: 5 x 17
+## # A tibble: 5 x 19
 ##   sample fit_result site  diagnosis_bin diagnosis previous_history
 ##   <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ## 1 20936…        286 Dana… Normal        normal    TRUE            
@@ -648,10 +707,10 @@ filter(metadata, fit_result >= 100 & diagnosis == "normal")
 ## 3 23216…        148 Dana… Normal        normal    FALSE           
 ## 4 30996…        356 Dana… High Risk No… normal    TRUE            
 ## 5 31376…        118 U Mi… Normal        normal    FALSE           
-## # … with 11 more variables: history_of_polyps <lgl>, age <dbl>, sex <chr>,
-## #   smoke <lgl>, diabetic <lgl>, family_history_of_crc <lgl>,
-## #   height <dbl>, weight <dbl>, nsaid <lgl>, diabetes_med <lgl>,
-## #   stage <chr>
+## # … with 13 more variables: history_of_polyps <lgl>, age <dbl>, sex <chr>,
+## #   smoke <lgl>, diabetic <lgl>, family_history_of_crc <lgl>, height <dbl>,
+## #   weight <dbl>, nsaid <lgl>, diabetes_med <lgl>, stage <chr>, `na_if(height,
+## #   0)` <dbl>, `na_if(weight, 0)` <dbl>
 ```
 
 If we want samples from people with a high fit result or a cancer diagnosis we can use a similar approach, except that instead of using `&` we would use `|`
@@ -662,7 +721,7 @@ filter(metadata, fit_result >= 100 | diagnosis == "cancer")
 ```
 
 ```
-## # A tibble: 156 x 17
+## # A tibble: 156 x 19
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ##  1 20176…          7 Dana… Cancer        cancer    TRUE            
@@ -675,15 +734,16 @@ filter(metadata, fit_result >= 100 | diagnosis == "cancer")
 ##  8 22036…       1992 U Mi… Cancer        cancer    TRUE            
 ##  9 22556…        140 Dana… Cancer        cancer    TRUE            
 ## 10 22676…        149 Dana… Cancer        cancer    TRUE            
-## # … with 146 more rows, and 11 more variables: history_of_polyps <lgl>,
+## # … with 146 more rows, and 13 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>
+## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
+## #   0)` <dbl>
 ```
 
 ---
 
-### Activity 6
+### Activity 7
 Create a data frame that contains samples from individuals who are 50 years old and younger and have a non-normal diagnosis
 
 <input type="button" class="hideshow">
@@ -694,7 +754,7 @@ filter(metadata, age <= 50 & diagnosis != "normal")
 ```
 
 ```
-## # A tibble: 46 x 17
+## # A tibble: 46 x 19
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ##  1 22036…       1992 U Mi… Cancer        cancer    TRUE            
@@ -707,16 +767,17 @@ filter(metadata, age <= 50 & diagnosis != "normal")
 ##  8 25236…        392 MD A… Cancer        cancer    TRUE            
 ##  9 25456…        301 Dana… Adv Adenoma   adenoma   FALSE           
 ## 10 25556…          0 Toro… Adv Adenoma   adenoma   FALSE           
-## # … with 36 more rows, and 11 more variables: history_of_polyps <lgl>,
+## # … with 36 more rows, and 13 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>
+## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
+## #   0)` <dbl>
 ```
 </div>
 
 ---
 
-### Activity 7
+### Activity 8
 Create a data frame that contains samples from individuals who have a previous or family history of colorectal cancer
 
 <input type="button" class="hideshow">
@@ -727,7 +788,7 @@ filter(metadata, previous_history | family_history_of_crc)
 ```
 
 ```
-## # A tibble: 199 x 17
+## # A tibble: 199 x 19
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
@@ -740,10 +801,11 @@ filter(metadata, previous_history | family_history_of_crc)
 ##  8 20416…          0 U Mi… Adenoma       adenoma   FALSE           
 ##  9 20436…          5 Toro… High Risk No… normal    FALSE           
 ## 10 20456…          0 U Mi… Normal        normal    FALSE           
-## # … with 189 more rows, and 11 more variables: history_of_polyps <lgl>,
+## # … with 189 more rows, and 13 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>
+## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
+## #   0)` <dbl>
 ```
 </div>
 
@@ -755,7 +817,7 @@ Let's leverage the `select` and `filter` commands we have been using to work wit
 
 ---
 
-### Activity 8
+### Activity 9
 This file has a number of columns that aren't that interesting for us. You will also find that the `method` column has two values - ave and std - which indicate the average value of the alpha diversity metric after rarefying and the standard deviation (i.e. std), which is the standard deviation for the rarefaction replicates. You have several tasks...
 
 * Write the code needed to read in the file to a new data frame called `alpha`. Make sure that the group column is read in as characters
@@ -815,7 +877,7 @@ meta_alpha
 ```
 
 ```
-## # A tibble: 490 x 21
+## # A tibble: 490 x 23
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
@@ -828,11 +890,11 @@ meta_alpha
 ##  8 20196…         19 U Mi… Normal        normal    FALSE           
 ##  9 20236…          0 Dana… High Risk No… normal    TRUE            
 ## 10 20256…       1509 U Mi… Cancer        cancer    TRUE            
-## # … with 480 more rows, and 15 more variables: history_of_polyps <lgl>,
+## # … with 480 more rows, and 17 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>, sobs <dbl>, shannon <dbl>,
-## #   invsimpson <dbl>, coverage <dbl>
+## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
+## #   0)` <dbl>, sobs <dbl>, shannon <dbl>, invsimpson <dbl>, coverage <dbl>
 ```
 
 But wait... there's more!
@@ -856,14 +918,14 @@ read_tsv(file="raw_data/baxter.groups.ave-std.summary", col_types=cols(group = c
 		theme_classic()
 ```
 
-<img src="assets/images/03_combining_data_frames//unnamed-chunk-31-1.png" title="plot of chunk unnamed-chunk-31" alt="plot of chunk unnamed-chunk-31" width="504" />
+<img src="assets/images/03_combining_data_frames//unnamed-chunk-34-1.png" title="plot of chunk unnamed-chunk-34" alt="plot of chunk unnamed-chunk-34" width="504" />
 
 We've gone all the way - reading in the data from a `tsv` file to getting the rows and columns we want to joining it with our metadata to plotting. All in one command. Pretty slick.
 
 
 ---
 
-### Activity 9
+### Activity 10
 With our new found piping skillz, rewrite the code from the end of the last tutorial to generate the ordination. Use the `metadata` data frame that we've already been working with
 
 <input type="button" class="hideshow">
@@ -885,7 +947,7 @@ read_tsv(file="raw_data/baxter.thetayc.pcoa.axes", col_types=cols(group=col_char
 		theme_classic()
 ```
 
-<img src="assets/images/03_combining_data_frames//unnamed-chunk-32-1.png" title="plot of chunk unnamed-chunk-32" alt="plot of chunk unnamed-chunk-32" width="504" />
+<img src="assets/images/03_combining_data_frames//unnamed-chunk-35-1.png" title="plot of chunk unnamed-chunk-35" alt="plot of chunk unnamed-chunk-35" width="504" />
 </div>
 
 ---

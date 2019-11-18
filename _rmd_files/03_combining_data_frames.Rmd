@@ -43,12 +43,11 @@ metadata <- read_excel(path="raw_data/baxter.metadata.xlsx",
 				Height = "numeric", Weight = "numeric", NSAID = "logical", Diabetes_Med = "logical",
 				stage = "text")
 	)
-metadata[["Height"]] <- na_if(metadata[["Height"]], 0)
-metadata[["Weight"]] <- na_if(metadata[["Weight"]], 0)
-metadata[["Site"]] <- recode(.x=metadata[["Site"]], "U of Michigan"="U Michigan")
-metadata[["Dx_Bin"]] <- recode(.x=metadata[["Dx_Bin"]], "Cancer."="Cancer")
-metadata[["Gender"]] <- recode(.x=metadata[["Gender"]], "m"="male")
-metadata[["Gender"]] <- recode(.x=metadata[["Gender"]], "f"="female")
+metadata <- mutate(metadata, na_if(Height, 0))
+metadata <- mutate(metadata, na_if(Weight, 0))
+metadata <- mutate(metadata, Site = recode(.x=Site, "U of Michigan"="U Michigan"))
+metadata <- mutate(metadata, Dx_Bin = recode(.x=Dx_Bin, "Cancer."="Cancer"))
+metadata <- mutate(metadata, Gender = recode(.x=Gender, "f"="female", "m"="male"))
 
 metadata <- rename_all(.tbl=metadata, .funs=tolower)
 metadata <- rename(.data=metadata,
@@ -157,6 +156,25 @@ semi_join(a, b, by="sample")
 semi_join(b, a, by="sample")
 ```
 
+One last thing to comment on is that our simple examples of joining `a` and `b` have been using `by="sample"` in all of the examples. If you look at the syntax of the command we used when building our ordination plot, the syntax was `by=c('sample'='group')`. This is because `sample` is a column shared by both `a` and `b`, while `sample` and `group` are columns that contain the same information (i.e. the subject's id number). Let's illustrate this with a new data frame, `c`, which has a column `group` instead of `sample`:
+
+```{r}
+c <- tibble(group=c("A", "B", "D"), previous_history=c(T, F, T))
+c
+```
+
+If we do our `inner_join` as before, we'll get an error...
+
+```{r}
+inner_join(a, c, by="sample")
+```
+
+See that? It tells us that "column `sample` which is missing from RHS (right hand side)". To resolve this, we need to use the syntax we saw earlier. We can replace `by="sample"` with `by=c('sample'='group')`. This effectively tells `inner_join` to join the two data frames using the `sample` column from data frame `a` and the `group` column from data frame `b`.
+
+```{r}
+inner_join(a, c, by=c('sample'='group'))
+```
+
 
 ## Selecting columns from our data frames
 Looking at the ordination data that is in our `pcoa` data frame, we see that there were a few hundred columns. When this is joined to the `metadata` data frame we get a very wide and obnoxiously large data frame. We really only need the first four columns of the `pcoa` data frame (i.e. "group", "axis1", "axis2", and "axis3"). We can do this with the `select` function from the `dplyr` package.
@@ -194,26 +212,7 @@ We might also want to make new data frames that contain a subset of the rows. We
 filter(metadata, site=="U Michigan")
 ```
 
-The resulting data frame has 107 samples. If we put this together with our previous code we can build the ordination...
-
-```{r}
-um_metadata <- filter(metadata, site=="U Michigan")
-um_metadata_pcoa <- inner_join(um_metadata, pcoa, by=c('sample'='group'))
-
-ggplot(um_metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
-	geom_point(shape=19, size=2) +
-	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
-		breaks=c("normal", "adenoma", "cancer"),
-		labels=c("Normal", "Adenoma", "Cancer")) +
-	coord_fixed() +
-	labs(title="PCoA of ThetaYC Distances Between Stool Samples\nCollected at the University of Michigan",
-		x="PCo Axis 1",
-		y="PCo Axis 2") +
-	theme_classic()
-```
-
-Returning to the syntax of `filter` you saw that I used `site=="U Michigan"`. This tells `filter` to identify those rows where the "site" column had a value equal to "U Michigan". The `==` is a logical comparison that asks whether the value on either side of the `==` are the same. The answer is either `TRUE` or `FALSE`. There are other logical operators that you should already be familiar with (but perhaps didn't know!) including `<`, `<=`, `>`, `>=`. These should be self explanatory. For example, if we want ever subject that has a `fit_result` greater than or equal to 100 we would write
+The resulting data frame has 107 samples. You'll notice that I used `site=="U Michigan"`. This tells `filter` to identify those rows where the "site" column had a value equal to "U Michigan". The `==` is a logical comparison that asks whether the value on either side of the `==` are the same. The answer is either `TRUE` or `FALSE`. There are other logical operators that you should already be familiar with (but perhaps didn't know!) including `<`, `<=`, `>`, `>=`. These should be self explanatory. For example, if we want ever subject that has a `fit_result` greater than or equal to 100 we would write
 
 ```{r}
 filter(metadata, fit_result >= 100)
@@ -236,6 +235,7 @@ The `!` can also be used as `!=` to test whether two values are different from e
 ```{r}
 filter(metadata, diagnosis != 'normal')
 ```
+
 
 ---
 
@@ -281,6 +281,33 @@ filter(metadata, age <= 50)
 
 ---
 
+### Activity 6
+
+Use the filter command to generate an ordination of samples from the University of Michigan.
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+
+```{r}
+um_metadata <- filter(metadata, site=="U Michigan")
+um_metadata_pcoa <- inner_join(um_metadata, pcoa, by=c('sample'='group'))
+
+ggplot(um_metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
+	geom_point(shape=19, size=2) +
+	scale_color_manual(name=NULL,
+		values=c("blue", "red", "black"),
+		breaks=c("normal", "adenoma", "cancer"),
+		labels=c("Normal", "Adenoma", "Cancer")) +
+	coord_fixed() +
+	labs(title="PCoA of ThetaYC Distances Between Stool Samples\nCollected at the University of Michigan",
+		x="PCo Axis 1",
+		y="PCo Axis 2") +
+	theme_classic()
+```
+</div>
+
+---
+
 The `filter` and `select` functions are very powerful for subsetting our data frames. The fit result measures how much blood is in a person's stool. It's a common non-invasive diagnostic to identify colonic lesions. What if I want to get those samples from people that have a fit result over 100 and were given a normal diagnosis? We can use the `&` operator to see if two logical comparisons are true
 
 ```{r}
@@ -295,7 +322,7 @@ filter(metadata, fit_result >= 100 | diagnosis == "cancer")
 
 ---
 
-### Activity 6
+### Activity 7
 Create a data frame that contains samples from individuals who are 50 years old and younger and have a non-normal diagnosis
 
 <input type="button" class="hideshow">
@@ -307,7 +334,7 @@ filter(metadata, age <= 50 & diagnosis != "normal")
 
 ---
 
-### Activity 7
+### Activity 8
 Create a data frame that contains samples from individuals who have a previous or family history of colorectal cancer
 
 <input type="button" class="hideshow">
@@ -325,7 +352,7 @@ Let's leverage the `select` and `filter` commands we have been using to work wit
 
 ---
 
-### Activity 8
+### Activity 9
 This file has a number of columns that aren't that interesting for us. You will also find that the `method` column has two values - ave and std - which indicate the average value of the alpha diversity metric after rarefying and the standard deviation (i.e. std), which is the standard deviation for the rarefaction replicates. You have several tasks...
 
 * Write the code needed to read in the file to a new data frame called `alpha`. Make sure that the group column is read in as characters
@@ -389,7 +416,7 @@ We've gone all the way - reading in the data from a `tsv` file to getting the ro
 
 ---
 
-### Activity 9
+### Activity 10
 With our new found piping skillz, rewrite the code from the end of the last tutorial to generate the ordination. Use the `metadata` data frame that we've already been working with
 
 <input type="button" class="hideshow">

@@ -6,6 +6,7 @@ output: markdown_document
 
 ```{r knitr_settings, eval=TRUE, echo=FALSE, cache=FALSE}
 library(knitr)
+
 opts_chunk$set("echo" = TRUE)
 opts_chunk$set("eval" = TRUE)
 opts_chunk$set("message" = FALSE)
@@ -45,12 +46,11 @@ metadata <- read_excel(path="raw_data/baxter.metadata.xlsx",
 				Height = "numeric", Weight = "numeric", NSAID = "logical", Diabetes_Med = "logical",
 				stage = "text")
 	)
-metadata[["Height"]] <- na_if(metadata[["Height"]], 0)
-metadata[["Weight"]] <- na_if(metadata[["Weight"]], 0)
-metadata[["Site"]] <- recode(.x=metadata[["Site"]], "U of Michigan"="U Michigan")
-metadata[["Dx_Bin"]] <- recode(.x=metadata[["Dx_Bin"]], "Cancer."="Cancer")
-metadata[["Gender"]] <- recode(.x=metadata[["Gender"]], "m"="male")
-metadata[["Gender"]] <- recode(.x=metadata[["Gender"]], "f"="female")
+metadata <- mutate(metadata, na_if(Height, 0))
+metadata <- mutate(metadata, na_if(Weight, 0))
+metadata <- mutate(metadata, Site = recode(.x=Site, "U of Michigan"="U Michigan"))
+metadata <- mutate(metadata, Dx_Bin = recode(.x=Dx_Bin, "Cancer."="Cancer"))
+metadata <- mutate(metadata, Gender = recode(.x=Gender, "f"="female", "m"="male"))
 
 metadata <- rename_all(.tbl=metadata, .funs=tolower)
 metadata <- rename(.data=metadata,
@@ -281,7 +281,7 @@ meta_alpha %>%
 
 
 ## Creating new columns
-Let's say we want to compare the diversity of people in the different diagnosis groups that have high and low fit results. Recall that the "fit result" column contains continuous values. Clinically, people with fit results over 100 will be referred for a colonoscopy. To get started, we'd like first create a new column that indicates whether someone has a low or high fit result. To achieve this we will make use of the `mutate` function in the `dplyr` package
+Let's say we want to compare the diversity of people in the different diagnosis groups that have high and low fit results. Recall that the "fit result" column contains continuous values. Clinically, people with fit results over 100 will be referred for a colonoscopy. To get started, we'd like first create a new column that indicates whether someone has a low or high fit result. To achieve this we will make use of the `mutate` function in the `dplyr` package. You'll recall we used this function to help us clean up our metadata.
 
 ```{r}
 meta_alpha %>%
@@ -415,6 +415,7 @@ get_bmi_category <- function(weight_kg, height_cm){
 	bmi_cat <- case_when(bmi >= 30 ~ "obese",
 			bmi >= 25 ~ "overweight",
  			bmi >= 18.5 ~ "normal",
+			is.na(bmi) ~ NA_character_,
 			TRUE ~ "underweight")
 
 	return(bmi_cat)
@@ -427,7 +428,7 @@ Then I could do...
 meta_alpha %>%
 	mutate(bmi_category = get_bmi_category(weight_kg = weight, height_cm = height)) %>%
 	group_by(bmi_category) %>%
-	summarize(mean_age = mean(age, na.rm=T), sd_age = sd(age, na.rm=T))
+	summarize(mean_age = mean(age, na.rm=T), sd_age = sd(age, na.rm=T), N=n())
 ```
 
 
