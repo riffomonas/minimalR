@@ -436,11 +436,11 @@ Let's start with a simpler example than `rarefy`
 temps <- tibble(day=c(1,2,3), chicago=c(75, 77, 74), detroit=c(69, 71, 70), nashville=c(79,80,78))
 ```
 
-We can make `temps` a tidy data frame by using the `gather` function from `tidyr`. To use this function, we need to tell `gather` which columns we want to gather and the name for the new column containing the city name (i.e. `key`) and the name for the new column containing the temperatures (i.e. `value`)
+We can make `temps` a tidy data frame by using the `pivot_longer` function from `tidyr`. To use this function, we need to tell `pivot_longer` which columns (`cols`) we want to gather together and the name for the new column containing the city name (i.e. `names_to`) and the name for the new column containing the temperatures (i.e. `values_to`)
 
 
 ```r
-gather(temps, chicago, detroit, nashville, key='city', value='temperatures')
+pivot_longer(temps, cols=c(chicago, detroit, nashville), names_to='city', values_to='temperatures')
 ```
 
 ```
@@ -448,21 +448,21 @@ gather(temps, chicago, detroit, nashville, key='city', value='temperatures')
 ##     day city      temperatures
 ##   <dbl> <chr>            <dbl>
 ## 1     1 chicago             75
-## 2     2 chicago             77
-## 3     3 chicago             74
-## 4     1 detroit             69
+## 2     1 detroit             69
+## 3     1 nashville           79
+## 4     2 chicago             77
 ## 5     2 detroit             71
-## 6     3 detroit             70
-## 7     1 nashville           79
-## 8     2 nashville           80
+## 6     2 nashville           80
+## 7     3 chicago             74
+## 8     3 detroit             70
 ## 9     3 nashville           78
 ```
 
-Note that if we had a bunch of cities, it would be a pain to write them all out. We could use the helper functions that we used with `select`. Alternatively, if there's only one other column (e.g. "day" or "numsampled"), you could use the `-` to tell `gather` to ignore that columns
+Note that if we had a bunch of cities, it would be a pain to write them all out. We could use the helper functions that we used with `select`. Alternatively, if there's only one other column (e.g. "day" or "numsampled"), you could use the `-` to tell `pivot_longer` to ignore that columns
 
 
 ```r
-gather(temps, -day, key='city', value='temperatures')
+pivot_longer(temps, cols=c(-day), names_to='city', values_to='temperatures')
 ```
 
 ```
@@ -470,13 +470,13 @@ gather(temps, -day, key='city', value='temperatures')
 ##     day city      temperatures
 ##   <dbl> <chr>            <dbl>
 ## 1     1 chicago             75
-## 2     2 chicago             77
-## 3     3 chicago             74
-## 4     1 detroit             69
+## 2     1 detroit             69
+## 3     1 nashville           79
+## 4     2 chicago             77
 ## 5     2 detroit             71
-## 6     3 detroit             70
-## 7     1 nashville           79
-## 8     2 nashville           80
+## 6     2 nashville           80
+## 7     3 chicago             74
+## 8     3 detroit             70
 ## 9     3 nashville           78
 ```
 
@@ -486,16 +486,16 @@ Let's apply this to our rarefaction data
 ```r
 rarefy <- read_tsv(file="raw_data/baxter.rarefaction") %>%
 	select(-contains("lci-"), -contains("hci-")) %>%
-	gather(-numsampled, key=sample, value=sobs)
+	pivot_longer(cols=c(-numsampled), names_to='sample', values_to='sobs')
 ```
 
-Our `rarefy` data frame now has 450,310 rows and three columns. It has gone from being really wide to being skinny and really long. As we'll see in the next section, it is now much easier to do a join between `rarefy` and `metadata` than it would have been with the samples across the columns.
+Our `rarefy` data frame now has 450310 rows and three columns. It has gone from being really wide to being skinny and really long. As we'll see in the next section, it is now much easier to do a join between `rarefy` and `metadata` than it would have been with the samples across the columns.
 
 
 ---
 
 ### Activity 4
-Use the `gather` function with our `alpha` data frame to gather together the `sobs`, `shannon`, `invsimpson`, and `coverage` columns. The key column should be called "metric" and the value column should be called "value".
+Use the `pivot_longer` function with our `alpha` data frame to gather together the `sobs`, `shannon`, `invsimpson`, and `coverage` columns. The key column should be called "metric" and the value column should be called "value".
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
@@ -505,9 +505,7 @@ alpha <- read_tsv(file="raw_data/baxter.groups.ave-std.summary",
 		col_types=cols(group = col_character())) %>%
 	filter(method=='ave') %>%
 	select(group, sobs, shannon, invsimpson, coverage) %>%
-	gather(-group, key=metric, value=value)
-# or
-# gather(sobs, shannon, invsimpson, coverage, key=metric, value=values)
+	pivot_longer(cols=c(-group), names_to="metric", values_to="value")
 ```
 </div>
 
@@ -531,7 +529,7 @@ That's exactly what we want, but distributed across the entire column. In later 
 ```r
 rarefy <- read_tsv(file="raw_data/baxter.rarefaction") %>%
 	select(-contains("lci-"), -contains("hci-")) %>%
-	gather(-numsampled, key=sample, value=sobs) %>%
+	pivot_longer(cols=c(-numsampled), names_to='sample', values_to='sobs') %>%
 	mutate(sample=str_replace_all(sample, pattern="0.03-", replacement=""))
 ```
 
@@ -541,7 +539,7 @@ One thing that you may remember from looking at rarefy when it was a wide data f
 ```r
 rarefy <- read_tsv(file="raw_data/baxter.rarefaction") %>%
 	select(-contains("lci-"), -contains("hci-")) %>%
-	gather(-numsampled, key=sample, value=sobs) %>%
+	pivot_longer(cols=c(-numsampled), names_to='sample', values_to='sobs') %>%
 	mutate(sample=str_replace_all(sample, pattern="0.03-", replacement="")) %>%
 	drop_na()
 ```
@@ -959,7 +957,7 @@ metadata <- get_metadata()
 
 rarefy <- read_tsv(file="raw_data/baxter.rarefaction") %>%
 	select(-contains("lci-"), -contains("hci-")) %>%
-	gather(-numsampled, key=sample, value=sobs) %>%
+	pivot_longer(cols=c(-numsampled), names_to="sample", values_to="sobs") %>%
 	mutate(sample=str_replace_all(sample, pattern="0.03-", replacement="")) %>%
 	drop_na()
 

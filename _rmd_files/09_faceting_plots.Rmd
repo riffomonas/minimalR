@@ -34,23 +34,23 @@ meta_alpha <- inner_join(metadata, alpha, by=c('sample'='group'))
 ```
 
 
-meta_alpha %>% gather(key=metric, value=value, shannon, invsimpson, sobs, coverage) %>% ggplot(aes(x=diagnosis, y=value)) + geom_boxplot() + facet_grid(.~metric)
+meta_alpha %>% pivot_longer(c(shannon, invsimpson, sobs, coverage), names_to="metric", values_to="value") %>% ggplot(aes(x=diagnosis, y=value)) + geom_boxplot() + facet_grid(.~metric)
 
-meta_alpha %>% gather(key=metric, value=value, shannon, invsimpson, sobs, coverage) %>% ggplot(aes(x=diagnosis, y=value)) + geom_boxplot() + facet_grid(metric~.)
+meta_alpha %>% pivot_longer(c(shannon, invsimpson, sobs, coverage), names_to="metric", values_to="value") %>% ggplot(aes(x=diagnosis, y=value)) + geom_boxplot() + facet_grid(metric~.)
 
-meta_alpha %>% gather(key=metric, value=value, shannon, invsimpson, sobs, coverage) %>% ggplot(aes(x=diagnosis, y=value)) + geom_boxplot() + facet_grid(sex~metric)
-
-
-
-meta_alpha %>% gather(key=metric, value=value, shannon, invsimpson, sobs, coverage) %>% ggplot(aes(x=diagnosis, y=value)) + geom_boxplot() + facet_wrap(~metric)
-
-meta_alpha %>% gather(key=metric, value=value, shannon, invsimpson, sobs, coverage) %>% ggplot(aes(x=diagnosis, y=value)) + geom_boxplot() + facet_wrap(~metric, scales="free")
-
-meta_alpha %>% gather(key=metric, value=value, shannon, invsimpson, sobs, coverage) %>% ggplot(aes(x=diagnosis, y=value)) + geom_boxplot() + facet_wrap(sex~metric, scales="free")
+meta_alpha %>% pivot_longer(c(shannon, invsimpson, sobs, coverage), names_to="metric", values_to="value") %>% ggplot(aes(x=diagnosis, y=value)) + geom_boxplot() + facet_grid(sex~metric)
 
 
 
-meta_alpha %>% gather(key=metric, value=value, shannon, invsimpson, sobs, coverage) %>% ggplot(aes(x=diagnosis, y=value)) + geom_boxplot() + facet_wrap(sex~metric, scales="free", nrow=2)
+meta_alpha %>% pivot_longer(c(shannon, invsimpson, sobs, coverage), names_to="metric", values_to="value") %>% ggplot(aes(x=diagnosis, y=value)) + geom_boxplot() + facet_wrap(~metric)
+
+meta_alpha %>% pivot_longer(c(shannon, invsimpson, sobs, coverage), names_to="metric", values_to="value") %>% ggplot(aes(x=diagnosis, y=value)) + geom_boxplot() + facet_wrap(~metric, scales="free")
+
+meta_alpha %>% pivot_longer(c(shannon, invsimpson, sobs, coverage), names_to="metric", values_to="value") %>% ggplot(aes(x=diagnosis, y=value)) + geom_boxplot() + facet_wrap(sex~metric, scales="free")
+
+
+
+meta_alpha %>% pivot_longer(c(shannon, invsimpson, sobs, coverage), names_to="metric", values_to="value") %>% ggplot(aes(x=diagnosis, y=value)) + geom_boxplot() + facet_wrap(sex~metric, scales="free", nrow=2)
 
 
 

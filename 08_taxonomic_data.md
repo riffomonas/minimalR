@@ -437,10 +437,10 @@ Looking at `shared` we see that the data frame is not tidy in the same way that 
 otu_data <- read_tsv("raw_data/baxter.subsample.shared", col_types=cols(Group=col_character())) %>%
 	select(-label, -numOtus) %>%
 	rename(sample=Group) %>%
-	gather(-sample, key="otu", value="count")
+	pivot_longer(cols=-sample, names_to="otu", values_to="count")
 ```
 
-As we stated in our `gather` function, these data are counts, not relative abundances. Let's create a "rel_abund" column. First we need to know the number of sequences in each sample
+As we stated in our `pivot_longer` function syntax, these data are counts, not relative abundances. Let's create a "rel_abund" column. First we need to know the number of sequences in each sample
 
 
 ```r
@@ -464,7 +464,7 @@ We see that all of our samples have 10530 sequences in them. Now we can modify o
 otu_data <- read_tsv("raw_data/baxter.subsample.shared", col_types=cols(Group=col_character())) %>%
 	select(-label, -numOtus) %>%
 	rename(sample=Group) %>%
-	gather(-sample, key="otu", value="count") %>%
+	pivot_longer(cols=-sample, names_to="otu", values_to="count") %>%
 	mutate(rel_abund=count/10530)
 ```
 
