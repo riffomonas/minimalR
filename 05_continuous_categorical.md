@@ -273,7 +273,7 @@ ggplot(fit_by_diagnosis, aes(x=diagnosis, y=mean_fit, fill=diagnosis)) +
 
 <img src="assets/images/05_continuous_categorical//unnamed-chunk-12-1.png" title="plot of chunk unnamed-chunk-12" alt="plot of chunk unnamed-chunk-12" width="504" />
 
-Cool. Well. Kind of. There are two problems, one far more significant than the other. First, the standard deviations on our means are huge. Also, considering the bottom error bar goes below zero, it's safe to assume that our data probably aren't normally distributed. This is kind of a big problem with bar plots that makes them a [less than desirably tool](http://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.1002128) for presenting mean data. The other problem is that the width of the error bars is as wide as the bars themselves. Let's change them to be half the width of the rectangles. We can do this by setting the `width` aesthetic in geom_errorbar to `0.5`.
+Cool. Well. Kind of. There are two problems, one far more significant than the other. First, the standard deviations on our means are huge. Also, considering the bottom error bar goes below zero, it's safe to assume that our data probably aren't normally distributed. This is kind of a big problem with bar plots that makes them a [less than desirably tool](http://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.1002128) for presenting mean data. The other problem is that the width of the error bars is as wide as the bars themselves. Let's change them to be half the width of the rectangles. We can do this by setting the `width` aesthetic in `geom_errorbar` to `0.5`.
 
 
 ```r
