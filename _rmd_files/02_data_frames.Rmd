@@ -306,8 +306,8 @@ metadata
 Next, do you see that we don't have `age_in_months` as a column and the values in our `Height` column don't appear to be in meters? Why is that? Right! We didn't assign the modified data frames back to metadata. We won't do that with these two changes, but this is an important point to remember. The data frame will only change if we assign the new data frame to the name of the old data frame. Finally, the `dplyr` package, which is one of the core package within the tidyverse, has a useful function called `na_if`. If it finds a value we specify in the vector, it will convert it to an `NA`.
 
 ```{r}
-metadata <- mutate(metadata, na_if(Height, 0))
-metadata <- mutate(metadata, na_if(Weight, 0))
+metadata <- mutate(metadata, Height = na_if(Height, 0))
+metadata <- mutate(metadata, Weight = na_if(Weight, 0))
 ```
 
 Running `summary(metadata)` again, we see that the ranges for the "Height" and "Weight" columns are more reasonable now. We'd like to look at the values for our columns that contain character values, but they're obfuscated. One way to check this out is with the `count` command
@@ -453,8 +453,8 @@ metadata <- read_excel(path="raw_data/baxter.metadata.xlsx",
 				Height = "numeric", Weight = "numeric", NSAID = "logical", Diabetes_Med = "logical",
 				stage = "text")
 	)
-metadata <- mutate(metadata, na_if(Height, 0))
-metadata <- mutate(metadata, na_if(Weight, 0))
+metadata <- mutate(metadata, Height = na_if(Height, 0))
+metadata <- mutate(metadata, Weight = na_if(Weight, 0))
 metadata <- mutate(metadata, Site = recode(.x=Site, "U of Michigan"="U Michigan"))
 metadata <- mutate(metadata, Dx_Bin = recode(.x=Dx_Bin, "Cancer."="Cancer"))
 metadata <- mutate(metadata, Gender = recode(.x=Gender, "f"="female", "m"="male"))

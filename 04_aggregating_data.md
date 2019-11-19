@@ -34,8 +34,8 @@ metadata <- read_excel(path="raw_data/baxter.metadata.xlsx",
 				Height = "numeric", Weight = "numeric", NSAID = "logical", Diabetes_Med = "logical",
 				stage = "text")
 	)
-metadata <- mutate(metadata, na_if(Height, 0))
-metadata <- mutate(metadata, na_if(Weight, 0))
+metadata <- mutate(metadata, Height = na_if(Height, 0))
+metadata <- mutate(metadata, Weight = na_if(Weight, 0))
 metadata <- mutate(metadata, Site = recode(.x=Site, "U of Michigan"="U Michigan"))
 metadata <- mutate(metadata, Dx_Bin = recode(.x=Dx_Bin, "Cancer."="Cancer"))
 metadata <- mutate(metadata, Gender = recode(.x=Gender, "f"="female", "m"="male"))
@@ -65,7 +65,7 @@ group_by(meta_alpha, diagnosis)
 ```
 
 ```
-## # A tibble: 490 x 23
+## # A tibble: 490 x 21
 ## # Groups:   diagnosis [3]
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
@@ -79,11 +79,11 @@ group_by(meta_alpha, diagnosis)
 ##  8 20196…         19 U Mi… Normal        normal    FALSE           
 ##  9 20236…          0 Dana… High Risk No… normal    TRUE            
 ## 10 20256…       1509 U Mi… Cancer        cancer    TRUE            
-## # … with 480 more rows, and 17 more variables: history_of_polyps <lgl>,
+## # … with 480 more rows, and 15 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
-## #   0)` <dbl>, sobs <dbl>, shannon <dbl>, invsimpson <dbl>, coverage <dbl>
+## #   diabetes_med <lgl>, stage <chr>, sobs <dbl>, shannon <dbl>,
+## #   invsimpson <dbl>, coverage <dbl>
 ```
 
 You should notice that above the column headings it says `Groups:  diagnosis[3]`. This indicates that we now have three groups in our data. We can actually write this two different ways and get the same result. The second way and the way that I prefer is
@@ -95,7 +95,7 @@ meta_alpha %>%
 ```
 
 ```
-## # A tibble: 490 x 23
+## # A tibble: 490 x 21
 ## # Groups:   diagnosis [3]
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
@@ -109,11 +109,11 @@ meta_alpha %>%
 ##  8 20196…         19 U Mi… Normal        normal    FALSE           
 ##  9 20236…          0 Dana… High Risk No… normal    TRUE            
 ## 10 20256…       1509 U Mi… Cancer        cancer    TRUE            
-## # … with 480 more rows, and 17 more variables: history_of_polyps <lgl>,
+## # … with 480 more rows, and 15 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
-## #   0)` <dbl>, sobs <dbl>, shannon <dbl>, invsimpson <dbl>, coverage <dbl>
+## #   diabetes_med <lgl>, stage <chr>, sobs <dbl>, shannon <dbl>,
+## #   invsimpson <dbl>, coverage <dbl>
 ```
 
 I prefer this second approach because it breaks up the commands a bit more and makes it more clear that the source of the data is the `meta_alpha` data frame. Again, the result is the same. If I had a huge data frame and didn't want to pipe every column through the pipeline, I could easily add a select line before the `group_by` line.
@@ -508,7 +508,7 @@ meta_alpha %>%
 ```
 
 ```
-## # A tibble: 490 x 24
+## # A tibble: 490 x 22
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
@@ -521,12 +521,11 @@ meta_alpha %>%
 ##  8 20196…         19 U Mi… Normal        normal    FALSE           
 ##  9 20236…          0 Dana… High Risk No… normal    TRUE            
 ## 10 20256…       1509 U Mi… Cancer        cancer    TRUE            
-## # … with 480 more rows, and 18 more variables: history_of_polyps <lgl>,
+## # … with 480 more rows, and 16 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
-## #   0)` <dbl>, sobs <dbl>, shannon <dbl>, invsimpson <dbl>, coverage <dbl>,
-## #   high_fit <lgl>
+## #   diabetes_med <lgl>, stage <chr>, sobs <dbl>, shannon <dbl>,
+## #   invsimpson <dbl>, coverage <dbl>, high_fit <lgl>
 ```
 
 Nice! Instead of getting back a boolean, I'd rather have it output as "high fit" or "low fit". We can get this using the `if_else` function from the `dplyr` package. This function asks a logical question (e.g. `fit_result>=100`) and if it is true then will return the second argument and if it is false, will return the third argument. We might do something like `if_else(fit_result>=100, "high fit", "low fit")`
@@ -538,7 +537,7 @@ meta_alpha %>%
 ```
 
 ```
-## # A tibble: 490 x 24
+## # A tibble: 490 x 22
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
@@ -551,12 +550,11 @@ meta_alpha %>%
 ##  8 20196…         19 U Mi… Normal        normal    FALSE           
 ##  9 20236…          0 Dana… High Risk No… normal    TRUE            
 ## 10 20256…       1509 U Mi… Cancer        cancer    TRUE            
-## # … with 480 more rows, and 18 more variables: history_of_polyps <lgl>,
+## # … with 480 more rows, and 16 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
-## #   0)` <dbl>, sobs <dbl>, shannon <dbl>, invsimpson <dbl>, coverage <dbl>,
-## #   fit_category <chr>
+## #   diabetes_med <lgl>, stage <chr>, sobs <dbl>, shannon <dbl>,
+## #   invsimpson <dbl>, coverage <dbl>, fit_category <chr>
 ```
 
 If you have more than two cases (e.g. TRUE and FALSE) then you might want to use the `case_when` function from the `dplyr` package. We might define three levels of fit categories. The `case_when` function takes on a different syntax. The arguements to `case_when` consist of a logical comparison followed by a `~`, followed by what to do if the logical comparison is true. The arguments are tested in order, so the ordering matters. It's also good to add one argument where the logical comparison is `TRUE` so that there is a default value if something goes wrong.

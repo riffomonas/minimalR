@@ -40,8 +40,8 @@ metadata <- read_excel(path="raw_data/baxter.metadata.xlsx",
 				Height = "numeric", Weight = "numeric", NSAID = "logical", Diabetes_Med = "logical",
 				stage = "text")
 	)
-metadata <- mutate(metadata, na_if(Height, 0))
-metadata <- mutate(metadata, na_if(Weight, 0))
+metadata <- mutate(metadata, Height = na_if(Height, 0))
+metadata <- mutate(metadata, Weight = na_if(Weight, 0))
 metadata <- mutate(metadata, Site = recode(.x=Site, "U of Michigan"="U Michigan"))
 metadata <- mutate(metadata, Dx_Bin = recode(.x=Dx_Bin, "Cancer."="Cancer"))
 metadata <- mutate(metadata, Gender = recode(.x=Gender, "f"="female", "m"="male"))
@@ -171,7 +171,7 @@ metadata
 ```
 
 ```
-## # A tibble: 490 x 19
+## # A tibble: 490 x 17
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <fct>     <lgl>           
 ##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
@@ -184,11 +184,10 @@ metadata
 ##  8 20196…         19 U Mi… Normal        normal    FALSE           
 ##  9 20236…          0 Dana… High Risk No… normal    TRUE            
 ## 10 20256…       1509 U Mi… Cancer        cancer    TRUE            
-## # … with 480 more rows, and 13 more variables: history_of_polyps <lgl>,
+## # … with 480 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
-## #   0)` <dbl>
+## #   diabetes_med <lgl>, stage <chr>
 ```
 
 We now have a DRY way of providing the code to generate a consistent `metadata` data frame across our project.  You might be thinking that this isn't so special since you can dump all of your code for your project into `baxter.R`. Sure, you could. Most people who have been working to make their code reusable and reproducible find value to breaking their code up across multiple files. For example, we might want to make an ordination figure like we started with, a strip chart of FIT result by diagnosis group, and a strip chart of diversity by diagnosis group. My preference is to have a separate R script file to build each of these figures. That way if I want to come back and change my diversity value from Shannon to inverse Simpson indices in the third figure, I would only need to re-run the code for that figure. Similarly, having a primary "utility" R script that has a lot of common features in it, I can now source `baxter.R` in each of the figures where I need metadata. Also, if I were really on the ball, I could define my color scheme in `baxter.R` as a variable and then use that variable throughout my figures. Ultimately, as a project gets larger, it helps to break up your code in to different R scripts as a way of organizing your code.

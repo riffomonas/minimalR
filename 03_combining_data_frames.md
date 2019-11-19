@@ -418,7 +418,7 @@ filter(metadata, site=="U Michigan")
 ```
 
 ```
-## # A tibble: 107 x 19
+## # A tibble: 107 x 17
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
@@ -431,11 +431,10 @@ filter(metadata, site=="U Michigan")
 ##  8 20416…          0 U Mi… Adenoma       adenoma   FALSE           
 ##  9 20456…          0 U Mi… Normal        normal    FALSE           
 ## 10 20576…          0 U Mi… High Risk No… normal    FALSE           
-## # … with 97 more rows, and 13 more variables: history_of_polyps <lgl>,
+## # … with 97 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
-## #   0)` <dbl>
+## #   diabetes_med <lgl>, stage <chr>
 ```
 
 The resulting data frame has 107 samples. You'll notice that I used `site=="U Michigan"`. This tells `filter` to identify those rows where the "site" column had a value equal to "U Michigan". The `==` is a logical comparison that asks whether the value on either side of the `==` are the same. The answer is either `TRUE` or `FALSE`. There are other logical operators that you should already be familiar with (but perhaps didn't know!) including `<`, `<=`, `>`, `>=`. These should be self explanatory. For example, if we want ever subject that has a `fit_result` greater than or equal to 100 we would write
@@ -446,7 +445,7 @@ filter(metadata, fit_result >= 100)
 ```
 
 ```
-## # A tibble: 126 x 19
+## # A tibble: 126 x 17
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ##  1 20256…       1509 U Mi… Cancer        cancer    TRUE            
@@ -459,11 +458,10 @@ filter(metadata, fit_result >= 100)
 ##  8 22676…        149 Dana… Cancer        cancer    TRUE            
 ##  9 22836…       1346 Toro… Cancer        cancer    FALSE           
 ## 10 22876…        939 Dana… Cancer        cancer    TRUE            
-## # … with 116 more rows, and 13 more variables: history_of_polyps <lgl>,
+## # … with 116 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
-## #   0)` <dbl>
+## #   diabetes_med <lgl>, stage <chr>
 ```
 
 Some of our columns are already logical. To get those individuals with a previous history of colorectal cancer we could do
@@ -474,7 +472,7 @@ filter(metadata, previous_history)
 ```
 
 ```
-## # A tibble: 138 x 19
+## # A tibble: 138 x 17
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ##  1 20176…          7 Dana… Cancer        cancer    TRUE            
@@ -487,11 +485,10 @@ filter(metadata, previous_history)
 ##  8 20876…          5 Dana… High Risk No… normal    TRUE            
 ##  9 20936…        286 Dana… Normal        normal    TRUE            
 ## 10 21096…          0 Dana… Normal        normal    TRUE            
-## # … with 128 more rows, and 13 more variables: history_of_polyps <lgl>,
+## # … with 128 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
-## #   0)` <dbl>
+## #   diabetes_med <lgl>, stage <chr>
 ```
 
 If we want those samples from people ***without*** a previous history we can use the `!` operator which turns `TRUE` to `FALSE` and `FALSE` to `TRUE`
@@ -502,7 +499,7 @@ filter(metadata, !previous_history)
 ```
 
 ```
-## # A tibble: 349 x 19
+## # A tibble: 349 x 17
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
@@ -515,11 +512,10 @@ filter(metadata, !previous_history)
 ##  8 20276…          0 Toro… Normal        normal    FALSE           
 ##  9 20296…          0 U Mi… Adenoma       adenoma   FALSE           
 ## 10 20316…          0 Toro… Adenoma       adenoma   FALSE           
-## # … with 339 more rows, and 13 more variables: history_of_polyps <lgl>,
+## # … with 339 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
-## #   0)` <dbl>
+## #   diabetes_med <lgl>, stage <chr>
 ```
 
 The `!` can also be used as `!=` to test whether two values are different from each other. We could use this to get the samples from people that do not have a normal diagnosis
@@ -530,7 +526,7 @@ filter(metadata, diagnosis != 'normal')
 ```
 
 ```
-## # A tibble: 318 x 19
+## # A tibble: 318 x 17
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ##  1 20096…         10 Toro… Adenoma       adenoma   FALSE           
@@ -543,11 +539,10 @@ filter(metadata, diagnosis != 'normal')
 ##  8 20416…          0 U Mi… Adenoma       adenoma   FALSE           
 ##  9 20496…          0 Dana… Adenoma       adenoma   FALSE           
 ## 10 20516…          0 Dana… Adenoma       adenoma   TRUE            
-## # … with 308 more rows, and 13 more variables: history_of_polyps <lgl>,
+## # … with 308 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
-## #   0)` <dbl>
+## #   diabetes_med <lgl>, stage <chr>
 ```
 
 
@@ -570,7 +565,7 @@ filter(metadata, diagnosis=="cancer")
 ```
 
 ```
-## # A tibble: 120 x 19
+## # A tibble: 120 x 17
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ##  1 20176…          7 Dana… Cancer        cancer    TRUE            
@@ -583,11 +578,10 @@ filter(metadata, diagnosis=="cancer")
 ##  8 22836…       1346 Toro… Cancer        cancer    FALSE           
 ##  9 22856…          0 U Mi… Cancer        cancer    FALSE           
 ## 10 22876…        939 Dana… Cancer        cancer    TRUE            
-## # … with 110 more rows, and 13 more variables: history_of_polyps <lgl>,
+## # … with 110 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
-## #   0)` <dbl>
+## #   diabetes_med <lgl>, stage <chr>
 ```
 </div>
 
@@ -604,7 +598,7 @@ filter(metadata, sex=="female")
 ```
 
 ```
-## # A tibble: 243 x 19
+## # A tibble: 243 x 17
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ##  1 20076…         26 U Mi… High Risk No… normal    FALSE           
@@ -617,11 +611,10 @@ filter(metadata, sex=="female")
 ##  8 20376…         72 Toro… Cancer        cancer    FALSE           
 ##  9 20396…          0 Toro… Normal        normal    FALSE           
 ## 10 20456…          0 U Mi… Normal        normal    FALSE           
-## # … with 233 more rows, and 13 more variables: history_of_polyps <lgl>,
+## # … with 233 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
-## #   0)` <dbl>
+## #   diabetes_med <lgl>, stage <chr>
 ```
 </div>
 
@@ -638,7 +631,7 @@ filter(metadata, age <= 50)
 ```
 
 ```
-## # A tibble: 96 x 19
+## # A tibble: 96 x 17
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ##  1 20076…         26 U Mi… High Risk No… normal    FALSE           
@@ -651,11 +644,10 @@ filter(metadata, age <= 50)
 ##  8 20856…          7 Dana… Normal        normal    FALSE           
 ##  9 20876…          5 Dana… High Risk No… normal    TRUE            
 ## 10 20936…        286 Dana… Normal        normal    TRUE            
-## # … with 86 more rows, and 13 more variables: history_of_polyps <lgl>,
+## # … with 86 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
-## #   0)` <dbl>
+## #   diabetes_med <lgl>, stage <chr>
 ```
 </div>
 
@@ -699,7 +691,7 @@ filter(metadata, fit_result >= 100 & diagnosis == "normal")
 ```
 
 ```
-## # A tibble: 5 x 19
+## # A tibble: 5 x 17
 ##   sample fit_result site  diagnosis_bin diagnosis previous_history
 ##   <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ## 1 20936…        286 Dana… Normal        normal    TRUE            
@@ -707,10 +699,9 @@ filter(metadata, fit_result >= 100 & diagnosis == "normal")
 ## 3 23216…        148 Dana… Normal        normal    FALSE           
 ## 4 30996…        356 Dana… High Risk No… normal    TRUE            
 ## 5 31376…        118 U Mi… Normal        normal    FALSE           
-## # … with 13 more variables: history_of_polyps <lgl>, age <dbl>, sex <chr>,
+## # … with 11 more variables: history_of_polyps <lgl>, age <dbl>, sex <chr>,
 ## #   smoke <lgl>, diabetic <lgl>, family_history_of_crc <lgl>, height <dbl>,
-## #   weight <dbl>, nsaid <lgl>, diabetes_med <lgl>, stage <chr>, `na_if(height,
-## #   0)` <dbl>, `na_if(weight, 0)` <dbl>
+## #   weight <dbl>, nsaid <lgl>, diabetes_med <lgl>, stage <chr>
 ```
 
 If we want samples from people with a high fit result or a cancer diagnosis we can use a similar approach, except that instead of using `&` we would use `|`
@@ -721,7 +712,7 @@ filter(metadata, fit_result >= 100 | diagnosis == "cancer")
 ```
 
 ```
-## # A tibble: 156 x 19
+## # A tibble: 156 x 17
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ##  1 20176…          7 Dana… Cancer        cancer    TRUE            
@@ -734,11 +725,10 @@ filter(metadata, fit_result >= 100 | diagnosis == "cancer")
 ##  8 22036…       1992 U Mi… Cancer        cancer    TRUE            
 ##  9 22556…        140 Dana… Cancer        cancer    TRUE            
 ## 10 22676…        149 Dana… Cancer        cancer    TRUE            
-## # … with 146 more rows, and 13 more variables: history_of_polyps <lgl>,
+## # … with 146 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
-## #   0)` <dbl>
+## #   diabetes_med <lgl>, stage <chr>
 ```
 
 ---
@@ -754,7 +744,7 @@ filter(metadata, age <= 50 & diagnosis != "normal")
 ```
 
 ```
-## # A tibble: 46 x 19
+## # A tibble: 46 x 17
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ##  1 22036…       1992 U Mi… Cancer        cancer    TRUE            
@@ -767,11 +757,10 @@ filter(metadata, age <= 50 & diagnosis != "normal")
 ##  8 25236…        392 MD A… Cancer        cancer    TRUE            
 ##  9 25456…        301 Dana… Adv Adenoma   adenoma   FALSE           
 ## 10 25556…          0 Toro… Adv Adenoma   adenoma   FALSE           
-## # … with 36 more rows, and 13 more variables: history_of_polyps <lgl>,
+## # … with 36 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
-## #   0)` <dbl>
+## #   diabetes_med <lgl>, stage <chr>
 ```
 </div>
 
@@ -788,7 +777,7 @@ filter(metadata, previous_history | family_history_of_crc)
 ```
 
 ```
-## # A tibble: 199 x 19
+## # A tibble: 199 x 17
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
@@ -801,11 +790,10 @@ filter(metadata, previous_history | family_history_of_crc)
 ##  8 20416…          0 U Mi… Adenoma       adenoma   FALSE           
 ##  9 20436…          5 Toro… High Risk No… normal    FALSE           
 ## 10 20456…          0 U Mi… Normal        normal    FALSE           
-## # … with 189 more rows, and 13 more variables: history_of_polyps <lgl>,
+## # … with 189 more rows, and 11 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
-## #   0)` <dbl>
+## #   diabetes_med <lgl>, stage <chr>
 ```
 </div>
 
@@ -877,7 +865,7 @@ meta_alpha
 ```
 
 ```
-## # A tibble: 490 x 23
+## # A tibble: 490 x 21
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
 ##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
 ##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
@@ -890,11 +878,11 @@ meta_alpha
 ##  8 20196…         19 U Mi… Normal        normal    FALSE           
 ##  9 20236…          0 Dana… High Risk No… normal    TRUE            
 ## 10 20256…       1509 U Mi… Cancer        cancer    TRUE            
-## # … with 480 more rows, and 17 more variables: history_of_polyps <lgl>,
+## # … with 480 more rows, and 15 more variables: history_of_polyps <lgl>,
 ## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
 ## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>, `na_if(height, 0)` <dbl>, `na_if(weight,
-## #   0)` <dbl>, sobs <dbl>, shannon <dbl>, invsimpson <dbl>, coverage <dbl>
+## #   diabetes_med <lgl>, stage <chr>, sobs <dbl>, shannon <dbl>,
+## #   invsimpson <dbl>, coverage <dbl>
 ```
 
 But wait... there's more!

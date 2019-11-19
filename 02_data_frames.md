@@ -473,8 +473,8 @@ Next, do you see that we don't have `age_in_months` as a column and the values i
 
 
 ```r
-metadata <- mutate(metadata, na_if(Height, 0))
-metadata <- mutate(metadata, na_if(Weight, 0))
+metadata <- mutate(metadata, Height = na_if(Height, 0))
+metadata <- mutate(metadata, Weight = na_if(Weight, 0))
 ```
 
 Running `summary(metadata)` again, we see that the ranges for the "Height" and "Weight" columns are more reasonable now. We'd like to look at the values for our columns that contain character values, but they're obfuscated. One way to check this out is with the `count` command
@@ -648,7 +648,7 @@ metadata
 ```
 
 ```
-## # A tibble: 490 x 19
+## # A tibble: 490 x 17
 ##    sample fit_result site  dx_bin dx    hx_prev hx_of_polyps   age gender smoke
 ##    <chr>       <dbl> <chr> <chr>  <chr> <lgl>   <lgl>        <dbl> <chr>  <lgl>
 ##  1 20036…          0 U Mi… High … norm… FALSE   TRUE            64 male   NA   
@@ -661,9 +661,8 @@ metadata
 ##  8 20196…         19 U Mi… Normal norm… FALSE   FALSE           59 male   FALSE
 ##  9 20236…          0 Dana… High … norm… TRUE    TRUE            63 female TRUE 
 ## 10 20256…       1509 U Mi… Cancer canc… TRUE    TRUE            67 male   TRUE 
-## # … with 480 more rows, and 9 more variables: diabetic <lgl>, hx_fam_crc <lgl>,
-## #   height <dbl>, weight <dbl>, nsaid <lgl>, diabetes_med <lgl>, stage <chr>,
-## #   `na_if(height, 0)` <dbl>, `na_if(weight, 0)` <dbl>
+## # … with 480 more rows, and 7 more variables: diabetic <lgl>, hx_fam_crc <lgl>,
+## #   height <dbl>, weight <dbl>, nsaid <lgl>, diabetes_med <lgl>, stage <chr>
 ```
 
 We can use the `rename` function in the `dplyr` package to rename specific column names, similar to how we used the `recode` function to correct the data entry typos. Let's change our column names with "hx" in them to "history" and "dx" in them to "diagnosis"
@@ -749,8 +748,8 @@ metadata <- read_excel(path="raw_data/baxter.metadata.xlsx",
 				Height = "numeric", Weight = "numeric", NSAID = "logical", Diabetes_Med = "logical",
 				stage = "text")
 	)
-metadata <- mutate(metadata, na_if(Height, 0))
-metadata <- mutate(metadata, na_if(Weight, 0))
+metadata <- mutate(metadata, Height = na_if(Height, 0))
+metadata <- mutate(metadata, Weight = na_if(Weight, 0))
 metadata <- mutate(metadata, Site = recode(.x=Site, "U of Michigan"="U Michigan"))
 metadata <- mutate(metadata, Dx_Bin = recode(.x=Dx_Bin, "Cancer."="Cancer"))
 metadata <- mutate(metadata, Gender = recode(.x=Gender, "f"="female", "m"="male"))

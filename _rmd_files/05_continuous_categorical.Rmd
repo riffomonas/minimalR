@@ -43,8 +43,8 @@ metadata <- read_excel(path="raw_data/baxter.metadata.xlsx",
 				Height = "numeric", Weight = "numeric", NSAID = "logical", Diabetes_Med = "logical",
 				stage = "text")
 	)
-metadata <- mutate(metadata, na_if(Height, 0))
-metadata <- mutate(metadata, na_if(Weight, 0))
+metadata <- mutate(metadata, Height = na_if(Height, 0))
+metadata <- mutate(metadata, Weight = na_if(Weight, 0))
 metadata <- mutate(metadata, Site = recode(.x=Site, "U of Michigan"="U Michigan"))
 metadata <- mutate(metadata, Dx_Bin = recode(.x=Dx_Bin, "Cancer."="Cancer"))
 metadata <- mutate(metadata, Gender = recode(.x=Gender, "f"="female", "m"="male"))

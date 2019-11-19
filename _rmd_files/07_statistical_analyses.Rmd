@@ -70,13 +70,13 @@ ggplot(meta_alpha, aes(x=scaled_shannon)) + geom_histogram()
 That does look better. There are several other functions that you might find useful for plotting histograms including `geom_freqpoly`, `geom_dotplot`, and `geom_density`. As with `geom_qq`, you can specify the `group` and `color` or `fill` aesthetics to see the distribution for each category you are interested in. We can also run a `shapiro.test`. The null hypothesis is that the data are normally distributed so a small p-value would mean that the data are not normally distributed.
 
 ```{r}
-shapiro.test(meta_alpha$shannon)
+meta_alpha %>% pull(shannon) %>% shapiro.test()
 ```
 
 That's a small p-value, which indicates that the data are not normally distributed. Let's try the scaled data
 
 ```{r}
-shapiro.test(meta_alpha$scaled_shannon)
+meta_alpha %>% pull(scaled_shannon) %>% shapiro.test()
 ```
 
 Wonderful - it's impossible to prove a null hypothesis, but we have a p-value that indicates support for the null hypothesis that our data are normally distributed. Great - we can move on with the scaled data for our parametric tests.
@@ -98,19 +98,79 @@ TukeyHSD(diagnosis_shannon_aov)
 Again, all of our adjusted P-values are greater than 0.05.
 
 
-If instead of using the scaled Shannon values we had used the raw values, then we would want to use a Kruskal-Wallis test using the `kruskal.test` function. To run this test, we need to recast `diagnosis` as a factor.
+If instead of using the scaled Shannon values we had used the raw values, then we would want to use a Kruskal-Wallis test using the `kruskal.test` function.
 
 ```{r}
 kruskal.test(shannon~diagnosis, data=meta_alpha)
 ```
 
-Again, our P-value is not significant. If the experiment-wise P-value had been less than 0.05, then we could use pairwise Wilcoxon rank sum tests with correction for multiple comparisons. **[Note that this is a bad idea if your experiment-wise P-value is greater than 0.05]**. Here we need to revert to using the `[[]]` notation that we learned earlier to select specific columns from our data frame.
+Again, our P-value is not significant. If the experiment-wise P-value had been less than 0.05, then we could use pairwise Wilcoxon rank sum tests with correction for multiple comparisons. **[Note that this is a bad idea if your experiment-wise P-value is greater than 0.05]**. Perhaps we'd like to capture the actual P-value from that line of code and save it as a variable. How would we do this? Let's re-run the command, but save the variable as output
 
 ```{r}
-pairwise.wilcox.test(g=meta_alpha[["diagnosis"]], x=meta_alpha[["shannon"]], p.adjust.method="BH")
+result <- kruskal.test(shannon~diagnosis, data=meta_alpha)
+result
 ```
 
-We are telling `pairwise.wilcox.test` to group our values from `meta_alpha[["shannon"]]` by `meta_alpha[["diagnosis"]]` and to perform all possible pairwise Wilcoxon tests. Because this is fraught with an increased probability of Type I errors, we need to correct for multiple comparisons. As written, this is done using the Benjamini & Hochberg (`BH`) method. You can find other methods of correcting p-values by looking at `?p.adjust.methods`.
+Entering `result` at the prompt gets us the same output as before. The `kruskal.test` command, and many other commands, summarize the results of the test in an attractive manner to be human readable. We can see the output as the computer does using the `glimpse` or `str` commands.
+
+```{r}
+glimpse(result)
+```
+
+In that output you'll see a few things that may be a bit familiar to you. First, it tells us that the output is a "List of 5". It then follows with multiple lines, five of which start with a `$`. Next to the `$` are the names of different variables, a `:`, and the type of data that variable represents along with its value. Let's back up a smidge. What's a list? In R, a list is a collection of vectors that can contain different types of data. You can access the values of the list by a few different methods. You can use a `list_name$variable_name` or you can use `list_name[["variable_name"]]`.
+
+```{r}
+result$p.value
+```
+
+```{r}
+result[["p.value"]]
+```
+
+A data frame is a special type of list. If you do `glimpse(meta_alpha)`, you will see the output is a bit different from what we got above with `result`, but is still similar. Each line that starts with a `$` represents a different variable and is a vector of the indicated type. For example, the `sample` column is a vector of characters. We can access this column by one of four different ways.
+
+```{r, eval=FALSE}
+meta_alpha$sample
+meta_alpha[["sample"]]
+meta_alpha[, "sample"]
+pull(meta_alpha, sample)
+```
+
+Each of these function calls returns the same vector. In general, I will use the `$` notation because it's fewer keystrokes; however, if the code is part of a pipeline, I'll likely use the `pull` function. Note that you can chain together this notation for parsing complicated lists. Take for example, the `diagnosis_shannon_aov` variable that we created above
+
+```{r}
+glimpse(diagnosis_shannon_aov)
+```
+
+The following commands return the three diagnosis groups
+
+```{r}
+diagnosis_shannon_aov$xlevels$diagnosis
+diagnosis_shannon_aov[["xlevels"]][["diagnosis"]]
+diagnosis_shannon_aov[["xlevels"]]$diagnosis
+```
+
+---
+
+### Activity 1
+Write the code to extract the type of test that we performed using the `result` variable using both methods that were discussed.
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+```{r}
+result[["test"]]
+
+```
+</div>
+---
+
+Not all R functions will play nicely with data frames or with the dplyr pipelines that we have been using through these materials. Some functions will require that we provide the data as vectors. To do this, we will need to revert to using the `$` or `[[]]` notation that we learned earlier to select specific columns from our data frame. Assuming the P-value of `result` was less than 0.05, we might want to know which of the three groups were different from each other. We can test this with the `pairwise.wilcox.test` function
+
+```{r}
+pairwise.wilcox.test(g=meta_alpha$diagnosis, x=meta_alpha$shannon, p.adjust.method="BH")
+```
+
+We are telling `pairwise.wilcox.test` to group our values from `meta_alpha$shannon` by `meta_alpha$diagnosis` and to perform all possible pairwise Wilcoxon tests. Because this is fraught with an increased probability of Type I errors, we need to correct for multiple comparisons. As written, this is done using the Benjamini & Hochberg (`BH`) method. You can find other methods of correcting p-values by looking at `?p.adjust.methods`.
 
 ANOVA and Kruskal-Wallis tests are for cases where there are more than two levels of a single variable. You can also use ANOVA to test for more than two levels for more than one variable in R. This is beyond what we are shooting for in these lessons, but know that it can be done. Let's back up a bit and see how we test when there are only two levels of a variable such as sex. If our data are normally distributed we can use `t.test`
 
@@ -129,7 +189,7 @@ Both of these tests allow you perform a paired test if you have pre and post dat
 
 ---
 
-### Activity 1
+### Activity 2
 Is the number of OTUs normally distributed? Repeat the analyses we performed above to see whether there is a significant difference in the number of OTUs by diagnosis group.
 
 <input type="button" class="hideshow">
@@ -166,7 +226,7 @@ Not significant.
 
 ---
 
-### Activity 2
+### Activity 3
 Is there a significant difference in the FIT result by diagnosis group?
 
 <input type="button" class="hideshow">
@@ -178,7 +238,7 @@ kruskal.test(fit_result~diagnosis, data=meta_alpha)
 Yes, the P-value is quite small. Let's perform the pairwise Wilcoxon tests
 
 ```{r}
-pairwise.wilcox.test(g=meta_alpha[["diagnosis"]], x=meta_alpha[["fit_result"]], p.adjust.method="BH")
+pairwise.wilcox.test(g=meta_alpha$diagnosis, x=meta_alpha$fit_result, p.adjust.method="BH")
 ```
 
 The three diagnosis groups have significantly different FIT results even after comparing for multiple comparisons.
@@ -194,15 +254,15 @@ Sometimes we would like to know whether two variables are correlated with each o
 meta_alpha <- meta_alpha %>%
 	mutate(bmi = get_bmi(weight_kg=weight, height_cm=height))
 
-cor.test(meta_alpha[["shannon"]], meta_alpha[["bmi"]])
-cor.test(meta_alpha[["fit_result"]], meta_alpha[["age"]])
-cor.test(meta_alpha[["fit_result"]], meta_alpha[["shannon"]])
+cor.test(meta_alpha$shannon, meta_alpha$bmi)
+cor.test(meta_alpha$fit_result, meta_alpha$age)
+cor.test(meta_alpha$fit_result, meta_alpha$shannon)
 ```
 
 We see that Shannon diversity has a significant negative correlation with BMI, albeit a small correlation (R=`r cor.test(meta_alpha[["shannon"]], meta_alpha[["bmi"]])$estimate`). But there is no significant correlation between FIT result and age or Shannon diversity. To explore this correlation a bit further, we can fit a regression line through the data using the `lm` (i.e. linear model) function
 
 ```{r}
-lm_shannon_bmi <- lm(meta_alpha[["shannon"]]~meta_alpha[["bmi"]])
+lm_shannon_bmi <- lm(shannon~bmi, data=meta_alpha)
 summary(lm_shannon_bmi)
 ```
 
@@ -218,9 +278,9 @@ We see that the impact of BMI is significant, but that there's no meaningful dif
 By default, `cor.test` performs a Pearson correlation, which assumes a linear relationship between the two variables. Having seen the FIT result distribution a few times now, we might suspect that it has a non-linear association with other variables. We can test the association with a Spearman correlation.
 
 ```{r, results="markup"}
-cor.test(meta_alpha[["shannon"]], meta_alpha[["bmi"]], method="spearman")
-cor.test(meta_alpha[["fit_result"]], meta_alpha[["age"]], method="spearman")
-cor.test(meta_alpha[["fit_result"]], meta_alpha[["shannon"]], method="spearman")
+cor.test(meta_alpha$shannon, meta_alpha$bmi, method="spearman")
+cor.test(meta_alpha$fit_result, meta_alpha$age, method="spearman")
+cor.test(meta_alpha$fit_result, meta_alpha$shannon, method="spearman")
 ```
 
 Now we get significant P-values for these comparisons, but we see that the rho values are quite small. We also get a warning message that an exact p-value cannot be calculated when there are ties such as those that occur because multiple subjects have a value of zero for their FIT result.
@@ -259,7 +319,7 @@ ggplot(meta_alpha, aes(x=bmi, y=shannon, color=diagnosis)) +
 
 ---
 
-### Activity 3
+### Activity 4
 In the scatter plot where we drew three regression lines the legend changed to have a gray background behind the points and a line was drawn with the points. This is effectively a merge between the legend of the `geom_point` and `geom_smooth` layers. How do we remove the `geom_smooth` legend so that our legend only contains the simple plotting character?
 
 <input type="button" class="hideshow">
@@ -282,7 +342,7 @@ ggplot(meta_alpha, aes(x=bmi, y=shannon, color=diagnosis)) +
 
 ---
 
-### Activity 4
+### Activity 5
 Is there a significant association between the number of OTUs in a person's fecal samples and their BMI and sex? Run the test and show a plot of the relevant fit of the data.
 
 
@@ -343,7 +403,7 @@ Not that size of circles is generally pretty hard for people to differentiate, s
 
 ---
 
-### Activity 5
+### Activity 6
 Is there variation in obesity status and diagnosis?
 
 <input type="button" class="hideshow">

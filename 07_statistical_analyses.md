@@ -71,14 +71,14 @@ That does look better. There are several other functions that you might find use
 
 
 ```r
-shapiro.test(meta_alpha$shannon)
+meta_alpha %>% pull(shannon) %>% shapiro.test()
 ```
 
 ```
 ## 
 ## 	Shapiro-Wilk normality test
 ## 
-## data:  meta_alpha$shannon
+## data:  .
 ## W = 0.96978, p-value = 1.637e-08
 ```
 
@@ -86,14 +86,14 @@ That's a small p-value, which indicates that the data are not normally distribut
 
 
 ```r
-shapiro.test(meta_alpha$scaled_shannon)
+meta_alpha %>% pull(scaled_shannon) %>% shapiro.test()
 ```
 
 ```
 ## 
 ## 	Shapiro-Wilk normality test
 ## 
-## data:  meta_alpha$scaled_shannon
+## data:  .
 ## W = 0.99803, p-value = 0.8478
 ```
 
@@ -137,7 +137,7 @@ TukeyHSD(diagnosis_shannon_aov)
 Again, all of our adjusted P-values are greater than 0.05.
 
 
-If instead of using the scaled Shannon values we had used the raw values, then we would want to use a Kruskal-Wallis test using the `kruskal.test` function. To run this test, we need to recast `diagnosis` as a factor.
+If instead of using the scaled Shannon values we had used the raw values, then we would want to use a Kruskal-Wallis test using the `kruskal.test` function.
 
 
 ```r
@@ -152,14 +152,121 @@ kruskal.test(shannon~diagnosis, data=meta_alpha)
 ## Kruskal-Wallis chi-squared = 3.5804, df = 2, p-value = 0.1669
 ```
 
-Again, our P-value is not significant. If the experiment-wise P-value had been less than 0.05, then we could use pairwise Wilcoxon rank sum tests with correction for multiple comparisons. **[Note that this is a bad idea if your experiment-wise P-value is greater than 0.05]**. Here we need to revert to using the `[[]]` notation that we learned earlier to select specific columns from our data frame.
+Again, our P-value is not significant. If the experiment-wise P-value had been less than 0.05, then we could use pairwise Wilcoxon rank sum tests with correction for multiple comparisons. **[Note that this is a bad idea if your experiment-wise P-value is greater than 0.05]**. Perhaps we'd like to capture the actual P-value from that line of code and save it as a variable. How would we do this? Let's re-run the command, but save the variable as output
 
 
 ```r
+result <- kruskal.test(shannon~diagnosis, data=meta_alpha)
+result
+```
+
+```
+## 
+## 	Kruskal-Wallis rank sum test
+## 
+## data:  shannon by diagnosis
+## Kruskal-Wallis chi-squared = 3.5804, df = 2, p-value = 0.1669
+```
+
+Entering `result` at the prompt gets us the same output as before. The `kruskal.test` command, and many other commands, summarize the results of the test in an attractive manner to be human readable. We can see the output as the computer does using the `glimpse` or `str` commands.
+
+
+```r
+glimpse(result)
+```
+
+```
+## List of 5
+##  $ statistic: Named num 3.58
+##   ..- attr(*, "names")= chr "Kruskal-Wallis chi-squared"
+##  $ parameter: Named int 2
+##   ..- attr(*, "names")= chr "df"
+##  $ p.value  : num 0.167
+##  $ method   : chr "Kruskal-Wallis rank sum test"
+##  $ data.name: chr "shannon by diagnosis"
+##  - attr(*, "class")= chr "htest"
+```
+
+In that output you'll see a few things that may be a bit familiar to you. First, it tells us that the output is a "List of 5". It then follows with multiple lines, five of which start with a `$`. Next to the `$` are the names of different variables, a `:`, and the type of data that variable represents along with its value. Let's back up a smidge. What's a list? In R, a list is a collection of vectors that can contain different types of data. You can access the values of the list by a few different methods. You can use a `list_name$variable_name` or you can use `list_name[["variable_name"]]`.
+
+
+```r
+result$p.value
+```
+
+```
+## [1] 0.166927
+```
+
+
+```r
+result[["p.value"]]
+```
+
+```
+## [1] 0.166927
+```
+
+A data frame is a special type of list. If you do `glimpse(meta_alpha)`, you will see the output is a bit different from what we got above with `result`, but is still similar. Each line that starts with a `$` represents a different variable and is a vector of the indicated type. For example, the `sample` column is a vector of characters. We can access this column by one of four different ways.
+
+
+```r
+meta_alpha$sample
+meta_alpha[["sample"]]
+meta_alpha[, "sample"]
+pull(meta_alpha, sample)
+```
+
+Each of these function calls returns the same vector. In general, I will use the `$` notation because it's fewer keystrokes; however, if the code is part of a pipeline, I'll likely use the `pull` function.
+
+---
+
+### Activity 1
+Write the code to extract the type of test that we performed using the `result` variable using both methods that were discussed.
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+
+```r
+result[["test"]]
+```
+
+```
+## NULL
+```
+</div>
+---
+
+Not all R functions will play nicely with data frames or with the dplyr pipelines that we have been using through these materials. Some functions will require that we pull out a
+Here we need to revert to using the `[[]]` notation that we learned earlier to select specific columns from our data frame.
+
+
+```r
+meta_alpha %>%
+	group_by
+
 pairwise.wilcox.test(g=meta_alpha[["diagnosis"]], x=meta_alpha[["shannon"]], p.adjust.method="BH")
 ```
 
 ```
+## # A tibble: 490 x 22
+##    sample fit_result site  diagnosis_bin diagnosis previous_history
+##    <chr>       <dbl> <chr> <chr>         <fct>     <lgl>           
+##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
+##  2 20056…          0 U Mi… High Risk No… normal    FALSE           
+##  3 20076…         26 U Mi… High Risk No… normal    FALSE           
+##  4 20096…         10 Toro… Adenoma       adenoma   FALSE           
+##  5 20136…          0 U Mi… Normal        normal    FALSE           
+##  6 20156…          0 Dana… High Risk No… normal    FALSE           
+##  7 20176…          7 Dana… Cancer        cancer    TRUE            
+##  8 20196…         19 U Mi… Normal        normal    FALSE           
+##  9 20236…          0 Dana… High Risk No… normal    TRUE            
+## 10 20256…       1509 U Mi… Cancer        cancer    TRUE            
+## # … with 480 more rows, and 16 more variables: history_of_polyps <lgl>,
+## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
+## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
+## #   diabetes_med <lgl>, stage <chr>, sobs <dbl>, shannon <dbl>,
+## #   invsimpson <dbl>, coverage <dbl>, scaled_shannon <dbl>
 ## 
 ## 	Pairwise comparisons using Wilcoxon rank sum test 
 ## 
@@ -216,7 +323,7 @@ Both of these tests allow you perform a paired test if you have pre and post dat
 
 ---
 
-### Activity 1
+### Activity 2
 Is the number of OTUs normally distributed? Repeat the analyses we performed above to see whether there is a significant difference in the number of OTUs by diagnosis group.
 
 <input type="button" class="hideshow">
@@ -226,7 +333,7 @@ Is the number of OTUs normally distributed? Repeat the analyses we performed abo
 ggplot(meta_alpha, aes(sample=sobs, group=diagnosis, color=diagnosis)) + geom_qq() + stat_qq_line()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-13-1.png" title="plot of chunk unnamed-chunk-13" alt="plot of chunk unnamed-chunk-13" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-19-1.png" title="plot of chunk unnamed-chunk-19" alt="plot of chunk unnamed-chunk-19" width="504" />
 
 The curve holds water so we might try transforming with the square root
 
@@ -238,7 +345,7 @@ ggplot(meta_alpha, aes(sample=scaled_sobs, group=diagnosis, color=diagnosis)) +
 	geom_qq() + stat_qq_line()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-14-1.png" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-20-1.png" title="plot of chunk unnamed-chunk-20" alt="plot of chunk unnamed-chunk-20" width="504" />
 
 That doesn't look horrible...
 
@@ -248,7 +355,7 @@ ggplot(meta_alpha, aes(x=sobs)) + geom_histogram()
 ggplot(meta_alpha, aes(x=scaled_sobs)) + geom_histogram()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-15-1.png" title="plot of chunk unnamed-chunk-15" alt="plot of chunk unnamed-chunk-15" width="504" /><img src="assets/images/07_statistical_analyses//unnamed-chunk-15-2.png" title="plot of chunk unnamed-chunk-15" alt="plot of chunk unnamed-chunk-15" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-21-1.png" title="plot of chunk unnamed-chunk-21" alt="plot of chunk unnamed-chunk-21" width="504" /><img src="assets/images/07_statistical_analyses//unnamed-chunk-21-2.png" title="plot of chunk unnamed-chunk-21" alt="plot of chunk unnamed-chunk-21" width="504" />
 
 Good enough...
 
@@ -269,7 +376,7 @@ Not significant.
 
 ---
 
-### Activity 2
+### Activity 3
 Is there a significant difference in the FIT result by diagnosis group?
 
 <input type="button" class="hideshow">
@@ -508,7 +615,7 @@ ggplot(meta_alpha, aes(x=bmi, y=shannon, color=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-23-1.png" title="plot of chunk unnamed-chunk-23" alt="plot of chunk unnamed-chunk-23" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-29-1.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="504" />
 
 This plots the regression lines with the cloud around the line indicating the 95% confidence interval. We noted above that our regression analysis indicated that there wasn't a statistical difference between the diagnosis groups. If we want a single line through the data, then we can overwrite the `color` aesthetic in `geom_smooth`
 
@@ -527,11 +634,11 @@ ggplot(meta_alpha, aes(x=bmi, y=shannon, color=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-24-1.png" title="plot of chunk unnamed-chunk-24" alt="plot of chunk unnamed-chunk-24" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-30-1.png" title="plot of chunk unnamed-chunk-30" alt="plot of chunk unnamed-chunk-30" width="504" />
 
 ---
 
-### Activity 3
+### Activity 4
 In the scatter plot where we drew three regression lines the legend changed to have a gray background behind the points and a line was drawn with the points. This is effectively a merge between the legend of the `geom_point` and `geom_smooth` layers. How do we remove the `geom_smooth` legend so that our legend only contains the simple plotting character?
 
 <input type="button" class="hideshow">
@@ -551,13 +658,13 @@ ggplot(meta_alpha, aes(x=bmi, y=shannon, color=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-25-1.png" title="plot of chunk unnamed-chunk-25" alt="plot of chunk unnamed-chunk-25" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-31-1.png" title="plot of chunk unnamed-chunk-31" alt="plot of chunk unnamed-chunk-31" width="504" />
 </div>
 
 
 ---
 
-### Activity 4
+### Activity 5
 Is there a significant association between the number of OTUs in a person's fecal samples and their BMI and sex? Run the test and show a plot of the relevant fit of the data.
 
 
@@ -609,7 +716,7 @@ ggplot(meta_alpha, aes(x=bmi, y=sobs, color=sex)) +
 	theme_classic()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-27-1.png" title="plot of chunk unnamed-chunk-27" alt="plot of chunk unnamed-chunk-27" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-33-1.png" title="plot of chunk unnamed-chunk-33" alt="plot of chunk unnamed-chunk-33" width="504" />
 </div>
 
 ---
@@ -650,14 +757,14 @@ ggplot(meta_alpha, aes(x=sex, y=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-29-1.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-35-1.png" title="plot of chunk unnamed-chunk-35" alt="plot of chunk unnamed-chunk-35" width="504" />
 
 Not that size of circles is generally pretty hard for people to differentiate, so this isn't necessarily the best visualization tool. To see how to scale the circles by proportions you should see the examples in the `?geom_count` documentation.
 
 
 ---
 
-### Activity 5
+### Activity 6
 Is there variation in obesity status and diagnosis?
 
 <input type="button" class="hideshow">
@@ -694,5 +801,5 @@ ggplot(meta_alpha, aes(x=obese, y=diagnosis)) +
 ## Error in FUN(X[[i]], ...): object 'obese' not found
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-31-1.png" title="plot of chunk unnamed-chunk-31" alt="plot of chunk unnamed-chunk-31" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-37-1.png" title="plot of chunk unnamed-chunk-37" alt="plot of chunk unnamed-chunk-37" width="504" />
 </div>
