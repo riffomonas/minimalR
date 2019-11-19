@@ -26,7 +26,7 @@
 * Controlling flow with `ifelse`
 * Aggregating function
 * Matrices
-* Barplots - Legends; from Vectors, Matrices, t(Matrices)
+* Barplots - Legends
 * Error bar - standard deviation
 
 5 Working with random data
