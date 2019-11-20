@@ -14,15 +14,58 @@ output: markdown_document
 
 
 ## Joining `metadata` and `pcoa`
-We've almost accounted for all of the lines from our original chunk of code to build an ordination plot. You may remember the `inner_join` function, which was called after cleaning up the `metadata` data frame and before using `ggplot` to plot the data
+If we compile all of the code in the last lesson, we now have this code chunk which is a more sophisticated version of the original code chunk that we created in the first lesson.
 
 
+```r
+library(tidyverse)
+library(readxl)
 
-```R
+pcoa <- read_tsv(file="raw_data/baxter.thetayc.pcoa.axes",
+		col_types=cols(group=col_character())
+	)
+
+metadata <- read_excel(path="raw_data/baxter.metadata.xlsx",
+		col_types=c(sample = "text", fit_result = "numeric", Site = "text", Dx_Bin = "text",
+				dx = "text", Hx_Prev = "logical", Hx_of_Polyps = "logical", Age = "numeric",
+				Gender = "text", Smoke = "logical", Diabetic = "logical", Hx_Fam_CRC = "logical",
+				Height = "numeric", Weight = "numeric", NSAID = "logical", Diabetes_Med = "logical",
+				stage = "text")
+	)
+metadata <- mutate(metadata, Height = na_if(Height, 0))
+metadata <- mutate(metadata, Weight = na_if(Weight, 0))
+metadata <- mutate(metadata, Site = recode(.x=Site, "U of Michigan"="U Michigan"))
+metadata <- mutate(metadata, Dx_Bin = recode(.x=Dx_Bin, "Cancer."="Cancer"))
+metadata <- mutate(metadata, Gender = recode(.x=Gender, "f"="female", "m"="male"))
+
+metadata <- rename_all(.tbl=metadata, .funs=tolower)
+metadata <- rename(.data=metadata,
+		previous_history=hx_prev,
+		history_of_polyps=hx_of_polyps,
+		family_history_of_crc=hx_fam_crc,
+		diagnosis_bin=dx_bin,
+		diagnosis=dx,
+		sex=gender)
+
+dir.create("processed_data", showWarnings=FALSE)
+write_tsv(x=metadata, path='processed_data/baxter.metadata.tsv')
+
 metadata_pcoa <- inner_join(metadata, pcoa, by=c('sample'='group'))
+
+ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
+	geom_point(shape=19, size=2) +
+	scale_color_manual(name=NULL,
+		values=c("blue", "red", "black"),
+		breaks=c("normal", "adenoma", "cancer"),
+		labels=c("Normal", "Adenoma", "Cancer")) +
+	coord_fixed() +
+	labs(title="PCoA of ThetaYC Distances Between Stool Samples",
+		x="PCo Axis 1",
+		y="PCo Axis 2") +
+	theme_classic()
 ```
 
-The syntax here should be somewhat clear. The function "joins" two data frames - `pcoa` and `metadata` - based on the columns "sample" and "group", which are the columns in the `metadata` and `pcoa` data frames, respectively. If we were thinking ahead, we could have renamed the "group" column in `pcoa` to be "sample" and then the command could have just been `inner_join(metadata, pcoa)`. When you look at the contents of the `metadata_pcoa` data frame you'll see that the data frame is now 490 rows by 507 columns. Perhaps you're wondering what the ***inner*** in the `inner_join` function is about. It turns out that the `dplyr` package has several ways to join data frames. As we'll see, the `inner_join` function joins two data frames based on a column that they have in common (i.e. `by=c('sample'='group')` in our case) and if a sample or group is missing from one of the data frames, it is excluded from the joined data frame. This is what is called an "[inner join](https://en.wikipedia.org/wiki/Join_(SQL)#Inner_join)".
+We've almost accounted for all of the lines in this code chunk. One thing we haven't accounted for yet is the `inner_join` function, which was called after cleaning up the `metadata` data frame and before using `ggplot` to plot the data. The syntax here should be somewhat clear. The function "joins" two data frames - `pcoa` and `metadata` - based on the columns "sample" and "group", which are the columns in the `metadata` and `pcoa` data frames, respectively. If we were thinking ahead, we could have renamed the "group" column in `pcoa` to be "sample" and then the command could have just been `inner_join(metadata, pcoa)`. When you look at the contents of the `metadata_pcoa` data frame you'll see that the data frame is now 490 rows by 507 columns. Perhaps you're wondering what the ***inner*** in the `inner_join` function is about. It turns out that the `dplyr` package has several ways to join data frames. As we'll see, the `inner_join` function joins two data frames based on a column that they have in common (i.e. `by=c('sample'='group')` in our case) and if a sample or group is missing from one of the data frames, it is excluded from the joined data frame. This is what is called an "[inner join](https://en.wikipedia.org/wiki/Join_(SQL)#Inner_join)".
 
 
 ## Joins

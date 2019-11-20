@@ -7,9 +7,6 @@ output: markdown_document
 
 
 ## Learning goals
-* Bar plots
-* Error bars
-* Positioning with jitter and dodging
 * Strip charts
 * Box plots
 * Violin plots
@@ -56,305 +53,31 @@ meta_alpha <- inner_join(metadata, alpha, by=c('sample'='group'))
 ```
 
 
-## Bar Plots
-Bar plots are an attractive and popular way to display continuous data that has been divided into categories. For example, we might want to plot the mean FIT Result for each diagnosis group or each obesity category. We may want to get a bit more complicated and plot the mean FIT result value for each combination of diagnosis group and sex. Instead of using `geom_point`, we will use `geom_col` to build bar plots.
-
-Let's start by building a data frame that contains the mean FIT result for each diagnosis group:
+## Plotting options
+Bar plots are an attractive and popular way to display continuous data that has been divided into categories. For example, we might want to plot the mean FIT Result for each diagnosis group or each obesity category. We may want to get a bit more complicated and plot the mean FIT result value for each combination of diagnosis group and sex. Instead of using `geom_point` or `geom_bar`, we could use `geom_col` to build bar plots. We could also put an error bar on top of each bar to represent the level of variation. Except we won't. When people read bar plots, they tend to assume that the data are close to normally distributed with the height of the bar representing the mean of the distribution and that any error bars are symmetric. If we calculate the mean and standard deviation for each diagnosis group, we'll see that the standard deviation is larger than the mean for each diagnosis group.
 
 
 ```r
-fit_by_diagnosis <- meta_alpha %>%
-		group_by(diagnosis) %>%
-		summarize(mean_fit = mean(fit_result), sd_fit = sd(fit_result))
+meta_alpha %>%
+	group_by(diagnosis) %>%
+	summarize(mean=mean(fit_result), sd=sd(fit_result))
 ```
 
-For the `geom_col` function, we can use the `x` (i.e. position on x-axis), `y` (i.e. position on the y-axis), `fill` (i.e. color of the bar itself), `alpha` (i.e transparency of the fill color), `color` (i.e. color of the line that surrounds each bar), `linetype` (i.e. amount of hashing of the line that surrounds each bar), and `size` (i.e. thickness of the surrounding line) aesthetics. Let's start simple...
-
-
-```r
-ggplot(fit_by_diagnosis, aes(x=diagnosis, y=mean_fit)) +
-	geom_col()
+```
+## # A tibble: 3 x 3
+##   diagnosis   mean    sd
+##   <chr>      <dbl> <dbl>
+## 1 adenoma    98.8  329. 
+## 2 cancer    789.   814. 
+## 3 normal      8.92  44.7
 ```
 
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-3-1.png" title="plot of chunk unnamed-chunk-3" alt="plot of chunk unnamed-chunk-3" width="504" />
+This is kind of a big problem with bar plots that makes them a [less than desirably tool](http://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.1002128) for presenting mean data. Your data may be normally distributed, but there are better options for visualizing continuous data for different categories, which we'll explore in this lesson. While bar plots are acceptable for representing count or proportion data across the group (see Lesson 2), they are out of favor for representing a mean and should be avoided for that use.
 
-Let's change the `fill` color to be `dodgerblue` and set the `alpha` to be `0.5`.
-
-
-```r
-ggplot(fit_by_diagnosis, aes(x=diagnosis, y=mean_fit)) +
-	geom_col(fill="dodgerblue", alpha=0.5)
-```
-
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-4-1.png" title="plot of chunk unnamed-chunk-4" alt="plot of chunk unnamed-chunk-4" width="504" />
-
-To keep the style consistent across our plots, we will end up dumping the `fill` and `alpha` values for now and we will bring back some of the code we used in the earlier plots For now I'm going to copy and paste in the code from the last plot we made
-
-
-```r
-ggplot(fit_by_diagnosis, aes(x=diagnosis, y=mean_fit)) +
-	geom_col() +
-	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
-		breaks=c("normal", "adenoma", "cancer"),
-		labels=c("Normal", "Adenoma", "Cancer")) +
-	labs(title="Relationship between FIT result and subject's diagnosis",
-		x="Diagnosis",
-		y="FIT Result") +
-	theme_classic()
-```
-
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-5-1.png" title="plot of chunk unnamed-chunk-5" alt="plot of chunk unnamed-chunk-5" width="504" />
-
-Clearly there's  a lot wrong with this! First, our bars aren't the correct color. Second, the labels are all wrong. To fix the first problem, we can use `scale_fill_manual` (see what I did there?) in place of `scale_color_manual`. Remember that we need to tell `ggplot` to map the values in the "diagnosis" column to `fill`. We can also clean up the labels to fit this new application - for these types of plots, I would likely leave off the x-axis label.
-
-
-```r
-ggplot(fit_by_diagnosis, aes(x=diagnosis, y=mean_fit, fill=diagnosis)) +
-	geom_col() +
-	scale_fill_manual(name=NULL,
-		values=c("blue", "red", "black"),
-		breaks=c("normal", "adenoma", "cancer"),
-		labels=c("Normal", "Adenoma", "Cancer")) +
-	labs(title="Relationship between FIT result and subject's diagnosis",
-		x=NULL,
-		y="FIT Result") +
-	theme_classic()
-```
-
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-6-1.png" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" width="504" />
-
-We're gaining on it, but the x-axis labels aren't formatted correctly and the order isn't quite right. To fix this we can use the `scale_x_discrete` function with the `limits` and `labels` arguments.
-
-
-```r
-ggplot(fit_by_diagnosis, aes(x=diagnosis, y=mean_fit, fill=diagnosis)) +
-	geom_col() +
-	scale_fill_manual(name=NULL,
-		values=c("blue", "red", "black"),
-		breaks=c("normal", "adenoma", "cancer"),
-		labels=c("Normal", "Adenoma", "Cancer")) +
-	scale_x_discrete(limits=c("normal", "adenoma", "cancer"),
-		labels=c("Normal", "Adenoma", "Cancer")) +
-	labs(title="Relationship between FIT result and subject's diagnosis",
-		x=NULL,
-		y="FIT Result") +
-	theme_classic()
-```
-
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-7-1.png" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" width="504" />
-
-Now it's properly formatted, but for this plot, we really don't need the legend since it's a bit redundant. We can achieve this by adding `show.legend=FALSE` as an argument to `geom_col`.
-
-
-```r
-ggplot(fit_by_diagnosis, aes(x=diagnosis, y=mean_fit, fill=diagnosis)) +
-	geom_col(show.legend=FALSE) +
-	scale_fill_manual(name=NULL,
-		values=c("blue", "red", "black"),
-		breaks=c("normal", "adenoma", "cancer"),
-		labels=c("Normal", "Adenoma", "Cancer")) +
-	scale_x_discrete(limits=c("normal", "adenoma", "cancer"),
-		labels=c("Normal", "Adenoma", "Cancer")) +
-	labs(title="Relationship between FIT result and subject's diagnosis",
-		x=NULL,
-		y="FIT Result") +
-	theme_classic()
-```
-
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-8-1.png" title="plot of chunk unnamed-chunk-8" alt="plot of chunk unnamed-chunk-8" width="504" />
-
-Awesome. Now let's figure out how we can alter this code to plot the mean FIT result by diagnosis group and sex. Note that if we group by "sex" and "diagnosis", then we need to add an `ungroup` function call to the end of our pipeline to remove the grouping. After creating `fit_by_diagnosis_sex`, we'll map our `fill` aesthetic to the "sex" variable and we'll alter the `scale_fill_manual` syntax to color the bars for females and males differently. Next, we'll bring back in the legend and we'll add a `position="dodge"` argument to `geom_col`. The "dodge" will bump the bars to the side so they don't stack on top of each other.
-
-
-```r
-fit_by_diagnosis_sex <- meta_alpha %>%
-		group_by(sex, diagnosis) %>%
-		summarize(mean_fit = mean(fit_result), sd_fit = sd(fit_result)) %>%
-		ungroup()
-
-ggplot(fit_by_diagnosis_sex, aes(x=diagnosis, y=mean_fit, fill=sex)) +
-	geom_col(position=position_dodge()) +
-	scale_fill_manual(name=NULL,
-		values=c("lightgreen", "orange"),
-		breaks=c("female", "male"),
-		labels=c("Female", "Male")) +
-	scale_x_discrete(limits=c("normal", "adenoma", "cancer"),
-		labels=c("Normal", "Adenoma", "Cancer")) +
-	labs(title="Relationship between FIT result and subject's diagnosis",
-		x=NULL,
-		y="FIT Result") +
-	theme_classic()
-```
-
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-9-1.png" title="plot of chunk unnamed-chunk-9" alt="plot of chunk unnamed-chunk-9" width="504" />
-
----
-
-### Activity 1
-Modify the code we just used to make a grouped bar chart that plots the mean Shannon diversity index by diagnosis group and sex. Group the bars by sex rather than by diagnosis group. Don't worry about the bars being in the correct order for now. See if you can lengthen the y-axis to go from zero to five by using the `coord_cartesian` function
-
-<input type="button" class="hideshow">
-<div markdown="1" style="display:none;">
-
-```r
-shannon_by_diagnosis_sex <- meta_alpha %>%
-		group_by(diagnosis, sex) %>%
-		summarize(mean_shannon = mean(shannon), sd_fit = sd(shannon)) %>%
-		ungroup()
-
-ggplot(shannon_by_diagnosis_sex, aes(x=sex, y=mean_shannon, fill=diagnosis)) +
-	geom_col(position=position_dodge()) +
-	scale_fill_manual(name=NULL,
-		values=c("blue", "red", "black"),
-		breaks=c("normal", "adenoma", "cancer"),
-		labels=c("Normal", "Adenoma", "Cancer")) +
-	scale_x_discrete(limits=c("female", "male"),
-		labels=c("Female", "Male")) +
-	coord_cartesian(ylim=c(0,5)) +
-	labs(title="Relationship between diagnosis group, sex, and diversity",
-		x=NULL,
-		y="Shannon Diversity Index") +
-	theme_classic()
-```
-
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-10-1.png" title="plot of chunk unnamed-chunk-10" alt="plot of chunk unnamed-chunk-10" width="504" />
-
-If the order of the bars is driving you nuts, try this
-
-
-```r
-shannon_by_diagnosis_sex <- meta_alpha %>%
-		mutate(diagnosis = factor(diagnosis, levels=c("normal", "adenoma", "cancer"))) %>%
-		group_by(diagnosis, sex) %>%
-		summarize(mean_shannon = mean(shannon), sd_fit = sd(shannon)) %>%
-		ungroup()
-
-ggplot(shannon_by_diagnosis_sex, aes(x=sex, y=mean_shannon, fill=diagnosis)) +
-	geom_col(position=position_dodge()) +
-	scale_fill_manual(name=NULL,
-		values=c("black", "blue", "red"),
-		breaks=c("normal", "adenoma", "cancer"),
-		labels=c("Normal", "Adenoma", "Cancer")) +
-	scale_x_discrete(limits=c("female", "male"),
-		labels=c("Female", "Male")) +
-	coord_cartesian(ylim=c(0,5)) +
-	labs(title="Relationship between diagnosis group, sex, and diversity",
-		x=NULL,
-		y="Shannon Diversity Index") +
-	theme_classic()
-```
-
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-11-1.png" title="plot of chunk unnamed-chunk-11" alt="plot of chunk unnamed-chunk-11" width="504" />
-
-In the second chunk, we added a line to the calculation of `shannon_by_diagnosis_sex` to turn `diagnosis` from an unordered categorical variable into an ordered categorical variable, an ordinal variable. In R these are called factors and we'll talk about them more later. They're one of the more frustrating parts of R for beginners and experts. You should also notice that we also put the colors in `scale_fill_manual` into the desired order.
-</div>
-
----
-
-One last thing with bar plots is to represent the variation in the data with error bars. We can do this with the `geom_errorbar`. This geoms will take `x`, `y`, `ymax`, `ymin`, `alpha`, `color`, `linetype`, `size`, `width` as aesthetics. The two that we haven't seen before are `ymax` and `ymin`, which you can probably deduce from their names refer to where the top and bottom lines should be drawn on the error bars, respectively. To try this out, let's return to our `fit_by_diagnosis` data frame
-
-
-```r
-ggplot(fit_by_diagnosis, aes(x=diagnosis, y=mean_fit, fill=diagnosis)) +
-	geom_col(show.legend=FALSE) +
-	geom_errorbar(aes(ymax=mean_fit+sd_fit, ymin=mean_fit-sd_fit)) +
-	scale_fill_manual(name=NULL,
-		values=c("blue", "red", "black"),
-		breaks=c("normal", "adenoma", "cancer"),
-		labels=c("Normal", "Adenoma", "Cancer")) +
-	scale_x_discrete(limits=c("normal", "adenoma", "cancer"),
-		labels=c("Normal", "Adenoma", "Cancer")) +
-	labs(title="Relationship between FIT result and subject's diagnosis",
-		x=NULL,
-		y="FIT Result") +
-	theme_classic()
-```
-
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-12-1.png" title="plot of chunk unnamed-chunk-12" alt="plot of chunk unnamed-chunk-12" width="504" />
-
-Cool. Well. Kind of. There are two problems, one far more significant than the other. First, the standard deviations on our means are huge. Also, considering the bottom error bar goes below zero, it's safe to assume that our data probably aren't normally distributed. This is kind of a big problem with bar plots that makes them a [less than desirably tool](http://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.1002128) for presenting mean data. The other problem is that the width of the error bars is as wide as the bars themselves. Let's change them to be half the width of the rectangles. We can do this by setting the `width` aesthetic in `geom_errorbar` to `0.5`.
-
-
-```r
-ggplot(fit_by_diagnosis, aes(x=diagnosis, y=mean_fit, fill=diagnosis)) +
-	geom_col(show.legend=FALSE) +
-	geom_errorbar(width=0.5, aes(ymax=mean_fit+sd_fit, ymin=mean_fit-sd_fit)) +
-	scale_fill_manual(name=NULL,
-		values=c("blue", "red", "black"),
-		breaks=c("normal", "adenoma", "cancer"),
-		labels=c("Normal", "Adenoma", "Cancer")) +
-	scale_x_discrete(limits=c("normal", "adenoma", "cancer"),
-		labels=c("Normal", "Adenoma", "Cancer")) +
-	labs(title="Relationship between FIT result and subject's diagnosis",
-		x=NULL,
-		y="FIT Result") +
-	theme_classic()
-```
-
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-13-1.png" title="plot of chunk unnamed-chunk-13" alt="plot of chunk unnamed-chunk-13" width="504" />
-
-One thing we could do is to set the `ymin` value to `mean_fit - 0.1 * mean_fit` rather than `mean_fit-sd_fit`. But this will put a black line just inside the black rectangle. We can hide the bottom error bar by calling `geom_col` after `geom_errorbar`
-
-
-```r
-ggplot(fit_by_diagnosis, aes(x=diagnosis, y=mean_fit, fill=diagnosis)) +
-	geom_errorbar(width=0.5, aes(ymax=mean_fit+sd_fit, ymin=mean_fit-0.1*mean_fit)) +
-	geom_col(show.legend=FALSE) +
-	scale_fill_manual(name=NULL,
-		values=c("blue", "red", "black"),
-		breaks=c("normal", "adenoma", "cancer"),
-		labels=c("Normal", "Adenoma", "Cancer")) +
-	scale_x_discrete(limits=c("normal", "adenoma", "cancer"),
-		labels=c("Normal", "Adenoma", "Cancer")) +
-	labs(title="Relationship between FIT result and subject's diagnosis",
-		x=NULL,
-		y="FIT Result") +
-	theme_classic()
-```
-
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-14-1.png" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" width="504" />
-
-Better. This is kind of a ridiculous example, but it helps to underscore the problems with bar plots. Let's look at a few other ways to represent continuous data from multiple categories. We'll find that much of the syntax we used with `geom_col` is the same for these other `geom`s.
-
-
----
-
-### Activity 2
-Create a bar plot with error bars that shows the Shannon diversity for each diagnosis group grouped by sex along the x-axis. Add error bars representing the standard deviations to the bar plots.
-
-<input type="button" class="hideshow">
-<div markdown="1" style="display:none;">
-
-```r
-shannon_by_diagnosis_sex <- meta_alpha %>%
-		group_by(diagnosis, sex) %>%
-		summarize(mean_shannon = mean(shannon), sd_shannon = sd(shannon)) %>%
-		ungroup()
-
-ggplot(shannon_by_diagnosis_sex, aes(x=sex, y=mean_shannon, fill=diagnosis)) +
-	geom_errorbar(position=position_dodge(width=0.9), width=0.5, aes(ymax=mean_shannon+sd_shannon, ymin=mean_shannon-sd_shannon)) +
-	geom_col(position=position_dodge()) +
-	scale_fill_manual(name=NULL,
-		values=c("blue", "red", "black"),
-		breaks=c("normal", "adenoma", "cancer"),
-		labels=c("Normal", "Adenoma", "Cancer")) +
-	scale_x_discrete(limits=c("female", "male"),
-		labels=c("Female", "Male")) +
-	labs(title="Relationship between diagnosis group, sex, and diversity",
-		x=NULL,
-		y="Shannon Diversity Index") +
-	theme_classic()
-```
-
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-15-1.png" title="plot of chunk unnamed-chunk-15" alt="plot of chunk unnamed-chunk-15" width="504" />
-</div>
-
----
 
 
 ## Strip charts
-As I mentioned above, one limitation of bar plots is that they obscure the data and make it hard to determine whether the data are normally distributed and make it unclear how many observations are within each bar. An alternative to this is a strip chart where the y-axis values are plotted for each observation in the category. We can make these plots in `ggplot` using `geom_jitter`. Also, notice that we no longer want the data frame with the summary statistics, instead we can use the full `meta_alpha` data frame.
+One limitation of bar plots is that they obscure the data and make it hard to determine whether the data are normally distributed and make it unclear how many observations are within each bar. An alternative to this is a strip chart where the y-axis values are plotted for each observation in the category. We can make these plots in `ggplot` using `geom_jitter`. Also, notice that we no longer want the data frame with the summary statistics, instead we can use the full `meta_alpha` data frame.
 
 
 ```r
@@ -372,7 +95,7 @@ ggplot(meta_alpha, aes(x=diagnosis, y=fit_result, color=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-16-1.png" title="plot of chunk unnamed-chunk-16" alt="plot of chunk unnamed-chunk-16" width="504" />
+<img src="assets/images/05_continuous_categorical//unnamed-chunk-3-1.png" title="plot of chunk unnamed-chunk-3" alt="plot of chunk unnamed-chunk-3" width="504" />
 
 Looks better, eh? Perhaps we'd like to alter the jitter along the x-axis, we can set the amount of jitter using the `width` argument
 
@@ -392,11 +115,11 @@ ggplot(meta_alpha, aes(x=diagnosis, y=fit_result, color=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-17-1.png" title="plot of chunk unnamed-chunk-17" alt="plot of chunk unnamed-chunk-17" width="504" />
+<img src="assets/images/05_continuous_categorical//unnamed-chunk-4-1.png" title="plot of chunk unnamed-chunk-4" alt="plot of chunk unnamed-chunk-4" width="504" />
 
 ---
 
-### Activity 3
+### Activity 1
 Create a strip chart that shows the Shannon diversity for each diagnosis category. You'll notice that the y-axis does not seem to extend down to zero. Use the `coord_cartesian` function to include zero.
 
 <input type="button" class="hideshow">
@@ -418,7 +141,7 @@ ggplot(meta_alpha, aes(x=diagnosis, y=shannon, color=diagnosis)) +
 	coord_cartesian(ylim=c(0,5))
 ```
 
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-18-1.png" title="plot of chunk unnamed-chunk-18" alt="plot of chunk unnamed-chunk-18" width="504" />
+<img src="assets/images/05_continuous_categorical//unnamed-chunk-5-1.png" title="plot of chunk unnamed-chunk-5" alt="plot of chunk unnamed-chunk-5" width="504" />
 </div>
 
 ---
@@ -441,7 +164,7 @@ ggplot(meta_alpha, aes(x=sex, y=fit_result, color=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-19-1.png" title="plot of chunk unnamed-chunk-19" alt="plot of chunk unnamed-chunk-19" width="504" />
+<img src="assets/images/05_continuous_categorical//unnamed-chunk-6-1.png" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" width="504" />
 
 Meh. Another option is to use a the `position_jitterdodge` function with the `position` argument in `geom_jitter`. Recall that "dodge" means move the points so they don't overlap and "jitter" randomizes the x-position of the points (you can also randomize them on the y-axis, but that seems... strange).
 
@@ -461,7 +184,7 @@ ggplot(meta_alpha, aes(x=sex, y=fit_result, color=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-20-1.png" title="plot of chunk unnamed-chunk-20" alt="plot of chunk unnamed-chunk-20" width="504" />
+<img src="assets/images/05_continuous_categorical//unnamed-chunk-7-1.png" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" width="504" />
 
 It looks like our diagnosis groups are still overlapping a bit. We can give a jitter.width and dodge.width value to `position_jitter_dodge` to eliminate that overlap.
 
@@ -481,14 +204,14 @@ ggplot(meta_alpha, aes(x=sex, y=fit_result, color=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-21-1.png" title="plot of chunk unnamed-chunk-21" alt="plot of chunk unnamed-chunk-21" width="504" />
+<img src="assets/images/05_continuous_categorical//unnamed-chunk-8-1.png" title="plot of chunk unnamed-chunk-8" alt="plot of chunk unnamed-chunk-8" width="504" />
 
 The order of the diagnosis groups is still out of whack. We'll come back to that later.
 
 
 ---
 
-### Activity 4
+### Activity 2
 Create a strip chart that shows the Shannon diversity for each diagnosis category and sex. Again, make sure that the y-axis includes zero.
 
 <input type="button" class="hideshow">
@@ -510,7 +233,7 @@ ggplot(meta_alpha, aes(x=sex, y=shannon, color=diagnosis)) +
 	coord_cartesian(ylim=c(0,5))
 ```
 
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-22-1.png" title="plot of chunk unnamed-chunk-22" alt="plot of chunk unnamed-chunk-22" width="504" />
+<img src="assets/images/05_continuous_categorical//unnamed-chunk-9-1.png" title="plot of chunk unnamed-chunk-9" alt="plot of chunk unnamed-chunk-9" width="504" />
 </div>
 
 ---
@@ -534,7 +257,7 @@ ggplot(meta_alpha, aes(x=diagnosis, y=fit_result, color=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-23-1.png" title="plot of chunk unnamed-chunk-23" alt="plot of chunk unnamed-chunk-23" width="504" />
+<img src="assets/images/05_continuous_categorical//unnamed-chunk-10-1.png" title="plot of chunk unnamed-chunk-10" alt="plot of chunk unnamed-chunk-10" width="504" />
 
 One of the things I don't like about box plots is that it isn't always clear what the various parts of the box or whiskers represent. The line through the middle of the rectangle is the median value and the lower and upper edges of the rectangle represent the 25th and 75th percentiles. The whiskers extend to the larges value greater than 1.5 times the difference between the 25th and 75th percentiles. It's a way to represent outliers. Another way to represent the distribution is wiht a notched box plot
 
@@ -554,7 +277,7 @@ ggplot(meta_alpha, aes(x=diagnosis, y=fit_result, color=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-24-1.png" title="plot of chunk unnamed-chunk-24" alt="plot of chunk unnamed-chunk-24" width="504" />
+<img src="assets/images/05_continuous_categorical//unnamed-chunk-11-1.png" title="plot of chunk unnamed-chunk-11" alt="plot of chunk unnamed-chunk-11" width="504" />
 
 In this case, the notches extend to 1.58 times the difference between the 25th and 75th percentiles divided by the square root of the number of observations. According to `?geom_boxplot` this gives a sense of the 95% confidence interval for comparing medians and "if the notches of two boxes do not overlap, this suggests that the medians are significantly different". Alternatively, you could generate an ugly and busy plot (but people seem to like them) where a strip chart and box plot (without the outliers) are overlapped using the `outlier.shape=NA` argument in `geom_boxplot`.
 
@@ -575,12 +298,12 @@ ggplot(meta_alpha, aes(x=diagnosis, y=fit_result, color=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-25-1.png" title="plot of chunk unnamed-chunk-25" alt="plot of chunk unnamed-chunk-25" width="504" />
+<img src="assets/images/05_continuous_categorical//unnamed-chunk-12-1.png" title="plot of chunk unnamed-chunk-12" alt="plot of chunk unnamed-chunk-12" width="504" />
 
 
 ---
 
-### Activity 5
+### Activity 3
 Make a box plot that shows the Shannon diversity for each sex grouped by the subjects' diagnosis. Make the same plot, but group by diagnosis. Which is better? When would you want to group by sex? By diagnosis?
 
 <input type="button" class="hideshow">
@@ -601,7 +324,7 @@ ggplot(meta_alpha, aes(x=diagnosis, y=shannon, color=sex)) +
 	theme_classic()
 ```
 
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-26-1.png" title="plot of chunk unnamed-chunk-26" alt="plot of chunk unnamed-chunk-26" width="504" />
+<img src="assets/images/05_continuous_categorical//unnamed-chunk-13-1.png" title="plot of chunk unnamed-chunk-13" alt="plot of chunk unnamed-chunk-13" width="504" />
 
 
 ```r
@@ -619,13 +342,13 @@ ggplot(meta_alpha, aes(x=sex, y=shannon, color=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-27-1.png" title="plot of chunk unnamed-chunk-27" alt="plot of chunk unnamed-chunk-27" width="504" />
+<img src="assets/images/05_continuous_categorical//unnamed-chunk-14-1.png" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" width="504" />
 It depends on the question, which is better! If we are interested in comparing the two sexes, then we want to group by sex. If we want to compare the diagnosis groups, then we'll want to group by diagnosis groups.
 </div>
 
 ---
 
-### Activity 6
+### Activity 4
 Our box plots have only had color on the rectangle, median line, whiskers, and outliers. Generate a box plot for the relationship between the patients' Shannon diversity and their diagnosis. Add a complimentary fill color that allows you to still see the cardinal values of the box plot.
 
 <input type="button" class="hideshow">
@@ -650,7 +373,7 @@ ggplot(meta_alpha, aes(x=diagnosis, y=shannon, color=diagnosis, fill=diagnosis))
 	theme_classic()
 ```
 
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-28-1.png" title="plot of chunk unnamed-chunk-28" alt="plot of chunk unnamed-chunk-28" width="504" />
+<img src="assets/images/05_continuous_categorical//unnamed-chunk-15-1.png" title="plot of chunk unnamed-chunk-15" alt="plot of chunk unnamed-chunk-15" width="504" />
 </div>
 
 ---
@@ -674,11 +397,11 @@ ggplot(meta_alpha, aes(x=diagnosis, y=fit_result, fill=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-29-1.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="504" />
+<img src="assets/images/05_continuous_categorical//unnamed-chunk-16-1.png" title="plot of chunk unnamed-chunk-16" alt="plot of chunk unnamed-chunk-16" width="504" />
 
 ---
 
-### Activity 7
+### Activity 5
 In the previous violin plot we created the outline color to the violins was black. Can you get the outline color to match that of the fill color?
 
 <input type="button" class="hideshow">
@@ -703,12 +426,12 @@ ggplot(meta_alpha, aes(x=diagnosis, y=fit_result, fill=diagnosis, color=diagnosi
 	theme_classic()
 ```
 
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-30-1.png" title="plot of chunk unnamed-chunk-30" alt="plot of chunk unnamed-chunk-30" width="504" />
+<img src="assets/images/05_continuous_categorical//unnamed-chunk-17-1.png" title="plot of chunk unnamed-chunk-17" alt="plot of chunk unnamed-chunk-17" width="504" />
 </div>
 
 ---
 
-### Activity 8
+### Activity 6
 Create a violin plot comparing diversity across diagnosis groups and sex
 
 <input type="button" class="hideshow">
@@ -733,12 +456,12 @@ ggplot(meta_alpha, aes(x=sex, y=shannon, fill=diagnosis, color=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-31-1.png" title="plot of chunk unnamed-chunk-31" alt="plot of chunk unnamed-chunk-31" width="504" />
+<img src="assets/images/05_continuous_categorical//unnamed-chunk-18-1.png" title="plot of chunk unnamed-chunk-18" alt="plot of chunk unnamed-chunk-18" width="504" />
 </div>
 
 ---
 
-### Activity 9
+### Activity 7
 A new variant of the types of plots discussed in this lesson is the ridgeline plot (aka ["joy plot"](http://www.houstonpress.com/music/five-joy-division-covers-that-dont-suck-6518316)). Install the `ggridges` package and see if you can figure out how to build a ridgeline plot of Shannon diversity values for the three diagnosis groups.
 
 <input type="button" class="hideshow">
@@ -800,7 +523,7 @@ ggplot(meta_alpha, aes(x=sex, y=fit_result, color=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-33-1.png" title="plot of chunk unnamed-chunk-33" alt="plot of chunk unnamed-chunk-33" width="504" />
+<img src="assets/images/05_continuous_categorical//unnamed-chunk-20-1.png" title="plot of chunk unnamed-chunk-20" alt="plot of chunk unnamed-chunk-20" width="504" />
 
 We can reorder the diagnosis variable by using the `factor` function where we give it the levels for the factor in the order we want it in. You might notice that we previously used a bit of a hack to set the `values` argument in `scale_color_manual`. This argument was taking our diagnosis values in alphabetical order. The values for `breaks` and `labels` were the order we wanted. Now we can use the "correct" order for our `values` argument
 
@@ -822,13 +545,13 @@ meta_alpha %>%
 		theme_classic()
 ```
 
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-34-1.png" title="plot of chunk unnamed-chunk-34" alt="plot of chunk unnamed-chunk-34" width="504" />
+<img src="assets/images/05_continuous_categorical//unnamed-chunk-21-1.png" title="plot of chunk unnamed-chunk-21" alt="plot of chunk unnamed-chunk-21" width="504" />
 
 Nice, eh? There are a variety of things you can do with factors including reordering the factors by another variable, aggregating multiple values, and renaming variables. These are really outside the scope of this tutorial and I rarely use them in my work. You can learn more about them in the [R4DS book](http://r4ds.had.co.nz/factors.html).
 
 ---
 
-### Activity 10
+### Activity 8
 Generate a box plot clustering Shannon diversity data by diagnosis and then sex. Have the strips for males go before the females. Why didn't we have to worry about factors before with the sex variable?
 
 <input type="button" class="hideshow">
@@ -853,5 +576,5 @@ ggplot(aes(x=diagnosis, y=shannon, color=sex)) +
 	theme_classic()
 ```
 
-<img src="assets/images/05_continuous_categorical//unnamed-chunk-35-1.png" title="plot of chunk unnamed-chunk-35" alt="plot of chunk unnamed-chunk-35" width="504" />
+<img src="assets/images/05_continuous_categorical//unnamed-chunk-22-1.png" title="plot of chunk unnamed-chunk-22" alt="plot of chunk unnamed-chunk-22" width="504" />
 </div>

@@ -12,6 +12,7 @@ output: markdown_document
 * Data types
 * Value of keeping raw data, raw
 * Importance of how things are named
+* Bar plots
 
 ```{r knitr_settings, eval=TRUE, echo=FALSE, cache=FALSE}
 library(knitr)
@@ -401,11 +402,17 @@ metadata <- rename(.data=metadata,
 		diagnosis=dx,
 		sex=gender)
 ```
+
+```{R echo=FALSE}
+metadata <- rename(.data=metadata,
+		sex=gender)
+```
+
 </div>
 
 ---
 
-We'll stop here, but it's also worth noting that we might want to add units to some of our columns. For example, we might rename the "height" column to "height_cm". Although manipulating the column headings and to be lowercase or to be more clear is a matter of personal preference, it makes your analysis easier to implement. This is especially true if you have to pause the project for a few weeks or months (e.g. the paper goes out for review, you go on vacation, etc.). When you come back to it, you won't have to recall what "Hx" means. Making sure the values in the data frame are correct by removing typos (e.g. "U of Michigan") and ensuring they are properly bounded (e.g. no heights of zero) is critical to the validity of your analysis. I want to reemphasize the importance of leaving your raw data raw. Our manipulations of the `metadata` data frame have not altered `raw_data/baxter.metadata.xlsx`. Perhaps we would like to export the cleaned up data frame to share with others. Similar to the `read_tsv` function from the `readr` package, that package also contains a `write_tsv` function that we can use to write the cleaned data to a text file. Before we do this, we'll create a directory in our project directory called `processed_data`.
+We'll stop here with cleaning up the data, but it's also worth noting that we might want to add units to some of our columns. For example, we might rename the "height" column to "height_cm". Although manipulating the column headings and to be lowercase or to be more clear is a matter of personal preference, it makes your analysis easier to implement. This is especially true if you have to pause the project for a few weeks or months (e.g. the paper goes out for review, you go on vacation, etc.). When you come back to it, you won't have to recall what "Hx" means. Making sure the values in the data frame are correct by removing typos (e.g. "U of Michigan") and ensuring they are properly bounded (e.g. no heights of zero) is critical to the validity of your analysis. I want to reemphasize the importance of leaving your raw data raw. Our manipulations of the `metadata` data frame have not altered `raw_data/baxter.metadata.xlsx`. Perhaps we would like to export the cleaned up data frame to share with others. Similar to the `read_tsv` function from the `readr` package, that package also contains a `write_tsv` function that we can use to write the cleaned data to a text file. Before we do this, we'll create a directory in our project directory called `processed_data`.
 
 ```{r}
 dir.create("processed_data", showWarnings=FALSE)
@@ -436,54 +443,175 @@ metadata_pcoa <- inner_join(metadata, pcoa, by=c('sample'='group'))
 
 ---
 
-Because we've been keeping track of all of our commands we have a transcript of what we've done to the data. Let's rewrite that initial code chunk to have all of the processing steps together. We need to remember to update our column names in our new code:
+We can look at the the text output of our `metadata` tibble and we can use the `count` function to see the number of subjects that came from each center, but that quickly becomes tedious. Bar plots are a good option for visualizing these types of data. Let's generate a bar plot of the number of subjects at each center. We'll see that the syntax for making a bar plot is analogous to what we did in the previous lesson to make a scatter plot. To make a basic bar plot, the only aesthetic we need to provide is the variable we'd like along the x-axis:
 
 ```{r}
-library(tidyverse)
-library(readxl)
+ggplot(metadata, aes(x=site)) +
+	geom_bar()
+```
 
-pcoa <- read_tsv(file="raw_data/baxter.thetayc.pcoa.axes",
-		col_types=cols(group=col_character())
-	)
+With some of the same commands we used previously, we can get this to look a little nicer
 
-metadata <- read_excel(path="raw_data/baxter.metadata.xlsx",
-		col_types=c(sample = "text", fit_result = "numeric", Site = "text", Dx_Bin = "text",
-				dx = "text", Hx_Prev = "logical", Hx_of_Polyps = "logical", Age = "numeric",
-				Gender = "text", Smoke = "logical", Diabetic = "logical", Hx_Fam_CRC = "logical",
-				Height = "numeric", Weight = "numeric", NSAID = "logical", Diabetes_Med = "logical",
-				stage = "text")
-	)
-metadata <- mutate(metadata, Height = na_if(Height, 0))
-metadata <- mutate(metadata, Weight = na_if(Weight, 0))
-metadata <- mutate(metadata, Site = recode(.x=Site, "U of Michigan"="U Michigan"))
-metadata <- mutate(metadata, Dx_Bin = recode(.x=Dx_Bin, "Cancer."="Cancer"))
-metadata <- mutate(metadata, Gender = recode(.x=Gender, "f"="female", "m"="male"))
+```{r}
+ggplot(metadata, aes(x=site)) +
+	geom_bar() +
+		labs(title="Number of subjects at each center",
+			x=NULL,
+			y="Number of subjects") +
+		theme_classic()
+```
 
-metadata <- rename_all(.tbl=metadata, .funs=tolower)
-metadata <- rename(.data=metadata,
-		previous_history=hx_prev,
-		history_of_polyps=hx_of_polyps,
-		family_history_of_crc=hx_fam_crc,
-		diagnosis_bin=dx_bin,
-		diagnosis=dx,
-		sex=gender)
+Nice. Let's say we want to know the number of male and female patients at each site. To do this we will add the `group` aesthetic. The bars will be grouped along the x-axis by site and then by sex. We'll also use the `color` aesthetic to color the bars by sex.
 
-dir.create("processed_data", showWarnings=FALSE)
-write_tsv(x=metadata, path='processed_data/baxter.metadata.tsv')
+```{r}
+ggplot(metadata, aes(x=site, group=sex, color=sex)) +
+	geom_bar() +
+		labs(title="Number of male and female subjects at each center",
+			x=NULL,
+			y="Number of subjects") +
+		theme_classic()
+```
 
-metadata_pcoa <- inner_join(metadata, pcoa, by=c('sample'='group'))
+Huh. That looks weird. It appears that the border of the bars was colored rather than the content of the bar. It also appears that the male and female bar for each center were stacked on top of each other. We're not big fans of stacked bar plots and we'd really like these bars to be side-by-side. Go ahead and run `?geom_bar` and scroll down to the "Aesthetics" section of the help page. Do you see any aesthetics that might help us color the inside of the bars? If you can't figure it out, scroll down further to find the "Examples" section and look at how they suggest using the `geom_bar` command. Can you figure out which aesthetic will change the interior color? Hopefully, you've figured out that it should be the `fill` aesthetic instead of the `color` aesthetic.
 
-ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
-	geom_point(shape=19, size=2) +
-	scale_color_manual(name=NULL,
+```{r}
+ggplot(metadata, aes(x=site, group=sex, fill=sex)) +
+	geom_bar() +
+		labs(title="Number of male and female subjects at each center",
+			x=NULL,
+			y="Number of subjects") +
+		theme_classic()
+```
+
+Great, we've solved the problem of how to set the ***fill*** color. Now we need to figure out how  to stop the bars from stacking. Looking back through the `?geom_bar` help page, do you see anything that tells you how to plot the bars next to each other instead of on top of each other? As a hint, look at the "See Also" section. It indicates that we should see "‘position_dodge()’ and ‘position_dodge2()’ for creating side-by-side bar charts." OK. Now let's do `?position_dodge` to see what this is all about. In the "Examples" section, we see an example that uses `position_dodge` with `geom_col`. Nice.
+
+```R
+ggplot(mtcars, aes(factor(cyl), fill = factor(vs))) +
+ geom_bar(position = "dodge2")
+
+# By default, dodging with `position_dodge2()` preserves the total width of
+# the elements. You can choose to preserve the width of each element with:
+ggplot(mtcars, aes(factor(cyl), fill = factor(vs))) +
+ geom_bar(position = position_dodge2(preserve = "single"))
+```
+
+After playing around with `position_dodge` and `position_dodge2` and their various options, we might settle upon this
+
+```{r}
+ggplot(metadata, aes(x=site, group=sex, fill=sex)) +
+	geom_bar(position = position_dodge()) +
+		labs(title="Number of male and female subjects at each center",
+			x=NULL,
+			y="Number of subjects") +
+		theme_classic()
+```
+
+I'm not a fan of the default colors, having a legend title, or of the formatting of "female" and "male". I'd rather use some different colors, leave out the legend title, and capitalize the first letter of the two sexes. Previously, we set the color of the diagnosis groups using `scale_color_manual`. We can do the same thing for our bar plot using `scale_fill_manual`. Can you see the difference?
+
+```{r}
+ggplot(metadata, aes(x=site, group=sex, fill=sex)) +
+	geom_bar(position = position_dodge()) +
+		scale_fill_manual(name=NULL,
+			values=c("lightgreen", "purple"),
+			breaks=c("female", "male"),
+			labels=c("Female", "Male")) +
+		labs(title="Number of male and female subjects at each center",
+			x=NULL,
+			y="Number of subjects") +
+		theme_classic()
+```
+
+Nice, eh? Ok, so the colors aren't amazing. Now let's ask a different question, how are the three diagnosis groups distributed within each center? We can start simple
+
+```{r}
+ggplot(metadata, aes(x=site, group=diagnosis, fill=diagnosis)) +
+	geom_bar(position = position_dodge())
+	labs(title="Number of subjects with each diagnosis at each center",
+		x=NULL,
+		y="Number of subjects") +
+	theme_classic()
+```
+
+We can add our `scale_fill_manual` like we did earlier
+
+```{r}
+ggplot(metadata, aes(x=site, group=diagnosis, fill=diagnosis)) +
+	geom_bar(position = position_dodge()) +
+	scale_fill_manual(name=NULL,
 		values=c("blue", "red", "black"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
-	coord_fixed() +
-	labs(title="PCoA of ThetaYC Distances Between Stool Samples",
-		x="PCo Axis 1",
-		y="PCo Axis 2") +
+	labs(title="Number of subjects with each diagnosis at each center",
+		x=NULL,
+		y="Number of subjects") +
 	theme_classic()
-
-ggsave("ordination.pdf")
 ```
+
+You may notice that the order of the diagnosis labels is correct in the legend, but not along the x-axis. We can fix this problem by adding a line of code and reordering the colors in the line with the `values` argument.
+
+```{r}
+metadata <- mutate(metadata, diagnosis = factor(diagnosis, levels=c("normal", "adenoma", "cancer")))
+
+ggplot(metadata, aes(x=site, group=diagnosis, fill=diagnosis)) +
+	geom_bar(position = position_dodge()) +
+	scale_fill_manual(name=NULL,
+		values=c("black", "blue", "red"),
+		breaks=c("normal", "adenoma", "cancer"),
+		labels=c("Normal", "Adenoma", "Cancer")) +
+	labs(title="Number of subjects with each diagnosis at each center",
+		x=NULL,
+		y="Number of subjects") +
+	theme_classic()
+```
+
+We turned `diagnosis` from an unordered categorical variable into an ordered categorical variable, an ordinal variable. In R these are called factors and we'll talk about them more later. They're one of the more frustrating parts of R for beginners and experts. You should also notice that we also put the colors in `scale_fill_manual` into the desired order.
+
+
+
+---
+
+### Activity 9
+Create a bar plot that shows the number of people with and without a family history of colorectal cancer at each of the centers
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+```{r}
+ggplot(metadata, aes(x=site, group=family_history_of_crc, fill=family_history_of_crc)) +
+	geom_bar(position = position_dodge()) +
+		scale_fill_manual(name="Family history of CRC?",
+			values=c("orange", "blue"),
+			breaks=c(TRUE, FALSE),
+			labels=c("Yes", "No")) +
+		labs(title="Number of subjects at each center with and without a history of CRC",
+			x=NULL,
+			y="Number of subjects") +
+		theme_classic()
+```
+</div>
+
+---
+
+### Activity 10
+Above we plotted the site along the x-axis with diagnosis as the secondary variable. Switch it so that diagnosis is plotted along the x-axis and the site is the secondary variable. Which version of the plot do you prefer? When would you chose one orientation over the other?
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+```{r}
+ggplot(metadata, aes(x=diagnosis, group=site, fill=site)) +
+	geom_bar(position = position_dodge()) +
+		scale_x_discrete(limits=c("normal", "adenoma", "cancer"),
+			labels=c("Normal", "Adenoma", "Cancer")) +
+		scale_fill_manual(name=NULL,
+			values=c("orange", "blue", "green", "black"),
+			breaks=c("Dana Farber", "MD Anderson", "Toronto", "U Michigan"),
+			labels=c("Dana Farber", "MD Anderson", "Toronto", "U Michigan")) +
+		labs(title="Number of subjects at each center with and without a history of CRC",
+			x=NULL,
+			y="Number of subjects") +
+		theme_classic()
+```
+</div>
+
+---
+
+Because we've been keeping track of all of our commands we have a transcript of what we've done to the data. Let's rewrite that initial code chunk to have all of the processing steps together. We need to remember to update our column names in our new code:
