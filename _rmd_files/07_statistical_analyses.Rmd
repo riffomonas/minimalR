@@ -222,7 +222,7 @@ Write the code to extract the type of test that we performed using the `result` 
 <div markdown="1" style="display:none;">
 ```{r}
 result[["test"]]
-
+result$test
 ```
 </div>
 ---
@@ -550,29 +550,25 @@ Not that size of circles is generally pretty hard for people to differentiate, s
 ---
 
 ### Activity 8
-Is there variation in obesity status and diagnosis?
+Is there variation in site and diagnosis?
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
 ```{r}
-chisq.test(x=meta_alpha[["obese"]], y=meta_alpha[["diagnosis"]])
+chisq.test(x=meta_alpha[["site"]], y=meta_alpha[["diagnosis"]])
 ```
 
 The P-value is quite small
 
 ```{r}
-ggplot(meta_alpha, aes(x=obese, y=diagnosis)) +
+ggplot(meta_alpha, aes(x=site, y=diagnosis)) +
 	geom_count() +
-	scale_x_discrete(name=NULL,
-		breaks=c("TRUE", "FALSE"),
-		labels=c("Obese", "Not Obese")) +
 	scale_y_discrete(name=NULL,
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	scale_size_continuous(name=NULL) +
-	labs(title="There is significant variation in the likelihood that obese individuals\nwill develop lesions",
-		x="Body Mass Index (BMI)",
-		y="Number of observed OTUs") +
+	labs(title="There is significant variation in the diagnosis group and\nthe site where the subjects were recruited",
+		x=NULL) +
 	theme_classic()
 ```
 </div>

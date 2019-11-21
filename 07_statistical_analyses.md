@@ -378,7 +378,7 @@ glimpse(diagnosis_shannon_aov)
 ##   .. ..- attr(*, "order")= int 1
 ##   .. ..- attr(*, "intercept")= int 1
 ##   .. ..- attr(*, "response")= int 1
-##   .. ..- attr(*, ".Environment")=<environment: 0x7f7ee0f3f470> 
+##   .. ..- attr(*, ".Environment")=<environment: 0x7fef7bef7070> 
 ##   .. ..- attr(*, "predvars")= language list(scaled_shannon, diagnosis)
 ##   .. ..- attr(*, "dataClasses")= Named chr [1:2] "numeric" "factor"
 ##   .. .. ..- attr(*, "names")= chr [1:2] "scaled_shannon" "diagnosis"
@@ -393,7 +393,7 @@ glimpse(diagnosis_shannon_aov)
 ##   .. .. ..- attr(*, "order")= int 1
 ##   .. .. ..- attr(*, "intercept")= int 1
 ##   .. .. ..- attr(*, "response")= int 1
-##   .. .. ..- attr(*, ".Environment")=<environment: 0x7f7ee0f3f470> 
+##   .. .. ..- attr(*, ".Environment")=<environment: 0x7fef7bef7070> 
 ##   .. .. ..- attr(*, "predvars")= language list(scaled_shannon, diagnosis)
 ##   .. .. ..- attr(*, "dataClasses")= Named chr [1:2] "numeric" "factor"
 ##   .. .. .. ..- attr(*, "names")= chr [1:2] "scaled_shannon" "diagnosis"
@@ -425,9 +425,11 @@ Write the code to extract the type of test that we performed using the `result` 
 
 ```r
 result[["test"]]
+result$test
 ```
 
 ```
+## NULL
 ## NULL
 ```
 </div>
@@ -1094,40 +1096,36 @@ Not that size of circles is generally pretty hard for people to differentiate, s
 ---
 
 ### Activity 8
-Is there variation in obesity status and diagnosis?
+Is there variation in site and diagnosis?
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
 
 ```r
-chisq.test(x=meta_alpha[["obese"]], y=meta_alpha[["diagnosis"]])
+chisq.test(x=meta_alpha[["site"]], y=meta_alpha[["diagnosis"]])
 ```
 
 ```
-## Error in chisq.test(x = meta_alpha[["obese"]], y = meta_alpha[["diagnosis"]]): 'x' and 'y' must have the same length
+## 
+## 	Pearson's Chi-squared test
+## 
+## data:  meta_alpha[["site"]] and meta_alpha[["diagnosis"]]
+## X-squared = 152.46, df = 6, p-value < 2.2e-16
 ```
 
 The P-value is quite small
 
 
 ```r
-ggplot(meta_alpha, aes(x=obese, y=diagnosis)) +
+ggplot(meta_alpha, aes(x=site, y=diagnosis)) +
 	geom_count() +
-	scale_x_discrete(name=NULL,
-		breaks=c("TRUE", "FALSE"),
-		labels=c("Obese", "Not Obese")) +
 	scale_y_discrete(name=NULL,
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	scale_size_continuous(name=NULL) +
-	labs(title="There is significant variation in the likelihood that obese individuals\nwill develop lesions",
-		x="Body Mass Index (BMI)",
-		y="Number of observed OTUs") +
+	labs(title="There is significant variation in the diagnosis group and\nthe site where the subjects were recruited",
+		x=NULL) +
 	theme_classic()
-```
-
-```
-## Error in FUN(X[[i]], ...): object 'obese' not found
 ```
 
 <img src="assets/images/07_statistical_analyses//unnamed-chunk-51-1.png" title="plot of chunk unnamed-chunk-51" alt="plot of chunk unnamed-chunk-51" width="504" />
