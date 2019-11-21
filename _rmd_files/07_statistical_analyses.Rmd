@@ -5,10 +5,12 @@ output: markdown_document
 ---
 
 ## Topics
+* More complex aggregation approach
 * Transforming data to make them normally distributed
 * Extracting columns from a data frame
 * Parsing output from complex variables
 * Simple statistical tests
+* Formula notation
 * Overlaying models on scatter plots
 
 
@@ -30,9 +32,9 @@ opts_chunk$set("fig.width" = 7)
 ## Comparing continuous by categorical variables
 So far we have been analyzing our data visually with the plots we have made. It would be nice to know whether there are statistically significant differences between various categories of the same variable or whether two continuous variables are correlated with each other. For example, we might want to know whether the Shannon diversity of men and women or between the three diagnosis categories is significantly different. Alternatively, we might want to know whether having a cancer diagnosis varies with the subjects' sex. Or we might want to know whether there is a correlation between Shannon diversity and a subject's BMI or FIT result.
 
-One of the more important assumptions in most statistical analyses is whether the data are normally distributed. We can look at this question graphically with a few tools. The first we'll use is the qq plot which plots the normally distributed quartiles on the x axis and our observed values on the y-axis. If the data are normally distributed, then the points fall on a line. We can generate this plot using `geom_qq` and `stat_qq_line`
+Before we get to plotting, let's summarize the data a bit differently than we have been. Back in Lesson 4, we saw that we could use the `group_by`/`summarize` workflow to generate individual columns of a new data frame. That approach has a major problem: we can only use functions that generate a single value (e.g. `mean`). To do this type of operation, we need to take a slightly different approach. We will use tools from a package called `purrr`, which is part of the tidyverse. Way back in Lesson 2 we saw that we could run `summary` to generate summary statistics for each column of a data frame by doing something like `summary(meta_alpha)`. With continuous data that command would output the minimum and maximum values, the values at the 25th and 75% percentiles and the median and mean. To illustrate one of the problems I describe above, let's try the `group_by`/`summarize` workflow with `summary`.
 
-```{r}
+```{R}
 source("code/baxter.R")
 
 alpha <- read_tsv(file="raw_data/baxter.groups.ave-std.summary",
@@ -42,6 +44,71 @@ alpha <- read_tsv(file="raw_data/baxter.groups.ave-std.summary",
 metadata <- get_metadata()
 meta_alpha <- inner_join(metadata, alpha, by=c('sample'='group'))
 
+meta_alpha %>%
+	group_by(diagnosis) %>%
+	summarize(summary(fit_result))
+```
+
+As I indicated, this created an error message. In the new approach, we will take four steps to get the desired output. First, we will generate three data frames - one for each diagnosis group. Second, within each diagnosis group we will run the summary command generating a data frame for each diagnosis group. Finally, we will merge the data frames together to make a single data frame. The cool thing, is that we will generate these data frames within the original data frame. We will have a data frame where instead of a column containing character or numerical values, it will have columns that contain data frames. The first step requires the `nest` command. We will *nest* the data within the original data frame.
+
+```{R}
+library(purrr)
+library(broom)
+
+meta_alpha %>%
+	nest(data = -diagnosis)
+```
+
+Trippy, eh? We told `nest` to take the data not in the diagnosis column and make a data frame with it for each diagnosis group. Next, we will want to apply the `summary` function to the `shannon` column in each data frame in the data column. We can achieve this with the `map` and `tidy` functions.
+
+```{R}
+meta_alpha %>%
+	nest(data = -diagnosis) %>%
+	mutate(summary_data=map(data, ~summary(.x$shannon) %>% tidy))
+```
+
+This chunk has a few things going on in it. You'll notice we are using the `mutate` function to create a new column called summary. The values in summary_data are being set using the `map` function. The `map` function runs the `summary` function on each row of our data frame (i.e. there are three rows - one for each diagnosis category). We are giving the `summary` function to `map` using the formula notation, hence the `~` (we'll discuss this later in this lesson). If you look at `map` you'll see that the primary arguments to the function are `.x` and `.f`. The first is for the data and the second is for the function to be applied to the data. Although it isn't explicitly stated, the value of `.x` is `data` and the value of `.f` is `~summary(.x$shannon)) %>% tidy`. So you should be able to see that `.x$shannon` is pulling the shannon column from the nested data frame stored in the data column. The `summary` function is doing it's thing with that column. The output of that command is a structure called a Summary Data Frame, which doesn't play nicely with our tibble. To clean it up, we need to run the output through the `tidy` function. The output shows that we now have a three column data frame. The diagnosis column, our data column, and the new summary_data column, which contains the summary output as a column of tibbles. Next, we want to extract or `unnest` the values in the summary_data column.
+
+```{r}
+meta_alpha %>%
+	nest(data = -diagnosis) %>%
+	mutate(summary_data=map(data, ~summary(.x$shannon) %>% tidy)) %>%
+	unnest(cols=summary_data)
+```
+
+Nice, eh? Let's go ahead and get rid of the data column using the `select` function
+
+```{r}
+meta_alpha %>%
+	nest(data = -diagnosis) %>%
+	mutate(summary_data=map(data, ~summary(.x$shannon) %>% tidy)) %>%
+	unnest(cols=summary_data) %>%
+	select(-data)
+```
+
+### Activity 1
+Modify the code we used above to generate the same type of output, but for the fit_result column. Can you add a column to the data frame that indicates the number of subjects in each diagnosis group as a column?
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+```{r}
+meta_alpha %>%
+	nest(data = -diagnosis) %>%
+	mutate(summary_data=map(data, ~summary(.x$fit_result) %>% tidy),
+				N = map(data, ~nrow(.x))) %>%
+	unnest(cols=c(summary_data, N)) %>%
+	select(-data)
+```
+
+You could have written two mutate statements or run them together as a single statement. If you did `~nrow(.x) %>% tidy` that is fine, but the `tidy` function call to generate N is unnecessary.
+</div>
+
+---
+
+## Testing significance
+Looking at those summary tables, it might be hard to decipher whether the diagnosis groups are significantly different from each other. We'd like to test these differences with a statistical test. One of the more important assumptions in most statistical analyses is whether the data are normally distributed. We can look at this question graphically with a few tools. The first we'll use is the qq plot which plots the normally distributed quartiles on the x axis and our observed values on the y-axis. If the data are normally distributed, then the points fall on a line. We can generate this plot using `geom_qq` and `stat_qq_line`
+
+```{r}
 ggplot(meta_alpha, aes(sample=shannon, group=diagnosis, color=diagnosis)) + geom_qq() + stat_qq_line()
 ```
 
@@ -78,10 +145,7 @@ That's a small p-value, which indicates that the data are not normally distribut
 meta_alpha %>% pull(scaled_shannon) %>% shapiro.test()
 ```
 
-Wonderful - it's impossible to prove a null hypothesis, but we have a p-value that indicates support for the null hypothesis that our data are normally distributed. Great - we can move on with the scaled data for our parametric tests.
-
-
-Now that we are confident our data are properly distribute for an analysis of variance (ANOVA), we can run the test with the `aov` and `summary` functions.
+Wonderful - it's impossible to prove a null hypothesis, but we have a p-value that indicates support for the null hypothesis that our data are normally distributed. Great - we can move on with the scaled data for our parametric tests. We can run the test with the `aov` and `summary` functions.
 
 ```{r}
 diagnosis_shannon_aov <- aov(scaled_shannon~diagnosis, data=meta_alpha)
@@ -151,7 +215,7 @@ diagnosis_shannon_aov[["xlevels"]]$diagnosis
 
 ---
 
-### Activity 1
+### Activity 2
 Write the code to extract the type of test that we performed using the `result` variable using both methods that were discussed.
 
 <input type="button" class="hideshow">
@@ -188,7 +252,7 @@ Both of these tests allow you perform a paired test if you have pre and post dat
 
 ---
 
-### Activity 2
+### Activity 3
 Is the number of OTUs normally distributed? Repeat the analyses we performed above to see whether there is a significant difference in the number of OTUs by diagnosis group.
 
 <input type="button" class="hideshow">
@@ -225,7 +289,7 @@ Not significant.
 
 ---
 
-### Activity 3
+### Activity 4
 Is there a significant difference in the FIT result by diagnosis group?
 
 <input type="button" class="hideshow">
@@ -241,6 +305,89 @@ pairwise.wilcox.test(g=meta_alpha$diagnosis, x=meta_alpha$fit_result, p.adjust.m
 ```
 
 The three diagnosis groups have significantly different FIT results even after comparing for multiple comparisons.
+</div>
+
+---
+
+## Testing multiple hypotheses at once
+I'd like to know whether the Shannon diversity varies by diagnosis, sex, or smoking status. Let's think through how to do this. We could run `kruskal.test` multiple times. This isn't particularly DRY. We could also use `pivot_longer` to make a column that we could call characteristic that contains the values "diagnosis", "sex", and "smoke" and a column that contains the value for those characteristics. Then we could use our `nest`/`mutate`/`map`/`unnest` workflow to generate a table with p-values. Let's give that a shot.
+
+```{r}
+meta_alpha %>%
+	select(sample, shannon, diagnosis, sex, smoke) %>%
+	pivot_longer(cols=c(diagnosis, sex, smoke), names_to="characteristic", values_to="value")
+```
+
+Oops we get an error. It doesn't like that we're trying to combine columns that are different types of data. Let's recast those columns to all be character vectors with the `as.character` function and try again
+
+```{r}
+meta_alpha %>%
+	mutate(diagnosis = as.character(diagnosis),
+		sex = as.character(sex), #unnecessary since it's already a character vector
+		smoke = as.character(smoke)) %>%
+	select(sample, shannon, diagnosis, sex, smoke) %>%
+	pivot_longer(cols=c(diagnosis, sex, smoke), names_to="characteristic", values_to="value")
+```
+
+Nice. I notice that we do have a few `NA` values in the data frame so let's go ahead and drop those rows.
+
+```{r}
+meta_alpha %>%
+	mutate(diagnosis = as.character(diagnosis),
+		sex = as.character(sex), #unnecessary since it's already a character vector
+		smoke = as.character(smoke)) %>%
+	select(sample, shannon, diagnosis, sex, smoke) %>%
+	pivot_longer(cols=c(diagnosis, sex, smoke), names_to="characteristic", values_to="value") %>%
+	drop_na()
+```
+
+Now we can go ahead and do our `nest`/`mutate`/`map`/`unnest` workflow
+
+```{r}
+meta_alpha %>%
+	mutate(diagnosis = as.character(diagnosis),
+		sex = as.character(sex), #unnecessary since it's already a character vector
+		smoke = as.character(smoke)) %>%
+	select(sample, shannon, diagnosis, sex, smoke) %>%
+	pivot_longer(cols=c(diagnosis, sex, smoke), names_to="characteristic", values_to="value") %>%
+	drop_na() %>%
+	nest(data = -characteristic) %>%
+	mutate(tests = map(data, ~tidy(kruskal.test(shannon ~ value, data=.x)))) %>%
+	unnest(cols=tests) %>%
+	select(-data)
+```
+
+Viola! None of these tests appear to be significant, so we can probably move on from these univariate analyses. For completion, let's add a column with adjusted P-values. We can get these values with the `p.adjust` function.
+
+```{r}
+meta_alpha %>%
+	mutate(diagnosis = as.character(diagnosis),
+		sex = as.character(sex), #unnecessary since it's already a character vector
+		smoke = as.character(smoke)) %>%
+	select(sample, shannon, diagnosis, sex, smoke) %>%
+	pivot_longer(cols=c(diagnosis, sex, smoke), names_to="characteristic", values_to="value") %>%
+	drop_na() %>%
+	nest(data = -characteristic) %>%
+	mutate(tests = map(data, ~tidy(kruskal.test(shannon ~ value, data=.x)))) %>%
+	unnest(cols=tests) %>%
+	select(-data) %>%
+	mutate(p.value.adj = p.adjust(p.value, method="BH"))
+```
+
+### Activity 5
+Generate a table with adjusted P-values indicating whether the variation in fit_result data is significant across diagnosis groups for each site separately.
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+```{r}
+meta_alpha %>%
+	select(sample, fit_result, diagnosis, site) %>%
+	nest(data = -site) %>%
+	mutate(tests = map(data, ~tidy(kruskal.test(fit_result ~ diagnosis, data=.x)))) %>%
+	unnest(cols=tests) %>%
+	select(-data) %>%
+	mutate(p.value.adj = p.adjust(p.value, method="BH"))
+```
 </div>
 
 ---
@@ -318,7 +465,7 @@ ggplot(meta_alpha, aes(x=bmi, y=shannon, color=diagnosis)) +
 
 ---
 
-### Activity 4
+### Activity 6
 In the scatter plot where we drew three regression lines the legend changed to have a gray background behind the points and a line was drawn with the points. This is effectively a merge between the legend of the `geom_point` and `geom_smooth` layers. How do we remove the `geom_smooth` legend so that our legend only contains the simple plotting character?
 
 <input type="button" class="hideshow">
@@ -341,7 +488,7 @@ ggplot(meta_alpha, aes(x=bmi, y=shannon, color=diagnosis)) +
 
 ---
 
-### Activity 5
+### Activity 7
 Is there a significant association between the number of OTUs in a person's fecal samples and their BMI and sex? Run the test and show a plot of the relevant fit of the data.
 
 
@@ -402,7 +549,7 @@ Not that size of circles is generally pretty hard for people to differentiate, s
 
 ---
 
-### Activity 6
+### Activity 8
 Is there variation in obesity status and diagnosis?
 
 <input type="button" class="hideshow">

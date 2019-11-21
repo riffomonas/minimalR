@@ -59,9 +59,11 @@
 
 
 ## Lesson 7
+* More complex aggregation approach
 * Transforming data to make them normally distributed
 * Extracting columns from a data frame
 * Parsing output from complex variables
+* Formula notation
 * Simple statistical tests
 * Overlaying models on scatter plots
 
@@ -75,8 +77,6 @@
 
 
 ## Not covered
-* map workflow
-
 * Base R stuff
 
 * Themes
