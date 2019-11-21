@@ -4,22 +4,23 @@ title: "Session 7: Statistical analyses"
 output: markdown_document
 ---
 
-
-
-## Learning goals
+## Topics
+* More complex aggregation approach
 * Transforming data to make them normally distributed
-* T-test and Analysis of Variance
-* Wilcoxon and Kruskal-Wallis tests
-* Correlations and regression
-* Overlaying regression on scatter plots
-* Chi-squared tests and visualization
+* Extracting columns from a data frame
+* Parsing output from complex variables
+* Simple statistical tests
+* Formula notation
+* Overlaying models on scatter plots
+
+
 
 
 
 ## Comparing continuous by categorical variables
 So far we have been analyzing our data visually with the plots we have made. It would be nice to know whether there are statistically significant differences between various categories of the same variable or whether two continuous variables are correlated with each other. For example, we might want to know whether the Shannon diversity of men and women or between the three diagnosis categories is significantly different. Alternatively, we might want to know whether having a cancer diagnosis varies with the subjects' sex. Or we might want to know whether there is a correlation between Shannon diversity and a subject's BMI or FIT result.
 
-One of the more important assumptions in most statistical analyses is whether the data are normally distributed. We can look at this question graphically with a few tools. The first we'll use is the qq plot which plots the normally distributed quartiles on the x axis and our observed values on the y-axis. If the data are normally distributed, then the points fall on a line. We can generate this plot using `geom_qq` and `stat_qq_line`
+Before we get to plotting, let's summarize the data a bit differently than we have been. Back in Lesson 4, we saw that we could use the `group_by`/`summarize` workflow to generate individual columns of a new data frame. That approach has a major problem: we can only use functions that generate a single value (e.g. `mean`). To do this type of operation, we need to take a slightly different approach. We will use tools from a package called `purrr`, which is part of the tidyverse. Way back in Lesson 2 we saw that we could run `summary` to generate summary statistics for each column of a data frame by doing something like `summary(meta_alpha)`. With continuous data that command would output the minimum and maximum values, the values at the 25th and 75% percentiles and the median and mean. To illustrate one of the problems I describe above, let's try the `group_by`/`summarize` workflow with `summary`.
 
 
 ```r
@@ -32,10 +33,130 @@ alpha <- read_tsv(file="raw_data/baxter.groups.ave-std.summary",
 metadata <- get_metadata()
 meta_alpha <- inner_join(metadata, alpha, by=c('sample'='group'))
 
+meta_alpha %>%
+	group_by(diagnosis) %>%
+	summarize(summary(fit_result))
+```
+
+```
+## Error: Column `summary(fit_result)` must be length 1 (a summary value), not 6
+```
+
+As I indicated, this created an error message. In the new approach, we will take four steps to get the desired output. First, we will generate three data frames - one for each diagnosis group. Second, within each diagnosis group we will run the summary command generating a data frame for each diagnosis group. Finally, we will merge the data frames together to make a single data frame. The cool thing, is that we will generate these data frames within the original data frame. We will have a data frame where instead of a column containing character or numerical values, it will have columns that contain data frames. The first step requires the `nest` command. We will *nest* the data within the original data frame.
+
+
+```r
+library(purrr)
+library(broom)
+
+meta_alpha %>%
+	nest(data = -diagnosis)
+```
+
+```
+## # A tibble: 3 x 2
+##   diagnosis            data
+##   <fct>     <list<df[,20]>>
+## 1 normal         [172 × 20]
+## 2 adenoma        [198 × 20]
+## 3 cancer         [120 × 20]
+```
+
+Trippy, eh? We told `nest` to take the data not in the diagnosis column and make a data frame with it for each diagnosis group. Next, we will want to apply the `summary` function to the `shannon` column in each data frame in the data column. We can achieve this with the `map` and `tidy` functions.
+
+
+```r
+meta_alpha %>%
+	nest(data = -diagnosis) %>%
+	mutate(summary_data=map(data, ~summary(.x$shannon) %>% tidy))
+```
+
+```
+## # A tibble: 3 x 3
+##   diagnosis            data summary_data    
+##   <fct>     <list<df[,20]>> <list>          
+## 1 normal         [172 × 20] <tibble [1 × 6]>
+## 2 adenoma        [198 × 20] <tibble [1 × 6]>
+## 3 cancer         [120 × 20] <tibble [1 × 6]>
+```
+
+This chunk has a few things going on in it. You'll notice we are using the `mutate` function to create a new column called summary. The values in summary_data are being set using the `map` function. The `map` function runs the `summary` function on each row of our data frame (i.e. there are three rows - one for each diagnosis category). We are giving the `summary` function to `map` using the formula notation, hence the `~` (we'll discuss this later in this lesson). If you look at `map` you'll see that the primary arguments to the function are `.x` and `.f`. The first is for the data and the second is for the function to be applied to the data. Although it isn't explicitly stated, the value of `.x` is `data` and the value of `.f` is `~summary(.x$shannon)) %>% tidy`. So you should be able to see that `.x$shannon` is pulling the shannon column from the nested data frame stored in the data column. The `summary` function is doing it's thing with that column. The output of that command is a structure called a Summary Data Frame, which doesn't play nicely with our tibble. To clean it up, we need to run the output through the `tidy` function. The output shows that we now have a three column data frame. The diagnosis column, our data column, and the new summary_data column, which contains the summary output as a column of tibbles. Next, we want to extract or `unnest` the values in the summary_data column.
+
+
+```r
+meta_alpha %>%
+	nest(data = -diagnosis) %>%
+	mutate(summary_data=map(data, ~summary(.x$shannon) %>% tidy)) %>%
+	unnest(cols=summary_data)
+```
+
+```
+## # A tibble: 3 x 8
+##   diagnosis            data minimum    q1 median  mean    q3 maximum
+##   <fct>     <list<df[,20]>>   <dbl> <dbl>  <dbl> <dbl> <dbl>   <dbl>
+## 1 normal         [172 × 20]    1.85  3.32   3.68  3.58  3.91    4.62
+## 2 adenoma        [198 × 20]    1.25  3.31   3.63  3.58  3.90    4.38
+## 3 cancer         [120 × 20]    2.52  3.25   3.49  3.52  3.87    4.48
+```
+
+Nice, eh? Let's go ahead and get rid of the data column using the `select` function
+
+
+```r
+meta_alpha %>%
+	nest(data = -diagnosis) %>%
+	mutate(summary_data=map(data, ~summary(.x$shannon) %>% tidy)) %>%
+	unnest(cols=summary_data) %>%
+	select(-data)
+```
+
+```
+## # A tibble: 3 x 7
+##   diagnosis minimum    q1 median  mean    q3 maximum
+##   <fct>       <dbl> <dbl>  <dbl> <dbl> <dbl>   <dbl>
+## 1 normal       1.85  3.32   3.68  3.58  3.91    4.62
+## 2 adenoma      1.25  3.31   3.63  3.58  3.90    4.38
+## 3 cancer       2.52  3.25   3.49  3.52  3.87    4.48
+```
+
+### Activity 1
+Modify the code we used above to generate the same type of output, but for the fit_result column. Can you add a column to the data frame that indicates the number of subjects in each diagnosis group as a column?
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+
+```r
+meta_alpha %>%
+	nest(data = -diagnosis) %>%
+	mutate(summary_data=map(data, ~summary(.x$fit_result) %>% tidy),
+				N = map(data, ~nrow(.x))) %>%
+	unnest(cols=c(summary_data, N)) %>%
+	select(-data)
+```
+
+```
+## # A tibble: 3 x 8
+##   diagnosis minimum    q1 median   mean     q3 maximum     N
+##   <fct>       <dbl> <dbl>  <dbl>  <dbl>  <dbl>   <dbl> <int>
+## 1 normal          0     0     0    8.92    0       356   172
+## 2 adenoma         0     0     0   98.8    35.8    2589   198
+## 3 cancer          0   100   522. 789.   1207.     2964   120
+```
+
+You could have written two mutate statements or run them together as a single statement. If you did `~nrow(.x) %>% tidy` that is fine, but the `tidy` function call to generate N is unnecessary.
+</div>
+
+---
+
+## Testing significance
+Looking at those summary tables, it might be hard to decipher whether the diagnosis groups are significantly different from each other. We'd like to test these differences with a statistical test. One of the more important assumptions in most statistical analyses is whether the data are normally distributed. We can look at this question graphically with a few tools. The first we'll use is the qq plot which plots the normally distributed quartiles on the x axis and our observed values on the y-axis. If the data are normally distributed, then the points fall on a line. We can generate this plot using `geom_qq` and `stat_qq_line`
+
+
+```r
 ggplot(meta_alpha, aes(sample=shannon, group=diagnosis, color=diagnosis)) + geom_qq() + stat_qq_line()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-1-1.png" title="plot of chunk unnamed-chunk-1" alt="plot of chunk unnamed-chunk-1" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-7-1.png" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" width="504" />
 
 We see from this qq plot that our data are not normally distributed. We can attempt to normalize the distributions by scaling `shannon` by raising it to a power. If the curve would hold water, then you should use a power between 0 and 1 and if it wouldn't hold water you would use a power above 1. Ours would not hold water so we'll try 2 or 3.
 
@@ -47,7 +168,7 @@ ggplot(meta_alpha, aes(sample=scaled_shannon, group=diagnosis, color=diagnosis))
 	geom_qq() + stat_qq_line()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-2-1.png" title="plot of chunk unnamed-chunk-2" alt="plot of chunk unnamed-chunk-2" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-8-1.png" title="plot of chunk unnamed-chunk-8" alt="plot of chunk unnamed-chunk-8" width="504" />
 
 It's hard to tell the difference between 2 and 3, but I think 3 looks a bit better. Let's compare the raw Shannon values to the scaled values using a histogram
 
@@ -56,7 +177,7 @@ It's hard to tell the difference between 2 and 3, but I think 3 looks a bit bett
 ggplot(meta_alpha, aes(x=shannon)) + geom_histogram()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-3-1.png" title="plot of chunk unnamed-chunk-3" alt="plot of chunk unnamed-chunk-3" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-9-1.png" title="plot of chunk unnamed-chunk-9" alt="plot of chunk unnamed-chunk-9" width="504" />
 
 We see that the distribution is skewed to the left.
 
@@ -65,7 +186,7 @@ We see that the distribution is skewed to the left.
 ggplot(meta_alpha, aes(x=scaled_shannon)) + geom_histogram()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-4-1.png" title="plot of chunk unnamed-chunk-4" alt="plot of chunk unnamed-chunk-4" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-10-1.png" title="plot of chunk unnamed-chunk-10" alt="plot of chunk unnamed-chunk-10" width="504" />
 
 That does look better. There are several other functions that you might find useful for plotting histograms including `geom_freqpoly`, `geom_dotplot`, and `geom_density`. As with `geom_qq`, you can specify the `group` and `color` or `fill` aesthetics to see the distribution for each category you are interested in. We can also run a `shapiro.test`. The null hypothesis is that the data are normally distributed so a small p-value would mean that the data are not normally distributed.
 
@@ -97,10 +218,7 @@ meta_alpha %>% pull(scaled_shannon) %>% shapiro.test()
 ## W = 0.99803, p-value = 0.8478
 ```
 
-Wonderful - it's impossible to prove a null hypothesis, but we have a p-value that indicates support for the null hypothesis that our data are normally distributed. Great - we can move on with the scaled data for our parametric tests.
-
-
-Now that we are confident our data are properly distribute for an analysis of variance (ANOVA), we can run the test with the `aov` and `summary` functions.
+Wonderful - it's impossible to prove a null hypothesis, but we have a p-value that indicates support for the null hypothesis that our data are normally distributed. Great - we can move on with the scaled data for our parametric tests. We can run the test with the `aov` and `summary` functions.
 
 
 ```r
@@ -217,11 +335,89 @@ meta_alpha[, "sample"]
 pull(meta_alpha, sample)
 ```
 
-Each of these function calls returns the same vector. In general, I will use the `$` notation because it's fewer keystrokes; however, if the code is part of a pipeline, I'll likely use the `pull` function.
+Each of these function calls returns the same vector. In general, I will use the `$` notation because it's fewer keystrokes; however, if the code is part of a pipeline, I'll likely use the `pull` function. Note that you can chain together this notation for parsing complicated lists. Take for example, the `diagnosis_shannon_aov` variable that we created above
+
+
+```r
+glimpse(diagnosis_shannon_aov)
+```
+
+```
+## List of 13
+##  $ coefficients : Named num [1:3] 47.981 0.0454 -2.4894
+##   ..- attr(*, "names")= chr [1:3] "(Intercept)" "diagnosisadenoma" "diagnosiscancer"
+##  $ residuals    : Named num [1:490] 17.2 15.2 11.6 24.2 -11.1 ...
+##   ..- attr(*, "names")= chr [1:490] "1" "2" "3" "4" ...
+##  $ effects      : Named num [1:490] -1049 11.6 -20.9 24.2 -12.8 ...
+##   ..- attr(*, "names")= chr [1:490] "(Intercept)" "diagnosisadenoma" "diagnosiscancer" "" ...
+##  $ rank         : int 3
+##  $ fitted.values: Named num [1:490] 48 48 48 48 48 ...
+##   ..- attr(*, "names")= chr [1:490] "1" "2" "3" "4" ...
+##  $ assign       : int [1:3] 0 1 1
+##  $ qr           :List of 5
+##   ..$ qr   : num [1:490, 1:3] -22.1359 0.0452 0.0452 0.0452 0.0452 ...
+##   .. ..- attr(*, "dimnames")=List of 2
+##   .. ..- attr(*, "assign")= int [1:3] 0 1 1
+##   .. ..- attr(*, "contrasts")=List of 1
+##   ..$ qraux: num [1:3] 1.05 1.04 1.05
+##   ..$ pivot: int [1:3] 1 2 3
+##   ..$ tol  : num 1e-07
+##   ..$ rank : int 3
+##   ..- attr(*, "class")= chr "qr"
+##  $ df.residual  : int 487
+##  $ contrasts    :List of 1
+##   ..$ diagnosis: chr "contr.treatment"
+##  $ xlevels      :List of 1
+##   ..$ diagnosis: chr [1:3] "normal" "adenoma" "cancer"
+##  $ call         : language aov(formula = scaled_shannon ~ diagnosis, data = meta_alpha)
+##  $ terms        :Classes 'terms', 'formula'  language scaled_shannon ~ diagnosis
+##   .. ..- attr(*, "variables")= language list(scaled_shannon, diagnosis)
+##   .. ..- attr(*, "factors")= int [1:2, 1] 0 1
+##   .. .. ..- attr(*, "dimnames")=List of 2
+##   .. ..- attr(*, "term.labels")= chr "diagnosis"
+##   .. ..- attr(*, "order")= int 1
+##   .. ..- attr(*, "intercept")= int 1
+##   .. ..- attr(*, "response")= int 1
+##   .. ..- attr(*, ".Environment")=<environment: 0x7f7ee0f3f470> 
+##   .. ..- attr(*, "predvars")= language list(scaled_shannon, diagnosis)
+##   .. ..- attr(*, "dataClasses")= Named chr [1:2] "numeric" "factor"
+##   .. .. ..- attr(*, "names")= chr [1:2] "scaled_shannon" "diagnosis"
+##  $ model        :'data.frame':	490 obs. of  2 variables:
+##   ..$ scaled_shannon: num [1:490] 65.2 63.2 59.6 72.2 36.9 ...
+##   ..$ diagnosis     : Factor w/ 3 levels "normal","adenoma",..: 1 1 1 2 1 1 3 1 1 3 ...
+##   ..- attr(*, "terms")=Classes 'terms', 'formula'  language scaled_shannon ~ diagnosis
+##   .. .. ..- attr(*, "variables")= language list(scaled_shannon, diagnosis)
+##   .. .. ..- attr(*, "factors")= int [1:2, 1] 0 1
+##   .. .. .. ..- attr(*, "dimnames")=List of 2
+##   .. .. ..- attr(*, "term.labels")= chr "diagnosis"
+##   .. .. ..- attr(*, "order")= int 1
+##   .. .. ..- attr(*, "intercept")= int 1
+##   .. .. ..- attr(*, "response")= int 1
+##   .. .. ..- attr(*, ".Environment")=<environment: 0x7f7ee0f3f470> 
+##   .. .. ..- attr(*, "predvars")= language list(scaled_shannon, diagnosis)
+##   .. .. ..- attr(*, "dataClasses")= Named chr [1:2] "numeric" "factor"
+##   .. .. .. ..- attr(*, "names")= chr [1:2] "scaled_shannon" "diagnosis"
+##  - attr(*, "class")= chr [1:2] "aov" "lm"
+```
+
+The following commands return the three diagnosis groups
+
+
+```r
+diagnosis_shannon_aov$xlevels$diagnosis
+diagnosis_shannon_aov[["xlevels"]][["diagnosis"]]
+diagnosis_shannon_aov[["xlevels"]]$diagnosis
+```
+
+```
+## [1] "normal"  "adenoma" "cancer" 
+## [1] "normal"  "adenoma" "cancer" 
+## [1] "normal"  "adenoma" "cancer"
+```
 
 ---
 
-### Activity 1
+### Activity 2
 Write the code to extract the type of test that we performed using the `result` variable using both methods that were discussed.
 
 <input type="button" class="hideshow">
@@ -237,40 +433,18 @@ result[["test"]]
 </div>
 ---
 
-Not all R functions will play nicely with data frames or with the dplyr pipelines that we have been using through these materials. Some functions will require that we pull out a
-Here we need to revert to using the `[[]]` notation that we learned earlier to select specific columns from our data frame.
+Not all R functions will play nicely with data frames or with the dplyr pipelines that we have been using through these materials. Some functions will require that we provide the data as vectors. To do this, we will need to revert to using the `$` or `[[]]` notation that we learned earlier to select specific columns from our data frame. Assuming the P-value of `result` was less than 0.05, we might want to know which of the three groups were different from each other. We can test this with the `pairwise.wilcox.test` function
 
 
 ```r
-meta_alpha %>%
-	group_by
-
-pairwise.wilcox.test(g=meta_alpha[["diagnosis"]], x=meta_alpha[["shannon"]], p.adjust.method="BH")
+pairwise.wilcox.test(g=meta_alpha$diagnosis, x=meta_alpha$shannon, p.adjust.method="BH")
 ```
 
 ```
-## # A tibble: 490 x 22
-##    sample fit_result site  diagnosis_bin diagnosis previous_history
-##    <chr>       <dbl> <chr> <chr>         <fct>     <lgl>           
-##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
-##  2 20056…          0 U Mi… High Risk No… normal    FALSE           
-##  3 20076…         26 U Mi… High Risk No… normal    FALSE           
-##  4 20096…         10 Toro… Adenoma       adenoma   FALSE           
-##  5 20136…          0 U Mi… Normal        normal    FALSE           
-##  6 20156…          0 Dana… High Risk No… normal    FALSE           
-##  7 20176…          7 Dana… Cancer        cancer    TRUE            
-##  8 20196…         19 U Mi… Normal        normal    FALSE           
-##  9 20236…          0 Dana… High Risk No… normal    TRUE            
-## 10 20256…       1509 U Mi… Cancer        cancer    TRUE            
-## # … with 480 more rows, and 16 more variables: history_of_polyps <lgl>,
-## #   age <dbl>, sex <chr>, smoke <lgl>, diabetic <lgl>,
-## #   family_history_of_crc <lgl>, height <dbl>, weight <dbl>, nsaid <lgl>,
-## #   diabetes_med <lgl>, stage <chr>, sobs <dbl>, shannon <dbl>,
-## #   invsimpson <dbl>, coverage <dbl>, scaled_shannon <dbl>
 ## 
 ## 	Pairwise comparisons using Wilcoxon rank sum test 
 ## 
-## data:  meta_alpha[["shannon"]] and meta_alpha[["diagnosis"]] 
+## data:  meta_alpha$shannon and meta_alpha$diagnosis 
 ## 
 ##         normal adenoma
 ## adenoma 0.95   -      
@@ -279,7 +453,7 @@ pairwise.wilcox.test(g=meta_alpha[["diagnosis"]], x=meta_alpha[["shannon"]], p.a
 ## P value adjustment method: BH
 ```
 
-We are telling `pairwise.wilcox.test` to group our values from `meta_alpha[["shannon"]]` by `meta_alpha[["diagnosis"]]` and to perform all possible pairwise Wilcoxon tests. Because this is fraught with an increased probability of Type I errors, we need to correct for multiple comparisons. As written, this is done using the Benjamini & Hochberg (`BH`) method. You can find other methods of correcting p-values by looking at `?p.adjust.methods`.
+We are telling `pairwise.wilcox.test` to group our values from `meta_alpha$shannon` by `meta_alpha$diagnosis` and to perform all possible pairwise Wilcoxon tests. Because this is fraught with an increased probability of Type I errors, we need to correct for multiple comparisons. As written, this is done using the Benjamini & Hochberg (`BH`) method. You can find other methods of correcting p-values by looking at `?p.adjust.methods`.
 
 ANOVA and Kruskal-Wallis tests are for cases where there are more than two levels of a single variable. You can also use ANOVA to test for more than two levels for more than one variable in R. This is beyond what we are shooting for in these lessons, but know that it can be done. Let's back up a bit and see how we test when there are only two levels of a variable such as sex. If our data are normally distributed we can use `t.test`
 
@@ -323,7 +497,7 @@ Both of these tests allow you perform a paired test if you have pre and post dat
 
 ---
 
-### Activity 2
+### Activity 3
 Is the number of OTUs normally distributed? Repeat the analyses we performed above to see whether there is a significant difference in the number of OTUs by diagnosis group.
 
 <input type="button" class="hideshow">
@@ -333,7 +507,7 @@ Is the number of OTUs normally distributed? Repeat the analyses we performed abo
 ggplot(meta_alpha, aes(sample=sobs, group=diagnosis, color=diagnosis)) + geom_qq() + stat_qq_line()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-19-1.png" title="plot of chunk unnamed-chunk-19" alt="plot of chunk unnamed-chunk-19" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-27-1.png" title="plot of chunk unnamed-chunk-27" alt="plot of chunk unnamed-chunk-27" width="504" />
 
 The curve holds water so we might try transforming with the square root
 
@@ -345,7 +519,7 @@ ggplot(meta_alpha, aes(sample=scaled_sobs, group=diagnosis, color=diagnosis)) +
 	geom_qq() + stat_qq_line()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-20-1.png" title="plot of chunk unnamed-chunk-20" alt="plot of chunk unnamed-chunk-20" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-28-1.png" title="plot of chunk unnamed-chunk-28" alt="plot of chunk unnamed-chunk-28" width="504" />
 
 That doesn't look horrible...
 
@@ -355,7 +529,7 @@ ggplot(meta_alpha, aes(x=sobs)) + geom_histogram()
 ggplot(meta_alpha, aes(x=scaled_sobs)) + geom_histogram()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-21-1.png" title="plot of chunk unnamed-chunk-21" alt="plot of chunk unnamed-chunk-21" width="504" /><img src="assets/images/07_statistical_analyses//unnamed-chunk-21-2.png" title="plot of chunk unnamed-chunk-21" alt="plot of chunk unnamed-chunk-21" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-29-1.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="504" /><img src="assets/images/07_statistical_analyses//unnamed-chunk-29-2.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="504" />
 
 Good enough...
 
@@ -376,7 +550,7 @@ Not significant.
 
 ---
 
-### Activity 3
+### Activity 4
 Is there a significant difference in the FIT result by diagnosis group?
 
 <input type="button" class="hideshow">
@@ -398,14 +572,14 @@ Yes, the P-value is quite small. Let's perform the pairwise Wilcoxon tests
 
 
 ```r
-pairwise.wilcox.test(g=meta_alpha[["diagnosis"]], x=meta_alpha[["fit_result"]], p.adjust.method="BH")
+pairwise.wilcox.test(g=meta_alpha$diagnosis, x=meta_alpha$fit_result, p.adjust.method="BH")
 ```
 
 ```
 ## 
 ## 	Pairwise comparisons using Wilcoxon rank sum test 
 ## 
-## data:  meta_alpha[["fit_result"]] and meta_alpha[["diagnosis"]] 
+## data:  meta_alpha$fit_result and meta_alpha$diagnosis 
 ## 
 ##         normal  adenoma
 ## adenoma 1.2e-08 -      
@@ -419,6 +593,161 @@ The three diagnosis groups have significantly different FIT results even after c
 
 ---
 
+## Testing multiple hypotheses at once
+I'd like to know whether the Shannon diversity varies by diagnosis, sex, or smoking status. Let's think through how to do this. We could run `kruskal.test` multiple times. This isn't particularly DRY. We could also use `pivot_longer` to make a column that we could call characteristic that contains the values "diagnosis", "sex", and "smoke" and a column that contains the value for those characteristics. Then we could use our `nest`/`mutate`/`map`/`unnest` workflow to generate a table with p-values. Let's give that a shot.
+
+
+```r
+meta_alpha %>%
+	select(sample, shannon, diagnosis, sex, smoke) %>%
+	pivot_longer(cols=c(diagnosis, sex, smoke), names_to="characteristic", values_to="value")
+```
+
+```
+## Error: No common type for `diagnosis` <character> and `smoke` <logical>.
+```
+
+Oops we get an error. It doesn't like that we're trying to combine columns that are different types of data. Let's recast those columns to all be character vectors with the `as.character` function and try again
+
+
+```r
+meta_alpha %>%
+	mutate(diagnosis = as.character(diagnosis),
+		sex = as.character(sex), #unnecessary since it's already a character vector
+		smoke = as.character(smoke)) %>%
+	select(sample, shannon, diagnosis, sex, smoke) %>%
+	pivot_longer(cols=c(diagnosis, sex, smoke), names_to="characteristic", values_to="value")
+```
+
+```
+## # A tibble: 1,470 x 4
+##    sample  shannon characteristic value  
+##    <chr>     <dbl> <chr>          <chr>  
+##  1 2003650    4.02 diagnosis      normal 
+##  2 2003650    4.02 sex            male   
+##  3 2003650    4.02 smoke          <NA>   
+##  4 2005650    3.98 diagnosis      normal 
+##  5 2005650    3.98 sex            male   
+##  6 2005650    3.98 smoke          FALSE  
+##  7 2007660    3.91 diagnosis      normal 
+##  8 2007660    3.91 sex            female 
+##  9 2007660    3.91 smoke          FALSE  
+## 10 2009650    4.16 diagnosis      adenoma
+## # … with 1,460 more rows
+```
+
+Nice. I notice that we do have a few `NA` values in the data frame so let's go ahead and drop those rows.
+
+
+```r
+meta_alpha %>%
+	mutate(diagnosis = as.character(diagnosis),
+		sex = as.character(sex), #unnecessary since it's already a character vector
+		smoke = as.character(smoke)) %>%
+	select(sample, shannon, diagnosis, sex, smoke) %>%
+	pivot_longer(cols=c(diagnosis, sex, smoke), names_to="characteristic", values_to="value") %>%
+	drop_na()
+```
+
+```
+## # A tibble: 1,464 x 4
+##    sample  shannon characteristic value  
+##    <chr>     <dbl> <chr>          <chr>  
+##  1 2003650    4.02 diagnosis      normal 
+##  2 2003650    4.02 sex            male   
+##  3 2005650    3.98 diagnosis      normal 
+##  4 2005650    3.98 sex            male   
+##  5 2005650    3.98 smoke          FALSE  
+##  6 2007660    3.91 diagnosis      normal 
+##  7 2007660    3.91 sex            female 
+##  8 2007660    3.91 smoke          FALSE  
+##  9 2009650    4.16 diagnosis      adenoma
+## 10 2009650    4.16 sex            female 
+## # … with 1,454 more rows
+```
+
+Now we can go ahead and do our `nest`/`mutate`/`map`/`unnest` workflow
+
+
+```r
+meta_alpha %>%
+	mutate(diagnosis = as.character(diagnosis),
+		sex = as.character(sex), #unnecessary since it's already a character vector
+		smoke = as.character(smoke)) %>%
+	select(sample, shannon, diagnosis, sex, smoke) %>%
+	pivot_longer(cols=c(diagnosis, sex, smoke), names_to="characteristic", values_to="value") %>%
+	drop_na() %>%
+	nest(data = -characteristic) %>%
+	mutate(tests = map(data, ~tidy(kruskal.test(shannon ~ value, data=.x)))) %>%
+	unnest(cols=tests) %>%
+	select(-data)
+```
+
+```
+## # A tibble: 3 x 5
+##   characteristic statistic p.value parameter method                      
+##   <chr>              <dbl>   <dbl>     <int> <chr>                       
+## 1 diagnosis          3.58    0.167         2 Kruskal-Wallis rank sum test
+## 2 sex                0.214   0.643         1 Kruskal-Wallis rank sum test
+## 3 smoke              0.260   0.610         1 Kruskal-Wallis rank sum test
+```
+
+Viola! None of these tests appear to be significant, so we can probably move on from these univariate analyses. For completion, let's add a column with adjusted P-values. We can get these values with the `p.adjust` function.
+
+
+```r
+meta_alpha %>%
+	mutate(diagnosis = as.character(diagnosis),
+		sex = as.character(sex), #unnecessary since it's already a character vector
+		smoke = as.character(smoke)) %>%
+	select(sample, shannon, diagnosis, sex, smoke) %>%
+	pivot_longer(cols=c(diagnosis, sex, smoke), names_to="characteristic", values_to="value") %>%
+	drop_na() %>%
+	nest(data = -characteristic) %>%
+	mutate(tests = map(data, ~tidy(kruskal.test(shannon ~ value, data=.x)))) %>%
+	unnest(cols=tests) %>%
+	select(-data) %>%
+	mutate(p.value.adj = p.adjust(p.value, method="BH"))
+```
+
+```
+## # A tibble: 3 x 6
+##   characteristic statistic p.value parameter method                  p.value.adj
+##   <chr>              <dbl>   <dbl>     <int> <chr>                         <dbl>
+## 1 diagnosis          3.58    0.167         2 Kruskal-Wallis rank su…       0.501
+## 2 sex                0.214   0.643         1 Kruskal-Wallis rank su…       0.643
+## 3 smoke              0.260   0.610         1 Kruskal-Wallis rank su…       0.643
+```
+
+### Activity 5
+Generate a table with adjusted P-values indicating whether the variation in fit_result data is significant across diagnosis groups for each site separately.
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+
+```r
+meta_alpha %>%
+	select(sample, fit_result, diagnosis, site) %>%
+	nest(data = -site) %>%
+	mutate(tests = map(data, ~tidy(kruskal.test(fit_result ~ diagnosis, data=.x)))) %>%
+	unnest(cols=tests) %>%
+	select(-data) %>%
+	mutate(p.value.adj = p.adjust(p.value, method="BH"))
+```
+
+```
+## # A tibble: 4 x 6
+##   site        statistic  p.value parameter method                    p.value.adj
+##   <chr>           <dbl>    <dbl>     <int> <chr>                           <dbl>
+## 1 U Michigan       46.2 9.07e-11         2 Kruskal-Wallis rank sum …    1.21e-10
+## 2 Toronto          39.3 2.93e- 9         2 Kruskal-Wallis rank sum …    2.93e- 9
+## 3 Dana Farber      60.8 6.13e-14         2 Kruskal-Wallis rank sum …    1.23e-13
+## 4 MD Anderson      65.3 6.68e-15         2 Kruskal-Wallis rank sum …    2.67e-14
+```
+</div>
+
+---
+
 
 ## Comparing continuous by continuous variables
 Sometimes we would like to know whether two variables are correlated with each other. For example, is someone's BMI correlated with their Shannon diversity? Is FIT result correlated with age? Is the FIT result correlated with their Shannon diversity? To test for these types of correlations we can use the `cor.test` function
@@ -428,14 +757,14 @@ Sometimes we would like to know whether two variables are correlated with each o
 meta_alpha <- meta_alpha %>%
 	mutate(bmi = get_bmi(weight_kg=weight, height_cm=height))
 
-cor.test(meta_alpha[["shannon"]], meta_alpha[["bmi"]])
+cor.test(meta_alpha$shannon, meta_alpha$bmi)
 ```
 
 ```
 ## 
 ## 	Pearson's product-moment correlation
 ## 
-## data:  meta_alpha[["shannon"]] and meta_alpha[["bmi"]]
+## data:  meta_alpha$shannon and meta_alpha$bmi
 ## t = -2.3142, df = 486, p-value = 0.02107
 ## alternative hypothesis: true correlation is not equal to 0
 ## 95 percent confidence interval:
@@ -446,14 +775,14 @@ cor.test(meta_alpha[["shannon"]], meta_alpha[["bmi"]])
 ```
 
 ```r
-cor.test(meta_alpha[["fit_result"]], meta_alpha[["age"]])
+cor.test(meta_alpha$fit_result, meta_alpha$age)
 ```
 
 ```
 ## 
 ## 	Pearson's product-moment correlation
 ## 
-## data:  meta_alpha[["fit_result"]] and meta_alpha[["age"]]
+## data:  meta_alpha$fit_result and meta_alpha$age
 ## t = 1.0154, df = 488, p-value = 0.3104
 ## alternative hypothesis: true correlation is not equal to 0
 ## 95 percent confidence interval:
@@ -464,14 +793,14 @@ cor.test(meta_alpha[["fit_result"]], meta_alpha[["age"]])
 ```
 
 ```r
-cor.test(meta_alpha[["fit_result"]], meta_alpha[["shannon"]])
+cor.test(meta_alpha$fit_result, meta_alpha$shannon)
 ```
 
 ```
 ## 
 ## 	Pearson's product-moment correlation
 ## 
-## data:  meta_alpha[["fit_result"]] and meta_alpha[["shannon"]]
+## data:  meta_alpha$fit_result and meta_alpha$shannon
 ## t = -1.1199, df = 488, p-value = 0.2633
 ## alternative hypothesis: true correlation is not equal to 0
 ## 95 percent confidence interval:
@@ -485,23 +814,23 @@ We see that Shannon diversity has a significant negative correlation with BMI, a
 
 
 ```r
-lm_shannon_bmi <- lm(meta_alpha[["shannon"]]~meta_alpha[["bmi"]])
+lm_shannon_bmi <- lm(shannon~bmi, data=meta_alpha)
 summary(lm_shannon_bmi)
 ```
 
 ```
 ## 
 ## Call:
-## lm(formula = meta_alpha[["shannon"]] ~ meta_alpha[["bmi"]])
+## lm(formula = shannon ~ bmi, data = meta_alpha)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
 ## -2.35664 -0.26872  0.04092  0.32429  1.02171 
 ## 
 ## Coefficients:
-##                      Estimate Std. Error t value Pr(>|t|)    
-## (Intercept)          3.802808   0.104823  36.278   <2e-16 ***
-## meta_alpha[["bmi"]] -0.008724   0.003770  -2.314   0.0211 *  
+##              Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)  3.802808   0.104823  36.278   <2e-16 ***
+## bmi         -0.008724   0.003770  -2.314   0.0211 *  
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
@@ -549,14 +878,14 @@ By default, `cor.test` performs a Pearson correlation, which assumes a linear re
 
 
 ```r
-cor.test(meta_alpha[["shannon"]], meta_alpha[["bmi"]], method="spearman")
+cor.test(meta_alpha$shannon, meta_alpha$bmi, method="spearman")
 ```
 
 ```
 ## 
 ## 	Spearman's rank correlation rho
 ## 
-## data:  meta_alpha[["shannon"]] and meta_alpha[["bmi"]]
+## data:  meta_alpha$shannon and meta_alpha$bmi
 ## S = 21505495, p-value = 0.01477
 ## alternative hypothesis: true rho is not equal to 0
 ## sample estimates:
@@ -565,14 +894,14 @@ cor.test(meta_alpha[["shannon"]], meta_alpha[["bmi"]], method="spearman")
 ```
 
 ```r
-cor.test(meta_alpha[["fit_result"]], meta_alpha[["age"]], method="spearman")
+cor.test(meta_alpha$fit_result, meta_alpha$age, method="spearman")
 ```
 
 ```
 ## 
 ## 	Spearman's rank correlation rho
 ## 
-## data:  meta_alpha[["fit_result"]] and meta_alpha[["age"]]
+## data:  meta_alpha$fit_result and meta_alpha$age
 ## S = 17398058, p-value = 0.01254
 ## alternative hypothesis: true rho is not equal to 0
 ## sample estimates:
@@ -581,14 +910,14 @@ cor.test(meta_alpha[["fit_result"]], meta_alpha[["age"]], method="spearman")
 ```
 
 ```r
-cor.test(meta_alpha[["fit_result"]], meta_alpha[["shannon"]], method="spearman")
+cor.test(meta_alpha$fit_result, meta_alpha$shannon, method="spearman")
 ```
 
 ```
 ## 
 ## 	Spearman's rank correlation rho
 ## 
-## data:  meta_alpha[["fit_result"]] and meta_alpha[["shannon"]]
+## data:  meta_alpha$fit_result and meta_alpha$shannon
 ## S = 21404548, p-value = 0.04265
 ## alternative hypothesis: true rho is not equal to 0
 ## sample estimates:
@@ -615,7 +944,7 @@ ggplot(meta_alpha, aes(x=bmi, y=shannon, color=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-29-1.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-43-1.png" title="plot of chunk unnamed-chunk-43" alt="plot of chunk unnamed-chunk-43" width="504" />
 
 This plots the regression lines with the cloud around the line indicating the 95% confidence interval. We noted above that our regression analysis indicated that there wasn't a statistical difference between the diagnosis groups. If we want a single line through the data, then we can overwrite the `color` aesthetic in `geom_smooth`
 
@@ -634,11 +963,11 @@ ggplot(meta_alpha, aes(x=bmi, y=shannon, color=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-30-1.png" title="plot of chunk unnamed-chunk-30" alt="plot of chunk unnamed-chunk-30" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-44-1.png" title="plot of chunk unnamed-chunk-44" alt="plot of chunk unnamed-chunk-44" width="504" />
 
 ---
 
-### Activity 4
+### Activity 6
 In the scatter plot where we drew three regression lines the legend changed to have a gray background behind the points and a line was drawn with the points. This is effectively a merge between the legend of the `geom_point` and `geom_smooth` layers. How do we remove the `geom_smooth` legend so that our legend only contains the simple plotting character?
 
 <input type="button" class="hideshow">
@@ -658,13 +987,13 @@ ggplot(meta_alpha, aes(x=bmi, y=shannon, color=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-31-1.png" title="plot of chunk unnamed-chunk-31" alt="plot of chunk unnamed-chunk-31" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-45-1.png" title="plot of chunk unnamed-chunk-45" alt="plot of chunk unnamed-chunk-45" width="504" />
 </div>
 
 
 ---
 
-### Activity 5
+### Activity 7
 Is there a significant association between the number of OTUs in a person's fecal samples and their BMI and sex? Run the test and show a plot of the relevant fit of the data.
 
 
@@ -716,7 +1045,7 @@ ggplot(meta_alpha, aes(x=bmi, y=sobs, color=sex)) +
 	theme_classic()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-33-1.png" title="plot of chunk unnamed-chunk-33" alt="plot of chunk unnamed-chunk-33" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-47-1.png" title="plot of chunk unnamed-chunk-47" alt="plot of chunk unnamed-chunk-47" width="504" />
 </div>
 
 ---
@@ -757,14 +1086,14 @@ ggplot(meta_alpha, aes(x=sex, y=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-35-1.png" title="plot of chunk unnamed-chunk-35" alt="plot of chunk unnamed-chunk-35" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-49-1.png" title="plot of chunk unnamed-chunk-49" alt="plot of chunk unnamed-chunk-49" width="504" />
 
 Not that size of circles is generally pretty hard for people to differentiate, so this isn't necessarily the best visualization tool. To see how to scale the circles by proportions you should see the examples in the `?geom_count` documentation.
 
 
 ---
 
-### Activity 6
+### Activity 8
 Is there variation in obesity status and diagnosis?
 
 <input type="button" class="hideshow">
@@ -801,5 +1130,5 @@ ggplot(meta_alpha, aes(x=obese, y=diagnosis)) +
 ## Error in FUN(X[[i]], ...): object 'obese' not found
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-37-1.png" title="plot of chunk unnamed-chunk-37" alt="plot of chunk unnamed-chunk-37" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-51-1.png" title="plot of chunk unnamed-chunk-51" alt="plot of chunk unnamed-chunk-51" width="504" />
 </div>

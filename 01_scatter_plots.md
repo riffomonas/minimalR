@@ -4,11 +4,14 @@ title: "Session 1: Scatter Plots"
 output: markdown_document
 ---
 
-## Learning goals
+## Topics
 * Determine when a scatter plot is an appropriate data visualization tool
 * Manipulate plotting symbols and colors to plot metadata
 * Adapt existing code to achieve a goal
 * Install R packages and libraries
+* Axis labels
+* Getting help
+
 
 
 

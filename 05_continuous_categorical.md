@@ -4,13 +4,14 @@ title: "Session 5: Analyzing continuous data across discrete categories"
 output: markdown_document
 ---
 
-
-
-## Learning goals
+## Topics
+* Problems with bar plots to represent mean/median values
 * Strip charts
 * Box plots
 * Violin plots
 * Factors
+
+
 
 
 

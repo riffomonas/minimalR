@@ -4,6 +4,14 @@ title: "Session 0: Introduction"
 output: markdown_document
 ---
 
+## Content
+* Philosophy behind these instructional materials
+* Why R?
+* Introduction to R
+* Getting settled in RStudio
+* Setting up a project
+
+
 
 
 
@@ -187,8 +195,8 @@ sessionInfo()
 ## [13] nlme_3.1-141      gtable_0.3.0      lattice_0.20-38   pkgconfig_2.0.3  
 ## [17] rlang_0.4.1       cli_1.1.0         rstudioapi_0.10   haven_2.1.1      
 ## [21] xfun_0.11         withr_2.1.2       xml2_1.2.2        httr_1.4.1       
-## [25] hms_0.5.1         generics_0.0.2    vctrs_0.2.0       grid_3.6.1       
-## [29] tidyselect_0.2.5  glue_1.3.1        R6_2.4.0          readxl_1.3.1     
+## [25] hms_0.5.2         generics_0.0.2    vctrs_0.2.0       grid_3.6.1       
+## [29] tidyselect_0.2.5  glue_1.3.1        R6_2.4.1          readxl_1.3.1     
 ## [33] modelr_0.1.5      magrittr_1.5      backports_1.1.5   scales_1.0.0     
 ## [37] rvest_0.3.4       assertthat_0.2.1  colorspace_1.4-1  stringi_1.4.3    
 ## [41] lazyeval_0.2.2    munsell_0.5.0     broom_0.5.2       crayon_1.3.4     

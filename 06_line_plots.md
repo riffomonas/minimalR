@@ -4,15 +4,15 @@ title: "Session 6: Line Plots"
 output: markdown_document
 ---
 
-
-
-## Learning objectives
-
-* Scripts
+## Topics
+* Scripting analysis
+* Making data "tidy"
+* Generating line plots
 * Rarefaction curves
-* Loops
-* Adding lines to plots
+* Adding lines to annotate plots
 * Working with text
+
+
 
 
 ## Getting organized

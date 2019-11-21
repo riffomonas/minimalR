@@ -4,13 +4,15 @@ title: "Session 4: Aggregating Data"
 output: markdown_document
 ---
 
-
-
-## Learning goals
+## Topics
 * Aggregating and summarizing data by a categorical variable
 * Adding columns to data frames
+* Sorting data frames
+* If/else statements
 * Creating customized functions
 * The importance of keeping code DRY
+
+
 
 
 ## Working with data in a data frame

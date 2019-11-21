@@ -4,13 +4,14 @@ title: "Session 8: Working with text data"
 output: markdown_document
 ---
 
-
-
-## Learning objectives
-* String manipulations
+## Topics
+* Complex string manipulations
 * Regular expressions
 * Representing taxonomic data
-* Identifying significantly different taxa
+* Developing multistep workflow to answer a problem
+* Customizing axes
+
+
 
 
 ## Motivation
@@ -795,7 +796,7 @@ agg_deep_data %>%
 ---
 
 ## Hypothesis testing
-We've been able to generate strip charts and box plots for the most abundant phyla, but it would be nice to know whether any of these phyla have a significantly different representation across the diagnosis groups. We saw in a previous lesson how we can use the Kruskal-Wallis test to test for significance when we have data that are not normally distributed. But how do we do that across groups within a data frame? As we've seen before, we'll group our data by the "phylum" column. Then for each group we'll use the `do` function from `dplyr` to run `kruskal.test` as we did previously. The only difference is that we will wrap the `kruskal.test` function call in the `tidy` function from `broom`, which converts the output of `kruskal.test` into a data frame.
+We've been able to generate strip charts and box plots for the most abundant phyla, but it would be nice to know whether any of these phyla have a significantly different representation across the diagnosis groups. We saw in a previous lesson how we can use the Kruskal-Wallis test to test for significance when we have data that are not normally distributed. But how do we do that across groups within a data frame? As we've seen before, we'll group our data by the "phylum" column. Then for each group we'll use the `nest`/`mutate`/`map`/`unnest` workflow to run `kruskal.test` as we did in the last lesson.
 
 
 ```r
@@ -803,8 +804,9 @@ library(broom)
 library(purrr)
 
 phylum_tests <- agg_phylum_data %>%
-					group_by(phylum) %>%
-					do(tidy(kruskal.test(agg_rel_abund~diagnosis, data=.)))
+					nest(sample_data = c(-phylum)) %>%
+					mutate(test=map(sample_data, ~tidy(kruskal.test(agg_rel_abund~diagnosis, data=.)))) %>%
+					unnest(test)
 ```
 
 Of course, because we're doing 17 hypothesis tests, we want to correct our P-values for multiple comparisons, sort the data frame in ascending order by corrected P-value, and then get the names of the phyla with significant differences
@@ -812,9 +814,9 @@ Of course, because we're doing 17 hypothesis tests, we want to correct our P-val
 
 ```r
 phylum_tests <- agg_phylum_data %>%
-					group_by(phylum) %>%
-					do(tidy(kruskal.test(agg_rel_abund~diagnosis, data=.))) %>%
-					ungroup() %>%
+					nest(sample_data = c(-phylum)) %>%
+					mutate(test=map(sample_data, ~tidy(kruskal.test(agg_rel_abund~diagnosis, data=.)))) %>%
+					unnest(test) %>%
 					mutate(p.value.adj=p.adjust(p.value, method="BH")) %>%
 					arrange(p.value.adj)
 
@@ -902,15 +904,15 @@ agg_deep_data <- inner_join(otu_data, deep_taxonomy) %>%
 		ungroup() #without this, the sample and phylum columns remain grouped
 
 deep_tests <- agg_deep_data %>%
-					group_by(taxonomy) %>%
-					do(tidy(kruskal.test(agg_rel_abund~diagnosis, data=.))) %>%
-					ungroup() %>%
-					mutate(p.value.adj=p.adjust(p.value, method="BH")) %>%
-					arrange(p.value.adj)
+		nest(sample_data = c(-taxonomy)) %>%
+		mutate(test=map(sample_data, ~tidy(kruskal.test(agg_rel_abund~diagnosis, data=.)))) %>%
+		unnest(test) %>%
+		mutate(p.value.adj=p.adjust(p.value, method="BH")) %>%
+		arrange(p.value.adj)
 
 sig_deep <- deep_tests %>%
-					filter(p.value.adj <= 0.05) %>%
-					pull(taxonomy)
+		filter(p.value.adj <= 0.05) %>%
+		pull(taxonomy)
 
 agg_deep_data %>%
 	filter(taxonomy %in% sig_deep) %>%
@@ -951,7 +953,7 @@ agg_deep_data %>%
 		scale_y_log10(breaks=c(1e-4, 1e-3, 1e-2, 1e-1, 1), labels=c(1e-2, 1e-1, 1, 10, 100)) +
 		coord_flip() +
 		theme_classic() +
-		theme(axis.text.y = element_text(face="italic"))
+		theme()
 ```
 
 <img src="assets/images/08_taxonomic_data//unnamed-chunk-41-1.png" title="plot of chunk unnamed-chunk-41" alt="plot of chunk unnamed-chunk-41" width="504" />
@@ -981,21 +983,21 @@ agg_deep_data <- inner_join(otu_data, deep_taxonomy) %>%
 		ungroup() #without this, the sample and phylum columns remain grouped
 
 deep_tests <- agg_deep_data %>%
-					group_by(taxonomy) %>%
-					do(tidy(kruskal.test(agg_rel_abund~factor(lesion), data=.))) %>%
-					ungroup() %>%
-					mutate(p.value.adj=p.adjust(p.value, method="BH")) %>%
-					arrange(p.value.adj)
+		nest(sample_data = c(-taxonomy)) %>%
+		mutate(test=map(sample_data, ~tidy(kruskal.test(agg_rel_abund~diagnosis, data=.)))) %>%
+		unnest(test) %>%
+		mutate(p.value.adj=p.adjust(p.value, method="BH")) %>%
+		arrange(p.value.adj)
 
 sig_deep <- deep_tests %>%
-					filter(p.value.adj <= 0.05) %>%
-					pull(taxonomy)
+		filter(p.value.adj <= 0.05) %>%
+		pull(taxonomy)
 
 sig_abund_deep <- agg_deep_data %>%
-					filter(taxonomy %in% sig_deep) %>%
-					group_by(taxonomy) %>%
-					summarize(mean=mean(agg_rel_abund)) %>%
-					arrange(desc(mean)) %>% pull(taxonomy)
+		filter(taxonomy %in% sig_deep) %>%
+		group_by(taxonomy) %>%
+		summarize(mean=mean(agg_rel_abund)) %>%
+		arrange(desc(mean)) %>% pull(taxonomy)
 
 agg_deep_data %>%
 	filter(taxonomy %in% sig_deep) %>%
@@ -1007,13 +1009,13 @@ agg_deep_data %>%
 			values=c("black", "darkgreen"),
 			breaks=c(FALSE, TRUE),
 			labels=c("Normal", "Lesion")) +
-		labs(title="There are no obvious phylum-level differences between the\ndiagnosis groups",
+		labs(title="Genera that are significantly different in relative abundance\nbetween healthy individuals and those with lesions",
 			x=NULL,
 			y="Relative abundance (%)") +
 		scale_y_log10(breaks=c(1e-4, 1e-3, 1e-2, 1e-1, 1), labels=c(1e-2, 1e-1, 1, 10, 100)) +
-		coord_cartesian(ylim=c(1e-4,1)) +
+		coord_flip() +
 		theme_classic() +
-		theme(axis.text.x = element_text(face="italic"))
+		theme()
 ```
 
 <img src="assets/images/08_taxonomic_data//unnamed-chunk-42-1.png" title="plot of chunk unnamed-chunk-42" alt="plot of chunk unnamed-chunk-42" width="504" />
