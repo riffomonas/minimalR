@@ -4,6 +4,14 @@ title: "Session 0: Introduction"
 output: markdown_document
 ---
 
+## Content
+* Philosophy behind these instructional materials
+* Why R?
+* Introduction to R
+* Getting settled in RStudio
+* Setting up a project
+
+
 ```{r knitr_settings, eval=TRUE, echo=FALSE, cache=FALSE}
 library(knitr)
 opts_chunk$set("echo" = TRUE)

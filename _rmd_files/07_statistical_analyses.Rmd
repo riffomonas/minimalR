@@ -4,6 +4,14 @@ title: "Session 7: Statistical analyses"
 output: markdown_document
 ---
 
+## Topics
+* Transforming data to make them normally distributed
+* Extracting columns from a data frame
+* Parsing output from complex variables
+* Simple statistical tests
+* Overlaying models on scatter plots
+
+
 ```{r knitr_settings, eval=TRUE, echo=FALSE, cache=FALSE}
 library(knitr)
 opts_chunk$set("echo" = TRUE)
@@ -17,15 +25,6 @@ opts_chunk$set("results" = "hold")
 opts_chunk$set("fig.show" = "hold")
 opts_chunk$set("fig.width" = 7)
 ```
-
-## Learning goals
-* Transforming data to make them normally distributed
-* T-test and Analysis of Variance
-* Wilcoxon and Kruskal-Wallis tests
-* Correlations and regression
-* Overlaying regression on scatter plots
-* Chi-squared tests and visualization
-
 
 
 ## Comparing continuous by categorical variables

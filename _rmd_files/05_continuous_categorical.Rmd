@@ -4,6 +4,14 @@ title: "Session 5: Analyzing continuous data across discrete categories"
 output: markdown_document
 ---
 
+## Topics
+* Problems with bar plots to represent mean/median values
+* Strip charts
+* Box plots
+* Violin plots
+* Factors
+
+
 ```{r knitr_settings, eval=TRUE, echo=FALSE, cache=FALSE}
 library(knitr)
 opts_chunk$set("echo" = TRUE)
@@ -17,13 +25,6 @@ opts_chunk$set("results" = "hold")
 opts_chunk$set("fig.show" = "hold")
 opts_chunk$set("fig.width" = 7)
 ```
-
-## Learning goals
-* Strip charts
-* Box plots
-* Violin plots
-* Factors
-
 
 
 ## Comparing continuous data

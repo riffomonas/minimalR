@@ -4,11 +4,12 @@ title: "Session 3: Combining and Exploring Data Frames"
 output: markdown_document
 ---
 
-## Learning goals
+## Topics
 * Merging data frames
 * Selecting columns from data frames
 * Selecting rows from data frames
 * Connecting steps in data processing with pipes
+* Boolean operations
 
 
 ```{r knitr_settings, eval=TRUE, echo=FALSE, cache=FALSE}

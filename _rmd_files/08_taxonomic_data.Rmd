@@ -4,6 +4,15 @@ title: "Session 8: Working with text data"
 output: markdown_document
 ---
 
+## Topics
+* Complex string manipulations
+* Regular expressions
+* Representing taxonomic data
+* Developing multistep workflow to answer a problem
+* Customizing axes
+
+
+
 ```{r knitr_settings, eval=TRUE, echo=FALSE, cache=FALSE}
 library(knitr)
 opts_chunk$set("echo" = TRUE)
@@ -17,13 +26,6 @@ opts_chunk$set("results" = "hold")
 opts_chunk$set("fig.show" = "hold")
 opts_chunk$set("fig.width" = 7)
 ```
-
-## Learning objectives
-* String manipulations
-* Regular expressions
-* Representing taxonomic data
-* Identifying significantly different taxa
-
 
 ## Motivation
 To this point our analysis has looked at alpha and beta diversity values for our samples. We'd like to start drilling into the data to get a better sense of the types of organisms that might differ between the three diagnosis groups. What we'd like to do is to generate plots to describe the biodiversity of the three diagnosis groups. In the next session we'll work with OTU data describing biodiversity at the phylum and OTU level. We'll need to manipulate the data in three steps. First, in the `raw_data` folder there is a file called `baxter.cons.taxonomy` that contains the taxonomic information for each OTU that was observed when defining OTUs at a 3% distance cutoff. To build our plots we need to find the different phyla in that file. Second, we need to aggregate the data in the `baxter.subsample.shared` file by those phyla. Third, we will probably need to aggregate the data for each subject across individuals within a diagnosis group. Ready? Let's go!

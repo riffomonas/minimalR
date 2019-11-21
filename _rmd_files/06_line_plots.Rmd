@@ -4,6 +4,15 @@ title: "Session 6: Line Plots"
 output: markdown_document
 ---
 
+## Topics
+* Scripting analysis
+* Making data "tidy"
+* Generating line plots
+* Rarefaction curves
+* Adding lines to annotate plots
+* Working with text
+
+
 ```{r knitr_settings, eval=TRUE, echo=FALSE, cache=FALSE}
 library(knitr)
 opts_chunk$set("echo" = TRUE)
@@ -17,15 +26,6 @@ opts_chunk$set("results" = "hold")
 opts_chunk$set("fig.show" = "hold")
 opts_chunk$set("fig.width" = 7)
 ```
-
-## Learning objectives
-
-* Scripts
-* Rarefaction curves
-* Loops
-* Adding lines to plots
-* Working with text
-
 
 ## Getting organized
 To this point, we've had a chunk of code that we've been copying and pasting into the terminal to generate the `metadata` data frame. Perhaps you've been saving your code to a text file as we've been going a long, which has made it easier to copy and paste. But this process is pretty risky since we might forget to highlight all of the code we want or we may have multiple versions lying around. Before we move on to building line plots, we're going to see how we can encapsulate the code for the `metadata` data frame in a script and how we can use that script in our analyses. To help organize our project, we'll create a directory in our project directory called `code`.

@@ -4,6 +4,15 @@ title: "Session 4: Aggregating Data"
 output: markdown_document
 ---
 
+## Topics
+* Aggregating and summarizing data by a categorical variable
+* Adding columns to data frames
+* Sorting data frames
+* If/else statements
+* Creating customized functions
+* The importance of keeping code DRY
+
+
 ```{r knitr_settings, eval=TRUE, echo=FALSE, cache=FALSE}
 library(knitr)
 
@@ -18,13 +27,6 @@ opts_chunk$set("results" = "hold")
 opts_chunk$set("fig.show" = "hold")
 opts_chunk$set("fig.width" = 7)
 ```
-
-## Learning goals
-* Aggregating and summarizing data by a categorical variable
-* Adding columns to data frames
-* Creating customized functions
-* The importance of keeping code DRY
-
 
 ## Working with data in a data frame
 In the previous lesson we saw how we can merge two data frames together and how we can `filter` for rows and/or `select` columns from a single data frame. We ended by discussing how the pipe operator (i.e. `%>%`) can be used to connect functions to direct the flow of data through a pipeline. We now want to take the next step in analyzing our data. Let's think of some questions we might have about the data in our data frame

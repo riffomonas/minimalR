@@ -4,15 +4,14 @@ title: "Session 2: Data Frames"
 output: markdown_document
 ---
 
-## Learning goals
-
-* Read in data from various file formats
-* Write data out to various file formats
+## Topics
+* Data frames
+* Input from and output to files
+* Exploring data frames
 * Clean up data frames
-* Data types
-* Value of keeping raw data, raw
-* Importance of how things are named
+* Adding and modifying columns in a data frame
 * Bar plots
+
 
 ```{r knitr_settings, eval=TRUE, echo=FALSE, cache=FALSE}
 library(knitr)
