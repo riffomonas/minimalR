@@ -76,46 +76,60 @@
 * Customizing axes
 
 
-## Not covered
-* Base R stuff
+## To do...
+* Build in project organization from the beginning
+* Incorporate comments to code
+* Pull out as `bookdown` book
 
+### Lesson 9
+* Faceting
+* Multiple panels
 * Themes
 
-* Faceting
+### Lesson 10
+* Rmarkdown
+* kable
+* xtable
+* citations
+* paste / format / round
 
-* Other plot types
-	- Heat maps
-	- Network
-	- Putting it together: Cleveland dot plots
-	- Putting it together: Bi-plots
-	- rgl
-	- googleViz
-	- Polygons ~ back to back plot?
-	- Drawing - making a mouse model
-  - Text annotation of figures
-  - Base R plotting
+### Lesson 11
+* Putting it together: Machine learning
 
-* Machine learning
-  * Random forest
-  * Regression
+### Lesson 12
+* Putting it together:
 
-* Putting it together: Simulations in R
 
-* Unit tests
+## Not covered
 
-* Useful packages
-  - rentrez - Pulling down web data
+* Base R stuff
+  - read.xxxx / write.xxxx
+  - plotting options
 
 * Non-tabular data
   - Lists
   - HTML/XML
   - JSON
 
-* Writing
-  - kable
-	- xtable
-	- citations
-  - format / round
+* Other plot types
+	- Heat maps
+	- Network
+  - Trees
+	- rgl
+	- googleViz
+	- Polygons ~ back to back plot?
+	- Drawing - making a mouse model
+  - Text annotation of figures
+
+
+* Putting it together
+  - Simulations in R
+	- rentrez - Pulling down web data
+	- Cleveland dot plots
+	- Bi-plots
+
+
+* Unit tests
 
 * Shiny app
 
