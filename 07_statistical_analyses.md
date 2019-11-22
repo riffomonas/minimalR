@@ -378,7 +378,7 @@ glimpse(diagnosis_shannon_aov)
 ##   .. ..- attr(*, "order")= int 1
 ##   .. ..- attr(*, "intercept")= int 1
 ##   .. ..- attr(*, "response")= int 1
-##   .. ..- attr(*, ".Environment")=<environment: 0x7fef7bef7070> 
+##   .. ..- attr(*, ".Environment")=<environment: 0x7fcb84ef5870> 
 ##   .. ..- attr(*, "predvars")= language list(scaled_shannon, diagnosis)
 ##   .. ..- attr(*, "dataClasses")= Named chr [1:2] "numeric" "factor"
 ##   .. .. ..- attr(*, "names")= chr [1:2] "scaled_shannon" "diagnosis"
@@ -393,7 +393,7 @@ glimpse(diagnosis_shannon_aov)
 ##   .. .. ..- attr(*, "order")= int 1
 ##   .. .. ..- attr(*, "intercept")= int 1
 ##   .. .. ..- attr(*, "response")= int 1
-##   .. .. ..- attr(*, ".Environment")=<environment: 0x7fef7bef7070> 
+##   .. .. ..- attr(*, ".Environment")=<environment: 0x7fcb84ef5870> 
 ##   .. .. ..- attr(*, "predvars")= language list(scaled_shannon, diagnosis)
 ##   .. .. ..- attr(*, "dataClasses")= Named chr [1:2] "numeric" "factor"
 ##   .. .. .. ..- attr(*, "names")= chr [1:2] "scaled_shannon" "diagnosis"
@@ -1052,6 +1052,37 @@ ggplot(meta_alpha, aes(x=bmi, y=sobs, color=sex)) +
 
 ---
 
+### Activity 8
+Returning to the scatter plot showing the negative relationship between Shannon diversity and BMI, add an annotation to the field of the plot that indicates the Spearman rho value and p-value. To do this you will need to parse the output of `cor.test` and use the `geom_text` function. You can also use `paste` and `round` to format the numbers to look nice. Use the `?` function and google if you run into a problem.
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+
+```r
+test <- cor.test(meta_alpha$shannon, meta_alpha$bmi, method="spearman")
+p <- paste("P-value:", round(test$p.value, digits=2))
+rho <- paste("rho:", round(test$estimate, digits=2))
+annotation <- paste(p, rho, sep="\n")
+
+ggplot(meta_alpha, aes(x=bmi, y=shannon, color=diagnosis)) +
+	geom_point() +
+	geom_smooth(method="lm", color="gray") +
+	geom_text(aes(x=50, y=2, label=annotation), color="black", hjust = "left") +
+	scale_color_manual(name=NULL,
+		values=c("black", "blue", "red"),
+		breaks=c("normal", "adenoma", "cancer"),
+		labels=c("Normal", "Adenoma", "Cancer")) +
+	labs(title="There is a significant, but small negative association between a person's BMI\nand their Shannon diversity",
+		x="Body Mass Index (BMI)",
+		y="Shannon Diversity Index") +
+	theme_classic()
+```
+
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-48-1.png" title="plot of chunk unnamed-chunk-48" alt="plot of chunk unnamed-chunk-48" width="504" />
+</div>
+
+---
+
 ## Comparing discrete variables
 We might also be interested in knowing whether two discrete variables have the same distribution. For example, within our cohort, are men and women equally likely to have adenomas and carcinomas? Is there variation in obesity status and diagnosis? Let's start with the first question and leave the second for an activity for you to work on. We can test this association using a Chi-Squared test of association using the `chisq.test` function
 
@@ -1088,15 +1119,15 @@ ggplot(meta_alpha, aes(x=sex, y=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-49-1.png" title="plot of chunk unnamed-chunk-49" alt="plot of chunk unnamed-chunk-49" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-50-1.png" title="plot of chunk unnamed-chunk-50" alt="plot of chunk unnamed-chunk-50" width="504" />
 
 Not that size of circles is generally pretty hard for people to differentiate, so this isn't necessarily the best visualization tool. To see how to scale the circles by proportions you should see the examples in the `?geom_count` documentation.
 
 
 ---
 
-### Activity 8
-Is there variation in site and diagnosis?
+### Activity 9
+Is there significant variation in site and diagnosis?
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
@@ -1128,5 +1159,5 @@ ggplot(meta_alpha, aes(x=site, y=diagnosis)) +
 	theme_classic()
 ```
 
-<img src="assets/images/07_statistical_analyses//unnamed-chunk-51-1.png" title="plot of chunk unnamed-chunk-51" alt="plot of chunk unnamed-chunk-51" width="504" />
+<img src="assets/images/07_statistical_analyses//unnamed-chunk-52-1.png" title="plot of chunk unnamed-chunk-52" alt="plot of chunk unnamed-chunk-52" width="504" />
 </div>

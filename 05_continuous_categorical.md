@@ -76,7 +76,6 @@ meta_alpha %>%
 This is kind of a big problem with bar plots that makes them a [less than desirably tool](http://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.1002128) for presenting mean data. Your data may be normally distributed, but there are better options for visualizing continuous data for different categories, which we'll explore in this lesson. While bar plots are acceptable for representing count or proportion data across the group (see Lesson 2), they are out of favor for representing a mean and should be avoided for that use.
 
 
-
 ## Strip charts
 One limitation of bar plots is that they obscure the data and make it hard to determine whether the data are normally distributed and make it unclear how many observations are within each bar. An alternative to this is a strip chart where the y-axis values are plotted for each observation in the category. We can make these plots in `ggplot` using `geom_jitter`. Also, notice that we no longer want the data frame with the summary statistics, instead we can use the full `meta_alpha` data frame.
 
@@ -579,3 +578,55 @@ ggplot(aes(x=diagnosis, y=shannon, color=sex)) +
 
 <img src="assets/images/05_continuous_categorical//unnamed-chunk-22-1.png" title="plot of chunk unnamed-chunk-22" alt="plot of chunk unnamed-chunk-22" width="504" />
 </div>
+
+---
+
+
+### Activity 9
+In this lesson we have discussed bar, strip, box, violin, and ridgeline plots. List strengths and weaknesses of each.
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+***bar plots***
+* **Strengths**
+  - May work well when describing the counts or proportion for a dataset (see Lesson 2)
+  - Popular visual tool that most people know how to interpret
+* **Weaknesses:**
+  - Reader will instinctively assume the data are normally distributed
+  - Often depicted without a zero on the y-axis leading to misinterpretation
+
+***strip plots***
+* **Strengths**
+  - Shows all of the data
+* **Weaknesses:**
+  - Can be difficult to interpret where the median is
+  - Too many points make it difficult to see the distribution of data
+  - Confusion by some about meaning of jitter (there is no meaning)
+
+***box plots***
+* **Strengths**
+  - Shows the shape of the distribution
+* **Weaknesses:**
+  - Unclear how to interpret length of whiskers
+  - Need a decent amount of data for quartiles to be meaningful
+  - Combination with strip plot can look messy
+
+***violin plots***
+* **Strengths**
+  - Shows the shape of the distribution
+* **Weaknesses:**
+  - Need a decent amount of data for shape to be meaningful
+  - Considered to [suggestive](https://xkcd.com/1967/) by some
+
+***ridgeline plots/histograms***
+* **Strengths**
+  - Shows the shape of the distribution
+* **Weaknesses:**
+	- The inclusion of the 3rd dimension can make comparison of distributions difficult
+  - Need a decent amount of data for quartiles to be meaningful
+</div>
+
+---
+
+### Activity 10
+Read the [PLOS Biology paper by Weissgerber et al. (2015)](https://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.1002128). Do you find their arguments and data compelling? Take a bar plot that was recently published by your research group and redraw it to comply with the recommendations of Weissgerber et al. If you are up for it, see if you can use the code from this lesson to represent it using each of the methods that we covered.

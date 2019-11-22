@@ -8,8 +8,8 @@ output: markdown_document
 * Complex string manipulations
 * Regular expressions
 * Representing taxonomic data
-* Developing multistep workflow to answer a problem
 * Customizing axes
+* Developing multistep workflow to answer a problem
 
 
 
@@ -1020,3 +1020,23 @@ agg_deep_data %>%
 
 <img src="assets/images/08_taxonomic_data//unnamed-chunk-42-1.png" title="plot of chunk unnamed-chunk-42" alt="plot of chunk unnamed-chunk-42" width="504" />
 </div>
+
+
+---
+
+### Activity 9
+This lesson deviates from what is typically the norm in the microbiome literature. It is common to see researchers use pie charts and stacked bar charts to depict relative abundance data. For some background, run `?pie` and read the "Note" section. Based on using strip charts and box plots to represent relative abundance data what do you see as the strengths and weaknesses of the approach used on this lesson versus using pie or stacked bar charts?
+
+<input type="button" class="hideshow">
+<div markdown="1" style="display:none;">
+***Strengths***
+* Can see distribution and variation in data
+* Easier to focus attention on what the researcher wants to show the reader rather than on showing 100s of wedges
+* Easier to compare relative abundance of taxa when they are on the same y-axis
+
+***Weaknesses***
+* It's a "different" approach, there's a lot of inertia to use stacked bar plots
+* Sometimes there are more taxa to show than we have space for (need to make hard choices!)
+</div>
+
+	rm assets/images/07_statistical_analyses/unnamed-chunk-48-1.png	assets/images/07_statistical_analyses/unnamed-chunk-50-1.png	assets/images/07_statistical_analyses/unnamed-chunk-52-1.png
