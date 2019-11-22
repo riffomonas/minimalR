@@ -750,14 +750,14 @@ Install the `wesanderson` R package and pick a theme to color the ordination
 
 
 ```r
-install.packages("wesanderson")
+#install.packages("devtools")
+devtools::install_github("karthik/wesanderson")
 library("wesanderson")
-names(wes_palettes)
 
 ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 	geom_point(shape=19, size=2) +
 	scale_color_manual(name=NULL,
-		values=wes_palette(name="Darjeeling", n=3),
+		values=wes_palette(name="Darjeeling1", n=3),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	coord_fixed() +
@@ -767,16 +767,5 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 	theme_classic()
 ```
 
-
-```
-## Error in library("wesanderson"): there is no package called 'wesanderson'
-```
-
-```
-## Error in eval(expr, envir, enclos): object 'wes_palettes' not found
-```
-
-```
-## Error in wes_palette(name = "Darjeeling", n = 3): could not find function "wes_palette"
-```
+<img src="assets/images/01_scatter_plots//unnamed-chunk-33-1.png" title="plot of chunk unnamed-chunk-33" alt="plot of chunk unnamed-chunk-33" width="504" />
 </div>
