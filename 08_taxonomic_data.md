@@ -1038,5 +1038,3 @@ This lesson deviates from what is typically the norm in the microbiome literatur
 * It's a "different" approach, there's a lot of inertia to use stacked bar plots
 * Sometimes there are more taxa to show than we have space for (need to make hard choices!)
 </div>
-
-	rm assets/images/07_statistical_analyses/unnamed-chunk-48-1.png	assets/images/07_statistical_analyses/unnamed-chunk-50-1.png	assets/images/07_statistical_analyses/unnamed-chunk-52-1.png
