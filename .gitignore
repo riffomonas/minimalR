@@ -10,3 +10,7 @@ processed_data/
 
 ordination.pdf
 ordination.png
+
+_book/
+_bookdown_files/
+
