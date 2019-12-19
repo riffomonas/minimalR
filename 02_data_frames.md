@@ -938,7 +938,3 @@ ggplot(metadata, aes(x=diagnosis, group=site, fill=site)) +
 
 <img src="assets/images/02_data_frames//unnamed-chunk-33-1.png" title="plot of chunk unnamed-chunk-33" alt="plot of chunk unnamed-chunk-33" width="504" />
 </div>
-
----
-
-Because we've been keeping track of all of our commands we have a transcript of what we've done to the data. Let's rewrite that initial code chunk to have all of the processing steps together. We need to remember to update our column names in our new code:
