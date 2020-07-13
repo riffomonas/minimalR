@@ -10,7 +10,7 @@ output: markdown_document
 * Exploring data frames
 * Clean up data frames
 * Adding and modifying columns in a data frame
-* Bar plots
+* Summarizing data with bar plots
 
 
 

@@ -43,6 +43,7 @@ title: minimalR
 		<li>Data types in R</li>
 		<li>Value of keeping raw data, raw</li>
 		<li>Importance of how things are named</li>
+		<li>Summarizing data with bar plots</li>
 	</ul>
 
 	<li><a href="04_combining_data_frames.html">Combining and Exploring Data Frames</a></li>
@@ -63,7 +64,7 @@ title: minimalR
 
 	<li><a href="06_continuous_categorical.html">Comparing distributions of continuous data across categorical variables</a></li>
 	<ul>
-		<li>Bar plots</li>
+		<li>Problems with bar plots</li>
 		<li>Error bars</li>
 		<li>Positioning with jitter and dodging</li>
 		<li>Strip charts</li>
