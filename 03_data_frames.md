@@ -749,24 +749,24 @@ With some of the same commands we used previously, we can get this to look a lit
 ```r
 ggplot(metadata, aes(x=site)) +
 	geom_bar() +
-		labs(title="Number of subjects at each center",
-			x=NULL,
-			y="Number of subjects") +
-		theme_classic()
+	labs(title="Number of subjects at each center",
+		x=NULL,
+		y="Number of subjects") +
+	theme_classic()
 ```
 
 <img src="assets/images/03_data_frames//unnamed-chunk-24-1.png" title="plot of chunk unnamed-chunk-24" alt="plot of chunk unnamed-chunk-24" width="504" />
 
-Nice. Let's say we want to know the number of male and female patients at each site. To do this we will add the `group` aesthetic. The bars will be grouped along the x-axis by site and then by sex. We'll also use the `color` aesthetic to color the bars by sex.
+Nice. Let's say we want to know the number of male and female patients at each site. To do this we will use the `color` aesthetic to color the bars by sex. The bars will be grouped along the x-axis by site and then by sex.
 
 
 ```r
-ggplot(metadata, aes(x=site, group=sex, color=sex)) +
+ggplot(metadata, aes(x=site, color=sex)) +
 	geom_bar() +
-		labs(title="Number of male and female subjects at each center",
-			x=NULL,
-			y="Number of subjects") +
-		theme_classic()
+	labs(title="Number of male and female subjects at each center",
+		x=NULL,
+		y="Number of subjects") +
+	theme_classic()
 ```
 
 <img src="assets/images/03_data_frames//unnamed-chunk-25-1.png" title="plot of chunk unnamed-chunk-25" alt="plot of chunk unnamed-chunk-25" width="504" />
@@ -775,12 +775,12 @@ Huh. That looks weird. It appears that the border of the bars was colored rather
 
 
 ```r
-ggplot(metadata, aes(x=site, group=sex, fill=sex)) +
+ggplot(metadata, aes(x=site, fill=sex)) +
 	geom_bar() +
-		labs(title="Number of male and female subjects at each center",
-			x=NULL,
-			y="Number of subjects") +
-		theme_classic()
+	labs(title="Number of male and female subjects at each center",
+		x=NULL,
+		y="Number of subjects") +
+	theme_classic()
 ```
 
 <img src="assets/images/03_data_frames//unnamed-chunk-26-1.png" title="plot of chunk unnamed-chunk-26" alt="plot of chunk unnamed-chunk-26" width="504" />
@@ -801,12 +801,12 @@ After playing around with `position_dodge` and `position_dodge2` and their vario
 
 
 ```r
-ggplot(metadata, aes(x=site, group=sex, fill=sex)) +
+ggplot(metadata, aes(x=site, fill=sex)) +
 	geom_bar(position = position_dodge()) +
-		labs(title="Number of male and female subjects at each center",
-			x=NULL,
-			y="Number of subjects") +
-		theme_classic()
+	labs(title="Number of male and female subjects at each center",
+		x=NULL,
+		y="Number of subjects") +
+	theme_classic()
 ```
 
 <img src="assets/images/03_data_frames//unnamed-chunk-27-1.png" title="plot of chunk unnamed-chunk-27" alt="plot of chunk unnamed-chunk-27" width="504" />
@@ -815,16 +815,16 @@ I'm not a fan of the default colors, having a legend title, or of the formatting
 
 
 ```r
-ggplot(metadata, aes(x=site, group=sex, fill=sex)) +
+ggplot(metadata, aes(x=site, fill=sex)) +
 	geom_bar(position = position_dodge()) +
-		scale_fill_manual(name=NULL,
-			values=c("lightgreen", "purple"),
-			breaks=c("female", "male"),
-			labels=c("Female", "Male")) +
-		labs(title="Number of male and female subjects at each center",
-			x=NULL,
-			y="Number of subjects") +
-		theme_classic()
+	scale_fill_manual(name=NULL,
+		values=c("lightgreen", "purple"),
+		breaks=c("female", "male"),
+		labels=c("Female", "Male")) +
+	labs(title="Number of male and female subjects at each center",
+		x=NULL,
+		y="Number of subjects") +
+	theme_classic()
 ```
 
 <img src="assets/images/03_data_frames//unnamed-chunk-28-1.png" title="plot of chunk unnamed-chunk-28" alt="plot of chunk unnamed-chunk-28" width="504" />
@@ -833,16 +833,12 @@ Nice, eh? Ok, so the colors aren't amazing. Now let's ask a different question, 
 
 
 ```r
-ggplot(metadata, aes(x=site, group=diagnosis, fill=diagnosis)) +
-	geom_bar(position = position_dodge())
+ggplot(metadata, aes(x=site, fill=diagnosis)) +
+	geom_bar(position = position_dodge()) +
 	labs(title="Number of subjects with each diagnosis at each center",
 		x=NULL,
 		y="Number of subjects") +
 	theme_classic()
-```
-
-```
-## NULL
 ```
 
 <img src="assets/images/03_data_frames//unnamed-chunk-29-1.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="504" />
@@ -851,7 +847,7 @@ We can add our `scale_fill_manual` like we did earlier
 
 
 ```r
-ggplot(metadata, aes(x=site, group=diagnosis, fill=diagnosis)) +
+ggplot(metadata, aes(x=site, fill=diagnosis)) +
 	geom_bar(position = position_dodge()) +
 	scale_fill_manual(name=NULL,
 		values=c("blue", "red", "black"),
@@ -871,7 +867,7 @@ You may notice that the order of the diagnosis labels is correct in the legend, 
 ```r
 metadata <- mutate(metadata, diagnosis = factor(diagnosis, levels=c("normal", "adenoma", "cancer")))
 
-ggplot(metadata, aes(x=site, group=diagnosis, fill=diagnosis)) +
+ggplot(metadata, aes(x=site, fill=diagnosis)) +
 	geom_bar(position = position_dodge()) +
 	scale_fill_manual(name=NULL,
 		values=c("black", "blue", "red"),
@@ -898,16 +894,16 @@ Create a bar plot that shows the number of people with and without a family hist
 <div markdown="1" style="display:none;">
 
 ```r
-ggplot(metadata, aes(x=site, group=family_history_of_crc, fill=family_history_of_crc)) +
+ggplot(metadata, aes(x=site, fill=family_history_of_crc)) +
 	geom_bar(position = position_dodge()) +
-		scale_fill_manual(name="Family history of CRC?",
-			values=c("orange", "blue"),
-			breaks=c(TRUE, FALSE),
-			labels=c("Yes", "No")) +
-		labs(title="Number of subjects at each center with and without a history of CRC",
-			x=NULL,
-			y="Number of subjects") +
-		theme_classic()
+	scale_fill_manual(name="Family history of CRC?",
+		values=c("orange", "blue"),
+		breaks=c(TRUE, FALSE),
+		labels=c("Yes", "No")) +
+	labs(title="Number of subjects at each center with and without a history of CRC",
+		x=NULL,
+		y="Number of subjects") +
+	theme_classic()
 ```
 
 <img src="assets/images/03_data_frames//unnamed-chunk-32-1.png" title="plot of chunk unnamed-chunk-32" alt="plot of chunk unnamed-chunk-32" width="504" />
@@ -922,18 +918,18 @@ Above we plotted the site along the x-axis with diagnosis as the secondary varia
 <div markdown="1" style="display:none;">
 
 ```r
-ggplot(metadata, aes(x=diagnosis, group=site, fill=site)) +
+ggplot(metadata, aes(x=diagnosis, fill=site)) +
 	geom_bar(position = position_dodge()) +
-		scale_x_discrete(limits=c("normal", "adenoma", "cancer"),
-			labels=c("Normal", "Adenoma", "Cancer")) +
-		scale_fill_manual(name=NULL,
-			values=c("orange", "blue", "green", "black"),
-			breaks=c("Dana Farber", "MD Anderson", "Toronto", "U Michigan"),
-			labels=c("Dana Farber", "MD Anderson", "Toronto", "U Michigan")) +
-		labs(title="Number of subjects at each center with and without a history of CRC",
-			x=NULL,
-			y="Number of subjects") +
-		theme_classic()
+	scale_x_discrete(limits=c("normal", "adenoma", "cancer"),
+		labels=c("Normal", "Adenoma", "Cancer")) +
+	scale_fill_manual(name=NULL,
+		values=c("orange", "blue", "green", "black"),
+		breaks=c("Dana Farber", "MD Anderson", "Toronto", "U Michigan"),
+		labels=c("Dana Farber", "MD Anderson", "Toronto", "U Michigan")) +
+	labs(title="Number of subjects at each center with and without a history of CRC",
+		x=NULL,
+		y="Number of subjects") +
+	theme_classic()
 ```
 
 <img src="assets/images/03_data_frames//unnamed-chunk-33-1.png" title="plot of chunk unnamed-chunk-33" alt="plot of chunk unnamed-chunk-33" width="504" />

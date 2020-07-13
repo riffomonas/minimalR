@@ -454,32 +454,32 @@ With some of the same commands we used previously, we can get this to look a lit
 ```{r}
 ggplot(metadata, aes(x=site)) +
 	geom_bar() +
-		labs(title="Number of subjects at each center",
-			x=NULL,
-			y="Number of subjects") +
-		theme_classic()
+	labs(title="Number of subjects at each center",
+		x=NULL,
+		y="Number of subjects") +
+	theme_classic()
 ```
 
-Nice. Let's say we want to know the number of male and female patients at each site. To do this we will add the `group` aesthetic. The bars will be grouped along the x-axis by site and then by sex. We'll also use the `color` aesthetic to color the bars by sex.
+Nice. Let's say we want to know the number of male and female patients at each site. To do this we will use the `color` aesthetic to color the bars by sex. The bars will be grouped along the x-axis by site and then by sex.
 
 ```{r}
-ggplot(metadata, aes(x=site, group=sex, color=sex)) +
+ggplot(metadata, aes(x=site, color=sex)) +
 	geom_bar() +
-		labs(title="Number of male and female subjects at each center",
-			x=NULL,
-			y="Number of subjects") +
-		theme_classic()
+	labs(title="Number of male and female subjects at each center",
+		x=NULL,
+		y="Number of subjects") +
+	theme_classic()
 ```
 
 Huh. That looks weird. It appears that the border of the bars was colored rather than the content of the bar. It also appears that the male and female bar for each center were stacked on top of each other. We're not big fans of stacked bar plots and we'd really like these bars to be side-by-side. Go ahead and run `?geom_bar` and scroll down to the "Aesthetics" section of the help page. Do you see any aesthetics that might help us color the inside of the bars? If you can't figure it out, scroll down further to find the "Examples" section and look at how they suggest using the `geom_bar` command. Can you figure out which aesthetic will change the interior color? Hopefully, you've figured out that it should be the `fill` aesthetic instead of the `color` aesthetic.
 
 ```{r}
-ggplot(metadata, aes(x=site, group=sex, fill=sex)) +
+ggplot(metadata, aes(x=site, fill=sex)) +
 	geom_bar() +
-		labs(title="Number of male and female subjects at each center",
-			x=NULL,
-			y="Number of subjects") +
-		theme_classic()
+	labs(title="Number of male and female subjects at each center",
+		x=NULL,
+		y="Number of subjects") +
+	theme_classic()
 ```
 
 Great, we've solved the problem of how to set the ***fill*** color. Now we need to figure out how  to stop the bars from stacking. Looking back through the `?geom_bar` help page, do you see anything that tells you how to plot the bars next to each other instead of on top of each other? As a hint, look at the "See Also" section. It indicates that we should see "‘position_dodge()’ and ‘position_dodge2()’ for creating side-by-side bar charts." OK. Now let's do `?position_dodge` to see what this is all about. In the "Examples" section, we see an example that uses `position_dodge` with `geom_col`. Nice.
@@ -497,34 +497,34 @@ ggplot(mtcars, aes(factor(cyl), fill = factor(vs))) +
 After playing around with `position_dodge` and `position_dodge2` and their various options, we might settle upon this
 
 ```{r}
-ggplot(metadata, aes(x=site, group=sex, fill=sex)) +
+ggplot(metadata, aes(x=site, fill=sex)) +
 	geom_bar(position = position_dodge()) +
-		labs(title="Number of male and female subjects at each center",
-			x=NULL,
-			y="Number of subjects") +
-		theme_classic()
+	labs(title="Number of male and female subjects at each center",
+		x=NULL,
+		y="Number of subjects") +
+	theme_classic()
 ```
 
 I'm not a fan of the default colors, having a legend title, or of the formatting of "female" and "male". I'd rather use some different colors, leave out the legend title, and capitalize the first letter of the two sexes. Previously, we set the color of the diagnosis groups using `scale_color_manual`. We can do the same thing for our bar plot using `scale_fill_manual`. Can you see the difference?
 
 ```{r}
-ggplot(metadata, aes(x=site, group=sex, fill=sex)) +
+ggplot(metadata, aes(x=site, fill=sex)) +
 	geom_bar(position = position_dodge()) +
-		scale_fill_manual(name=NULL,
-			values=c("lightgreen", "purple"),
-			breaks=c("female", "male"),
-			labels=c("Female", "Male")) +
-		labs(title="Number of male and female subjects at each center",
-			x=NULL,
-			y="Number of subjects") +
-		theme_classic()
+	scale_fill_manual(name=NULL,
+		values=c("lightgreen", "purple"),
+		breaks=c("female", "male"),
+		labels=c("Female", "Male")) +
+	labs(title="Number of male and female subjects at each center",
+		x=NULL,
+		y="Number of subjects") +
+	theme_classic()
 ```
 
 Nice, eh? Ok, so the colors aren't amazing. Now let's ask a different question, how are the three diagnosis groups distributed within each center? We can start simple
 
 ```{r}
-ggplot(metadata, aes(x=site, group=diagnosis, fill=diagnosis)) +
-	geom_bar(position = position_dodge())
+ggplot(metadata, aes(x=site, fill=diagnosis)) +
+	geom_bar(position = position_dodge()) +
 	labs(title="Number of subjects with each diagnosis at each center",
 		x=NULL,
 		y="Number of subjects") +
@@ -534,7 +534,7 @@ ggplot(metadata, aes(x=site, group=diagnosis, fill=diagnosis)) +
 We can add our `scale_fill_manual` like we did earlier
 
 ```{r}
-ggplot(metadata, aes(x=site, group=diagnosis, fill=diagnosis)) +
+ggplot(metadata, aes(x=site, fill=diagnosis)) +
 	geom_bar(position = position_dodge()) +
 	scale_fill_manual(name=NULL,
 		values=c("blue", "red", "black"),
@@ -551,7 +551,7 @@ You may notice that the order of the diagnosis labels is correct in the legend, 
 ```{r}
 metadata <- mutate(metadata, diagnosis = factor(diagnosis, levels=c("normal", "adenoma", "cancer")))
 
-ggplot(metadata, aes(x=site, group=diagnosis, fill=diagnosis)) +
+ggplot(metadata, aes(x=site, fill=diagnosis)) +
 	geom_bar(position = position_dodge()) +
 	scale_fill_manual(name=NULL,
 		values=c("black", "blue", "red"),
@@ -575,16 +575,16 @@ Create a bar plot that shows the number of people with and without a family hist
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
 ```{r}
-ggplot(metadata, aes(x=site, group=family_history_of_crc, fill=family_history_of_crc)) +
+ggplot(metadata, aes(x=site, fill=family_history_of_crc)) +
 	geom_bar(position = position_dodge()) +
-		scale_fill_manual(name="Family history of CRC?",
-			values=c("orange", "blue"),
-			breaks=c(TRUE, FALSE),
-			labels=c("Yes", "No")) +
-		labs(title="Number of subjects at each center with and without a history of CRC",
-			x=NULL,
-			y="Number of subjects") +
-		theme_classic()
+	scale_fill_manual(name="Family history of CRC?",
+		values=c("orange", "blue"),
+		breaks=c(TRUE, FALSE),
+		labels=c("Yes", "No")) +
+	labs(title="Number of subjects at each center with and without a history of CRC",
+		x=NULL,
+		y="Number of subjects") +
+	theme_classic()
 ```
 </div>
 
@@ -596,17 +596,17 @@ Above we plotted the site along the x-axis with diagnosis as the secondary varia
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
 ```{r}
-ggplot(metadata, aes(x=diagnosis, group=site, fill=site)) +
+ggplot(metadata, aes(x=diagnosis, fill=site)) +
 	geom_bar(position = position_dodge()) +
-		scale_x_discrete(limits=c("normal", "adenoma", "cancer"),
-			labels=c("Normal", "Adenoma", "Cancer")) +
-		scale_fill_manual(name=NULL,
-			values=c("orange", "blue", "green", "black"),
-			breaks=c("Dana Farber", "MD Anderson", "Toronto", "U Michigan"),
-			labels=c("Dana Farber", "MD Anderson", "Toronto", "U Michigan")) +
-		labs(title="Number of subjects at each center with and without a history of CRC",
-			x=NULL,
-			y="Number of subjects") +
-		theme_classic()
+	scale_x_discrete(limits=c("normal", "adenoma", "cancer"),
+		labels=c("Normal", "Adenoma", "Cancer")) +
+	scale_fill_manual(name=NULL,
+		values=c("orange", "blue", "green", "black"),
+		breaks=c("Dana Farber", "MD Anderson", "Toronto", "U Michigan"),
+		labels=c("Dana Farber", "MD Anderson", "Toronto", "U Michigan")) +
+	labs(title="Number of subjects at each center with and without a history of CRC",
+		x=NULL,
+		y="Number of subjects") +
+	theme_classic()
 ```
 </div>
