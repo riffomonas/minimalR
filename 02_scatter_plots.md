@@ -1,6 +1,6 @@
 ---
 layout: lesson
-title: "Session 1: Scatter Plots"
+title: "Session 2: Scatter Plots"
 output: markdown_document
 ---
 

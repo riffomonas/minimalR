@@ -1,6 +1,6 @@
 ---
 layout: lesson
-title: "Session 8: Working with text data"
+title: "Session 9: Working with text data"
 output: markdown_document
 ---
 

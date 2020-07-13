@@ -1,6 +1,6 @@
 ---
 layout: lesson
-title: "Session 7: Statistical analyses"
+title: "Session 8: Statistical analyses"
 output: markdown_document
 ---
 
@@ -378,7 +378,7 @@ glimpse(diagnosis_shannon_aov)
 ##   .. ..- attr(*, "order")= int 1
 ##   .. ..- attr(*, "intercept")= int 1
 ##   .. ..- attr(*, "response")= int 1
-##   .. ..- attr(*, ".Environment")=<environment: 0x7ff0e71bcd68> 
+##   .. ..- attr(*, ".Environment")=<environment: 0x7fd473a12f68> 
 ##   .. ..- attr(*, "predvars")= language list(scaled_shannon, diagnosis)
 ##   .. ..- attr(*, "dataClasses")= Named chr [1:2] "numeric" "factor"
 ##   .. .. ..- attr(*, "names")= chr [1:2] "scaled_shannon" "diagnosis"
@@ -393,7 +393,7 @@ glimpse(diagnosis_shannon_aov)
 ##   .. .. ..- attr(*, "order")= int 1
 ##   .. .. ..- attr(*, "intercept")= int 1
 ##   .. .. ..- attr(*, "response")= int 1
-##   .. .. ..- attr(*, ".Environment")=<environment: 0x7ff0e71bcd68> 
+##   .. .. ..- attr(*, ".Environment")=<environment: 0x7fd473a12f68> 
 ##   .. .. ..- attr(*, "predvars")= language list(scaled_shannon, diagnosis)
 ##   .. .. ..- attr(*, "dataClasses")= Named chr [1:2] "numeric" "factor"
 ##   .. .. .. ..- attr(*, "names")= chr [1:2] "scaled_shannon" "diagnosis"

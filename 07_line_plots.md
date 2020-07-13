@@ -1,6 +1,6 @@
 ---
 layout: lesson
-title: "Session 6: Line Plots"
+title: "Session 7: Line Plots"
 output: markdown_document
 ---
 

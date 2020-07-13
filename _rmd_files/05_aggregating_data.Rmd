@@ -1,6 +1,6 @@
 ---
 layout: lesson
-title: "Session 4: Aggregating Data"
+title: "Session 5: Aggregating Data"
 output: markdown_document
 ---
 

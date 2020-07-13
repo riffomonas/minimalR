@@ -1,6 +1,6 @@
 ---
 layout: lesson
-title: "Session 2: Data Frames"
+title: "Session 3: Data Frames"
 output: markdown_document
 ---
 

@@ -1,6 +1,6 @@
 ---
 layout: lesson
-title: "Session 10: Reproducible documents"
+title: "Session 11: Reproducible documents"
 output: markdown_document
 ---
 

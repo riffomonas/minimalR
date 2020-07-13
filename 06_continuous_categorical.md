@@ -1,6 +1,6 @@
 ---
 layout: lesson
-title: "Session 5: Analyzing continuous data across discrete categories"
+title: "Session 6: Analyzing continuous data across discrete categories"
 output: markdown_document
 ---
 

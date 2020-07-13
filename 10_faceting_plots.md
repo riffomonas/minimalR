@@ -1,6 +1,6 @@
 ---
 layout: lesson
-title: "Session 9: Faceting your figures"
+title: "Session 10: Faceting your figures"
 output: markdown_document
 ---
 

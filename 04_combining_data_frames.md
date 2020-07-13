@@ -1,6 +1,6 @@
 ---
 layout: lesson
-title: "Session 3: Combining and Exploring Data Frames"
+title: "Session 4: Combining and Exploring Data Frames"
 output: markdown_document
 ---
 
