@@ -213,8 +213,6 @@ ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2, color=dx)) +
 
 <img src="assets/images/02_scatter_plots//unnamed-chunk-10-1.png" title="plot of chunk unnamed-chunk-10" alt="plot of chunk unnamed-chunk-10" width="504" />
 
-Notice that we needed to add the `geom_point` function call to `p` to update the value of `p`. This way, when we add the next component to the plot, we have the `geom_point` layer already included in the figure. You might notice that the values of `a` and `b` are still `2` and `3`, respectively, since we didn't update their values when we multiplied them. One quirky thing you've no doubt noticed is that to assign values in R people typically use the `<-` operator. You can also use `=`, but the equals sign is generally saved for assigning values to arguments in a function call (e.g. `color=dx`). You cannot use the `<-` operator for arguments. When you use the `<-` or `=` operator you don't get any output, the assignment is silent. If you want the value of the new variable, you need to write it out. This is what we did by putting `p` on its own line.
-
 Moving along, we would now like specify the color of our plotting symbols to something other than the default values. This is done using one of ggplot's `scale` functions. Here we'll use `scale_color_manual`. This function allows us to manually set the colors to the values of `dx` that we want. It's been using "adenoma", "cancer", and "normal". Not only are these lower case rather than title case, they are also in an order that reflects the disease progression. We'd like them to go "Noraml", "Adenoma", and "Cancer". I'm also not a fan of having a title on the legend, so we'll set the name of the scale to `NULL` rather than `dx`
 
 
