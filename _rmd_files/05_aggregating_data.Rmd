@@ -343,7 +343,7 @@ meta_alpha %>%
 ---
 
 ### Activity 8
-Create a summary table that gives the mean BMI and standard deviation for people in each of the diagnosis groups. You can calculate BMI as the person's weight in kilograms divided by their height in meters (or centimeters/100) squared.
+Create a summary table that gives the mean BMI and standard deviation for people in each of the diagnosis groups. You can calculate BMI as the person's weight in kilograms divided by their height in meters (or centimeters/100) squared. Look at the output of `?mean` and `?sd` to see if you can address the `NA` values in the output.
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
