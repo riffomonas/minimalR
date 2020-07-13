@@ -111,7 +111,7 @@ We now see `get_bmi`, `get_bmi_category`, `is_obese`, and `metadata`. Remember t
 
 
 ```r
-get_bmi(height=2, weight=130)
+get_bmi(height_cm=2, weight_kg=130)
 ```
 
 ```
@@ -119,7 +119,7 @@ get_bmi(height=2, weight=130)
 ```
 
 ```r
-get_bmi_category(height=2, weight=130)
+get_bmi_category(height_cm=2, weight_kg=130)
 ```
 
 ```
@@ -127,7 +127,7 @@ get_bmi_category(height=2, weight=130)
 ```
 
 ```r
-is_obese(height=2, weight=130)
+is_obese(height_cm=2, weight_kg=130)
 ```
 
 ```
@@ -211,9 +211,9 @@ Modify get_metadata to add a bmi, bmi_category, and is_obese column to the `meta
 	metadata <- mutate(metadata, diagnosis = factor(diagnosis, levels=c("normal", "adenoma", "cancer")))
 
 	metadata <- metadata %>%
-		mutate(bmi = get_bmi(weight=weight, height=height),
-			bmi_category = get_bmi_category(weight=weight, height=height),
-			obese = is_obese(weight=weight, height=height)
+		mutate(bmi = get_bmi(weight_kg=weight, height_cm=height),
+			bmi_category = get_bmi_category(weight_kg=weight, height_cm=height),
+			obese = is_obese(weight_kg=weight, height_cm=height)
 		)
 
 	return(metadata)

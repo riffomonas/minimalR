@@ -129,9 +129,9 @@ ls()
 We now see `get_bmi`, `get_bmi_category`, `is_obese`, and `metadata`. Remember that functions are variables. To make sure it all works, let's test our functions
 
 ```{r, results="markup"}
-get_bmi(height=2, weight=130)
-get_bmi_category(height=2, weight=130)
-is_obese(height=2, weight=130)
+get_bmi(height_cm=2, weight_kg=130)
+get_bmi_category(height_cm=2, weight_kg=130)
+is_obese(height_cm=2, weight_kg=130)
 ```
 
 The cool thing about this is that wherever we want to calculate a BMI value in our project, `get_bmi` is available to us after we source `baxter.R`. In the grand scheme of things, the code to generate the `metadata` data frame was pretty simple - there's only one variable: `metadata`. If our code had been more complex and we had used multiple variables to generate `metadata`, then all those variables would be available to us. That would probably be less than ideal. What happens if you enter `bmi_cat` at the prompt? You get an error message, right? That's because it's within the body of the `get_bmi_category` function and is hidden to any code outside that function. Let's convert our metadata code into a function we'll call `get_metadata`. You will need to edit `baxter.R` like this...
@@ -193,9 +193,9 @@ Modify get_metadata to add a bmi, bmi_category, and is_obese column to the `meta
 	metadata <- mutate(metadata, diagnosis = factor(diagnosis, levels=c("normal", "adenoma", "cancer")))
 
 	metadata <- metadata %>%
-		mutate(bmi = get_bmi(weight=weight, height=height),
-			bmi_category = get_bmi_category(weight=weight, height=height),
-			obese = is_obese(weight=weight, height=height)
+		mutate(bmi = get_bmi(weight_kg=weight, height_cm=height),
+			bmi_category = get_bmi_category(weight_kg=weight, height_cm=height),
+			obese = is_obese(weight_kg=weight, height_cm=height)
 		)
 
 	return(metadata)
