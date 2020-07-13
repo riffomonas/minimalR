@@ -224,7 +224,7 @@ We might also want to make new data frames that contain a subset of the rows. We
 filter(metadata, site=="U Michigan")
 ```
 
-The resulting data frame has 107 samples. You'll notice that I used `site=="U Michigan"`. This tells `filter` to identify those rows where the "site" column had a value equal to "U Michigan". The `==` is a logical comparison that asks whether the value on either side of the `==` are the same. The answer is either `TRUE` or `FALSE`. There are other logical operators that you should already be familiar with (but perhaps didn't know!) including `<`, `<=`, `>`, `>=`. These should be self explanatory. For example, if we want ever subject that has a `fit_result` greater than or equal to 100 we would write
+The resulting data frame has 107 samples. You'll notice that I used `site=="U Michigan"`. This tells `filter` to identify those rows where the "site" column had a value equal to "U Michigan". The `==` is a logical comparison that asks whether the value on either side of the `==` are the same. The answer is either `TRUE` or `FALSE`. There are other logical operators that you should already be familiar with (but perhaps didn't know!) including `<`, `<=`, `>`, `>=`. These should be self explanatory. The fit result measures how much blood is in a person's stool. It's a common non-invasive diagnostic to identify colonic lesions and a value greater than 100 is a concern. If we want ever subject that has a `fit_result` greater than or equal to 100 we would write
 
 ```{r}
 filter(metadata, fit_result >= 100)
@@ -320,7 +320,7 @@ ggplot(um_metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
 
 ---
 
-The `filter` and `select` functions are very powerful for subsetting our data frames. The fit result measures how much blood is in a person's stool. It's a common non-invasive diagnostic to identify colonic lesions. What if I want to get those samples from people that have a fit result over 100 and were given a normal diagnosis? We can use the `&` operator to see if two logical comparisons are true
+The `filter` and `select` functions are very powerful for subsetting our data frames. What if I want to get those samples from people that have a fit result over 100 and were given a normal diagnosis? We can use the `&` operator to see if two logical comparisons are true
 
 ```{r}
 filter(metadata, fit_result >= 100 & diagnosis == "normal")
