@@ -332,6 +332,20 @@ If we want samples from people with a high fit result or a cancer diagnosis we c
 filter(metadata, fit_result >= 100 | diagnosis == "cancer")
 ```
 
+We can make complicated filter commands easier to understand by grouping the logical questions with parentheses. Because [algebra within parentheses is evaluated first](https://en.wikipedia.org/wiki/Order_of_operations), we can control the order of operations for our question. For example, if we want the samples from women who have a high fit result or a cancer diagnosis we might be tempted do do...
+
+```{r}
+filter(metadata, fit_result >= 100 | diagnosis == "cancer" & sex == "female") %>%
+	count(sex)
+```
+
+What happened? If you look through a table that lists the order of operations, you'll notice that the logical `AND` is perormed before the logical `OR`. Who remembers such things? To make our intention more clear and get the correct answer, we can wrap the `OR` statement in parentheses
+
+```{r}
+filter(metadata, (fit_result >= 100 | diagnosis == "cancer") & sex == "female") %>%
+	count(sex)
+```
+
 ---
 
 ### Activity 7

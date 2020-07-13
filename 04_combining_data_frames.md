@@ -775,6 +775,37 @@ filter(metadata, fit_result >= 100 | diagnosis == "cancer")
 ## #   diabetes_med <lgl>, stage <chr>
 ```
 
+We can make complicated filter commands easier to understand by grouping the logical questions with parentheses. Because [algebra within parentheses is evaluated first](https://en.wikipedia.org/wiki/Order_of_operations), we can control the order of operations for our question. For example, if we want the samples from women who have a high fit result or a cancer diagnosis we might be tempted do do...
+
+
+```r
+filter(metadata, fit_result >= 100 | diagnosis == "cancer" & sex == "female") %>%
+	count(sex)
+```
+
+```
+## # A tibble: 2 x 2
+##   sex        n
+##   <chr>  <int>
+## 1 female    67
+## 2 male      76
+```
+
+What happened? If you look through a table that lists the order of operations, you'll notice that the logical `AND` is perormed before the logical `OR`. Who remembers such things? To make our intention more clear and get the correct answer, we can wrap the `OR` statement in parentheses
+
+
+```r
+filter(metadata, (fit_result >= 100 | diagnosis == "cancer") & sex == "female") %>%
+	count(sex)
+```
+
+```
+## # A tibble: 1 x 2
+##   sex        n
+##   <chr>  <int>
+## 1 female    67
+```
+
 ---
 
 ### Activity 7
@@ -950,7 +981,7 @@ read_tsv(file="raw_data/baxter.groups.ave-std.summary", col_types=cols(group = c
 		theme_classic()
 ```
 
-<img src="assets/images/04_combining_data_frames//unnamed-chunk-34-1.png" title="plot of chunk unnamed-chunk-34" alt="plot of chunk unnamed-chunk-34" width="504" />
+<img src="assets/images/04_combining_data_frames//unnamed-chunk-36-1.png" title="plot of chunk unnamed-chunk-36" alt="plot of chunk unnamed-chunk-36" width="504" />
 
 We've gone all the way - reading in the data from a `tsv` file to getting the rows and columns we want to joining it with our metadata to plotting. All in one command. Pretty slick.
 
@@ -979,7 +1010,7 @@ read_tsv(file="raw_data/baxter.thetayc.pcoa.axes", col_types=cols(group=col_char
 		theme_classic()
 ```
 
-<img src="assets/images/04_combining_data_frames//unnamed-chunk-35-1.png" title="plot of chunk unnamed-chunk-35" alt="plot of chunk unnamed-chunk-35" width="504" />
+<img src="assets/images/04_combining_data_frames//unnamed-chunk-37-1.png" title="plot of chunk unnamed-chunk-37" alt="plot of chunk unnamed-chunk-37" width="504" />
 </div>
 
 ---
