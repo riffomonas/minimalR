@@ -585,7 +585,7 @@ agg_phylum_data %>%
 ---
 
 ### Activity 3
-Can you convert our box plot to a strishapeart? Put the diagnosis groups in order of increasing severity.
+Can you convert our box plot to a stripchart? Put the diagnosis groups in order of increasing severity.
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
@@ -854,36 +854,6 @@ These plots are far preferable to the standard pie and stacked bar charts becaus
 ---
 
 ### Activity 6
-In the last plot we generated, the order of the three box plots is out of whack. Can you order them to reflect disease progression?
-
-<input type="button" class="hideshow">
-<div markdown="1" style="display:none;">
-
-```r
-agg_phylum_data %>%
-	filter(phylum %in% sig_phyla) %>%
-	mutate(phylum=factor(phylum, levels=sig_phyla)) %>%
-	mutate(agg_rel_abund=agg_rel_abund+1/21000) %>%
-	ggplot(aes(x=phylum, y=agg_rel_abund, color=diagnosis)) +
-		geom_hline(yintercept=1/10530, color="gray") +
-		geom_boxplot() +
-		scale_color_manual(name=NULL,
-			values=c("black", "blue", "red"),
-			breaks=c("normal", "adenoma", "cancer"),
-			labels=c("Normal", "Adenoma", "Cancer")) +
-		labs(title="Two phyla are significantly associated with disease progression",
-			x=NULL,
-			y="Relative abundance (%)") +
-		scale_y_log10(breaks=c(1e-4, 1e-3, 1e-2, 1e-1, 1), labels=c(1e-2, 1e-1, 1, 10, 100)) +
-		theme_classic()
-```
-
-<img src="assets/images/09_taxonomic_data//unnamed-chunk-39-1.png" title="plot of chunk unnamed-chunk-39" alt="plot of chunk unnamed-chunk-39" width="504" />
-</div>
-
----
-
-### Activity 7
 Following up on an earlier Activity, identify those taxa that are significantly different between the diagnosis states, when defining them to their deepest classification.
 
 <input type="button" class="hideshow">
@@ -931,7 +901,7 @@ agg_deep_data %>%
 		theme_classic()
 ```
 
-<img src="assets/images/09_taxonomic_data//unnamed-chunk-40-1.png" title="plot of chunk unnamed-chunk-40" alt="plot of chunk unnamed-chunk-40" width="504" />
+<img src="assets/images/09_taxonomic_data//unnamed-chunk-39-1.png" title="plot of chunk unnamed-chunk-39" alt="plot of chunk unnamed-chunk-39" width="504" />
 
 That's kind of hard to see. We can add `coord_flip` to turn the axes
 
@@ -956,12 +926,12 @@ agg_deep_data %>%
 		theme()
 ```
 
-<img src="assets/images/09_taxonomic_data//unnamed-chunk-41-1.png" title="plot of chunk unnamed-chunk-41" alt="plot of chunk unnamed-chunk-41" width="504" />
+<img src="assets/images/09_taxonomic_data//unnamed-chunk-40-1.png" title="plot of chunk unnamed-chunk-40" alt="plot of chunk unnamed-chunk-40" width="504" />
 </div>
 
 ---
 
-### Activity 8
+### Activity 7
 Instead of grouping individuals by three diagnosis groups, group them as having normal colons or a lesion (i.e. adenoma or cancer diagnosis). Identify those taxa that are significantly different between the diagnosis states, when defining them to their deepest classification. Sort the populations by overall mean relative abundance.
 
 <input type="button" class="hideshow">
@@ -1018,13 +988,13 @@ agg_deep_data %>%
 		theme()
 ```
 
-<img src="assets/images/09_taxonomic_data//unnamed-chunk-42-1.png" title="plot of chunk unnamed-chunk-42" alt="plot of chunk unnamed-chunk-42" width="504" />
+<img src="assets/images/09_taxonomic_data//unnamed-chunk-41-1.png" title="plot of chunk unnamed-chunk-41" alt="plot of chunk unnamed-chunk-41" width="504" />
 </div>
 
 
 ---
 
-### Activity 9
+### Activity 8
 This lesson deviates from what is typically the norm in the microbiome literature. It is common to see researchers use pie charts and stacked bar charts to depict relative abundance data. For some background, run `?pie` and read the "Note" section. Based on using strip charts and box plots to represent relative abundance data what do you see as the strengths and weaknesses of the approach used on this lesson versus using pie or stacked bar charts?
 
 <input type="button" class="hideshow">
