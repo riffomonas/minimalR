@@ -34,11 +34,12 @@ library(tidyverse)
 library(readxl)
  
 metadata <- read_excel(path="raw_data/baxter.metadata.xlsx",
-		col_types=c(sample = "text", fit_result = "numeric", Site = "text", Dx_Bin = "text",
-				dx = "text", Hx_Prev = "logical", Hx_of_Polyps = "logical", Age = "numeric",
-				Gender = "text", Smoke = "logical", Diabetic = "logical", Hx_Fam_CRC = "logical",
-				Height = "numeric", Weight = "numeric", NSAID = "logical", Diabetes_Med = "logical",
-				stage = "text")
+		col_types=c(sample = "text", fit_result = "numeric", Site = "text",
+				Dx_Bin = "text", dx = "text", Hx_Prev = "logical",
+				Hx_of_Polyps = "logical", Age = "numeric", Gender = "text",
+				Smoke = "logical", Diabetic = "logical", Hx_Fam_CRC = "logical",
+				Height = "numeric", Weight = "numeric", NSAID = "logical",
+				Diabetes_Med = "logical", stage = "text")
 	)
 metadata <- mutate(metadata, Height = na_if(Height, 0))
 metadata <- mutate(metadata, Weight = na_if(Weight, 0))
@@ -198,7 +199,7 @@ Before we move on to generating line graphs, I want to leave you with a stylisti
 ---
 
 ### Activity 1
-Modify get_metadata to add a bmi, bmi_category, and is_obese column to the `metadata` data frame. Confirm that your edits worked by running `source('code/baxter.R')` and then looking at the values in `metadata`
+Modify `get_metadata` to add a `bmi`, `bmi_category`, and `is_obese` column to the `metadata` data frame. Confirm that your edits worked by running `source('code/baxter.R')` and then looking at the values in `metadata`
 
 
 <input type="button" class="hideshow">
