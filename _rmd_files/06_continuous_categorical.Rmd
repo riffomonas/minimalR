@@ -258,7 +258,7 @@ In this case, the notches extend to 1.58 times the difference between the 25th a
 ```{r}
 ggplot(meta_alpha, aes(x=diagnosis, y=fit_result, color=diagnosis)) +
 	geom_boxplot(outlier.shape=NA) +
-	geom_jitter(shape=19, position=position_jitterdodge(jitter.width=0.75)) +
+	geom_jitter(shape=19)+
 	scale_color_manual(name=NULL,
 		values=c("blue", "red", "black"),
 		breaks=c("normal", "adenoma", "cancer"),
