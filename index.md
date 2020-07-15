@@ -20,11 +20,7 @@ title: minimalR
 	<ul>
 		<li>Philosophy</li>
 		<li>Why R</li>
-		<li>What you need to do these tutorials</li>
 		<li>Set up our minimalR project</li>
-		<li>Customizing RStudio</li>
-		<li>Oversized calculator</li>
-		<li>Working through tutorials</li>
 	</ul>
 
 	<li><a href="02_scatter_plots.html">Introduction to R via Scatter Plots</a></li>
