@@ -40,6 +40,7 @@ title: minimalR
 		<li>Value of keeping raw data, raw</li>
 		<li>Importance of how things are named</li>
 		<li>Summarizing data with bar plots</li>
+		<li>Factors</li>
 	</ul>
 
 	<li><a href="04_combining_data_frames.html">Combining and Exploring Data Frames</a></li>
@@ -66,7 +67,6 @@ title: minimalR
 		<li>Strip charts</li>
 		<li>Box plots</li>
 		<li>Violin plots</li>
-		<li>Factors</li>
 	</ul>
 
 	<li><a href="07_line_plots.html">Line plots</a></li>
