@@ -546,6 +546,8 @@ ggplot(metadata, aes(x=site, fill=diagnosis)) +
 	theme_classic()
 ```
 
+## Factors
+
 You may notice that the order of the diagnosis labels is correct in the legend, but not along the x-axis. We can fix this problem by adding a line of code and reordering the colors in the line with the `values` argument.
 
 ```{r}

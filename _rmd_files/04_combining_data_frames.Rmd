@@ -59,6 +59,8 @@ metadata <- rename(.data=metadata,
 		diagnosis=dx,
 		sex=gender)
 
+metadata <- mutate(metadata, diagnosis = factor(diagnosis, levels=c("normal", "adenoma", "cancer")))
+
 dir.create("processed_data", showWarnings=FALSE)
 write_tsv(x=metadata, path='processed_data/baxter.metadata.tsv')
 
@@ -67,7 +69,7 @@ metadata_pcoa <- inner_join(metadata, pcoa, by=c('sample'='group'))
 ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
 	geom_point(shape=19, size=2) +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	coord_fixed() +
@@ -307,7 +309,7 @@ um_metadata_pcoa <- inner_join(um_metadata, pcoa, by=c('sample'='group'))
 ggplot(um_metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
 	geom_point(shape=19, size=2) +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	coord_fixed() +
@@ -428,7 +430,7 @@ read_tsv(file="raw_data/baxter.groups.ave-std.summary", col_types=cols(group = c
 		geom_point(shape=19, size=2) +
 		coord_cartesian(xlim=c(0,90), ylim=c(0,5)) +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		labs(title="Relationship between community diversity and subject's age",
@@ -453,7 +455,7 @@ read_tsv(file="raw_data/baxter.thetayc.pcoa.axes", col_types=cols(group=col_char
 	ggplot(aes(x=axis1, y=axis2, color=diagnosis)) +
 		geom_point(shape=19, size=2) +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		coord_fixed() +

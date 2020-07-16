@@ -861,6 +861,8 @@ ggplot(metadata, aes(x=site, fill=diagnosis)) +
 
 <img src="assets/images/03_data_frames//unnamed-chunk-30-1.png" title="plot of chunk unnamed-chunk-30" alt="plot of chunk unnamed-chunk-30" width="504" />
 
+## Factors
+
 You may notice that the order of the diagnosis labels is correct in the legend, but not along the x-axis. We can fix this problem by adding a line of code and reordering the colors in the line with the `values` argument.
 
 

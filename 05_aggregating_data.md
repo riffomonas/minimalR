@@ -51,6 +51,8 @@ metadata <- rename(.data=metadata,
 		diagnosis=dx,
 		sex=gender)
 
+metadata <- mutate(metadata, diagnosis = factor(diagnosis, levels=c("normal", "adenoma", "cancer")))
+
 alpha <- read_tsv(file="raw_data/baxter.groups.ave-std.summary",
 		col_types=cols(group = col_character())) %>%
 	filter(method=='ave') %>%
@@ -70,7 +72,7 @@ group_by(meta_alpha, diagnosis)
 ## # A tibble: 490 x 21
 ## # Groups:   diagnosis [3]
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
-##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##    <chr>       <dbl> <chr> <chr>         <fct>     <lgl>           
 ##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
 ##  2 20056…          0 U Mi… High Risk No… normal    FALSE           
 ##  3 20076…         26 U Mi… High Risk No… normal    FALSE           
@@ -100,7 +102,7 @@ meta_alpha %>%
 ## # A tibble: 490 x 21
 ## # Groups:   diagnosis [3]
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
-##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##    <chr>       <dbl> <chr> <chr>         <fct>     <lgl>           
 ##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
 ##  2 20056…          0 U Mi… High Risk No… normal    FALSE           
 ##  3 20076…         26 U Mi… High Risk No… normal    FALSE           
@@ -131,7 +133,7 @@ meta_alpha %>%
 ## # A tibble: 490 x 2
 ## # Groups:   diagnosis [3]
 ##    diagnosis shannon
-##    <chr>       <dbl>
+##    <fct>       <dbl>
 ##  1 normal       4.02
 ##  2 normal       3.98
 ##  3 normal       3.91
@@ -157,7 +159,7 @@ select(meta_alpha, diagnosis) %>%
 ## # A tibble: 490 x 1
 ## # Groups:   diagnosis [3]
 ##    diagnosis
-##    <chr>    
+##    <fct>    
 ##  1 normal   
 ##  2 normal   
 ##  3 normal   
@@ -183,10 +185,10 @@ meta_alpha %>%
 ```
 ## # A tibble: 3 x 2
 ##   diagnosis mean_shannon
-##   <chr>            <dbl>
-## 1 adenoma           3.58
-## 2 cancer            3.52
-## 3 normal            3.58
+##   <fct>            <dbl>
+## 1 normal            3.58
+## 2 adenoma           3.58
+## 3 cancer            3.52
 ```
 
 The output is a new data frame that has three rows, one for each diagnosis category, and two columns, which contain the diagnosis categories and the mean of the Shannon diversity values. This is a very powerful set of tools!
@@ -208,10 +210,10 @@ meta_alpha %>%
 ```
 ## # A tibble: 3 x 2
 ##   diagnosis median_shannon
-##   <chr>              <dbl>
-## 1 adenoma             3.63
-## 2 cancer              3.49
-## 3 normal              3.68
+##   <fct>              <dbl>
+## 1 normal              3.68
+## 2 adenoma             3.63
+## 3 cancer              3.49
 ```
 </div>
 
@@ -229,10 +231,10 @@ meta_alpha %>%
 ```
 ## # A tibble: 3 x 3
 ##   diagnosis mean_shannon sd_shannon
-##   <chr>            <dbl>      <dbl>
-## 1 adenoma           3.58      0.473
-## 2 cancer            3.52      0.413
-## 3 normal            3.58      0.467
+##   <fct>            <dbl>      <dbl>
+## 1 normal            3.58      0.467
+## 2 adenoma           3.58      0.473
+## 3 cancer            3.52      0.413
 ```
 
 Slick, eh? We can continue to add summary statistics by adding columns to the arguments in the `summarize` function. Other built-in functions that you can use with the `summarize` function include `n`, `sum`, `first`, `last`, `nth`, `quantile`, `min`, `max`, `IQR`, and `var`. Note that `n` is unique in that it does not take any arguments. If you want to get a count of the number of rows in that group you would use it as `n()` rather than as `n(shannon)`.
@@ -254,10 +256,10 @@ meta_alpha %>%
 ```
 ## # A tibble: 3 x 4
 ##   diagnosis mean_shannon sd_shannon     N
-##   <chr>            <dbl>      <dbl> <int>
-## 1 adenoma           3.58      0.473   198
-## 2 cancer            3.52      0.413   120
-## 3 normal            3.58      0.467   172
+##   <fct>            <dbl>      <dbl> <int>
+## 1 normal            3.58      0.467   172
+## 2 adenoma           3.58      0.473   198
+## 3 cancer            3.52      0.413   120
 ```
 </div>
 
@@ -276,13 +278,13 @@ meta_alpha %>%
 ## # A tibble: 6 x 5
 ## # Groups:   diagnosis [3]
 ##   diagnosis sex    mean_shannon sd_shannon     N
-##   <chr>     <chr>         <dbl>      <dbl> <int>
-## 1 adenoma   female         3.57      0.492    80
-## 2 adenoma   male           3.58      0.462   118
-## 3 cancer    female         3.56      0.429    52
-## 4 cancer    male           3.50      0.401    68
-## 5 normal    female         3.53      0.464   111
-## 6 normal    male           3.66      0.466    61
+##   <fct>     <chr>         <dbl>      <dbl> <int>
+## 1 normal    female         3.53      0.464   111
+## 2 normal    male           3.66      0.466    61
+## 3 adenoma   female         3.57      0.492    80
+## 4 adenoma   male           3.58      0.462   118
+## 5 cancer    female         3.56      0.429    52
+## 6 cancer    male           3.50      0.401    68
 ```
 
 Now we have a new column to indicate the sex and we now have six rows instead of three because we have the three diagnosis categories for both of the sexes.
@@ -306,13 +308,13 @@ meta_alpha %>%
 ## # A tibble: 6 x 5
 ## # Groups:   sex [2]
 ##   sex    diagnosis mean_shannon sd_shannon     N
-##   <chr>  <chr>            <dbl>      <dbl> <int>
-## 1 female adenoma           3.57      0.492    80
-## 2 female cancer            3.56      0.429    52
-## 3 female normal            3.53      0.464   111
-## 4 male   adenoma           3.58      0.462   118
-## 5 male   cancer            3.50      0.401    68
-## 6 male   normal            3.66      0.466    61
+##   <chr>  <fct>            <dbl>      <dbl> <int>
+## 1 female normal            3.53      0.464   111
+## 2 female adenoma           3.57      0.492    80
+## 3 female cancer            3.56      0.429    52
+## 4 male   normal            3.66      0.466    61
+## 5 male   adenoma           3.58      0.462   118
+## 6 male   cancer            3.50      0.401    68
 ```
 </div>
 
@@ -512,7 +514,7 @@ meta_alpha %>%
 ```
 ## # A tibble: 490 x 22
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
-##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##    <chr>       <dbl> <chr> <chr>         <fct>     <lgl>           
 ##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
 ##  2 20056…          0 U Mi… High Risk No… normal    FALSE           
 ##  3 20076…         26 U Mi… High Risk No… normal    FALSE           
@@ -541,7 +543,7 @@ meta_alpha %>%
 ```
 ## # A tibble: 490 x 22
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
-##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##    <chr>       <dbl> <chr> <chr>         <fct>     <lgl>           
 ##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
 ##  2 20056…          0 U Mi… High Risk No… normal    FALSE           
 ##  3 20076…         26 U Mi… High Risk No… normal    FALSE           
@@ -598,7 +600,7 @@ meta_alpha %>%
 ## # A tibble: 9 x 5
 ## # Groups:   fit_category [3]
 ##   fit_category diagnosis mean_shannon sd_shannon     N
-##   <chr>        <chr>            <dbl>      <dbl> <int>
+##   <chr>        <fct>            <dbl>      <dbl> <int>
 ## 1 high fit     adenoma           3.43      0.579    31
 ## 2 high fit     cancer            3.49      0.418    90
 ## 3 moderate fit adenoma           3.50      0.447    14
@@ -657,10 +659,10 @@ meta_alpha %>%
 ```
 ## # A tibble: 3 x 3
 ##   diagnosis median_bmi sd_bmi
-##   <chr>          <dbl>  <dbl>
-## 1 adenoma         26.4   4.35
-## 2 cancer          29.1   6.76
-## 3 normal          27.0   5.33
+##   <fct>          <dbl>  <dbl>
+## 1 normal          27.0   5.33
+## 2 adenoma         26.4   4.35
+## 3 cancer          29.1   6.76
 ```
 
 A small trick is needed to make this work :). If you look at `?mean` and `?sd` you'll see that by default these functions keep `NA` values in their calculations. We don't want to do that because the output will be `NA`. By setting `na.rm=T` as one of the arguments when calling the `mean` and `sd` functions we will get the mean and standard deviations when `NA` values are removed.
@@ -704,10 +706,10 @@ meta_alpha %>%
 ```
 ## # A tibble: 3 x 3
 ##   diagnosis median_bmi sd_bmi
-##   <chr>          <dbl>  <dbl>
-## 1 adenoma         26.4   4.35
-## 2 cancer          29.1   6.76
-## 3 normal          27.0   5.33
+##   <fct>          <dbl>  <dbl>
+## 1 normal          27.0   5.33
+## 2 adenoma         26.4   4.35
+## 3 cancer          29.1   6.76
 ```
 
 The length of the new line of code is a bit longer than the original, but this is much easier to maintain. Again, say I have this function call at three or four places in my analysis. If I found that I forgot to divide the height in centimeters to meters, then I need to find and correct the bug in each case. This is a great way to cause problems. Functions allow you to practice the DRY principle: Don't Repeat Yourself. As an example, I could update my `get_bmi` function to make sure my heights and weights aren't zero and if they are I'd return an `NA` (note that `if_else` requires the true and false values to be the same type, so we need to use a special value of `NA` [see `?if_else`])
@@ -733,10 +735,10 @@ meta_alpha %>%
 ```
 ## # A tibble: 3 x 3
 ##   diagnosis median_bmi sd_bmi
-##   <chr>          <dbl>  <dbl>
-## 1 adenoma         26.4   4.35
-## 2 cancer          29.1   6.76
-## 3 normal          27.0   5.33
+##   <fct>          <dbl>  <dbl>
+## 1 normal          27.0   5.33
+## 2 adenoma         26.4   4.35
+## 3 cancer          29.1   6.76
 ```
 
 Alternatively, we might rather have a BMI category column. Instead of doing two mutates or having an even more complicated function, we can create a `get_bmi_category` function that calls `get_bmi` for us. This will be much easier than putting all of the code as an argument for `mutate`.
@@ -826,7 +828,7 @@ meta_alpha %>%
 		geom_point(shape=19, size=2) +
 		coord_cartesian(xlim=c(0,60), ylim=c(0,5)) +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		labs(title="Relationship between community diversity and subject's BMI",

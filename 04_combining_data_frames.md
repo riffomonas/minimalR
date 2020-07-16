@@ -48,6 +48,8 @@ metadata <- rename(.data=metadata,
 		diagnosis=dx,
 		sex=gender)
 
+metadata <- mutate(metadata, diagnosis = factor(diagnosis, levels=c("normal", "adenoma", "cancer")))
+
 dir.create("processed_data", showWarnings=FALSE)
 write_tsv(x=metadata, path='processed_data/baxter.metadata.tsv')
 
@@ -56,7 +58,7 @@ metadata_pcoa <- inner_join(metadata, pcoa, by=c('sample'='group'))
 ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
 	geom_point(shape=19, size=2) +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	coord_fixed() +
@@ -411,7 +413,7 @@ select(metadata, sample, starts_with("diagnosis"))
 ```
 ## # A tibble: 490 x 3
 ##    sample  diagnosis_bin    diagnosis
-##    <chr>   <chr>            <chr>    
+##    <chr>   <chr>            <fct>    
 ##  1 2003650 High Risk Normal normal   
 ##  2 2005650 High Risk Normal normal   
 ##  3 2007660 High Risk Normal normal   
@@ -464,7 +466,7 @@ filter(metadata, site=="U Michigan")
 ```
 ## # A tibble: 107 x 17
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
-##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##    <chr>       <dbl> <chr> <chr>         <fct>     <lgl>           
 ##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
 ##  2 20056…          0 U Mi… High Risk No… normal    FALSE           
 ##  3 20076…         26 U Mi… High Risk No… normal    FALSE           
@@ -491,7 +493,7 @@ filter(metadata, fit_result >= 100)
 ```
 ## # A tibble: 126 x 17
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
-##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##    <chr>       <dbl> <chr> <chr>         <fct>     <lgl>           
 ##  1 20256…       1509 U Mi… Cancer        cancer    TRUE            
 ##  2 20936…        286 Dana… Normal        normal    TRUE            
 ##  3 21056…        314 U Mi… Normal        normal    FALSE           
@@ -518,7 +520,7 @@ filter(metadata, previous_history)
 ```
 ## # A tibble: 138 x 17
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
-##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##    <chr>       <dbl> <chr> <chr>         <fct>     <lgl>           
 ##  1 20176…          7 Dana… Cancer        cancer    TRUE            
 ##  2 20236…          0 Dana… High Risk No… normal    TRUE            
 ##  3 20256…       1509 U Mi… Cancer        cancer    TRUE            
@@ -545,7 +547,7 @@ filter(metadata, !previous_history)
 ```
 ## # A tibble: 349 x 17
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
-##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##    <chr>       <dbl> <chr> <chr>         <fct>     <lgl>           
 ##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
 ##  2 20056…          0 U Mi… High Risk No… normal    FALSE           
 ##  3 20076…         26 U Mi… High Risk No… normal    FALSE           
@@ -572,7 +574,7 @@ filter(metadata, diagnosis != 'normal')
 ```
 ## # A tibble: 318 x 17
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
-##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##    <chr>       <dbl> <chr> <chr>         <fct>     <lgl>           
 ##  1 20096…         10 Toro… Adenoma       adenoma   FALSE           
 ##  2 20176…          7 Dana… Cancer        cancer    TRUE            
 ##  3 20256…       1509 U Mi… Cancer        cancer    TRUE            
@@ -611,7 +613,7 @@ filter(metadata, diagnosis=="cancer")
 ```
 ## # A tibble: 120 x 17
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
-##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##    <chr>       <dbl> <chr> <chr>         <fct>     <lgl>           
 ##  1 20176…          7 Dana… Cancer        cancer    TRUE            
 ##  2 20256…       1509 U Mi… Cancer        cancer    TRUE            
 ##  3 20376…         72 Toro… Cancer        cancer    FALSE           
@@ -644,7 +646,7 @@ filter(metadata, sex=="female")
 ```
 ## # A tibble: 243 x 17
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
-##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##    <chr>       <dbl> <chr> <chr>         <fct>     <lgl>           
 ##  1 20076…         26 U Mi… High Risk No… normal    FALSE           
 ##  2 20096…         10 Toro… Adenoma       adenoma   FALSE           
 ##  3 20136…          0 U Mi… Normal        normal    FALSE           
@@ -677,7 +679,7 @@ filter(metadata, age <= 50)
 ```
 ## # A tibble: 96 x 17
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
-##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##    <chr>       <dbl> <chr> <chr>         <fct>     <lgl>           
 ##  1 20076…         26 U Mi… High Risk No… normal    FALSE           
 ##  2 20136…          0 U Mi… Normal        normal    FALSE           
 ##  3 20616…          0 Dana… High Risk No… normal    FALSE           
@@ -712,7 +714,7 @@ um_metadata_pcoa <- inner_join(um_metadata, pcoa, by=c('sample'='group'))
 ggplot(um_metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
 	geom_point(shape=19, size=2) +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	coord_fixed() +
@@ -737,7 +739,7 @@ filter(metadata, fit_result >= 100 & diagnosis == "normal")
 ```
 ## # A tibble: 5 x 17
 ##   sample fit_result site  diagnosis_bin diagnosis previous_history
-##   <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##   <chr>       <dbl> <chr> <chr>         <fct>     <lgl>           
 ## 1 20936…        286 Dana… Normal        normal    TRUE            
 ## 2 21056…        314 U Mi… Normal        normal    FALSE           
 ## 3 23216…        148 Dana… Normal        normal    FALSE           
@@ -758,7 +760,7 @@ filter(metadata, fit_result >= 100 | diagnosis == "cancer")
 ```
 ## # A tibble: 156 x 17
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
-##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##    <chr>       <dbl> <chr> <chr>         <fct>     <lgl>           
 ##  1 20176…          7 Dana… Cancer        cancer    TRUE            
 ##  2 20256…       1509 U Mi… Cancer        cancer    TRUE            
 ##  3 20376…         72 Toro… Cancer        cancer    FALSE           
@@ -821,7 +823,7 @@ filter(metadata, age <= 50 & diagnosis != "normal")
 ```
 ## # A tibble: 46 x 17
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
-##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##    <chr>       <dbl> <chr> <chr>         <fct>     <lgl>           
 ##  1 22036…       1992 U Mi… Cancer        cancer    TRUE            
 ##  2 23076…          0 Dana… Adv Adenoma   adenoma   TRUE            
 ##  3 23396…       1278 Dana… Cancer        cancer    TRUE            
@@ -854,7 +856,7 @@ filter(metadata, previous_history | family_history_of_crc)
 ```
 ## # A tibble: 199 x 17
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
-##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##    <chr>       <dbl> <chr> <chr>         <fct>     <lgl>           
 ##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
 ##  2 20076…         26 U Mi… High Risk No… normal    FALSE           
 ##  3 20176…          7 Dana… Cancer        cancer    TRUE            
@@ -942,7 +944,7 @@ meta_alpha
 ```
 ## # A tibble: 490 x 21
 ##    sample fit_result site  diagnosis_bin diagnosis previous_history
-##    <chr>       <dbl> <chr> <chr>         <chr>     <lgl>           
+##    <chr>       <dbl> <chr> <chr>         <fct>     <lgl>           
 ##  1 20036…          0 U Mi… High Risk No… normal    FALSE           
 ##  2 20056…          0 U Mi… High Risk No… normal    FALSE           
 ##  3 20076…         26 U Mi… High Risk No… normal    FALSE           
@@ -972,7 +974,7 @@ read_tsv(file="raw_data/baxter.groups.ave-std.summary", col_types=cols(group = c
 		geom_point(shape=19, size=2) +
 		coord_cartesian(xlim=c(0,90), ylim=c(0,5)) +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		labs(title="Relationship between community diversity and subject's age",
@@ -1000,7 +1002,7 @@ read_tsv(file="raw_data/baxter.thetayc.pcoa.axes", col_types=cols(group=col_char
 	ggplot(aes(x=axis1, y=axis2, color=diagnosis)) +
 		geom_point(shape=19, size=2) +
 		scale_color_manual(name=NULL,
-			values=c("blue", "red", "black"),
+			values=c("black", "blue", "red"),
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		coord_fixed() +

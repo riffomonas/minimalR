@@ -45,6 +45,8 @@ metadata <- rename(.data=metadata,
 		diagnosis=dx,
 		sex=gender)
 
+metadata <- mutate(metadata, diagnosis = factor(diagnosis, levels=c("normal", "adenoma", "cancer")))
+
 alpha <- read_tsv(file="raw_data/baxter.groups.ave-std.summary",
 		col_types=cols(group = col_character())) %>%
 	filter(method=='ave') %>%
@@ -67,10 +69,10 @@ meta_alpha %>%
 ```
 ## # A tibble: 3 x 3
 ##   diagnosis   mean    sd
-##   <chr>      <dbl> <dbl>
-## 1 adenoma    98.8  329. 
-## 2 cancer    789.   814. 
-## 3 normal      8.92  44.7
+##   <fct>      <dbl> <dbl>
+## 1 normal      8.92  44.7
+## 2 adenoma    98.8  329. 
+## 3 cancer    789.   814.
 ```
 
 This is kind of a big problem with bar plots that makes them a [less than desirably tool](http://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.1002128) for presenting mean data. Your data may be normally distributed, but there are better options for visualizing continuous data for different categories, which we'll explore in this lesson. While bar plots are acceptable for representing count or proportion data across the group (see Lesson 2), they are out of favor for representing a mean and should be avoided for that use.
@@ -84,7 +86,7 @@ One limitation of bar plots is that they obscure the data and make it hard to de
 ggplot(meta_alpha, aes(x=diagnosis, y=fit_result, color=diagnosis)) +
 	geom_jitter(shape=19, size=2) +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	scale_x_discrete(limits=c("normal", "adenoma", "cancer"),
@@ -104,7 +106,7 @@ Looks better, eh? Perhaps we'd like to alter the jitter along the x-axis, we can
 ggplot(meta_alpha, aes(x=diagnosis, y=fit_result, color=diagnosis)) +
 	geom_jitter(shape=19, size=2, width=0.2) +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	scale_x_discrete(limits=c("normal", "adenoma", "cancer"),
@@ -129,7 +131,7 @@ Create a strip chart that shows the Shannon diversity for each diagnosis categor
 ggplot(meta_alpha, aes(x=diagnosis, y=shannon, color=diagnosis)) +
 	geom_jitter(shape=19, size=2, width=0.2) +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	scale_x_discrete(limits=c("normal", "adenoma", "cancer"),
@@ -153,7 +155,7 @@ Great. How about comparing FIT results for combinations of sex and diagnosis? On
 ggplot(meta_alpha, aes(x=sex, y=fit_result, color=diagnosis)) +
 	geom_jitter(shape=19, size=2, width=0.2) +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	scale_x_discrete(limits=c("female", "male"),
@@ -173,7 +175,7 @@ Meh. Another option is to use a the `position_jitterdodge` function with the `po
 ggplot(meta_alpha, aes(x=sex, y=fit_result, color=diagnosis)) +
 	geom_jitter(shape=19, size=2, position=position_jitterdodge()) +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	scale_x_discrete(limits=c("female", "male"),
@@ -193,7 +195,7 @@ It looks like our diagnosis groups are still overlapping a bit. We can give a ji
 ggplot(meta_alpha, aes(x=sex, y=fit_result, color=diagnosis)) +
 	geom_jitter(shape=19, size=2, position=position_jitterdodge(dodge.width=0.7, jitter.width=0.2)) +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	scale_x_discrete(limits=c("female", "male"),
@@ -221,7 +223,7 @@ Create a strip chart that shows the Shannon diversity for each diagnosis categor
 ggplot(meta_alpha, aes(x=sex, y=shannon, color=diagnosis)) +
 	geom_jitter(shape=19, size=2, position=position_jitterdodge(dodge.width=0.7, jitter.width=0.2)) +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	scale_x_discrete(limits=c("female", "male"),
@@ -246,7 +248,7 @@ I like strip charts because I can see all of the data. These get a bit messy whe
 ggplot(meta_alpha, aes(x=diagnosis, y=fit_result, color=diagnosis)) +
 	geom_boxplot() +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	scale_x_discrete(limits=c("normal", "adenoma", "cancer"),
@@ -266,7 +268,7 @@ One of the things I don't like about box plots is that it isn't always clear wha
 ggplot(meta_alpha, aes(x=diagnosis, y=fit_result, color=diagnosis)) +
 	geom_boxplot(notch=TRUE) +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	scale_x_discrete(limits=c("normal", "adenoma", "cancer"),
@@ -287,7 +289,7 @@ ggplot(meta_alpha, aes(x=diagnosis, y=fit_result, color=diagnosis)) +
 	geom_boxplot(outlier.shape=NA) +
 	geom_jitter(shape=19)+
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	scale_x_discrete(limits=c("normal", "adenoma", "cancer"),
@@ -331,7 +333,7 @@ ggplot(meta_alpha, aes(x=diagnosis, y=shannon, color=sex)) +
 ggplot(meta_alpha, aes(x=sex, y=shannon, color=diagnosis)) +
 	geom_boxplot() +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	scale_x_discrete(limits=c("female", "male"),
@@ -358,11 +360,11 @@ Our box plots have only had color on the rectangle, median line, whiskers, and o
 ggplot(meta_alpha, aes(x=diagnosis, y=shannon, color=diagnosis, fill=diagnosis)) +
 	geom_boxplot(alpha=0.3) +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	scale_fill_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	scale_x_discrete(limits=c("normal", "adenoma", "cancer"),
@@ -386,7 +388,7 @@ In the last box plot example, we plotted the data points on top of the box plot.
 ggplot(meta_alpha, aes(x=diagnosis, y=fit_result, fill=diagnosis)) +
 	geom_violin() +
 	scale_fill_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	scale_x_discrete(limits=c("normal", "adenoma", "cancer"),
@@ -411,11 +413,11 @@ In the previous violin plot we created the outline color to the violins was blac
 ggplot(meta_alpha, aes(x=diagnosis, y=fit_result, fill=diagnosis, color=diagnosis)) +
 	geom_violin() +
 	scale_fill_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	scale_x_discrete(limits=c("normal", "adenoma", "cancer"),
@@ -441,11 +443,11 @@ Create a violin plot comparing diversity across diagnosis groups and sex
 ggplot(meta_alpha, aes(x=sex, y=shannon, fill=diagnosis, color=diagnosis)) +
 	geom_violin() +
 	scale_fill_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	scale_x_discrete(limits=c("female", "male"),
@@ -470,21 +472,15 @@ A new variant of the types of plots discussed in this lesson is the ridgeline pl
 ```r
 #install.packages("ggridges")
 library(ggridges)
-```
 
-```
-## Error in library(ggridges): there is no package called 'ggridges'
-```
-
-```r
 ggplot(meta_alpha, aes(x=shannon, y=diagnosis, color=diagnosis, fill=diagnosis)) +
 	geom_density_ridges(alpha=0.5) +
 	scale_fill_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
+		values=c("black", "blue", "red"),
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	scale_y_discrete(limits=c("normal", "adenoma", "cancer"),
@@ -495,59 +491,8 @@ ggplot(meta_alpha, aes(x=shannon, y=diagnosis, color=diagnosis, fill=diagnosis))
 	theme_classic()
 ```
 
-```
-## Error in geom_density_ridges(alpha = 0.5): could not find function "geom_density_ridges"
-```
+<img src="assets/images/06_continuous_categorical//unnamed-chunk-19-1.png" title="plot of chunk unnamed-chunk-19" alt="plot of chunk unnamed-chunk-19" width="504" />
 </div>
-
----
-
-## Ordering our groups
-Whenever we've grouped our data by sex, the diagnosis groups are ordered alphabetically within each group (i.e. Adenoma, Cancer, Normal) rather than in our desired order of disease progression (i.e. Normal, Adenoma, Cancer). To fix the ordering, we need to cast these variables as factors. Factors are a troublesome feature within R. Thankfully, there's the `forcats` package within the tidyverse, which makes working with factors much easier. Factors are a type of data for representing categorical data. Characters are another type of data for representing categorical data, but the categories are ordered alphabetically. Sometimes we want to order them in another way. For example, if we have a column that has months, then when we plot with month on the x-axis, "April" will come first rather than "January". We can also rename factors so that "jan" is displayed as "January".  We've kind of already seen this when we relabeled "normal" with "Normal".
-
-Let's return to the example of generating the bar plot of plotting the FIT result grouped by sex and then by diagnosis group.
-
-
-```r
-ggplot(meta_alpha, aes(x=sex, y=fit_result, color=diagnosis)) +
-	geom_jitter(shape=19, size=2, position=position_jitterdodge(dodge.width=0.7, jitter.width=0.2)) +
-	scale_color_manual(name=NULL,
-		values=c("blue", "red", "black"),
-		breaks=c("normal", "adenoma", "cancer"),
-		labels=c("Normal", "Adenoma", "Cancer")) +
-	scale_x_discrete(limits=c("female", "male"),
-		labels=c("Female", "Male")) +
-	labs(title="Relationship between FIT result and subject's diagnosis",
-		x=NULL,
-		y="FIT Result") +
-	theme_classic()
-```
-
-<img src="assets/images/06_continuous_categorical//unnamed-chunk-20-1.png" title="plot of chunk unnamed-chunk-20" alt="plot of chunk unnamed-chunk-20" width="504" />
-
-We can reorder the diagnosis variable by using the `factor` function where we give it the levels for the factor in the order we want it in. You might notice that we previously used a bit of a hack to set the `values` argument in `scale_color_manual`. This argument was taking our diagnosis values in alphabetical order. The values for `breaks` and `labels` were the order we wanted. Now we can use the "correct" order for our `values` argument
-
-
-```r
-meta_alpha %>%
-	mutate(diagnosis = factor(diagnosis, levels=c("normal", "adenoma", "cancer"))) %>%
-	ggplot(aes(x=sex, y=fit_result, color=diagnosis)) +
-		geom_jitter(shape=19, size=2, position=position_jitterdodge(dodge.width=0.7, jitter.width=0.2)) +
-		scale_color_manual(name=NULL,
-			values=c("black", "blue", "red"),
-			breaks=c("normal", "adenoma", "cancer"),
-			labels=c("Normal", "Adenoma", "Cancer")) +
-		scale_x_discrete(limits=c("female", "male"),
-			labels=c("Female", "Male")) +
-		labs(title="Relationship between FIT result and subject's diagnosis",
-			x=NULL,
-			y="FIT Result") +
-		theme_classic()
-```
-
-<img src="assets/images/06_continuous_categorical//unnamed-chunk-21-1.png" title="plot of chunk unnamed-chunk-21" alt="plot of chunk unnamed-chunk-21" width="504" />
-
-Nice, eh? There are a variety of things you can do with factors including reordering the factors by another variable, aggregating multiple values, and renaming variables. These are really outside the scope of this tutorial and I rarely use them in my work. You can learn more about them in the [R4DS book](http://r4ds.had.co.nz/factors.html).
 
 ---
 
@@ -576,7 +521,7 @@ ggplot(aes(x=diagnosis, y=shannon, color=sex)) +
 	theme_classic()
 ```
 
-<img src="assets/images/06_continuous_categorical//unnamed-chunk-22-1.png" title="plot of chunk unnamed-chunk-22" alt="plot of chunk unnamed-chunk-22" width="504" />
+<img src="assets/images/06_continuous_categorical//unnamed-chunk-20-1.png" title="plot of chunk unnamed-chunk-20" alt="plot of chunk unnamed-chunk-20" width="504" />
 </div>
 
 ---
