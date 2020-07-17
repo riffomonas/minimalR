@@ -507,8 +507,8 @@ agg_phylum_data %>%
 ##    <chr>                         <dbl>
 ##  1 Firmicutes                  0.628  
 ##  2 Bacteroidetes               0.251  
-##  3 Actinobacteria              0.0236 
-##  4 Proteobacteria              0.0102 
+##  3 Actinobacteria              0.0236
+##  4 Proteobacteria              0.0102
 ##  5 Verrucomicrobia             0.00902
 ##  6 unclassified                0.00551
 ##  7 Acidobacteria               0      
@@ -804,9 +804,9 @@ library(broom)
 library(purrr)
 
 phylum_tests <- agg_phylum_data %>%
-					nest(sample_data = c(-phylum)) %>%
-					mutate(test=map(sample_data, ~tidy(kruskal.test(agg_rel_abund~diagnosis, data=.)))) %>%
-					unnest(test)
+		nest(sample_data = c(-phylum)) %>%
+		mutate(test=map(sample_data, ~tidy(kruskal.test(agg_rel_abund~diagnosis, data=.)))) %>%
+		unnest(test)
 ```
 
 Of course, because we're doing 17 hypothesis tests, we want to correct our P-values for multiple comparisons, sort the data frame in ascending order by corrected P-value, and then get the names of the phyla with significant differences
@@ -814,15 +814,15 @@ Of course, because we're doing 17 hypothesis tests, we want to correct our P-val
 
 ```r
 phylum_tests <- agg_phylum_data %>%
-					nest(sample_data = c(-phylum)) %>%
-					mutate(test=map(sample_data, ~tidy(kruskal.test(agg_rel_abund~diagnosis, data=.)))) %>%
-					unnest(test) %>%
-					mutate(p.value.adj=p.adjust(p.value, method="BH")) %>%
-					arrange(p.value.adj)
+		nest(sample_data = c(-phylum)) %>%
+		mutate(test=map(sample_data, ~tidy(kruskal.test(agg_rel_abund~diagnosis, data=.)))) %>%
+		unnest(test) %>%
+		mutate(p.value.adj=p.adjust(p.value, method="BH")) %>%
+		arrange(p.value.adj)
 
 sig_phyla <- phylum_tests %>%
-					filter(p.value.adj <= 0.05) %>%
-					pull(phylum)
+		filter(p.value.adj <= 0.05) %>%
+		pull(phylum)
 ```
 
 As we did before, let's make a box plot of the significant phyla
