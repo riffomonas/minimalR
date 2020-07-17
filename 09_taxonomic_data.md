@@ -507,8 +507,8 @@ agg_phylum_data %>%
 ##    <chr>                         <dbl>
 ##  1 Firmicutes                  0.628  
 ##  2 Bacteroidetes               0.251  
-##  3 Actinobacteria              0.0236
-##  4 Proteobacteria              0.0102
+##  3 Actinobacteria              0.0236 
+##  4 Proteobacteria              0.0102 
 ##  5 Verrucomicrobia             0.00902
 ##  6 unclassified                0.00551
 ##  7 Acidobacteria               0      
