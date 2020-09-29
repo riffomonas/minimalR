@@ -315,10 +315,11 @@ inner_join(a, c, by="sample")
 ```
 
 ```
-## Error: `by` can't contain join column `sample` which is missing from RHS
+## Error: Join columns must be present in data.
+## ✖ Problem with `sample`.
 ```
 
-See that? It tells us that "column `sample` which is missing from RHS (right hand side)". To resolve this, we need to use the syntax we saw earlier. We can replace `by="sample"` with `by=c('sample'='group')`. This effectively tells `inner_join` to join the two data frames using the `sample` column from data frame `a` and the `group` column from data frame `b`.
+See that? It tells us that the join columns must be present in data and that there's a problem wiht using "sample" to join the data frames. To resolve this, we need to use the syntax we saw earlier. We can replace `by="sample"` with `by=c('sample'='group')`. This effectively tells `inner_join` to join the two data frames using the `sample` column from data frame `a` and the `group` column from data frame `b`.
 
 
 ```r

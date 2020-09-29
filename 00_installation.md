@@ -136,7 +136,7 @@ sessionInfo()
 ```
 ## R version 4.0.2 (2020-06-22)
 ## Platform: x86_64-apple-darwin17.0 (64-bit)
-## Running under: macOS Mojave 10.14.6
+## Running under: macOS Catalina 10.15.7
 ## 
 ## Matrix products: default
 ## BLAS:   /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRblas.dylib
@@ -149,22 +149,21 @@ sessionInfo()
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] forcats_0.5.0   stringr_1.4.0   dplyr_0.8.5     purrr_0.3.4    
-##  [5] readr_1.3.1     tidyr_1.1.0     tibble_3.0.1    ggplot2_3.3.0  
-##  [9] tidyverse_1.3.0 knitr_1.28      ezknitr_0.6    
+##  [1] forcats_0.5.0   stringr_1.4.0   dplyr_1.0.0     purrr_0.3.4    
+##  [5] readr_1.3.1     tidyr_1.1.0     tibble_3.0.3    ggplot2_3.3.2  
+##  [9] tidyverse_1.3.0 knitr_1.29      ezknitr_0.6    
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_1.0.4.6      cellranger_1.1.0  pillar_1.4.4      compiler_4.0.2   
-##  [5] dbplyr_1.4.4      R.methodsS3_1.8.0 R.utils_2.9.2     tools_4.0.2      
-##  [9] lubridate_1.7.8   jsonlite_1.6.1    evaluate_0.14     lifecycle_0.2.0  
-## [13] nlme_3.1-148      gtable_0.3.0      lattice_0.20-41   pkgconfig_2.0.3  
-## [17] rlang_0.4.6       reprex_0.3.0      cli_2.0.2         rstudioapi_0.11  
-## [21] DBI_1.1.0         haven_2.2.0       xfun_0.14         withr_2.2.0      
-## [25] xml2_1.3.2        httr_1.4.1        fs_1.4.1          hms_0.5.3        
-## [29] generics_0.0.2    vctrs_0.3.0       grid_4.0.2        tidyselect_1.1.0 
-## [33] glue_1.4.1        R6_2.4.1          fansi_0.4.1       readxl_1.3.1     
-## [37] modelr_0.1.8      blob_1.2.1        magrittr_1.5      backports_1.1.7  
-## [41] scales_1.1.1      ellipsis_0.3.1    rvest_0.3.5       assertthat_0.2.1 
-## [45] colorspace_1.4-1  stringi_1.4.6     munsell_0.5.0     broom_0.5.6      
-## [49] crayon_1.3.4      R.oo_1.23.0
+##  [1] Rcpp_1.0.5        cellranger_1.1.0  pillar_1.4.6      compiler_4.0.2   
+##  [5] dbplyr_1.4.4      R.methodsS3_1.8.1 R.utils_2.10.1    tools_4.0.2      
+##  [9] lubridate_1.7.9   jsonlite_1.7.0    evaluate_0.14     lifecycle_0.2.0  
+## [13] gtable_0.3.0      pkgconfig_2.0.3   rlang_0.4.7       reprex_0.3.0     
+## [17] cli_2.0.2         rstudioapi_0.11   DBI_1.1.0         haven_2.3.1      
+## [21] xfun_0.15         withr_2.2.0       xml2_1.3.2        httr_1.4.2       
+## [25] fs_1.5.0          generics_0.0.2    vctrs_0.3.2       hms_0.5.3        
+## [29] grid_4.0.2        tidyselect_1.1.0  glue_1.4.1        R6_2.4.1         
+## [33] fansi_0.4.1       readxl_1.3.1      modelr_0.1.8      blob_1.2.1       
+## [37] magrittr_1.5      backports_1.1.8   scales_1.1.1      ellipsis_0.3.1   
+## [41] rvest_0.3.6       assertthat_0.2.1  colorspace_1.4-1  stringi_1.4.6    
+## [45] munsell_0.5.0     broom_0.7.0       crayon_1.3.4      R.oo_1.24.0
 ```

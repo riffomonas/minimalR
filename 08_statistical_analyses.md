@@ -39,7 +39,10 @@ meta_alpha %>%
 ```
 
 ```
-## Error: Column `summary(fit_result)` must be length 1 (a summary value), not 6
+## Error: Problem with `summarise()` input `..1`.
+## ✖ Can't convert <table> to <table>.
+## ℹ Input `..1` is `summary(fit_result)`.
+## ℹ The error occured in group 3: diagnosis = "cancer".
 ```
 
 As I indicated, this created an error message. In the new approach, we will take four steps to get the desired output. First, we will generate three data frames - one for each diagnosis group. Second, within each diagnosis group we will run the summary command generating a data frame for each diagnosis group. Finally, we will merge the data frames together to make a single data frame. The cool thing, is that we will generate these data frames within the original data frame. We will have a data frame where instead of a column containing character or numerical values, it will have columns that contain data frames. The first step requires the `nest` command. We will *nest* the data within the original data frame.
@@ -378,7 +381,7 @@ glimpse(diagnosis_shannon_aov)
 ##   .. ..- attr(*, "order")= int 1
 ##   .. ..- attr(*, "intercept")= int 1
 ##   .. ..- attr(*, "response")= int 1
-##   .. ..- attr(*, ".Environment")=<environment: 0x7fd473a12f68> 
+##   .. ..- attr(*, ".Environment")=<environment: 0x7f9f2bfd8090> 
 ##   .. ..- attr(*, "predvars")= language list(scaled_shannon, diagnosis)
 ##   .. ..- attr(*, "dataClasses")= Named chr [1:2] "numeric" "factor"
 ##   .. .. ..- attr(*, "names")= chr [1:2] "scaled_shannon" "diagnosis"
@@ -393,7 +396,7 @@ glimpse(diagnosis_shannon_aov)
 ##   .. .. ..- attr(*, "order")= int 1
 ##   .. .. ..- attr(*, "intercept")= int 1
 ##   .. .. ..- attr(*, "response")= int 1
-##   .. .. ..- attr(*, ".Environment")=<environment: 0x7fd473a12f68> 
+##   .. .. ..- attr(*, ".Environment")=<environment: 0x7f9f2bfd8090> 
 ##   .. .. ..- attr(*, "predvars")= language list(scaled_shannon, diagnosis)
 ##   .. .. ..- attr(*, "dataClasses")= Named chr [1:2] "numeric" "factor"
 ##   .. .. .. ..- attr(*, "names")= chr [1:2] "scaled_shannon" "diagnosis"
