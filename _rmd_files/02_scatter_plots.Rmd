@@ -84,9 +84,9 @@ The `library(tidyverse)` code loaded the `tidyverse` package, which is a bundle 
 <div markdown="1" style="display:none;">
 The library command loads the following packages and versions from the `tidyverse` package (as of version `r sessionInfo()$otherPkgs$tidyverse$Version`)
 ```
-✔ ggplot2 2.2.1.9000     ✔ purrr   0.2.4     
-✔ tibble  1.4.2          ✔ dplyr   0.7.4     
-✔ tidyr   0.8.0          ✔ stringr 1.2.0     
+✔ ggplot2 2.2.1.9000     ✔ purrr   0.2.4
+✔ tibble  1.4.2          ✔ dplyr   0.7.4
+✔ tidyr   0.8.0          ✔ stringr 1.2.0
 ✔ readr   1.1.1          ✔ forcats 0.2.0
 ```
 
@@ -187,7 +187,7 @@ Our new color aesthetic, black, is overwriting the colors for the three diagnosi
 
 ```{r}
 ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2, color=dx, shape=dx)) +
- geom_point(size=2)
+	geom_point(size=2)
 ```
 
 Each geometry (e.g. `geom_point`) has a set of aesthetics that it will map onto variables. `geom_point` will use mappings for x, y, size, shape, alpha (i.e. the opacity of the point), and fill and stroke (i.e. the color to use when using plotting symbols 21 through 25). We'll talk about color and shapes later. For now, let's go back to the diamond shape, which we had before.

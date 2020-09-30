@@ -75,9 +75,9 @@ The `library(tidyverse)` code loaded the `tidyverse` package, which is a bundle 
 <div markdown="1" style="display:none;">
 The library command loads the following packages and versions from the `tidyverse` package (as of version 1.3.0)
 ```
-✔ ggplot2 2.2.1.9000     ✔ purrr   0.2.4     
-✔ tibble  1.4.2          ✔ dplyr   0.7.4     
-✔ tidyr   0.8.0          ✔ stringr 1.2.0     
+✔ ggplot2 2.2.1.9000     ✔ purrr   0.2.4
+✔ tibble  1.4.2          ✔ dplyr   0.7.4
+✔ tidyr   0.8.0          ✔ stringr 1.2.0
 ✔ readr   1.1.1          ✔ forcats 0.2.0
 ```
 
@@ -198,7 +198,7 @@ Our new color aesthetic, black, is overwriting the colors for the three diagnosi
 
 ```r
 ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2, color=dx, shape=dx)) +
- geom_point(size=2)
+	geom_point(size=2)
 ```
 
 <img src="assets/images/02_scatter_plots//unnamed-chunk-9-1.png" title="plot of chunk unnamed-chunk-9" alt="plot of chunk unnamed-chunk-9" width="504" />
