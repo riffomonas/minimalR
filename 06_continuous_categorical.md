@@ -472,7 +472,13 @@ A new variant of the types of plots discussed in this lesson is the ridgeline pl
 ```r
 #install.packages("ggridges")
 library(ggridges)
+```
 
+```
+## Error in library(ggridges): there is no package called 'ggridges'
+```
+
+```r
 ggplot(meta_alpha, aes(x=shannon, y=diagnosis, color=diagnosis, fill=diagnosis)) +
 	geom_density_ridges(alpha=0.5) +
 	scale_fill_manual(name=NULL,
@@ -491,7 +497,9 @@ ggplot(meta_alpha, aes(x=shannon, y=diagnosis, color=diagnosis, fill=diagnosis))
 	theme_classic()
 ```
 
-<img src="assets/images/06_continuous_categorical//unnamed-chunk-19-1.png" title="plot of chunk unnamed-chunk-19" alt="plot of chunk unnamed-chunk-19" width="504" />
+```
+## Error in geom_density_ridges(alpha = 0.5): could not find function "geom_density_ridges"
+```
 </div>
 
 ---

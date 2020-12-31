@@ -262,6 +262,11 @@ ggsave("figures/ordination.pdf")
 
 Once `code/plot_ordination.R` is saved, in your terminal you can run `source('code/plot_ordination.R')` to generate the following
 
+
+```
+## Error in grDevices::pdf(file = filename, ..., version = version): cannot open file 'figures/ordination.pdf'
+```
+
 <img src="assets/images/07_line_plots//unnamed-chunk-14-1.png" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" width="504" />
 </div>
 
@@ -979,6 +984,11 @@ ggplot(metadata_rarefy, aes(x=numsampled, y=sobs, group=sample, color=diagnosis)
 	theme_classic()
 ggsave("figures/rarefaction.pdf")
 
+```
+
+
+```
+## Error in grDevices::pdf(file = filename, ..., version = version): cannot open file 'figures/rarefaction.pdf'
 ```
 
 <img src="assets/images/07_line_plots//unnamed-chunk-47-1.png" title="plot of chunk unnamed-chunk-47" alt="plot of chunk unnamed-chunk-47" width="504" />
