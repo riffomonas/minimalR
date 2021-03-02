@@ -237,7 +237,7 @@ This code would go into `code/plot_ordination.R`. Note that the the `library(tid
 
 source("code/baxter.R")
 
-pcoa <- read_tsv(file="raw_data/baxter.thetayc.pcoa.axes",
+pcoa <- read_tsv(file="raw_data/baxter.braycurtis.pcoa.axes",
 		col_types=cols(group=col_character())
 	)
 
@@ -251,7 +251,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	coord_fixed() +
-	labs(title="PCoA of ThetaYC Distances Between Stool Samples",
+	labs(title="PCoA of Bray-Curtis Distances Between Stool Samples",
 		x="PCo Axis 1",
 		y="PCo Axis 2") +
 	theme_classic()
@@ -261,11 +261,6 @@ ggsave("figures/ordination.pdf")
 ```
 
 Once `code/plot_ordination.R` is saved, in your terminal you can run `source('code/plot_ordination.R')` to generate the following
-
-
-```
-## Error in grDevices::pdf(file = filename, ..., version = version): cannot open file 'figures/ordination.pdf'
-```
 
 <img src="assets/images/07_line_plots//unnamed-chunk-14-1.png" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" width="504" />
 </div>
@@ -287,20 +282,20 @@ rarefy
 ```
 
 ```
-## # A tibble: 919 x 1,471
+## # A tibble: 4,790 x 1,471
 ##    numsampled `0.03-2003650` `lci-2003650` `hci-2003650` `0.03-2005650`
 ##         <dbl>          <dbl>         <dbl>         <dbl>          <dbl>
-##  1          1             1              1             1             1 
-##  2       1000           111.            99           121           121.
-##  3       2000           143.           129           154           159.
-##  4       3000           166.           151           176           186.
-##  5       4000           185.           174           197           206.
-##  6       5000           199.           189           208           224.
-##  7       6000           213.           200           223           240.
-##  8       7000           225.           212           238           253.
-##  9       8000           237.           223           249           265.
-## 10       9000           248.           235           262           276.
-## # … with 909 more rows, and 1,466 more variables: `lci-2005650` <dbl>,
+##  1          1            1               1             1            1  
+##  2        100           43.9            39            52           43.2
+##  3        200           59.7            54            69           61.2
+##  4        300           70.3            64            78           73.6
+##  5        400           78.6            70            85           83.0
+##  6        500           85.4            75            94           91.0
+##  7        600           92.2            84           100           98.4
+##  8        700           97.6            89           106          105. 
+##  9        800          102.             94           111          111. 
+## 10        900          107.             99           118          117. 
+## # … with 4,780 more rows, and 1,466 more variables: `lci-2005650` <dbl>,
 ## #   `hci-2005650` <dbl>, `0.03-2007660` <dbl>, `lci-2007660` <dbl>,
 ## #   `hci-2007660` <dbl>, `0.03-2009650` <dbl>, `lci-2009650` <dbl>,
 ## #   `hci-2009650` <dbl>, `0.03-2013660` <dbl>, `lci-2013660` <dbl>,
@@ -380,20 +375,20 @@ read_tsv(file="raw_data/baxter.rarefaction") %>%
 ```
 
 ```
-## # A tibble: 919 x 491
+## # A tibble: 4,790 x 491
 ##    numsampled `0.03-2003650` `0.03-2005650` `0.03-2007660` `0.03-2009650`
 ##         <dbl>          <dbl>          <dbl>          <dbl>          <dbl>
-##  1          1             1              1              1              1 
-##  2       1000           111.           121.           121.           141.
-##  3       2000           143.           159.           158.           185.
-##  4       3000           166.           186.           184.           215.
-##  5       4000           185.           206.           204.           237.
-##  6       5000           199.           224.           221.           255.
-##  7       6000           213.           240.           235.           271.
-##  8       7000           225.           253.           247.           284.
-##  9       8000           237.           265.           258.           297.
-## 10       9000           248.           276.           269.           308.
-## # … with 909 more rows, and 486 more variables: `0.03-2013660` <dbl>,
+##  1          1            1              1              1              1  
+##  2        100           43.9           43.2           40.8           47.3
+##  3        200           59.7           61.2           59.2           68.7
+##  4        300           70.3           73.6           71.8           82.9
+##  5        400           78.6           83.0           82.2           94.2
+##  6        500           85.4           91.0           90.4          104. 
+##  7        600           92.2           98.4           97.6          113. 
+##  8        700           97.6          105.           104.           120. 
+##  9        800          102.           111.           110.           127. 
+## 10        900          107.           117.           116.           134. 
+## # … with 4,780 more rows, and 486 more variables: `0.03-2013660` <dbl>,
 ## #   `0.03-2015650` <dbl>, `0.03-2017660` <dbl>, `0.03-2019651` <dbl>,
 ## #   `0.03-2023680` <dbl>, `0.03-2025653` <dbl>, `0.03-2027653` <dbl>,
 ## #   `0.03-2029650` <dbl>, `0.03-2031650` <dbl>, `0.03-2033650` <dbl>,
@@ -495,7 +490,7 @@ rarefy <- read_tsv(file="raw_data/baxter.rarefaction") %>%
 	pivot_longer(cols=c(-numsampled), names_to='sample', values_to='sobs')
 ```
 
-Our `rarefy` data frame now has 450310 rows and three columns. It has gone from being really wide to being skinny and really long. As we'll see in the next section, it is now much easier to do a join between `rarefy` and `metadata` than it would have been with the samples across the columns.
+Our `rarefy` data frame now has 2347100 rows and three columns. It has gone from being really wide to being skinny and really long. As we'll see in the next section, it is now much easier to do a join between `rarefy` and `metadata` than it would have been with the samples across the columns.
 
 
 ---
@@ -984,11 +979,6 @@ ggplot(metadata_rarefy, aes(x=numsampled, y=sobs, group=sample, color=diagnosis)
 	theme_classic()
 ggsave("figures/rarefaction.pdf")
 
-```
-
-
-```
-## Error in grDevices::pdf(file = filename, ..., version = version): cannot open file 'figures/rarefaction.pdf'
 ```
 
 <img src="assets/images/07_line_plots//unnamed-chunk-47-1.png" title="plot of chunk unnamed-chunk-47" alt="plot of chunk unnamed-chunk-47" width="504" />

@@ -1,0 +1,736 @@
+I"?�<h2 id="topics">Topics</h2>
+<ul>
+  <li>Determine when a scatter plot is an appropriate data visualization tool</li>
+  <li>Manipulate plotting symbols and colors to plot metadata</li>
+  <li>Adapt existing code to achieve a goal</li>
+  <li>Install R packages and libraries</li>
+  <li>Axis labels</li>
+  <li>Getting help</li>
+</ul>
+
+<h2 id="scatter-plots">Scatter plots</h2>
+<p><a href="https://en.wikipedia.org/wiki/Scatter_plot">Scatter plots</a> are commonly used to plot two continuous variables against each other. Usually the x-axis contains the independent variable and the y-axis contains the dependent variable. For example, one could plot calories consumed on the x-axis and the individual’s weight on the y-axis. Other times, it is used to visualize a correlation. For example, one might plot individuals’ weights against their heights to see whether there is a linear relationship. In microbial ecology, a common approach is to use ordination to visualize the similarity between samples. In the case of Principle Coordinates Analysis (PCoA), the first axis explains the most variation in the data, the second axis explains the second most variation, and so forth. In the game of microbial ecology bingo, these ordinations represent the center square. Let’s see how to make one in R.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">tidyverse</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">readxl</span><span class="p">)</span><span class="w">
+
+</span><span class="n">pcoa</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read_tsv</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="s2">"raw_data/baxter.braycurtis.pcoa.axes"</span><span class="p">)</span><span class="w">
+</span><span class="n">metadata</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read_excel</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">"raw_data/baxter.metadata.xlsx"</span><span class="p">)</span><span class="w">
+</span><span class="n">metadata_pcoa</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">inner_join</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">by</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s1">'sample'</span><span class="o">=</span><span class="s1">'group'</span><span class="p">))</span><span class="w">
+
+</span><span class="n">ggplot</span><span class="p">(</span><span class="n">metadata_pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">axis1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">axis2</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="n">dx</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_point</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="m">19</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="o">=</span><span class="m">2</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">scale_color_manual</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">values</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"blue"</span><span class="p">,</span><span class="w"> </span><span class="s2">"red"</span><span class="p">,</span><span class="w"> </span><span class="s2">"black"</span><span class="p">),</span><span class="w">
+		</span><span class="n">breaks</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"cancer"</span><span class="p">),</span><span class="w">
+		</span><span class="n">labels</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Cancer"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">coord_fixed</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"PCoA of Bray-Curtis Distances Between Stool Samples"</span><span class="p">,</span><span class="w">
+		</span><span class="n">x</span><span class="o">=</span><span class="s2">"PCo Axis 1"</span><span class="p">,</span><span class="w">
+		</span><span class="n">y</span><span class="o">=</span><span class="s2">"PCo Axis 2"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">theme_classic</span><span class="p">()</span><span class="w">
+
+</span><span class="n">ggsave</span><span class="p">(</span><span class="s2">"ordination.pdf"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/02_scatter_plots//unnamed-chunk-1-1.png" title="plot of chunk unnamed-chunk-1" alt="plot of chunk unnamed-chunk-1" width="504" /></p>
+
+<p>What’s going on in this chunk of code? One of the nice things about working in R is that the code can be quite readable so that a novice can figure out what is going on. This chunk of code has four sections. First, we are asking R to load two libraries called <code class="language-plaintext highlighter-rouge">tidyverse</code> and <code class="language-plaintext highlighter-rouge">readxl</code>. Second, we are reading in two files and joining them together. Finally, we are plotting some of the data from the joined data and saving it as a PDF. There are a couple of details that are helpful to notice here:</p>
+<ul>
+  <li>R is a very expansive language that many people from diverse backgrounds and interests are helping to develop. This has resulted in numerous packages to make life easier. The <code class="language-plaintext highlighter-rouge">tidyverse</code> is a set of packages that has been a game changer for R.</li>
+  <li>A function (e.g. <code class="language-plaintext highlighter-rouge">read_tsv</code>) takes arguments. These arguments are contained within round parentheses (i.e. <code class="language-plaintext highlighter-rouge">(</code>) and if there are multiple arguments, they are separated by a comma</li>
+  <li>Parameters for the arguments that are textual are wrapped in quote marks (i.e. <code class="language-plaintext highlighter-rouge">"</code> or <code class="language-plaintext highlighter-rouge">'</code>). It doesn’t matter whether you use single (i.e. <code class="language-plaintext highlighter-rouge">'</code>) or double (i.e. <code class="language-plaintext highlighter-rouge">"</code>) quotes, but be consistent and you have to match a single quote with a single quote and a double with a double.</li>
+  <li>Sometimes functions can be used as arguments in other functions (e.g. <code class="language-plaintext highlighter-rouge">element_blank</code>)</li>
+  <li>Addition (i.e. <code class="language-plaintext highlighter-rouge">+</code>) isn’t always for adding numbers!</li>
+</ul>
+
+<hr />
+
+<h3 id="activity-1">Activity 1</h3>
+
+<ul>
+  <li>Put a <code class="language-plaintext highlighter-rouge">#</code> at the start of the lines with <code class="language-plaintext highlighter-rouge">geom_point</code> and <code class="language-plaintext highlighter-rouge">coord_fixed</code>. What do these lines do?</li>
+  <li>Take the line of code that starts <code class="language-plaintext highlighter-rouge">geom_point</code> and move it to after the <code class="language-plaintext highlighter-rouge">coord_fixed</code> line. Does the plot change?</li>
+</ul>
+
+<p><input type="button" class="hideshow" /></p>
+<div style="display:none;">
+  <ul>
+    <li>The <code class="language-plaintext highlighter-rouge">#</code> allows you to turn text or code into a comment. Comments are not executed. Comments are useful for providing documentation to yourself and others and they are useful for helping to debug code</li>
+    <li>As we’ll see later, the <code class="language-plaintext highlighter-rouge">+</code> when used with the <code class="language-plaintext highlighter-rouge">ggplot</code> function allows you to add things to a plot. Just like numerical addition, the order of the values does not matter</li>
+  </ul>
+</div>
+
+<hr />
+
+<h3 id="activity-2">Activity 2</h3>
+
+<p>The <code class="language-plaintext highlighter-rouge">library(tidyverse)</code> code loaded the <code class="language-plaintext highlighter-rouge">tidyverse</code> package, which is a bundle of other packages. You can see which packages are loaded by by running <code class="language-plaintext highlighter-rouge">tidyverse_packages()</code>. Pick three of packages it loaded and find a description of each.</p>
+
+<p><input type="button" class="hideshow" /></p>
+<div style="display:none;">
+  <p>The library command loads the following packages and versions from the <code class="language-plaintext highlighter-rouge">tidyverse</code> package (as of version 1.3.0)</p>
+  <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>✔ ggplot2 2.2.1.9000     ✔ purrr   0.2.4
+✔ tibble  1.4.2          ✔ dplyr   0.7.4
+✔ tidyr   0.8.0          ✔ stringr 1.2.0
+✔ readr   1.1.1          ✔ forcats 0.2.0
+</code></pre></div>  </div>
+
+  <p>You can learn about these and the other package that are loaded as part of the tidyverse at the <a href="https://www.tidyverse.org">project’s homepage</a>.</p>
+</div>
+
+<hr />
+
+<h3 id="activity-3">Activity 3</h3>
+<ul>
+  <li>Change the plotting symbol from a circle to a diamond</li>
+  <li>Make the plotting symbols a smidge larger</li>
+  <li>Output a <code class="language-plaintext highlighter-rouge">png</code> formatted version of the image</li>
+</ul>
+
+<p><input type="button" class="hideshow" /></p>
+<div style="display:none;">
+
+  <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">metadata_pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">axis1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">axis2</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="n">dx</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_point</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="m">18</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="o">=</span><span class="m">3</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">scale_color_manual</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">values</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"blue"</span><span class="p">,</span><span class="w"> </span><span class="s2">"red"</span><span class="p">,</span><span class="w"> </span><span class="s2">"black"</span><span class="p">),</span><span class="w">
+		</span><span class="n">breaks</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"cancer"</span><span class="p">),</span><span class="w">
+		</span><span class="n">labels</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Cancer"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">coord_fixed</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"PCoA of Bray-Curtis Distances Between Stool Samples"</span><span class="p">,</span><span class="w">
+		</span><span class="n">x</span><span class="o">=</span><span class="s2">"PCo Axis 1"</span><span class="p">,</span><span class="w">
+		</span><span class="n">y</span><span class="o">=</span><span class="s2">"PCo Axis 2"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">theme_classic</span><span class="p">()</span><span class="w">
+
+</span><span class="n">ggsave</span><span class="p">(</span><span class="s2">"ordination.png"</span><span class="p">)</span><span class="w">
+</span></code></pre></div>  </div>
+
+  <p><img src="assets/images/02_scatter_plots//unnamed-chunk-2-1.png" title="plot of chunk unnamed-chunk-2" alt="plot of chunk unnamed-chunk-2" width="504" /></p>
+
+</div>
+
+<hr />
+
+<h3 id="activity-4">Activity 4</h3>
+<ul>
+  <li>Write code for a new plot, and adapt the code to make the color represent the “Gender” variable</li>
+</ul>
+
+<p><input type="button" class="hideshow" /></p>
+<div style="display:none;">
+
+  <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">metadata_pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">mapping</span><span class="o">=</span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">axis1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">axis2</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="n">Gender</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_point</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="m">19</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="o">=</span><span class="m">3</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">scale_color_manual</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">values</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"darkgreen"</span><span class="p">,</span><span class="w"> </span><span class="s2">"orange"</span><span class="p">),</span><span class="w">
+		</span><span class="n">breaks</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"f"</span><span class="p">,</span><span class="w"> </span><span class="s2">"m"</span><span class="p">),</span><span class="w">
+		</span><span class="n">labels</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Female"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Male"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">coord_fixed</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"PCoA of Bray-Curtis Distances Between Stool Samples"</span><span class="p">,</span><span class="w">
+		</span><span class="n">x</span><span class="o">=</span><span class="s2">"PCo Axis 1"</span><span class="p">,</span><span class="w">
+		</span><span class="n">y</span><span class="o">=</span><span class="s2">"PCo Axis 2"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">theme_classic</span><span class="p">()</span><span class="w">
+</span></code></pre></div>  </div>
+
+  <p><img src="assets/images/02_scatter_plots//unnamed-chunk-3-1.png" title="plot of chunk unnamed-chunk-3" alt="plot of chunk unnamed-chunk-3" width="504" /></p>
+</div>
+
+<hr />
+
+<h2 id="ggplot2">ggplot2</h2>
+
+<p>The <code class="language-plaintext highlighter-rouge">ggplot2</code> package or just “ggplot” as it is commonly known, is a powerful tool for generating figures. The <em>gg</em> in the name refers to the “Grammar of Graphics”, which is a way of thinking of figures as being a series of layers consisting. Originally described by <a href="https://www.amazon.com/Grammar-Graphics-Statistics-Computing/dp/0387245448">Leland Wilkinson</a>, the grammar has been updated and applied to <a href="http://vita.had.co.nz/papers/layered-grammar.html">R by Hadley Wickham</a>, the package’s creator. According to the grammar, a figure consists of the underlying <strong>data</strong>, <strong>aes</strong> thetic mappings, <strong>geom</strong> etric objects, <strong>scales</strong>, a <strong>coord</strong> inate system, statistical transformations, and facet specifications. As we have seen already, each of these elements can be manipulated in ggplot2. As we proceed through the tutorials we will gain a greater appreciation for the variety of ways we can manipulate these elements within ggplot2 to make attractive images.</p>
+
+<p>As an introduction to ggplot, let’s break down the plotting section of the code chunk we’ve been working with.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">metadata_pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">mapping</span><span class="o">=</span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">axis1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">axis2</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="n">dx</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Here we can see that the data to be plotted comes from a <em>variable</em> named <code class="language-plaintext highlighter-rouge">metadata_pcoa</code>, which is a <em>data frame</em> that contains the data we want to plot. The mapping we are applying to the data consists of assigning various columns from the data frame to aesthetics that we want to plot. Specifically, we will put the data in the <code class="language-plaintext highlighter-rouge">axis1</code> column to the x-axis, the data in the <code class="language-plaintext highlighter-rouge">axis2</code> column to the y-axis, and the data in the <code class="language-plaintext highlighter-rouge">dx</code> column (i.e. the diagnosis) to the color that will be plotted at the x and y coordinates. If we run this line in R, we will get a plotting window that doesn’t have any data in it.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">metadata_pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">mapping</span><span class="o">=</span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">axis1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">axis2</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="n">dx</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/02_scatter_plots//unnamed-chunk-5-1.png" title="plot of chunk unnamed-chunk-5" alt="plot of chunk unnamed-chunk-5" width="504" /></p>
+
+<p>The data are there, we just can’t see them - we need to tell ggplot the geometry that we want to apply to the data. This is contained within the next line, which is “added” to the original plotting window</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">metadata_pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">mapping</span><span class="o">=</span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">axis1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">axis2</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="n">dx</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_point</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="m">19</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="o">=</span><span class="m">2</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/02_scatter_plots//unnamed-chunk-6-1.png" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" width="504" /></p>
+
+<p>Now it’s starting to look like a figure. There is a subtle point to notice in our <code class="language-plaintext highlighter-rouge">geom_point</code> function call. You’ll notice that we are assigning aesthetics to our points without using the <code class="language-plaintext highlighter-rouge">aes</code> function in the <code class="language-plaintext highlighter-rouge">geom_point</code>. By default, the mapping values in the <code class="language-plaintext highlighter-rouge">ggplot</code> function call are applied to subsequent layers of the figure. That means that the points we plot will be colored according to the <code class="language-plaintext highlighter-rouge">dx</code> value. We could have done this instead</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">metadata_pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">mapping</span><span class="o">=</span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">axis1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">axis2</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+ 	</span><span class="n">geom_point</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="m">19</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="o">=</span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="n">mapping</span><span class="o">=</span><span class="n">aes</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="n">dx</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/02_scatter_plots//unnamed-chunk-7-1.png" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" width="504" /></p>
+
+<p>Again, we get the same plot. Stylistically, it’s generally best to put your aesthetics mappings as close to the <code class="language-plaintext highlighter-rouge">ggplot</code> function call as possible. So, we’ll put it back where we had it. Also, notice that we have two things that we might think of aesthetics outside of the mapping - the shape and size of the points to be plotted. When we set attributes for a plotting aesthetic outside of the mapping, that value gets applied to all of the points in that layer. Notice what happens Here</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">metadata_pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">mapping</span><span class="o">=</span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">axis1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">axis2</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="n">dx</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_point</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="m">19</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="o">=</span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="s2">"black"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/02_scatter_plots//unnamed-chunk-8-1.png" title="plot of chunk unnamed-chunk-8" alt="plot of chunk unnamed-chunk-8" width="504" /></p>
+
+<p>Our new color aesthetic, black, is overwriting the colors for the three diagnosis groups. There are numerous aesthetic values that we can apply to all of the points or that we can map to a specific variable. For example, in addition to color, we could also map the shape of the plotting symbol to the <code class="language-plaintext highlighter-rouge">dx</code> column.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">metadata_pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">mapping</span><span class="o">=</span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">axis1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">axis2</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="n">dx</span><span class="p">,</span><span class="w"> </span><span class="n">shape</span><span class="o">=</span><span class="n">dx</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_point</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="m">2</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/02_scatter_plots//unnamed-chunk-9-1.png" title="plot of chunk unnamed-chunk-9" alt="plot of chunk unnamed-chunk-9" width="504" /></p>
+
+<p>Each geometry (e.g. <code class="language-plaintext highlighter-rouge">geom_point</code>) has a set of aesthetics that it will map onto variables. <code class="language-plaintext highlighter-rouge">geom_point</code> will use mappings for x, y, size, shape, alpha (i.e. the opacity of the point), and fill and stroke (i.e. the color to use when using plotting symbols 21 through 25). We’ll talk about color and shapes later. For now, let’s go back to the diamond shape, which we had before.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">metadata_pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">mapping</span><span class="o">=</span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">axis1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">axis2</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="n">dx</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_point</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="m">19</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="o">=</span><span class="m">2</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/02_scatter_plots//unnamed-chunk-10-1.png" title="plot of chunk unnamed-chunk-10" alt="plot of chunk unnamed-chunk-10" width="504" /></p>
+
+<p>Moving along, we would now like specify the color of our plotting symbols to something other than the default values. This is done using one of ggplot’s <code class="language-plaintext highlighter-rouge">scale</code> functions. Here we’ll use <code class="language-plaintext highlighter-rouge">scale_color_manual</code>. This function allows us to manually set the colors to the values of <code class="language-plaintext highlighter-rouge">dx</code> that we want. It’s been using “adenoma”, “cancer”, and “normal”. Not only are these lower case rather than title case, they are also in an order that reflects the disease progression. We’d like them to go “Noraml”, “Adenoma”, and “Cancer”. I’m also not a fan of having a title on the legend, so we’ll set the name of the scale to <code class="language-plaintext highlighter-rouge">NULL</code> rather than <code class="language-plaintext highlighter-rouge">dx</code></p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">metadata_pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">mapping</span><span class="o">=</span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">axis1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">axis2</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="n">dx</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_point</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="m">19</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="o">=</span><span class="m">2</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">scale_color_manual</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">values</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"blue"</span><span class="p">,</span><span class="w"> </span><span class="s2">"red"</span><span class="p">,</span><span class="w"> </span><span class="s2">"black"</span><span class="p">),</span><span class="w">
+		</span><span class="n">breaks</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"cancer"</span><span class="p">),</span><span class="w">
+		</span><span class="n">labels</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Cancer"</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/02_scatter_plots//unnamed-chunk-11-1.png" title="plot of chunk unnamed-chunk-11" alt="plot of chunk unnamed-chunk-11" width="504" /></p>
+
+<p>Next, I’d like to set the scale of the axes. We do this with one of the <code class="language-plaintext highlighter-rouge">coord</code> functions. By default, the coordinate system is <code class="language-plaintext highlighter-rouge">coord_cartesian</code>. For this ordination diagram I would like the shape of the plot to be square, rather than rectangular. We can achieve this with the <code class="language-plaintext highlighter-rouge">coord_fixed</code> function</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">metadata_pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">mapping</span><span class="o">=</span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">axis1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">axis2</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="n">dx</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_point</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="m">19</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="o">=</span><span class="m">2</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">scale_color_manual</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">values</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"blue"</span><span class="p">,</span><span class="w"> </span><span class="s2">"red"</span><span class="p">,</span><span class="w"> </span><span class="s2">"black"</span><span class="p">),</span><span class="w">
+		</span><span class="n">breaks</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"cancer"</span><span class="p">),</span><span class="w">
+		</span><span class="n">labels</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Cancer"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">coord_fixed</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/02_scatter_plots//unnamed-chunk-12-1.png" title="plot of chunk unnamed-chunk-12" alt="plot of chunk unnamed-chunk-12" width="504" /></p>
+
+<p>The scatter plot has “axis1” and “axis2” as the x and y-axis labels and lacks an overall title. Let’s give them something a bit more descriptive and professionally formatted. We can do this with the <code class="language-plaintext highlighter-rouge">labs</code> function:</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">metadata_pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">mapping</span><span class="o">=</span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">axis1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">axis2</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="n">dx</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_point</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="m">19</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="o">=</span><span class="m">2</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">scale_color_manual</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">values</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"blue"</span><span class="p">,</span><span class="w"> </span><span class="s2">"red"</span><span class="p">,</span><span class="w"> </span><span class="s2">"black"</span><span class="p">),</span><span class="w">
+		</span><span class="n">breaks</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"cancer"</span><span class="p">),</span><span class="w">
+		</span><span class="n">labels</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Cancer"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">coord_fixed</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"PCoA of Bray-Curtis Distances Between Stool Samples"</span><span class="p">,</span><span class="w">
+		</span><span class="n">x</span><span class="o">=</span><span class="s2">"PCo Axis 1"</span><span class="p">,</span><span class="w">
+		</span><span class="n">y</span><span class="o">=</span><span class="s2">"PCo Axis 2"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/02_scatter_plots//unnamed-chunk-13-1.png" title="plot of chunk unnamed-chunk-13" alt="plot of chunk unnamed-chunk-13" width="504" /></p>
+
+<p>That looks pretty good! One thing that I’m not a fan of is the gray background color or the gridlines. There are many, many options for establishing the theme of the figure. We’ll explore these themes later, but be comforted (or scared) by the fact that you can change virtually everything about the theming of your plots</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">metadata_pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">mapping</span><span class="o">=</span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">axis1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">axis2</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="n">dx</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_point</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="m">19</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="o">=</span><span class="m">2</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">scale_color_manual</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">values</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"blue"</span><span class="p">,</span><span class="w"> </span><span class="s2">"red"</span><span class="p">,</span><span class="w"> </span><span class="s2">"black"</span><span class="p">),</span><span class="w">
+		</span><span class="n">breaks</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"cancer"</span><span class="p">),</span><span class="w">
+		</span><span class="n">labels</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Cancer"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">coord_fixed</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"PCoA of Bray-Curtis Distances Between Stool Samples"</span><span class="p">,</span><span class="w">
+		</span><span class="n">x</span><span class="o">=</span><span class="s2">"PCo Axis 1"</span><span class="p">,</span><span class="w">
+		</span><span class="n">y</span><span class="o">=</span><span class="s2">"PCo Axis 2"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">theme_classic</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/02_scatter_plots//unnamed-chunk-14-1.png" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" width="504" /></p>
+
+<p>Finally, we’d like to save our figure with the <code class="language-plaintext highlighter-rouge">ggsave</code> function. This function is smart enough to know to format the figure as a PDF since the “pdf” extension is in the name. You could also generate a PNG, TIFF, or JPG-formatted imaage.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggsave</span><span class="p">(</span><span class="s2">"ordination.pdf"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>This has been a quick run through the various ggplot-related functions that we can use to build our plot. We’ll spend more time talking about colors and shapes in a moment. In later chapters we’ll also discuss the various geometries, coordinates, and theming elements that we might use to represent our data.</p>
+
+<hr />
+
+<h3 id="activity-5">Activity 5</h3>
+<p>Altering the size of the plotting symbol is commonly called a <a href="https://en.wikipedia.org/wiki/Bubble_chart">“bubble chart”</a>. Create a plot where the value of <code class="language-plaintext highlighter-rouge">axis3</code> (the z-axis) is mapped on to the size of the plotting symbol. Don’t worry about manipulating the legend.</p>
+
+<p><input type="button" class="hideshow" /></p>
+<div style="display:none;">
+
+  <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">metadata_pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">axis1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">axis2</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="o">=</span><span class="n">axis3</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="n">dx</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_point</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="m">19</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">scale_color_manual</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">values</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"blue"</span><span class="p">,</span><span class="w"> </span><span class="s2">"red"</span><span class="p">,</span><span class="w"> </span><span class="s2">"black"</span><span class="p">),</span><span class="w">
+		</span><span class="n">breaks</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"cancer"</span><span class="p">),</span><span class="w">
+		</span><span class="n">labels</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Cancer"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">coord_fixed</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"PCoA of Bray-Curtis Distances Between Stool Samples"</span><span class="p">,</span><span class="w">
+		</span><span class="n">x</span><span class="o">=</span><span class="s2">"PCo Axis 1"</span><span class="p">,</span><span class="w">
+		</span><span class="n">y</span><span class="o">=</span><span class="s2">"PCo Axis 2"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">theme_classic</span><span class="p">()</span><span class="w">
+</span></code></pre></div>  </div>
+
+  <p><img src="assets/images/02_scatter_plots//unnamed-chunk-16-1.png" title="plot of chunk unnamed-chunk-16" alt="plot of chunk unnamed-chunk-16" width="504" /></p>
+</div>
+
+<hr />
+
+<h3 id="activity-6">Activity 6</h3>
+<p>One problem with the original ordination is that there is a tendency for the points to fall on top of each other making for a big mass of point. One of the aesthetic properties of <code class="language-plaintext highlighter-rouge">geom_point</code> is <code class="language-plaintext highlighter-rouge">alpha</code>, which allows you to set the transparency of each point. Alter the original ggplot code we used to change the alpha of our points to get a better sense of how many points overlap at the same location.</p>
+
+<p><input type="button" class="hideshow" /></p>
+<div style="display:none;">
+
+  <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">metadata_pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">axis1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">axis2</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="n">dx</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_point</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="m">19</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="o">=</span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="n">alpha</span><span class="o">=</span><span class="m">0.5</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">scale_color_manual</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">values</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"blue"</span><span class="p">,</span><span class="w"> </span><span class="s2">"red"</span><span class="p">,</span><span class="w"> </span><span class="s2">"black"</span><span class="p">),</span><span class="w">
+		</span><span class="n">breaks</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"cancer"</span><span class="p">),</span><span class="w">
+		</span><span class="n">labels</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Cancer"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">coord_fixed</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"PCoA of Bray-Curtis Distances Between Stool Samples"</span><span class="p">,</span><span class="w">
+		</span><span class="n">x</span><span class="o">=</span><span class="s2">"PCo Axis 1"</span><span class="p">,</span><span class="w">
+		</span><span class="n">y</span><span class="o">=</span><span class="s2">"PCo Axis 2"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">theme_classic</span><span class="p">()</span><span class="w">
+</span></code></pre></div>  </div>
+
+  <p><img src="assets/images/02_scatter_plots//unnamed-chunk-17-1.png" title="plot of chunk unnamed-chunk-17" alt="plot of chunk unnamed-chunk-17" width="504" /></p>
+
+</div>
+
+<hr />
+
+<h3 id="activity-7">Activity 7</h3>
+<ul>
+  <li>Think about the data in your research. What variables would you depict by changing the plotting symbol? The symbol color? The symbol’s size?</li>
+  <li>What is an appropriate number of colors or plotting symbols to use? Are there colors to stay away from?</li>
+  <li>Freehand draw a scatter chart plot of your data. What question are you trying to answer with your plot? What variable goes on the x-axis? y-axis? How do you use color? symbols? size?</li>
+  <li>What more do you need to learn to make the plot for your own data?</li>
+</ul>
+
+<hr />
+
+<h3 id="activity-8">Activity 8</h3>
+<ul>
+  <li>What do you think of our original ordination? What works? What doesn’t?</li>
+  <li>What question(s) is it seeking to answer?</li>
+</ul>
+
+<hr />
+
+<h2 id="plotting-symbols">Plotting symbols</h2>
+
+<p>There are 25 different plotting symbols in R that can be set by giving the <code class="language-plaintext highlighter-rouge">shape</code> argument a value from 1 to 25. I tend to limit myself to a handful of these: open and closed squares, circles, or triangles. To keep myself from hunting for the right shape value, I made a cheat sheet:</p>
+
+<p><img src="assets/images/02_scatter_plots//unnamed-chunk-18-1.png" title="plot of chunk unnamed-chunk-18" alt="plot of chunk unnamed-chunk-18" width="504" /></p>
+
+<p>Among these 25 symbols, symbols 21 to 25 are unique. The color of these symbol is taken from the value of <code class="language-plaintext highlighter-rouge">fill</code> and the color of the border comes from the value of <code class="language-plaintext highlighter-rouge">color</code>. The width of the border can be set with the <code class="language-plaintext highlighter-rouge">stroke</code> aesthetic. Let’s give this a shot with our ordination.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">metadata_pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">axis1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">axis2</span><span class="p">,</span><span class="w"> </span><span class="n">fill</span><span class="o">=</span><span class="n">dx</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_point</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="m">21</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="o">=</span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="n">stroke</span><span class="o">=</span><span class="m">0.5</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">scale_color_manual</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">values</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"blue"</span><span class="p">,</span><span class="w"> </span><span class="s2">"red"</span><span class="p">,</span><span class="w"> </span><span class="s2">"black"</span><span class="p">),</span><span class="w">
+		</span><span class="n">breaks</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"cancer"</span><span class="p">),</span><span class="w">
+		</span><span class="n">labels</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Cancer"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">coord_fixed</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"PCoA of Bray-Curtis Distances Between Stool Samples"</span><span class="p">,</span><span class="w">
+		</span><span class="n">x</span><span class="o">=</span><span class="s2">"PCo Axis 1"</span><span class="p">,</span><span class="w">
+		</span><span class="n">y</span><span class="o">=</span><span class="s2">"PCo Axis 2"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">theme_classic</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/02_scatter_plots//unnamed-chunk-19-1.png" title="plot of chunk unnamed-chunk-19" alt="plot of chunk unnamed-chunk-19" width="504" /></p>
+
+<p>We have a small bug in our code now - our colors don’t seem to be taking. What do you think we need to change to fix the problem?</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">metadata_pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">axis1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">axis2</span><span class="p">,</span><span class="w"> </span><span class="n">fill</span><span class="o">=</span><span class="n">dx</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_point</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="m">21</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="o">=</span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="n">stroke</span><span class="o">=</span><span class="m">0.5</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">scale_fill_manual</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">values</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"blue"</span><span class="p">,</span><span class="w"> </span><span class="s2">"red"</span><span class="p">,</span><span class="w"> </span><span class="s2">"black"</span><span class="p">),</span><span class="w">
+		</span><span class="n">breaks</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"cancer"</span><span class="p">),</span><span class="w">
+		</span><span class="n">labels</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Cancer"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">coord_fixed</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"PCoA of Bray-Curtis Distances Between Stool Samples"</span><span class="p">,</span><span class="w">
+		</span><span class="n">x</span><span class="o">=</span><span class="s2">"PCo Axis 1"</span><span class="p">,</span><span class="w">
+		</span><span class="n">y</span><span class="o">=</span><span class="s2">"PCo Axis 2"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">theme_classic</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/02_scatter_plots//unnamed-chunk-20-1.png" title="plot of chunk unnamed-chunk-20" alt="plot of chunk unnamed-chunk-20" width="504" /></p>
+
+<p>Let’s change our ordination a bit to color our point by the <code class="language-plaintext highlighter-rouge">dx</code> column of our data frame and change the shape of the point based on the <code class="language-plaintext highlighter-rouge">Gender</code> column. Can you do this without looking ahead?</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">metadata_pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">axis1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">axis2</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="n">dx</span><span class="p">,</span><span class="w"> </span><span class="n">shape</span><span class="o">=</span><span class="n">Gender</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_point</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="m">2</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">scale_color_manual</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">values</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"blue"</span><span class="p">,</span><span class="w"> </span><span class="s2">"red"</span><span class="p">,</span><span class="w"> </span><span class="s2">"black"</span><span class="p">),</span><span class="w">
+		</span><span class="n">breaks</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"cancer"</span><span class="p">),</span><span class="w">
+		</span><span class="n">labels</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Cancer"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">coord_fixed</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"PCoA of Bray-Curtis Distances Between Stool Samples"</span><span class="p">,</span><span class="w">
+		</span><span class="n">x</span><span class="o">=</span><span class="s2">"PCo Axis 1"</span><span class="p">,</span><span class="w">
+		</span><span class="n">y</span><span class="o">=</span><span class="s2">"PCo Axis 2"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">theme_classic</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/02_scatter_plots//unnamed-chunk-21-1.png" title="plot of chunk unnamed-chunk-21" alt="plot of chunk unnamed-chunk-21" width="504" /></p>
+
+<p>Here again, we have the poorly formatted legend for the shape. Similar to our use of <code class="language-plaintext highlighter-rouge">scale_color_manual</code> we can solve the formatting problem using <code class="language-plaintext highlighter-rouge">scale_shape_manual</code></p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">metadata_pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">axis1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">axis2</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="n">dx</span><span class="p">,</span><span class="w"> </span><span class="n">shape</span><span class="o">=</span><span class="n">Gender</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_point</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="m">2</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">scale_color_manual</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">values</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"blue"</span><span class="p">,</span><span class="w"> </span><span class="s2">"red"</span><span class="p">,</span><span class="w"> </span><span class="s2">"black"</span><span class="p">),</span><span class="w">
+		</span><span class="n">breaks</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"cancer"</span><span class="p">),</span><span class="w">
+		</span><span class="n">labels</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Cancer"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">scale_shape_manual</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">values</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">19</span><span class="p">,</span><span class="w"> </span><span class="m">17</span><span class="p">),</span><span class="w">
+		</span><span class="n">breaks</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"f"</span><span class="p">,</span><span class="w"> </span><span class="s2">"m"</span><span class="p">),</span><span class="w">
+		</span><span class="n">labels</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Female"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Male"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">coord_fixed</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"PCoA of Bray-Curtis Distances Between Stool Samples"</span><span class="p">,</span><span class="w">
+		</span><span class="n">x</span><span class="o">=</span><span class="s2">"PCo Axis 1"</span><span class="p">,</span><span class="w">
+		</span><span class="n">y</span><span class="o">=</span><span class="s2">"PCo Axis 2"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">theme_classic</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/02_scatter_plots//unnamed-chunk-22-1.png" title="plot of chunk unnamed-chunk-22" alt="plot of chunk unnamed-chunk-22" width="504" /></p>
+
+<p>Nothing really pops out in the ordination to suggest that there’s a difference between diagnosis group or sex. Instead of mapping the subject’s sex onto the shape, let’s map the diagnosis onto the shape and color.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">metadata_pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">axis1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">axis2</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="n">dx</span><span class="p">,</span><span class="w"> </span><span class="n">shape</span><span class="o">=</span><span class="n">dx</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_point</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="m">2</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">scale_color_manual</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">values</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"blue"</span><span class="p">,</span><span class="w"> </span><span class="s2">"red"</span><span class="p">,</span><span class="w"> </span><span class="s2">"black"</span><span class="p">),</span><span class="w">
+		</span><span class="n">breaks</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"cancer"</span><span class="p">),</span><span class="w">
+		</span><span class="n">labels</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Cancer"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">scale_shape_manual</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">values</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="m">15</span><span class="p">,</span><span class="w"> </span><span class="m">16</span><span class="p">,</span><span class="w"> </span><span class="m">17</span><span class="p">),</span><span class="w">
+		</span><span class="n">breaks</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"cancer"</span><span class="p">),</span><span class="w">
+		</span><span class="n">labels</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Cancer"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">coord_fixed</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"PCoA of Bray-Curtis Distances Between Stool Samples"</span><span class="p">,</span><span class="w">
+		</span><span class="n">x</span><span class="o">=</span><span class="s2">"PCo Axis 1"</span><span class="p">,</span><span class="w">
+		</span><span class="n">y</span><span class="o">=</span><span class="s2">"PCo Axis 2"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">theme_classic</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/02_scatter_plots//unnamed-chunk-23-1.png" title="plot of chunk unnamed-chunk-23" alt="plot of chunk unnamed-chunk-23" width="504" /></p>
+
+<h2 id="color">Color</h2>
+
+<p>So far we’ve used some basic colors to color our points. For the primary colors, these names work pretty well. You can get a listing of the various named colors in R with the <code class="language-plaintext highlighter-rouge">colors()</code> function</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">colors</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Revisiting our original ordination we might try to soften the saturation of the colors a bit</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">metadata_pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">axis1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">axis2</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="n">dx</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_point</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="m">19</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="o">=</span><span class="m">2</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">scale_color_manual</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">values</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"dodgerblue"</span><span class="p">,</span><span class="w"> </span><span class="s2">"sienna"</span><span class="p">,</span><span class="w"> </span><span class="s2">"gray"</span><span class="p">),</span><span class="w">
+		</span><span class="n">breaks</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"cancer"</span><span class="p">),</span><span class="w">
+		</span><span class="n">labels</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Cancer"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">coord_fixed</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"PCoA of Bray-Curtis Distances Between Stool Samples"</span><span class="p">,</span><span class="w">
+		</span><span class="n">x</span><span class="o">=</span><span class="s2">"PCo Axis 1"</span><span class="p">,</span><span class="w">
+		</span><span class="n">y</span><span class="o">=</span><span class="s2">"PCo Axis 2"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">theme_classic</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/02_scatter_plots//unnamed-chunk-25-1.png" title="plot of chunk unnamed-chunk-25" alt="plot of chunk unnamed-chunk-25" width="504" /></p>
+
+<p>There are numerous color palette options available. Unfortunately, the palettes that are built into R leave a bit to be desired. Several R packages are available for picking colors that work well together. One popular website for identifying good palettes is <a href="http://colorbrewer2.org/#type=sequential&amp;scheme=BuGn&amp;n=3">ColorBrewer</a> and these palettes are available as the <code class="language-plaintext highlighter-rouge">RColorBrewer</code> package. You can install a packages with the <code class="language-plaintext highlighter-rouge">install.packages</code> function</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">install.packages</span><span class="p">(</span><span class="s2">"RColorBrewer"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>When you run this command, R will likely ask you where you want to download the package from. It probably doesn’t really matter, although I typically pick the one closest to me: <code class="language-plaintext highlighter-rouge">58</code>. As we saw with the <code class="language-plaintext highlighter-rouge">tidyverse</code> package, we need to load it with the <code class="language-plaintext highlighter-rouge">library</code> function.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">RColorBrewer</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>We can get a sense of the package by running the following</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">?</span><span class="n">RColorBrewer</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>RColorBrewer           package:RColorBrewer            R Documentation
+
+ColorBrewer palettes
+
+Description:
+
+     Creates nice looking color palettes especially for thematic maps
+
+Usage:
+
+     brewer.pal(n, name)
+     display.brewer.pal(n, name)
+     display.brewer.all(n=NULL, type="all", select=NULL, exact.n=TRUE,
+     colorblindFriendly=FALSE)
+     brewer.pal.info
+
+Arguments:
+
+       n: Number of different colors in the palette, minimum 3, maximum
+          depending on palette
+
+    name: A palette name from the lists below
+
+    type: One of the string "div", "qual", "seq", or "all"
+
+  select: A list of names of existing palettes
+
+ exact.n: If TRUE, only display palettes with a color number given by n
+
+colorblindFriendly: if TRUE, display only colorblind friendly palettes
+
+Details:
+
+     ‘brewer.pal’ makes the color palettes from ColorBrewer available
+     as R palettes.
+
+     ‘display.brewer.pal()’ displays the selected palette in a graphics
+     window.
+
+     ‘display.brewer.all()’ displays the a few palettes simultanueously
+     in a graphics window.
+
+     ‘brewer.pal.info’ returns information about the available palettes
+     as a dataframe. ‘brewer.pal.info’ is not a function, it is a
+     variable. This might change in the future.
+
+     For details and an interactive palette selection tools see
+     http://colorbrewer.org. It is free to use, although ColorBrewer's
+     designers would appreciate it if you could cite the ColorBrewer
+     project if you decide to use one of our color schemes.
+
+     There are 3 types of palettes, sequential, diverging, and
+     qualitative.
+     1. Sequential palettes are suited to ordered data that progress
+     from low to high.  Lightness steps dominate the look of these
+     schemes, with light colors for low data values to dark colors for
+     high data values.
+     2. Diverging palettes put equal emphasis on mid-range critical
+     values and extremes at both ends of the data range. The critical
+     class or break in the middle of the legend is emphasized with
+     light colors and low and high extremes are emphasized with dark
+     colors that have contrasting hues.
+     3. Qualitative palettes do not imply magnitude differences between
+     legend classes, and hues are used to create the primary visual
+     differences between classes.  Qualitative schemes are best suited
+     to representing nominal or categorical data.
+
+     The sequential palettes names are
+     Blues BuGn BuPu GnBu Greens Greys Oranges OrRd PuBu PuBuGn PuRd
+     Purples RdPu Reds YlGn YlGnBu YlOrBr YlOrRd
+
+     All the sequential palettes are available in variations from 3
+     different values up to 9 different values.
+
+     The diverging palettes are
+     BrBG PiYG PRGn PuOr RdBu RdGy RdYlBu RdYlGn Spectral
+
+     All the diverging palettes are available in variations from 3
+     different values up to 11 different values.
+
+     For qualitative palettes, the lowest number of distinct values
+     available always is 3, but the largest number is different for
+     different palettes. It is given together with the palette names in
+     the following table.
+
+       Accent    8
+       Dark2     8
+       Paired   12
+       Pastel1   9
+       Pastel2   8
+       Set1      9
+       Set2      8
+       Set3     12
+
+     ColorBrewer is Copyright (c) 2002 Cynthia Brewer, Mark Harrower,
+     and The Pennsylvania State University.  All rights reserved.
+     The ColorBrewer palettes have been included in this R package with
+     permission of the copyright holder.
+     For license details see the file ‘COPYING’ included in this
+     package.
+
+Value:
+
+     A palette
+     You will get an error when you ask for a nonexisting palette, and
+     you will get a warning if a palette you asked for exists but not
+     with as many different leves as you asked for.
+
+Note:
+
+     More information on ColorBrewer is available at its Website, &lt;URL:
+     http://www.colorbrewer.org&gt;.
+
+Author(s):
+
+     Erich Neuwirth, University of Vienna, &lt;email:
+     erich.neuwirth@univie.ac.at&gt;, with contributions by John
+     Maindonald, Australian National University, &lt;email:
+     john.maindonald@anu.edu.au&gt;
+
+Examples:
+
+     ## create a sequential palette for usage and show colors
+     mypalette&lt;-brewer.pal(7,"Greens")
+     image(1:7,1,as.matrix(1:7),col=mypalette,xlab="Greens (sequential)",
+            ylab="",xaxt="n",yaxt="n",bty="n")
+     ## display a divergent palette
+     display.brewer.pal(7,"BrBG")
+     devAskNewPage(ask=TRUE)
+     ## display a qualitative palette
+     display.brewer.pal(7,"Accent")
+     devAskNewPage(ask=TRUE)
+     ## display a palettes simultanoeusly
+     display.brewer.all(n=10, exact.n=FALSE)
+     devAskNewPage(ask=TRUE)
+     display.brewer.all(n=10)
+     devAskNewPage(ask=TRUE)
+     display.brewer.all()
+     devAskNewPage(ask=TRUE)
+     display.brewer.all(type="div")
+     devAskNewPage(ask=TRUE)
+     display.brewer.all(type="seq")
+     devAskNewPage(ask=TRUE)
+     display.brewer.all(type="qual")
+     devAskNewPage(ask=TRUE)
+     display.brewer.all(n=5,type="div",exact.n=TRUE)
+     devAskNewPage(ask=TRUE)
+     display.brewer.all(colorblindFriendly=TRUE)
+     devAskNewPage(ask=TRUE)
+     brewer.pal.info
+     brewer.pal.info["Blues",]
+     brewer.pal.info["Blues",]$maxcolors
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">?</code> function is useful for getting help pages on our favorite functions. Used like we did here, it pulls up a help page for the package. We see that there are a number of nicely named functions that tell us what they do. For our ordination we would like 3 colors for use with qualitative data that are friendly to our color blind friends. Reading through the documentation and the Examples section at the end, let’s run this command.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">display.brewer.all</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="m">3</span><span class="p">,</span><span class="w"> </span><span class="n">type</span><span class="o">=</span><span class="s2">"qual"</span><span class="p">,</span><span class="w"> </span><span class="n">colorblindFriendly</span><span class="o">=</span><span class="kc">TRUE</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/02_scatter_plots//unnamed-chunk-29-1.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="504" /></p>
+
+<p>This pops up a set of three options that we can now use for our ordination with the <code class="language-plaintext highlighter-rouge">brewer.pal</code> function. The “Set2” palette are the default ggplot colors. Instead, let’s use the <code class="language-plaintext highlighter-rouge">Dark2</code> palette.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">metadata_pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">axis1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">axis2</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="n">dx</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_point</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="m">19</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="o">=</span><span class="m">2</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">scale_color_manual</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">values</span><span class="o">=</span><span class="n">brewer.pal</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="m">3</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s2">"Dark2"</span><span class="p">),</span><span class="w">
+		</span><span class="n">breaks</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"cancer"</span><span class="p">),</span><span class="w">
+		</span><span class="n">labels</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Cancer"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">coord_fixed</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"PCoA of Bray-Curtis Distances Between Stool Samples"</span><span class="p">,</span><span class="w">
+		</span><span class="n">x</span><span class="o">=</span><span class="s2">"PCo Axis 1"</span><span class="p">,</span><span class="w">
+		</span><span class="n">y</span><span class="o">=</span><span class="s2">"PCo Axis 2"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">theme_classic</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/02_scatter_plots//unnamed-chunk-30-1.png" title="plot of chunk unnamed-chunk-30" alt="plot of chunk unnamed-chunk-30" width="504" /></p>
+
+<p>Some more whimsical options include the <a href="https://github.com/dill/beyonce"><code class="language-plaintext highlighter-rouge">beyonce</code></a> and <a href="https://github.com/karthik/wesanderson"><code class="language-plaintext highlighter-rouge">wesanderson</code></a> color palettes. Another option is to find a website who’s color scheme you really like and use a color picker browser extension or <code class="language-plaintext highlighter-rouge">Adobe Photoshop</code> to get the HTML code for colors you like. For example, the two dominant colors on this site are <code class="language-plaintext highlighter-rouge">#FFAC63</code> and <code class="language-plaintext highlighter-rouge">#2857D6</code>. These HTML color codes are hexidecimal numbers and can be used like you would a named color. Instead of using named colors, we could use these two colors along with <code class="language-plaintext highlighter-rouge">black</code> to color our ordination</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">metadata_pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">axis1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">axis2</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="n">dx</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_point</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="m">19</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="o">=</span><span class="m">2</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">scale_color_manual</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">values</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s1">'#FFAC63'</span><span class="p">,</span><span class="w"> </span><span class="s1">'#2857D6'</span><span class="p">,</span><span class="w"> </span><span class="s1">'black'</span><span class="p">),</span><span class="w">
+		</span><span class="n">breaks</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"cancer"</span><span class="p">),</span><span class="w">
+		</span><span class="n">labels</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Cancer"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">coord_fixed</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"PCoA of Bray-Curtis Distances Between Stool Samples"</span><span class="p">,</span><span class="w">
+		</span><span class="n">x</span><span class="o">=</span><span class="s2">"PCo Axis 1"</span><span class="p">,</span><span class="w">
+		</span><span class="n">y</span><span class="o">=</span><span class="s2">"PCo Axis 2"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">theme_classic</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/02_scatter_plots//unnamed-chunk-31-1.png" title="plot of chunk unnamed-chunk-31" alt="plot of chunk unnamed-chunk-31" width="504" /></p>
+
+<hr />
+
+<h3 id="activity-9">Activity 9</h3>
+<p>What if you run <code class="language-plaintext highlighter-rouge">brewer.pal(n=3, name="Dark2")</code> at the prompt in R?</p>
+
+<p><input type="button" class="hideshow" /></p>
+<div style="display:none;">
+
+  <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">brewer.pal</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="m">3</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s2">"Dark2"</span><span class="p">)</span><span class="w">
+</span></code></pre></div>  </div>
+
+  <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## [1] "#1B9E77" "#D95F02" "#7570B3"
+</code></pre></div>  </div>
+</div>
+
+<hr />
+
+<h3 id="activity-10">Activity 10</h3>
+<p>Install the <code class="language-plaintext highlighter-rouge">wesanderson</code> R package and pick a theme to color the ordination</p>
+
+<p><input type="button" class="hideshow" /></p>
+<div style="display:none;">
+
+  <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#install.packages("devtools")</span><span class="w">
+</span><span class="n">devtools</span><span class="o">::</span><span class="n">install_github</span><span class="p">(</span><span class="s2">"karthik/wesanderson"</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="s2">"wesanderson"</span><span class="p">)</span><span class="w">
+
+</span><span class="n">ggplot</span><span class="p">(</span><span class="n">metadata_pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">axis1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">axis2</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="n">dx</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_point</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="m">19</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="o">=</span><span class="m">2</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">scale_color_manual</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">values</span><span class="o">=</span><span class="n">wes_palette</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"Darjeeling1"</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="o">=</span><span class="m">3</span><span class="p">),</span><span class="w">
+		</span><span class="n">breaks</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"cancer"</span><span class="p">),</span><span class="w">
+		</span><span class="n">labels</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Cancer"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">coord_fixed</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"PCoA of Bray-Curtis Distances Between Stool Samples"</span><span class="p">,</span><span class="w">
+		</span><span class="n">x</span><span class="o">=</span><span class="s2">"PCo Axis 1"</span><span class="p">,</span><span class="w">
+		</span><span class="n">y</span><span class="o">=</span><span class="s2">"PCo Axis 2"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">theme_classic</span><span class="p">()</span><span class="w">
+</span></code></pre></div>  </div>
+
+  <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>##   
+   checking for file ‘/private/var/folders/21/k_3p5hdj2x77jf0b6349r5gr0000gp/T/RtmphPt4so/remotes741f377c411/karthik-wesanderson-651c944/DESCRIPTION’ ...
+  
+✔  checking for file ‘/private/var/folders/21/k_3p5hdj2x77jf0b6349r5gr0000gp/T/RtmphPt4so/remotes741f377c411/karthik-wesanderson-651c944/DESCRIPTION’
+## 
+  
+─  preparing ‘wesanderson’:
+## 
+  
+   checking DESCRIPTION meta-information ...
+  
+✔  checking DESCRIPTION meta-information
+## 
+  
+─  checking for LF line-endings in source and make files and shell scripts
+## 
+  
+─  checking for empty or unneeded directories
+## 
+  
+   Removed empty directory ‘wesanderson/figure’
+## 
+  
+─  building ‘wesanderson_0.3.6.9000.tar.gz’
+## 
+  
+   
+## 
+</code></pre></div>  </div>
+
+  <p><img src="assets/images/02_scatter_plots//unnamed-chunk-33-1.png" title="plot of chunk unnamed-chunk-33" alt="plot of chunk unnamed-chunk-33" width="504" /></p>
+</div>
+:ET

@@ -1,0 +1,164 @@
+I"�C<h2 id="content">Content</h2>
+<ul>
+  <li>R</li>
+  <li>RStudio</li>
+  <li>tidyverse</li>
+</ul>
+
+<h2 id="what-you-need-to-do-these-tutorials">What you need to do these tutorials…</h2>
+<ul>
+  <li><a href="https://cloud.r-project.org/">R</a>: These materials have been tested using R version 4.0.3 (2020-10-10)</li>
+  <li><a href="https://www.rstudio.com/products/rstudio/download/#download">RStudio</a>: These materials have been tested using RStudio version 1.3.1093</li>
+  <li><a href="https://github.com/riffomonas/raw_data/archive/0.1.zip">Raw data files</a>. This will download a directory called <code class="language-plaintext highlighter-rouge">raw_data-X.X</code> where the “X.X” is the version number. Make sure the directory is uncompressed and remove the <code class="language-plaintext highlighter-rouge">-X.X</code> so that you now have a directory called <code class="language-plaintext highlighter-rouge">raw_data</code>. <strong><em>This is super important!</em></strong></li>
+</ul>
+
+<h3 id="customizing-rstudio">Customizing RStudio</h3>
+<p>There are many ways to customize RStudio. You can find the options by going to the Preferences window. If you are using windows you can get to the Preferences window by going Tools-&gt;Global Options. Here is a screenshot of how to do it for Mac OS X. The method should be pretty similar for people working on a Windows computer.</p>
+
+<p><img class="center" src="assets/images/launch_preferences.png" width="40%" /></p>
+
+<p>In the first tab, “General”, you should have something like this.</p>
+
+<p><img class="center" src="assets/images/general_preferences_tab.png" width="40%" /></p>
+
+<p>You don’t want any of the boxes to be checked except to be notified of RStudio updates, these are especially problematic:</p>
+<ul>
+  <li>Restore .RData into workspace at startup</li>
+  <li>Save workspace to .RData on exit (toggle should say “Never”)</li>
+  <li>Always save history</li>
+</ul>
+
+<p>Once you’ve got everything checked/unchecked the way you want it, go ahead and click “Apply” and then “OK”</p>
+
+<h3 id="installing-packages">Installing packages</h3>
+
+<p>There’s a lot of functionality built into R. The beauty of it being an open source resource is that anyone can add to it to expand it’s functionality or to improve how you work with the existing functionality. This is done through packages. Some day, you might make your own package! We will use several R packages throughout our Code Clubs. The one we’ll use the most is called <code class="language-plaintext highlighter-rouge">tidyverse</code>. We’ll be talking a lot about this package as we go along. But for now, we need to install this package. In the lower right panel of RStudio, select the “Package” tab. You’ll get something that looks like this:</p>
+
+<p><img class="center" src="assets/images/package_tab.png" width="50%" /></p>
+
+<p>In the search window, type in “tidyverse” (without the quotes). If it isn’t already installed, you won’t see it. If it is installed, it will be listed. The package isn’t installed on my computer.</p>
+
+<p><img class="center" src="assets/images/tidyverse_search_v1.png" width="50%" /></p>
+
+<p>If it isn’t installed on your computer either, go ahead and click the Install button and type “tidyverse” into the “Packages” window:</p>
+
+<p><img class="center" src="assets/images/tidyverse_install_window.png" width="50%" /></p>
+
+<p>Once you press the “Install” button, the dialog will close and RStudio will install the package. You’ll notice a couple things have happened. In the Packages tab in the lower right panel, you now see the “tidyverse” package is there. You’ll also notice that in the lower left corner that R ran the command <code class="language-plaintext highlighter-rouge">install.packages("tidyverse")</code>.</p>
+
+<p><img class="center" src="assets/images/install_packages_tidyverse.png" width="50%" /></p>
+
+<p>Finally, to make all of the tidyverse goodness available as we go through the tutorials, you can either click the small square next to “tidyverse” in the “Packages” tab or you can run <code class="language-plaintext highlighter-rouge">library(tidyverse)</code> in the console tab in the lower left panel of RStudio.</p>
+
+<p><img class="center" src="assets/images/library_tidyverse.png" width="50%" /></p>
+
+<p>Some things may happen…</p>
+<ul>
+  <li>While loading the tidyverse library or during installation, it may ask if you want to install from source, go ahead and type “Yes” at the prompts.</li>
+  <li>You might run into an error message that says, “there is no package called ‘Rcpp’”. It might be Rcpp and/or another package that it complains about. Try to replicate the steps for installing the tidyverse package, but with Rcpp and any other packages it complains about.</li>
+  <li>If you are on a Mac, to install these tools, you will need to click on the “Terminal” tab an enter <code class="language-plaintext highlighter-rouge">xcode-select --install </code>. Once that is done, go back to the “Console” tab. Then try to install the packages it is complaining about.</li>
+  <li>If you’ve run into problems and and reinstalled the dependencies, re-run <code class="language-plaintext highlighter-rouge">install.packages(tidyverse)</code> and repeat the <code class="language-plaintext highlighter-rouge">library(tidyverse)</code> command. You may need to restart RStudio. You should get something that looks like</li>
+</ul>
+
+<div class="language-R highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">library</span><span class="p">(</span><span class="n">tidyverse</span><span class="p">)</span><span class="w">
+</span><span class="err">──</span><span class="w"> </span><span class="n">Attaching</span><span class="w"> </span><span class="n">packages</span><span class="w"> </span><span class="err">───────────────────────────────────────</span><span class="w"> </span><span class="n">tidyverse</span><span class="w"> </span><span class="m">1.3.0</span><span class="w"> </span><span class="err">──</span><span class="w">
+</span><span class="err">✔</span><span class="w"> </span><span class="n">ggplot2</span><span class="w"> </span><span class="m">3.2.1</span><span class="w">     </span><span class="err">✔</span><span class="w"> </span><span class="n">purrr</span><span class="w">   </span><span class="m">0.3.3</span><span class="w">
+</span><span class="err">✔</span><span class="w"> </span><span class="n">tibble</span><span class="w">  </span><span class="m">2.1.3</span><span class="w">     </span><span class="err">✔</span><span class="w"> </span><span class="n">dplyr</span><span class="w">   </span><span class="m">0.8.4</span><span class="w">
+</span><span class="err">✔</span><span class="w"> </span><span class="n">tidyr</span><span class="w">   </span><span class="m">1.0.2</span><span class="w">     </span><span class="err">✔</span><span class="w"> </span><span class="n">stringr</span><span class="w"> </span><span class="m">1.4.0</span><span class="w">
+</span><span class="err">✔</span><span class="w"> </span><span class="n">readr</span><span class="w">   </span><span class="m">1.3.1</span><span class="w">     </span><span class="err">✔</span><span class="w"> </span><span class="n">forcats</span><span class="w"> </span><span class="m">0.5.0</span><span class="w">
+</span><span class="err">──</span><span class="w"> </span><span class="n">Conflicts</span><span class="w"> </span><span class="err">──────────────────────────────────────────</span><span class="w"> </span><span class="n">tidyverse_conflicts</span><span class="p">()</span><span class="w"> </span><span class="err">──</span><span class="w">
+</span><span class="err">✖</span><span class="w"> </span><span class="n">dplyr</span><span class="o">::</span><span class="n">filter</span><span class="p">()</span><span class="w"> </span><span class="n">masks</span><span class="w"> </span><span class="n">stats</span><span class="o">::</span><span class="n">filter</span><span class="p">()</span><span class="w">
+</span><span class="err">✖</span><span class="w"> </span><span class="n">dplyr</span><span class="o">::</span><span class="n">lag</span><span class="p">()</span><span class="w">    </span><span class="n">masks</span><span class="w"> </span><span class="n">stats</span><span class="o">::</span><span class="n">lag</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="r-scripts">R Scripts</h3>
+
+<p>We’ll quickly get to a point where we don’t want to retype multiple lines of code over and over. We can create R scripts that hold lines of code that R Studio will run for us. We can open a new R script by choosing the File menu, then the New File menu, and finally the R Script option. Alternatively, you could click on the icon that contains a white page with a green plus sign on it. I’ve put a red circle around it in the screen shot below</p>
+
+<p><img class="center" src="assets/images/new_script.png" width="50%" /></p>
+
+<p>Once you select “R script”, a new panel will open in RStudio.</p>
+
+<p><img class="center" src="assets/images/script_window.png" width="50%" /></p>
+
+<p>That upper right panel is where you can type in code. Go ahead and copy and paste the following code into your new R script</p>
+
+<div class="language-R highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">tidyverse</span><span class="p">)</span><span class="w">
+
+</span><span class="n">r_version</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">R.version</span><span class="o">$</span><span class="n">version.string</span><span class="w">
+
+</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">"https://raw.githubusercontent.com/fivethirtyeight/data/master/comma-survey/comma-survey.csv"</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+	</span><span class="n">rename</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">`How would you write the following sentence?`</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+	</span><span class="n">mutate</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">recode</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w">
+		</span><span class="n">`Some experts say it's important to drink milk, but the data are inconclusive.`</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Plural"</span><span class="p">,</span><span class="w">
+		</span><span class="n">`Some experts say it's important to drink milk, but the data is inconclusive.`</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Singular"</span><span class="p">)</span><span class="w">
+	</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+	</span><span class="n">count</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+	</span><span class="n">drop_na</span><span class="p">()</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+	</span><span class="n">mutate</span><span class="p">(</span><span class="n">percentage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">n</span><span class="o">/</span><span class="nf">sum</span><span class="p">(</span><span class="n">n</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+	</span><span class="n">ggplot</span><span class="p">(</span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">percentage</span><span class="p">,</span><span class="w"> </span><span class="n">fill</span><span class="o">=</span><span class="n">data</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+		</span><span class="n">geom_col</span><span class="p">(</span><span class="n">show.legend</span><span class="o">=</span><span class="kc">FALSE</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+		</span><span class="n">labs</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+			</span><span class="n">y</span><span class="o">=</span><span class="s2">"Percentage of respondents"</span><span class="p">,</span><span class="w">
+			</span><span class="n">title</span><span class="o">=</span><span class="s2">"Is the word 'data' plural or singular?"</span><span class="p">,</span><span class="w">
+			</span><span class="n">subtitle</span><span class="o">=</span><span class="n">r_version</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+		</span><span class="n">theme_classic</span><span class="p">()</span><span class="w">
+
+
+</span></code></pre></div></div>
+
+<p>Go ahead and save this as <code class="language-plaintext highlighter-rouge">test_script.R</code>. You should have something like this</p>
+
+<p><img class="center" src="assets/images/final_script.png" width="50%" /></p>
+
+<p>There are several ways to run this script. You could copy and paste all the code to the console window below. An easier way would be to click “Source”, and “Source with Echo”. There are a few other ways to run the code in the script in your console, but this will serve us well for now…</p>
+
+<p><img class="center" src="assets/images/source_script.png" width="50%" /></p>
+
+<p>This will run your code in the console window below and will pop out your plot in the lower right corner. Viola! If everything is set up correctly, you should have a plot that looks like mine.</p>
+
+<p><img class="center" src="assets/images/final_output.png" width="75%" /></p>
+
+<p>If you don’t get this, make sure you installed the <code class="language-plaintext highlighter-rouge">tidyverse</code> package as described above and then make sure you copy and pasted everything from the code block above into a clean R script file.</p>
+
+<h2 id="my-setup">My setup</h2>
+<p>If you run <code class="language-plaintext highlighter-rouge">sessionInfo</code> at the console, you will see the version of R and the packages you have installed and attached (more about what this all means later). Here’s what mine looks like.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sessionInfo</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## R version 4.0.3 (2020-10-10)
+## Platform: x86_64-apple-darwin17.0 (64-bit)
+## Running under: macOS Catalina 10.15.7
+## 
+## Matrix products: default
+## BLAS:   /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRblas.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRlapack.dylib
+## 
+## locale:
+## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+##  [1] forcats_0.5.0   stringr_1.4.0   dplyr_1.0.2     purrr_0.3.4    
+##  [5] readr_1.3.1     tidyr_1.1.2     tibble_3.0.4    ggplot2_3.3.2  
+##  [9] tidyverse_1.3.0 knitr_1.29      ezknitr_0.6    
+## 
+## loaded via a namespace (and not attached):
+##  [1] Rcpp_1.0.5        cellranger_1.1.0  pillar_1.4.7      compiler_4.0.3   
+##  [5] dbplyr_1.4.4      R.methodsS3_1.8.1 R.utils_2.10.1    tools_4.0.3      
+##  [9] lubridate_1.7.9   jsonlite_1.7.1    evaluate_0.14     lifecycle_0.2.0  
+## [13] gtable_0.3.0      pkgconfig_2.0.3   rlang_0.4.8       reprex_0.3.0     
+## [17] cli_2.2.0         rstudioapi_0.11   DBI_1.1.0         haven_2.3.1      
+## [21] xfun_0.16         withr_2.3.0       xml2_1.3.2        httr_1.4.2       
+## [25] fs_1.5.0          generics_0.0.2    vctrs_0.3.5       hms_0.5.3        
+## [29] grid_4.0.3        tidyselect_1.1.0  glue_1.4.2        R6_2.5.0         
+## [33] fansi_0.4.1       readxl_1.3.1      modelr_0.1.8      blob_1.2.1       
+## [37] magrittr_2.0.1    ps_1.3.4          backports_1.1.9   scales_1.1.1     
+## [41] ellipsis_0.3.1    rvest_0.3.6       assertthat_0.2.1  colorspace_1.4-1 
+## [45] stringi_1.4.6     munsell_0.5.0     broom_0.7.0       crayon_1.3.4     
+## [49] R.oo_1.24.0
+</code></pre></div></div>
+:ET

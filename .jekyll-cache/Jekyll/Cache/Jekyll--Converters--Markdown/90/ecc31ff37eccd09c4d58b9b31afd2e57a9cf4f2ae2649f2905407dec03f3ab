@@ -1,0 +1,830 @@
+I"Ң<h2 id="topics">Topics</h2>
+<ul>
+  <li>Data frames</li>
+  <li>Input from and output to files</li>
+  <li>Exploring data frames</li>
+  <li>Clean up data frames</li>
+  <li>Adding and modifying columns in a data frame</li>
+  <li>Summarizing data with bar plots</li>
+</ul>
+
+<h2 id="getting-data-into-r">Getting data into R</h2>
+<p>Let’s revisit the chunk of code that we started out with at the beginning of the last lesson</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">tidyverse</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">readxl</span><span class="p">)</span><span class="w">
+
+</span><span class="n">pcoa</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read_tsv</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="s2">"raw_data/baxter.braycurtis.pcoa.axes"</span><span class="p">)</span><span class="w">
+</span><span class="n">metadata</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read_excel</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">"raw_data/baxter.metadata.xlsx"</span><span class="p">)</span><span class="w">
+</span><span class="n">metadata_pcoa</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">inner_join</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">by</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s1">'sample'</span><span class="o">=</span><span class="s1">'group'</span><span class="p">))</span><span class="w">
+
+</span><span class="n">ggplot</span><span class="p">(</span><span class="n">metadata_pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">axis1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">axis2</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="n">dx</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_point</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="m">19</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="o">=</span><span class="m">2</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">scale_color_manual</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">values</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"blue"</span><span class="p">,</span><span class="w"> </span><span class="s2">"red"</span><span class="p">,</span><span class="w"> </span><span class="s2">"black"</span><span class="p">),</span><span class="w">
+		</span><span class="n">breaks</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"cancer"</span><span class="p">),</span><span class="w">
+		</span><span class="n">labels</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Cancer"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">coord_fixed</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"PCoA of Bray-Curtis Distances Between Stool Samples"</span><span class="p">,</span><span class="w">
+		</span><span class="n">x</span><span class="o">=</span><span class="s2">"PCo Axis 1"</span><span class="p">,</span><span class="w">
+		</span><span class="n">y</span><span class="o">=</span><span class="s2">"PCo Axis 2"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">theme_classic</span><span class="p">()</span><span class="w">
+
+</span><span class="n">ggsave</span><span class="p">(</span><span class="s2">"ordination.pdf"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>After loading the <code class="language-plaintext highlighter-rouge">tidyverse</code> and <code class="language-plaintext highlighter-rouge">readxl</code> packages, there are two lines where we read in data:</p>
+
+<div class="language-R highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pcoa</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read_tsv</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="s2">"raw_data/baxter.braycurtis.pcoa.axes"</span><span class="p">)</span><span class="w">
+</span><span class="n">metadata</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read_excel</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">"raw_data/baxter.metadata.xlsx"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>These two lines read in our ordination data and the data about the samples represented in the ordination (i.e. metadata). The first line uses the function, <code class="language-plaintext highlighter-rouge">read_tsv</code> to read in a <strong>t</strong>ab <strong>s</strong>eparated <strong>v</strong>alues-formatted file. As the name suggests, this function will read in a file where the columns in the file are separated by tab characters. This function comes from the <a href="http://readr.tidyverse.org"><code class="language-plaintext highlighter-rouge">readr</code> package</a> that was loaded as part of the <code class="language-plaintext highlighter-rouge">tidyverse</code> package. This package also has functions for reading in <strong>c</strong>omma <strong>s</strong>separated <strong>v</strong>alues (CSVs) files (<code class="language-plaintext highlighter-rouge">read_csv</code>), general delimited files (<code class="language-plaintext highlighter-rouge">read_delim</code>), fixed width files (<code class="language-plaintext highlighter-rouge">read_fwf</code>), and file where columns are separated by whitespace (<code class="language-plaintext highlighter-rouge">read_table</code>). As the name suggests, the second line of code relies on the <code class="language-plaintext highlighter-rouge">read_excel</code> function from the <a href="http://readxl.tidyverse.org"><code class="language-plaintext highlighter-rouge">readxl</code> package</a> to read a table in from a Microsoft Excel-formatted spreadsheet. Within the <code class="language-plaintext highlighter-rouge">tidyverse</code>, there are  the <a href="http://haven.tidyverse.org/index.html"><code class="language-plaintext highlighter-rouge">haven</code> package</a>, which can be used to read in SAS, SPSS, and Stata-formatted files. There are a number of other reading packages that aren’t specifically part of the <code class="language-plaintext highlighter-rouge">tidyverse</code>, but that do allow you to read in data from websites, databases, and other sources**.</p>
+
+<p>Each of these functions has a decent number of options that default to values that make sense. Be careful - there are other similarly named functions (e.g. <code class="language-plaintext highlighter-rouge">read.tsv</code>) that are actually built into R and have different defaults that don’t make sense. What are the defaults? What options can we change? Remember from the last lesson that we can use the <code class="language-plaintext highlighter-rouge">?</code> to get the documentation for any function</p>
+
+<div class="language-R highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">?</span><span class="n">read_tsv</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>read_delim                package:readr                R Documentation
+
+Read a delimited file (including csv &amp; tsv) into a tibble
+
+Description:
+
+     ‘read_csv()’ and ‘read_tsv()’ are special cases of the general
+     ‘read_delim()’. They're useful for reading the most common types
+     of flat file data, comma separated values and tab separated
+     values, respectively. ‘read_csv2()’ uses ‘;’ for separators,
+     instead of ‘,’. This is common in European countries which use ‘,’
+     as the decimal separator.
+
+Usage:
+
+     read_delim(file, delim, quote = "\"", escape_backslash = FALSE,
+       escape_double = TRUE, col_names = TRUE, col_types = NULL,
+       locale = default_locale(), na = c("", "NA"), quoted_na = TRUE,
+       comment = "", trim_ws = FALSE, skip = 0, n_max = Inf,
+       guess_max = min(1000, n_max), progress = show_progress())
+
+     read_csv(file, col_names = TRUE, col_types = NULL,
+       locale = default_locale(), na = c("", "NA"), quoted_na = TRUE,
+       quote = "\"", comment = "", trim_ws = TRUE, skip = 0, n_max = Inf,
+       guess_max = min(1000, n_max), progress = show_progress())
+
+     read_csv2(file, col_names = TRUE, col_types = NULL,
+       locale = default_locale(), na = c("", "NA"), quoted_na = TRUE,
+       quote = "\"", comment = "", trim_ws = TRUE, skip = 0, n_max = Inf,
+       guess_max = min(1000, n_max), progress = show_progress())
+
+     read_tsv(file, col_names = TRUE, col_types = NULL,
+       locale = default_locale(), na = c("", "NA"), quoted_na = TRUE,
+       quote = "\"", comment = "", trim_ws = TRUE, skip = 0, n_max = Inf,
+       guess_max = min(1000, n_max), progress = show_progress())
+
+Arguments:
+
+    file: Either a path to a file, a connection, or literal data
+          (either a single string or a raw vector).
+
+          Files ending in ‘.gz’, ‘.bz2’, ‘.xz’, or ‘.zip’ will be
+          automatically uncompressed. Files starting with ‘http://’,
+          ‘https://’, ‘ftp://’, or ‘ftps://’ will be automatically
+          downloaded. Remote gz files can also be automatically
+          downloaded and decompressed.
+
+          Literal data is most useful for examples and tests. It must
+          contain at least one new line to be recognised as data
+          (instead of a path).
+
+   delim: Single character used to separate fields within a record.
+
+   quote: Single character used to quote strings.
+
+escape_backslash: Does the file use backslashes to escape special
+          characters? This is more general than ‘escape_double’ as
+          backslashes can be used to escape the delimiter character,
+          the quote character, or to add special characters like ‘\n’.
+
+escape_double: Does the file escape quotes by doubling them? i.e. If
+          this option is ‘TRUE’, the value ‘""""’ represents a single
+          quote, ‘\"’.
+
+col_names: Either ‘TRUE’, ‘FALSE’ or a character vector of column
+          names.
+
+          If ‘TRUE’, the first row of the input will be used as the
+          column names, and will not be included in the data frame. If
+          ‘FALSE’, column names will be generated automatically: X1,
+          X2, X3 etc.
+
+          If ‘col_names’ is a character vector, the values will be used
+          as the names of the columns, and the first row of the input
+          will be read into the first row of the output data frame.
+
+          Missing (‘NA’) column names will generate a warning, and be
+          filled in with dummy names ‘X1’, ‘X2’ etc. Duplicate column
+          names will generate a warning and be made unique with a
+          numeric prefix.
+&lt;snipped&gt;
+</code></pre></div></div>
+
+<p>This is the documentation for four <code class="language-plaintext highlighter-rouge">readr</code> commands: <code class="language-plaintext highlighter-rouge">read_delim</code>, <code class="language-plaintext highlighter-rouge">read_csv</code>, <code class="language-plaintext highlighter-rouge">read_csv2</code>, and <code class="language-plaintext highlighter-rouge">read_tsv</code>. They differ by the delimeter that they use to separate columns. For the most part, the defaults are what you will want. The only exception may be the <code class="language-plaintext highlighter-rouge">col_names</code> option, which defaults to TRUE indicating that your file has column headings. If our file didn’t have headings, we’d use the following syntax:</p>
+
+<div class="language-R highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Don't run this!</span><span class="w">
+</span><span class="n">pcoa</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read_tsv</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="s2">"raw_data/baxter.braycurtis.pcoa.axes"</span><span class="p">,</span><span class="w"> </span><span class="n">col_names</span><span class="o">=</span><span class="kc">FALSE</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>These reading functions are pretty smart and can generally figure out the type of data that is in each column.</p>
+
+<hr />
+
+<h3 id="activity-1">Activity 1</h3>
+<p>Pretend that the data we want is actually on the second page of the <code class="language-plaintext highlighter-rouge">data/baxter.metadata.xlsx</code> workbook. Can you rewrite the <code class="language-plaintext highlighter-rouge">read_excel</code> command to read that page?</p>
+
+<p><input type="button" class="hideshow" /></p>
+<div style="display:none;">
+  <div class="language-R highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">metadata</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read_excel</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">"raw_data/baxter.metadata.xlsx"</span><span class="p">,</span><span class="w"> </span><span class="n">sheet</span><span class="o">=</span><span class="m">2</span><span class="p">)</span><span class="w">
+</span></code></pre></div>  </div>
+</div>
+
+<hr />
+
+<h3 id="activity-2">Activity 2</h3>
+<p>Open one of the spreadsheets where you keep the metadata for your project</p>
+
+<ul>
+  <li>What do you see in your spreadsheet that might cause problems?</li>
+  <li>How would you want to organize your metadata to make it easier to use with R?</li>
+  <li>Look at the formatting of your data. Are all of the dates consistently formatted? Do you use a consistent capitalization style? Do you use non-text information (e.g. color) to represent values?</li>
+</ul>
+
+<hr />
+
+<p>The output of the read functions that are part of the <code class="language-plaintext highlighter-rouge">tidyverse</code> are a special type of data frame called a <code class="language-plaintext highlighter-rouge">tibble</code>. To back up a step, what is a data frame? A data frame can be thought of as a table where each row represents a different entity and each column represents a different aspect of that entity. For example, the <code class="language-plaintext highlighter-rouge">metadata</code> variable stores the value of a data frame where each row represents a different person and each column represents various attributes of those people whether its their subject identification number, weight, height, location, diagnosis, smoking status, etc. Each row has the same number of columns. If a piece of data is missing, then R will denote the value for that entity with the <code class="language-plaintext highlighter-rouge">NA</code> value. Got it? Moving on, a <code class="language-plaintext highlighter-rouge">tibble</code> is a special type of data frame that is a stripped down version of the <code class="language-plaintext highlighter-rouge">data.frame</code> structure that is core to R. Keeping with the <code class="language-plaintext highlighter-rouge">.</code> for <code class="language-plaintext highlighter-rouge">_</code> theme, <code class="language-plaintext highlighter-rouge">data_frame</code> can be used as an alias for <code class="language-plaintext highlighter-rouge">tibble</code>.</p>
+
+<p>There are some special aspects of a <code class="language-plaintext highlighter-rouge">tibble</code> to be aware of. Perhaps most important is that there are no names on the rows. Not allowing names on the rows is a safety measure to protect you from some weird quirks in R. Another difference is when you enter the name of the data frame at the prompt, instead of having the entire data frame vomited at your screen, you get an abbreviated output:</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">metadata</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## # A tibble: 490 x 17
+##    sample fit_result Site  Dx_Bin dx    Hx_Prev Hx_of_Polyps   Age Gender Smoke
+##     &lt;dbl&gt;      &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt;   &lt;dbl&gt;        &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;  &lt;dbl&gt;
+##  1 2.00e6          0 U Mi… High … norm…       0            1    64 m         NA
+##  2 2.01e6          0 U Mi… High … norm…       0            1    61 m          0
+##  3 2.01e6         26 U Mi… High … norm…       0            1    47 f          0
+##  4 2.01e6         10 Toro… Adeno… aden…       0            1    81 f          1
+##  5 2.01e6          0 U Mi… Normal norm…       0            0    44 f          0
+##  6 2.02e6          0 Dana… High … norm…       0            1    51 f          1
+##  7 2.02e6          7 Dana… Cancer canc…       1            1    78 m          1
+##  8 2.02e6         19 U Mi… Normal norm…       0            0    59 m          0
+##  9 2.02e6          0 Dana… High … norm…       1            1    63 f          1
+## 10 2.03e6       1509 U Mi… Cance… canc…       1            1    67 m          1
+## # … with 480 more rows, and 7 more variables: Diabetic &lt;dbl&gt;, Hx_Fam_CRC &lt;dbl&gt;,
+## #   Height &lt;dbl&gt;, Weight &lt;dbl&gt;, NSAID &lt;dbl&gt;, Diabetes_Med &lt;dbl&gt;, stage &lt;dbl&gt;
+</code></pre></div></div>
+
+<p>The output gives me the first ten columns and the first ten rows of the data frame. You’ll notice that at the top of the output, it tells us that there are 490 rows and 17 columns. The column headings for the 7 columns that weren’t outputted are listed at the bottom of the output. It also indicates, that 480 rows were not included in the output. In addition, the output tells us what type of variable each column contains. For example, the <code class="language-plaintext highlighter-rouge">fit_result</code> column contains <code class="language-plaintext highlighter-rouge">dbl</code> or double precision numbers and the <code class="language-plaintext highlighter-rouge">dx</code> column contains <code class="language-plaintext highlighter-rouge">chr</code> or character values. You’ll also notice that zero values have a lighter color and that the <code class="language-plaintext highlighter-rouge">NA</code> for the first value in the <code class="language-plaintext highlighter-rouge">Smoke</code> column is red. These are all meant to improve the visualization of the data.</p>
+
+<hr />
+
+<h3 id="activity-3">Activity 3</h3>
+<p>Compare the output from typing <code class="language-plaintext highlighter-rouge">metadata</code> at the prompt to the output of typing <code class="language-plaintext highlighter-rouge">as.data.frame(metadata)</code> at the prompt.</p>
+
+<hr />
+
+<h2 id="exploring-our-metadata">Exploring our metadata</h2>
+<p>Let’s dig into the metadata to think about how we’d like to use it to improve our scatter plot or perhaps visualize the variation in our cohort. Whenever we read in a data frame there are a few things to do get a handle on your data. First, as we’ve already done, entering the name of the data frame at the prompt will tell us a lot of information. We might also want to get access to those individual chunks of data</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">nrow</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## [1] 490
+</code></pre></div></div>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ncol</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## [1] 17
+</code></pre></div></div>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">dim</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## [1] 490  17
+</code></pre></div></div>
+
+<p>These three commands tell us the number of rows (<code class="language-plaintext highlighter-rouge">nrow</code>), columns (<code class="language-plaintext highlighter-rouge">ncol</code>), and both together (<code class="language-plaintext highlighter-rouge">dim</code>) in our metadata data frame. Let’s find out the names of our columns</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">colnames</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>##  [1] "sample"       "fit_result"   "Site"         "Dx_Bin"       "dx"          
+##  [6] "Hx_Prev"      "Hx_of_Polyps" "Age"          "Gender"       "Smoke"       
+## [11] "Diabetic"     "Hx_Fam_CRC"   "Height"       "Weight"       "NSAID"       
+## [16] "Diabetes_Med" "stage"
+</code></pre></div></div>
+
+<p>Are these column names informative? What type of information do you think each column might contain? If our data frame had names on the rows, we could get their value using the <code class="language-plaintext highlighter-rouge">rownames</code> command in a similar way. We can get a sense of the data frame using the <code class="language-plaintext highlighter-rouge">head</code> command, which returns the first 6 values of a variable or <code class="language-plaintext highlighter-rouge">tail</code>, which returns the last 6 values.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">head</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## # A tibble: 6 x 17
+##   sample fit_result Site  Dx_Bin dx    Hx_Prev Hx_of_Polyps   Age Gender Smoke
+##    &lt;dbl&gt;      &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt;   &lt;dbl&gt;        &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;  &lt;dbl&gt;
+## 1 2.00e6          0 U Mi… High … norm…       0            1    64 m         NA
+## 2 2.01e6          0 U Mi… High … norm…       0            1    61 m          0
+## 3 2.01e6         26 U Mi… High … norm…       0            1    47 f          0
+## 4 2.01e6         10 Toro… Adeno… aden…       0            1    81 f          1
+## 5 2.01e6          0 U Mi… Normal norm…       0            0    44 f          0
+## 6 2.02e6          0 Dana… High … norm…       0            1    51 f          1
+## # … with 7 more variables: Diabetic &lt;dbl&gt;, Hx_Fam_CRC &lt;dbl&gt;, Height &lt;dbl&gt;,
+## #   Weight &lt;dbl&gt;, NSAID &lt;dbl&gt;, Diabetes_Med &lt;dbl&gt;, stage &lt;dbl&gt;
+</code></pre></div></div>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">tail</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## # A tibble: 6 x 17
+##   sample fit_result Site  Dx_Bin dx    Hx_Prev Hx_of_Polyps   Age Gender Smoke
+##    &lt;dbl&gt;      &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt;   &lt;dbl&gt;        &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;  &lt;dbl&gt;
+## 1 3.53e6          0 Dana… Normal norm…       0            0    51 f          0
+## 2 3.53e6          0 Dana… Normal norm…       1            0    53 f          0
+## 3 3.54e6          0 U Mi… Adv A… aden…       0            1    75 m          1
+## 4 3.54e6          0 U Mi… Normal norm…       0            0    56 f          0
+## 5 3.55e6          0 Dana… Adeno… aden…       1            1    77 m          1
+## 6 3.56e6          0 U Mi… Normal norm…       0            0    51 f          0
+## # … with 7 more variables: Diabetic &lt;dbl&gt;, Hx_Fam_CRC &lt;dbl&gt;, Height &lt;dbl&gt;,
+## #   Weight &lt;dbl&gt;, NSAID &lt;dbl&gt;, Diabetes_Med &lt;dbl&gt;, stage &lt;dbl&gt;
+</code></pre></div></div>
+
+<p>We can also use the <code class="language-plaintext highlighter-rouge">glimpse</code> command to get an idea about the structure of a variable.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">glimpse</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## Rows: 490
+## Columns: 17
+## $ sample       &lt;dbl&gt; 2003650, 2005650, 2007660, 2009650, 2013660, 2015650, 20…
+## $ fit_result   &lt;dbl&gt; 0, 0, 26, 10, 0, 0, 7, 19, 0, 1509, 0, 0, 0, 0, 0, 72, 0…
+## $ Site         &lt;chr&gt; "U Michigan", "U Michigan", "U Michigan", "Toronto", "U …
+## $ Dx_Bin       &lt;chr&gt; "High Risk Normal", "High Risk Normal", "High Risk Norma…
+## $ dx           &lt;chr&gt; "normal", "normal", "normal", "adenoma", "normal", "norm…
+## $ Hx_Prev      &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0,…
+## $ Hx_of_Polyps &lt;dbl&gt; 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1,…
+## $ Age          &lt;dbl&gt; 64, 61, 47, 81, 44, 51, 78, 59, 63, 67, 65, 55, 72, 77, …
+## $ Gender       &lt;chr&gt; "m", "m", "f", "f", "f", "f", "m", "m", "f", "m", "f", "…
+## $ Smoke        &lt;dbl&gt; NA, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1…
+## $ Diabetic     &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,…
+## $ Hx_Fam_CRC   &lt;dbl&gt; 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1,…
+## $ Height       &lt;dbl&gt; 182, 167, 170, 168, 170, 160, 172, 177, 154, 167, 167, 1…
+## $ Weight       &lt;dbl&gt; 120, 78, 63, 65, 72, 67, 78, 65, 54, 58, 60, 90, 57, 68,…
+## $ NSAID        &lt;dbl&gt; 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1,…
+## $ Diabetes_Med &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,…
+## $ stage        &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 3, 0, 0, 4, 0, 0, 0, 0, 0, 3, 0, 0, 0,…
+</code></pre></div></div>
+
+<p>You’ll commonly encounter numerical (<code class="language-plaintext highlighter-rouge">dbl</code>, <code class="language-plaintext highlighter-rouge">int</code>, or <code class="language-plaintext highlighter-rouge">num</code>), categorical (<code class="language-plaintext highlighter-rouge">fctr</code>), boolean (<code class="language-plaintext highlighter-rouge">lgl</code>), and text (<code class="language-plaintext highlighter-rouge">chr</code>) data. The <code class="language-plaintext highlighter-rouge">str</code> command will tell you the type of data you have in your variable.</p>
+
+<p>Another function that is great for characterizing a data frame (or any type of variable) is <code class="language-plaintext highlighter-rouge">summary</code>.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">summary</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>##      sample          fit_result         Site              Dx_Bin         
+##  Min.   :2003650   Min.   :   0.0   Length:490         Length:490        
+##  1st Qu.:2326158   1st Qu.:   0.0   Class :character   Class :character  
+##  Median :2776662   Median :   0.0   Mode  :character   Mode  :character  
+##  Mean   :2757494   Mean   : 236.3                                        
+##  3rd Qu.:3155185   3rd Qu.: 102.5                                        
+##  Max.   :3561650   Max.   :2964.0                                        
+##                                                                          
+##       dx               Hx_Prev        Hx_of_Polyps         Age       
+##  Length:490         Min.   :0.0000   Min.   :0.0000   Min.   :29.00  
+##  Class :character   1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:52.00  
+##  Mode  :character   Median :0.0000   Median :1.0000   Median :60.00  
+##                     Mean   :0.2834   Mean   :0.6687   Mean   :60.28  
+##                     3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:69.00  
+##                     Max.   :1.0000   Max.   :1.0000   Max.   :89.00  
+##                     NA's   :3        NA's   :1                       
+##     Gender              Smoke           Diabetic        Hx_Fam_CRC    
+##  Length:490         Min.   :0.0000   Min.   :0.0000   Min.   :0.0000  
+##  Class :character   1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000  
+##  Mode  :character   Median :0.0000   Median :0.0000   Median :0.0000  
+##                     Mean   :0.4587   Mean   :0.1166   Mean   :0.1694  
+##                     3rd Qu.:1.0000   3rd Qu.:0.0000   3rd Qu.:0.0000  
+##                     Max.   :1.0000   Max.   :1.0000   Max.   :1.0000  
+##                     NA's   :6        NA's   :1                        
+##      Height          Weight           NSAID         Diabetes_Med    
+##  Min.   :  0.0   Min.   :  0.00   Min.   :0.0000   Min.   :0.00000  
+##  1st Qu.:162.0   1st Qu.: 67.00   1st Qu.:0.0000   1st Qu.:0.00000  
+##  Median :170.0   Median : 78.00   Median :0.0000   Median :0.00000  
+##  Mean   :169.8   Mean   : 79.08   Mean   :0.2459   Mean   :0.08163  
+##  3rd Qu.:177.0   3rd Qu.: 90.00   3rd Qu.:0.0000   3rd Qu.:0.00000  
+##  Max.   :203.0   Max.   :193.00   Max.   :1.0000   Max.   :1.00000  
+##  NA's   :1       NA's   :1        NA's   :2                         
+##      stage       
+##  Min.   :0.0000  
+##  1st Qu.:0.0000  
+##  Median :0.0000  
+##  Mean   :0.5245  
+##  3rd Qu.:0.0000  
+##  Max.   :4.0000  
+## 
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="activity-4">Activity 4</h3>
+<p>What do you notice about the output of running <code class="language-plaintext highlighter-rouge">glimpse(metadata)</code>? What types of data are there? Thinking about the list of data types outlined above, are there columns that are improperly formatted? Do the column names match the type of data in the column? Looking at the output of <code class="language-plaintext highlighter-rouge">summary(metadata)</code>, what do you notice about how the different data types were summarized?</p>
+
+<hr />
+
+<h2 id="cleaning-our-metadata">Cleaning our metadata</h2>
+<p>After a quick look at the metadata we can see that there are a few things that aren’t quite right that we might want to fix. Some of the columns are the wrong type and some of the values in the data frame don’t make sense. For example, the <code class="language-plaintext highlighter-rouge">sample</code> column is a <code class="language-plaintext highlighter-rouge">double</code> and it should be a <code class="language-plaintext highlighter-rouge">character</code>. Let’s start by fixing the column types. There are multiple ways to do this, but it is probably easiest, in the long run, to use the <code class="language-plaintext highlighter-rouge">col_types</code> argument in <code class="language-plaintext highlighter-rouge">read_excel</code> and <code class="language-plaintext highlighter-rouge">read_tsv</code>. Unfortunately, they have slightly different syntax. For <code class="language-plaintext highlighter-rouge">read_excel</code> the <code class="language-plaintext highlighter-rouge">col_type</code> options are “skip”, “guess”, “logical”, “numeric”, “date”, “text” or “list”. We’ll normally only use “logical”, “numeric”, “text”, and “date”. It is important to list the column types in order. Although we provide the column names for the <code class="language-plaintext highlighter-rouge">col_types</code> value, <code class="language-plaintext highlighter-rouge">read_excel</code> doesn’t actually look at these values. Including them helps me to organize the column types when there are more than a handful of columns.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">metadata</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read_excel</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">"raw_data/baxter.metadata.xlsx"</span><span class="p">,</span><span class="w">
+		</span><span class="n">col_types</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="n">sample</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"text"</span><span class="p">,</span><span class="w"> </span><span class="n">fit_result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"numeric"</span><span class="p">,</span><span class="w"> </span><span class="n">Site</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"text"</span><span class="p">,</span><span class="w"> </span><span class="n">Dx_Bin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"text"</span><span class="p">,</span><span class="w">
+				</span><span class="n">dx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"text"</span><span class="p">,</span><span class="w"> </span><span class="n">Hx_Prev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"logical"</span><span class="p">,</span><span class="w"> </span><span class="n">Hx_of_Polyps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"logical"</span><span class="p">,</span><span class="w"> </span><span class="n">Age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"numeric"</span><span class="p">,</span><span class="w">
+				</span><span class="n">Gender</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"text"</span><span class="p">,</span><span class="w"> </span><span class="n">Smoke</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"logical"</span><span class="p">,</span><span class="w"> </span><span class="n">Diabetic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"logical"</span><span class="p">,</span><span class="w"> </span><span class="n">Hx_Fam_CRC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"logical"</span><span class="p">,</span><span class="w">
+				</span><span class="n">Height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"numeric"</span><span class="p">,</span><span class="w"> </span><span class="n">Weight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"numeric"</span><span class="p">,</span><span class="w"> </span><span class="n">NSAID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"logical"</span><span class="p">,</span><span class="w"> </span><span class="n">Diabetes_Med</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"logical"</span><span class="p">,</span><span class="w">
+				</span><span class="n">stage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"text"</span><span class="p">)</span><span class="w">
+	</span><span class="p">)</span><span class="w">
+</span><span class="n">metadata</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## # A tibble: 490 x 17
+##    sample fit_result Site  Dx_Bin dx    Hx_Prev Hx_of_Polyps   Age Gender Smoke
+##    &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt; &lt;lgl&gt;   &lt;lgl&gt;        &lt;dbl&gt; &lt;chr&gt;  &lt;lgl&gt;
+##  1 20036…          0 U Mi… High … norm… FALSE   TRUE            64 m      NA   
+##  2 20056…          0 U Mi… High … norm… FALSE   TRUE            61 m      FALSE
+##  3 20076…         26 U Mi… High … norm… FALSE   TRUE            47 f      FALSE
+##  4 20096…         10 Toro… Adeno… aden… FALSE   TRUE            81 f      TRUE 
+##  5 20136…          0 U Mi… Normal norm… FALSE   FALSE           44 f      FALSE
+##  6 20156…          0 Dana… High … norm… FALSE   TRUE            51 f      TRUE 
+##  7 20176…          7 Dana… Cancer canc… TRUE    TRUE            78 m      TRUE 
+##  8 20196…         19 U Mi… Normal norm… FALSE   FALSE           59 m      FALSE
+##  9 20236…          0 Dana… High … norm… TRUE    TRUE            63 f      TRUE 
+## 10 20256…       1509 U Mi… Cance… canc… TRUE    TRUE            67 m      TRUE 
+## # … with 480 more rows, and 7 more variables: Diabetic &lt;lgl&gt;, Hx_Fam_CRC &lt;lgl&gt;,
+## #   Height &lt;dbl&gt;, Weight &lt;dbl&gt;, NSAID &lt;lgl&gt;, Diabetes_Med &lt;lgl&gt;, stage &lt;chr&gt;
+</code></pre></div></div>
+
+<p>In contrast, if we used <code class="language-plaintext highlighter-rouge">read_tsv</code> the syntax would look like this (note that this won’t run since you don’t have <code class="language-plaintext highlighter-rouge">data/baxter.metadata.tsv</code>)</p>
+
+<div class="language-R highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">metadata</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read_tsv</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="s2">"raw_data/baxter.metadata.tsv"</span><span class="p">,</span><span class="w">
+		</span><span class="n">col_types</span><span class="o">=</span><span class="n">cols</span><span class="p">(</span><span class="n">sample</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">col_character</span><span class="p">(),</span><span class="w"> </span><span class="n">fit_result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">col_double</span><span class="p">(),</span><span class="w"> </span><span class="n">Site</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">col_character</span><span class="p">(),</span><span class="w">
+				</span><span class="n">Dx_Bin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">col_character</span><span class="p">(),</span><span class="w"> </span><span class="n">dx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">col_character</span><span class="p">(),</span><span class="w"> </span><span class="n">Hx_Prev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">col_logical</span><span class="p">(),</span><span class="w">
+				</span><span class="n">Hx_of_Polyps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">col_logical</span><span class="p">(),</span><span class="w"> </span><span class="n">Age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">col_integer</span><span class="p">(),</span><span class="w"> </span><span class="n">Gender</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">col_character</span><span class="p">(),</span><span class="w">
+				</span><span class="n">Smoke</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">col_logical</span><span class="p">(),</span><span class="w"> </span><span class="n">Diabetic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">col_logical</span><span class="p">(),</span><span class="w"> </span><span class="n">Hx_Fam_CRC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">col_logical</span><span class="p">(),</span><span class="w">
+				</span><span class="n">Height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">col_double</span><span class="p">(),</span><span class="w"> </span><span class="n">Weight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">col_double</span><span class="p">(),</span><span class="w"> </span><span class="n">NSAID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">col_logical</span><span class="p">(),</span><span class="w">
+				</span><span class="n">Diabetes_Med</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">col_logical</span><span class="p">(),</span><span class="w"> </span><span class="n">stage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">col_character</span><span class="p">())</span><span class="w">
+	</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>This is a bit tedious, but once you’ve done it you won’t need to do it again. Also we can see exactly how we have recast the various columns to the correct format. I would <strong><em>strongly discourage</em></strong> editing the original metadata file to correct these problems. For example, you could do a <code class="language-plaintext highlighter-rouge">find-all-replace-all</code> to change <code class="language-plaintext highlighter-rouge">0</code> values in the “Diabetic” column to <code class="language-plaintext highlighter-rouge">FALSE</code> and the <code class="language-plaintext highlighter-rouge">1</code> values to <code class="language-plaintext highlighter-rouge">TRUE</code>. In the long run, this is likely to create more problems than it solves. <strong>Your raw data should stay raw</strong>. This is an advantage of using a function like <code class="language-plaintext highlighter-rouge">read_excel</code> - my collaborator can send me their workbook and I can use it as they gave it to me without mucking it up. Using the data munging procedures we’re in the midst of, I can programmatically change the file without changing the version I have on my hard drive. This allows me to always know the provenience of my data.</p>
+
+<p>Now that we have the types of variables correct, let’s re-run the summary function to see how things look</p>
+
+<div class="language-R highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">summary</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Take a moment to look at the columns represented in your data frame and the information presented below the column names. Do all of the values seem reasonable? Need a hint? Check out the information below “Height” and “Weight”. Think someone could weight 0 kg or be 0 cm tall? I think those should instead be <code class="language-plaintext highlighter-rouge">NA</code>. We need to learn a few concepts before we can convert the 0 values to <code class="language-plaintext highlighter-rouge">NA</code> values. First, we need to know how to modify individual columns or create new columns. We can do this with the <code class="language-plaintext highlighter-rouge">mutate</code> function:</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">mutate</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">age_in_months</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Age</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="m">12</span><span class="p">)</span><span class="w">
+</span><span class="n">mutate</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">Height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Height</span><span class="o">/</span><span class="m">100</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">mutate</code> function takes the <code class="language-plaintext highlighter-rouge">metadata</code> data frame and adds a new column that is the age of the person in months. Similarly, the second command edits the <code class="language-plaintext highlighter-rouge">Height</code> column to change it from centimeters to meters. If we do the following, what do you notice?</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">metadata</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## # A tibble: 490 x 17
+##    sample fit_result Site  Dx_Bin dx    Hx_Prev Hx_of_Polyps   Age Gender Smoke
+##    &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt; &lt;lgl&gt;   &lt;lgl&gt;        &lt;dbl&gt; &lt;chr&gt;  &lt;lgl&gt;
+##  1 20036…          0 U Mi… High … norm… FALSE   TRUE            64 m      NA   
+##  2 20056…          0 U Mi… High … norm… FALSE   TRUE            61 m      FALSE
+##  3 20076…         26 U Mi… High … norm… FALSE   TRUE            47 f      FALSE
+##  4 20096…         10 Toro… Adeno… aden… FALSE   TRUE            81 f      TRUE 
+##  5 20136…          0 U Mi… Normal norm… FALSE   FALSE           44 f      FALSE
+##  6 20156…          0 Dana… High … norm… FALSE   TRUE            51 f      TRUE 
+##  7 20176…          7 Dana… Cancer canc… TRUE    TRUE            78 m      TRUE 
+##  8 20196…         19 U Mi… Normal norm… FALSE   FALSE           59 m      FALSE
+##  9 20236…          0 Dana… High … norm… TRUE    TRUE            63 f      TRUE 
+## 10 20256…       1509 U Mi… Cance… canc… TRUE    TRUE            67 m      TRUE 
+## # … with 480 more rows, and 7 more variables: Diabetic &lt;lgl&gt;, Hx_Fam_CRC &lt;lgl&gt;,
+## #   Height &lt;dbl&gt;, Weight &lt;dbl&gt;, NSAID &lt;lgl&gt;, Diabetes_Med &lt;lgl&gt;, stage &lt;chr&gt;
+</code></pre></div></div>
+
+<p>Next, do you see that we don’t have <code class="language-plaintext highlighter-rouge">age_in_months</code> as a column and the values in our <code class="language-plaintext highlighter-rouge">Height</code> column don’t appear to be in meters? Why is that? Right! We didn’t assign the modified data frames back to metadata. We won’t do that with these two changes, but this is an important point to remember. The data frame will only change if we assign the new data frame to the name of the old data frame. Finally, the <code class="language-plaintext highlighter-rouge">dplyr</code> package, which is one of the core package within the tidyverse, has a useful function called <code class="language-plaintext highlighter-rouge">na_if</code>. If it finds a value we specify in the vector, it will convert it to an <code class="language-plaintext highlighter-rouge">NA</code>.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">metadata</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">mutate</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">Height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">na_if</span><span class="p">(</span><span class="n">Height</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">))</span><span class="w">
+</span><span class="n">metadata</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">mutate</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">Weight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">na_if</span><span class="p">(</span><span class="n">Weight</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Running <code class="language-plaintext highlighter-rouge">summary(metadata)</code> again, we see that the ranges for the “Height” and “Weight” columns are more reasonable now. We’d like to look at the values for our columns that contain character values, but they’re obfuscated. One way to check this out is with the <code class="language-plaintext highlighter-rouge">count</code> command</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">count</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">Site</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## # A tibble: 5 x 2
+##   Site              n
+##   &lt;chr&gt;         &lt;int&gt;
+## 1 Dana Farber     120
+## 2 MD Anderson      95
+## 3 Toronto         168
+## 4 U Michigan      106
+## 5 U of Michigan     1
+</code></pre></div></div>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">count</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">Dx_Bin</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## # A tibble: 6 x 2
+##   Dx_Bin               n
+##   &lt;chr&gt;            &lt;int&gt;
+## 1 Adenoma             89
+## 2 Adv Adenoma        109
+## 3 Cancer             119
+## 4 Cancer.              1
+## 5 High Risk Normal    50
+## 6 Normal             122
+</code></pre></div></div>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">count</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">dx</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## # A tibble: 3 x 2
+##   dx          n
+##   &lt;chr&gt;   &lt;int&gt;
+## 1 adenoma   198
+## 2 cancer    120
+## 3 normal    172
+</code></pre></div></div>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">count</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">Gender</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## # A tibble: 2 x 2
+##   Gender     n
+##   &lt;chr&gt;  &lt;int&gt;
+## 1 f        243
+## 2 m        247
+</code></pre></div></div>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">count</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">stage</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## # A tibble: 5 x 2
+##   stage     n
+##   &lt;chr&gt; &lt;int&gt;
+## 1 0       370
+## 2 1        39
+## 3 2        35
+## 4 3        36
+## 5 4        10
+</code></pre></div></div>
+
+<p>Notice anything weird here? Yup. In the “Site” column, it looks like our collaborator used “U of Michigan” for one subject, but “U Michigan” for all of the others. We need to fix this. We can use the <code class="language-plaintext highlighter-rouge">dplyr</code> function <code class="language-plaintext highlighter-rouge">recode</code> to make this easy…</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">metadata</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">mutate</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">Site</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">recode</span><span class="p">(</span><span class="n">.x</span><span class="o">=</span><span class="n">Site</span><span class="p">,</span><span class="w"> </span><span class="s2">"U of Michigan"</span><span class="o">=</span><span class="s2">"U Michigan"</span><span class="p">))</span><span class="w">
+</span><span class="n">count</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">Site</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## # A tibble: 4 x 2
+##   Site            n
+##   &lt;chr&gt;       &lt;int&gt;
+## 1 Dana Farber   120
+## 2 MD Anderson    95
+## 3 Toronto       168
+## 4 U Michigan    107
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="activity-5">Activity 5</h3>
+<p>You should notice that in the “Dx_Bin” column there is a subject with the value “Cancer.” rather than “Cancer”. Using <code class="language-plaintext highlighter-rouge">recode</code>, can you fix this value?</p>
+
+<p><input type="button" class="hideshow" /></p>
+<div style="display:none;">
+
+  <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">metadata</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">mutate</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">Dx_Bin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">recode</span><span class="p">(</span><span class="n">.x</span><span class="o">=</span><span class="n">Dx_Bin</span><span class="p">,</span><span class="w"> </span><span class="s2">"Cancer."</span><span class="o">=</span><span class="s2">"Cancer"</span><span class="p">))</span><span class="w">
+</span><span class="n">count</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">Dx_Bin</span><span class="p">)</span><span class="w">
+</span></code></pre></div>  </div>
+
+  <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## # A tibble: 5 x 2
+##   Dx_Bin               n
+##   &lt;chr&gt;            &lt;int&gt;
+## 1 Adenoma             89
+## 2 Adv Adenoma        109
+## 3 Cancer             120
+## 4 High Risk Normal    50
+## 5 Normal             122
+</code></pre></div>  </div>
+</div>
+
+<hr />
+
+<h3 id="activity-6">Activity 6</h3>
+<p>It might be obvious to us what is contained in the “Gender” column - “f” and “m” are the only two values. What if we wanted to make the values a little more meaningful and have them read as “female” and “male”? Write a recode function(s) to convert the single character to the longer name. Confirm that you get the correct result</p>
+
+<p><input type="button" class="hideshow" /></p>
+<div style="display:none;">
+
+  <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">metadata</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">mutate</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">Gender</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">recode</span><span class="p">(</span><span class="n">.x</span><span class="o">=</span><span class="n">Gender</span><span class="p">,</span><span class="w"> </span><span class="s2">"m"</span><span class="o">=</span><span class="s2">"male"</span><span class="p">))</span><span class="w">
+</span><span class="n">metadata</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">mutate</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">Gender</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">recode</span><span class="p">(</span><span class="n">.x</span><span class="o">=</span><span class="n">Gender</span><span class="p">,</span><span class="w"> </span><span class="s2">"f"</span><span class="o">=</span><span class="s2">"female"</span><span class="p">))</span><span class="w">
+</span><span class="n">count</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">Gender</span><span class="p">)</span><span class="w">
+</span></code></pre></div>  </div>
+
+  <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## # A tibble: 2 x 2
+##   Gender     n
+##   &lt;chr&gt;  &lt;int&gt;
+## 1 female   243
+## 2 male     247
+</code></pre></div>  </div>
+
+  <p>Alternatively, we could have done both commands in one line:</p>
+
+  <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">metadata</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">mutate</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">Gender</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">recode</span><span class="p">(</span><span class="n">.x</span><span class="o">=</span><span class="n">Gender</span><span class="p">,</span><span class="w"> </span><span class="s2">"f"</span><span class="o">=</span><span class="s2">"female"</span><span class="p">,</span><span class="w"> </span><span class="s2">"m"</span><span class="o">=</span><span class="s2">"male"</span><span class="p">))</span><span class="w">
+</span><span class="n">count</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">Gender</span><span class="p">)</span><span class="w">
+</span></code></pre></div>  </div>
+
+  <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## # A tibble: 2 x 2
+##   Gender     n
+##   &lt;chr&gt;  &lt;int&gt;
+## 1 female   243
+## 2 male     247
+</code></pre></div>  </div>
+</div>
+
+<hr />
+
+<h2 id="cleaning-up-column-names">Cleaning up column names</h2>
+
+<p>If we look back at our column names in the <code class="language-plaintext highlighter-rouge">metadata</code> data frame, you’ll notice that some names are in title case (e.g. “Hx_Prev”) and others are in all lower case (e.g. “fit_result”). Also, some of the column names may not make sense to you if you aren’t a clinican (e.g. “Hx_Prev”). You may have also noticed that our “Gender” column has data regarding the subject’s sex, not gender. Let’s see how we can fix these issues to make using the data frame easier.</p>
+
+<p>As I mentioned above, there are two problems with the name “Hx_Prev” - the capitalization is inconsistent with the other columns and it may not be immediately clear what “Hx_Prev” means. We have many options for how to name things. “Hx_Prev” could be written as “HxPrev”, “hxPrev”, “hx_prev”, “hx.prev”, “previous_history”, etc. It can get confusing to remember which column headings are capitalized and which are not. The general preference in the R world is to use lowercase lettering and to separate words in a name with an underscore (i.e. <code class="language-plaintext highlighter-rouge">_</code>). This is called “snake case”. Having a consistent capitalization strategy may seem a bit pedantic, but it makes it easier to keep your names straight when you don’t have to worry about capitalization. The preference would be to change names like “Site” and “Hx_Prev” to “site” and “hx_prev”. We can convert the column names to lower case using the <code class="language-plaintext highlighter-rouge">rename_all</code> function in the <code class="language-plaintext highlighter-rouge">dplyr</code> package with the <code class="language-plaintext highlighter-rouge">tolower</code> function. Conversely, if you wanted everything in all caps, you could use the <code class="language-plaintext highlighter-rouge">toupper</code> function</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">metadata</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">rename_all</span><span class="p">(</span><span class="n">.tbl</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">.funs</span><span class="o">=</span><span class="n">tolower</span><span class="p">)</span><span class="w">
+</span><span class="n">metadata</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## # A tibble: 490 x 17
+##    sample fit_result site  dx_bin dx    hx_prev hx_of_polyps   age gender smoke
+##    &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt; &lt;lgl&gt;   &lt;lgl&gt;        &lt;dbl&gt; &lt;chr&gt;  &lt;lgl&gt;
+##  1 20036…          0 U Mi… High … norm… FALSE   TRUE            64 male   NA   
+##  2 20056…          0 U Mi… High … norm… FALSE   TRUE            61 male   FALSE
+##  3 20076…         26 U Mi… High … norm… FALSE   TRUE            47 female FALSE
+##  4 20096…         10 Toro… Adeno… aden… FALSE   TRUE            81 female TRUE 
+##  5 20136…          0 U Mi… Normal norm… FALSE   FALSE           44 female FALSE
+##  6 20156…          0 Dana… High … norm… FALSE   TRUE            51 female TRUE 
+##  7 20176…          7 Dana… Cancer canc… TRUE    TRUE            78 male   TRUE 
+##  8 20196…         19 U Mi… Normal norm… FALSE   FALSE           59 male   FALSE
+##  9 20236…          0 Dana… High … norm… TRUE    TRUE            63 female TRUE 
+## 10 20256…       1509 U Mi… Cancer canc… TRUE    TRUE            67 male   TRUE 
+## # … with 480 more rows, and 7 more variables: diabetic &lt;lgl&gt;, hx_fam_crc &lt;lgl&gt;,
+## #   height &lt;dbl&gt;, weight &lt;dbl&gt;, nsaid &lt;lgl&gt;, diabetes_med &lt;lgl&gt;, stage &lt;chr&gt;
+</code></pre></div></div>
+
+<p>We can use the <code class="language-plaintext highlighter-rouge">rename</code> function in the <code class="language-plaintext highlighter-rouge">dplyr</code> package to rename specific column names, similar to how we used the <code class="language-plaintext highlighter-rouge">recode</code> function to correct the data entry typos. Let’s change our column names with “hx” in them to “history” and “dx” in them to “diagnosis”</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">metadata</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">rename</span><span class="p">(</span><span class="n">.data</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span><span class="w">
+		</span><span class="n">previous_history</span><span class="o">=</span><span class="n">hx_prev</span><span class="p">,</span><span class="w">
+		</span><span class="n">history_of_polyps</span><span class="o">=</span><span class="n">hx_of_polyps</span><span class="p">,</span><span class="w">
+		</span><span class="n">family_history_of_crc</span><span class="o">=</span><span class="n">hx_fam_crc</span><span class="p">,</span><span class="w">
+		</span><span class="n">diagnosis_bin</span><span class="o">=</span><span class="n">dx_bin</span><span class="p">,</span><span class="w">
+		</span><span class="n">diagnosis</span><span class="o">=</span><span class="n">dx</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<hr />
+
+<h3 id="activity-7">Activity 7</h3>
+<p>As was mentioned, the “gender” column contains the sex of each individual (“f” or “m”). Change our <code class="language-plaintext highlighter-rouge">rename</code> function to also include code to change the name of that column.</p>
+
+<p><input type="button" class="hideshow" /></p>
+<div style="display:none;">
+  <div class="language-R highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">metadata</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">rename</span><span class="p">(</span><span class="n">.data</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span><span class="w">
+		</span><span class="n">previous_history</span><span class="o">=</span><span class="n">hx_prev</span><span class="p">,</span><span class="w">
+		</span><span class="n">history_of_polyps</span><span class="o">=</span><span class="n">hx_of_polyps</span><span class="p">,</span><span class="w">
+		</span><span class="n">family_history_of_crc</span><span class="o">=</span><span class="n">hx_fam_crc</span><span class="p">,</span><span class="w">
+		</span><span class="n">diagnosis_bin</span><span class="o">=</span><span class="n">dx_bin</span><span class="p">,</span><span class="w">
+		</span><span class="n">diagnosis</span><span class="o">=</span><span class="n">dx</span><span class="p">,</span><span class="w">
+		</span><span class="n">sex</span><span class="o">=</span><span class="n">gender</span><span class="p">)</span><span class="w">
+</span></code></pre></div>  </div>
+
+</div>
+
+<hr />
+
+<p>We’ll stop here with cleaning up the data, but it’s also worth noting that we might want to add units to some of our columns. For example, we might rename the “height” column to “height_cm”. Although manipulating the column headings and to be lowercase or to be more clear is a matter of personal preference, it makes your analysis easier to implement. This is especially true if you have to pause the project for a few weeks or months (e.g. the paper goes out for review, you go on vacation, etc.). When you come back to it, you won’t have to recall what “Hx” means. Making sure the values in the data frame are correct by removing typos (e.g. “U of Michigan”) and ensuring they are properly bounded (e.g. no heights of zero) is critical to the validity of your analysis. I want to reemphasize the importance of leaving your raw data raw. Our manipulations of the <code class="language-plaintext highlighter-rouge">metadata</code> data frame have not altered <code class="language-plaintext highlighter-rouge">raw_data/baxter.metadata.xlsx</code>. Perhaps we would like to export the cleaned up data frame to share with others. Similar to the <code class="language-plaintext highlighter-rouge">read_tsv</code> function from the <code class="language-plaintext highlighter-rouge">readr</code> package, that package also contains a <code class="language-plaintext highlighter-rouge">write_tsv</code> function that we can use to write the cleaned data to a text file. Before we do this, we’ll create a directory in our project directory called <code class="language-plaintext highlighter-rouge">processed_data</code>.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">dir.create</span><span class="p">(</span><span class="s2">"processed_data"</span><span class="p">,</span><span class="w"> </span><span class="n">showWarnings</span><span class="o">=</span><span class="kc">FALSE</span><span class="p">)</span><span class="w">
+</span><span class="n">write_tsv</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="o">=</span><span class="s1">'processed_data/baxter.metadata.tsv'</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<hr />
+
+<h3 id="activity-8">Activity 8</h3>
+<p>Now that we have the <code class="language-plaintext highlighter-rouge">metadata</code> data frame looking spiffy, we want to run the next line:</p>
+
+<div class="language-R highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">metadata_pcoa</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">inner_join</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">by</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s1">'sample'</span><span class="o">=</span><span class="s1">'group'</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<p>This throws an error. It is complaining because the “group” column in our <code class="language-plaintext highlighter-rouge">pcoa</code> data frame contains integers and the “sample” column in our <code class="language-plaintext highlighter-rouge">metadata</code> data frame contains characters. To merge these using <code class="language-plaintext highlighter-rouge">inner_join</code>, we need them to both be characters. Can you think of how to change the “sample” column from <code class="language-plaintext highlighter-rouge">meatdata</code> to be characters? Test your solution by creating the <code class="language-plaintext highlighter-rouge">metadata_pcoa</code> data frame</p>
+
+<p><input type="button" class="hideshow" /></p>
+<div style="display:none;">
+
+  <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pcoa</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read_tsv</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="s2">"raw_data/baxter.braycurtis.pcoa.axes"</span><span class="p">,</span><span class="w">
+		</span><span class="n">col_types</span><span class="o">=</span><span class="n">cols</span><span class="p">(</span><span class="n">group</span><span class="o">=</span><span class="n">col_character</span><span class="p">()))</span><span class="w">
+
+</span><span class="n">metadata_pcoa</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">inner_join</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">pcoa</span><span class="p">,</span><span class="w"> </span><span class="n">by</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s1">'sample'</span><span class="o">=</span><span class="s1">'group'</span><span class="p">))</span><span class="w">
+</span></code></pre></div>  </div>
+</div>
+
+<hr />
+
+<p>We can look at the the text output of our <code class="language-plaintext highlighter-rouge">metadata</code> tibble and we can use the <code class="language-plaintext highlighter-rouge">count</code> function to see the number of subjects that came from each center, but that quickly becomes tedious. Bar plots are a good option for visualizing these types of data. Let’s generate a bar plot of the number of subjects at each center. We’ll see that the syntax for making a bar plot is analogous to what we did in the previous lesson to make a scatter plot. To make a basic bar plot, the only aesthetic we need to provide is the variable we’d like along the x-axis:</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">site</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_bar</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/03_data_frames//unnamed-chunk-23-1.png" title="plot of chunk unnamed-chunk-23" alt="plot of chunk unnamed-chunk-23" width="504" /></p>
+
+<p>With some of the same commands we used previously, we can get this to look a little nicer</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">site</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_bar</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Number of subjects at each center"</span><span class="p">,</span><span class="w">
+		</span><span class="n">x</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">y</span><span class="o">=</span><span class="s2">"Number of subjects"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">theme_classic</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/03_data_frames//unnamed-chunk-24-1.png" title="plot of chunk unnamed-chunk-24" alt="plot of chunk unnamed-chunk-24" width="504" /></p>
+
+<p>Nice. Let’s say we want to know the number of male and female patients at each site. To do this we will use the <code class="language-plaintext highlighter-rouge">color</code> aesthetic to color the bars by sex. The bars will be grouped along the x-axis by site and then by sex.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">site</span><span class="p">,</span><span class="w"> </span><span class="n">color</span><span class="o">=</span><span class="n">sex</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_bar</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Number of male and female subjects at each center"</span><span class="p">,</span><span class="w">
+		</span><span class="n">x</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">y</span><span class="o">=</span><span class="s2">"Number of subjects"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">theme_classic</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/03_data_frames//unnamed-chunk-25-1.png" title="plot of chunk unnamed-chunk-25" alt="plot of chunk unnamed-chunk-25" width="504" /></p>
+
+<p>Huh. That looks weird. It appears that the border of the bars was colored rather than the content of the bar. It also appears that the male and female bar for each center were stacked on top of each other. We’re not big fans of stacked bar plots and we’d really like these bars to be side-by-side. Go ahead and run <code class="language-plaintext highlighter-rouge">?geom_bar</code> and scroll down to the “Aesthetics” section of the help page. Do you see any aesthetics that might help us color the inside of the bars? If you can’t figure it out, scroll down further to find the “Examples” section and look at how they suggest using the <code class="language-plaintext highlighter-rouge">geom_bar</code> command. Can you figure out which aesthetic will change the interior color? Hopefully, you’ve figured out that it should be the <code class="language-plaintext highlighter-rouge">fill</code> aesthetic instead of the <code class="language-plaintext highlighter-rouge">color</code> aesthetic.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">site</span><span class="p">,</span><span class="w"> </span><span class="n">fill</span><span class="o">=</span><span class="n">sex</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_bar</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Number of male and female subjects at each center"</span><span class="p">,</span><span class="w">
+		</span><span class="n">x</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">y</span><span class="o">=</span><span class="s2">"Number of subjects"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">theme_classic</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/03_data_frames//unnamed-chunk-26-1.png" title="plot of chunk unnamed-chunk-26" alt="plot of chunk unnamed-chunk-26" width="504" /></p>
+
+<p>Great, we’ve solved the problem of how to set the <strong><em>fill</em></strong> color. Now we need to figure out how  to stop the bars from stacking. Looking back through the <code class="language-plaintext highlighter-rouge">?geom_bar</code> help page, do you see anything that tells you how to plot the bars next to each other instead of on top of each other? As a hint, look at the “See Also” section. It indicates that we should see “‘position_dodge()’ and ‘position_dodge2()’ for creating side-by-side bar charts.” OK. Now let’s do <code class="language-plaintext highlighter-rouge">?position_dodge</code> to see what this is all about. In the “Examples” section, we see an example that uses <code class="language-plaintext highlighter-rouge">position_dodge</code> with <code class="language-plaintext highlighter-rouge">geom_col</code>. Nice.</p>
+
+<div class="language-R highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">mtcars</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">factor</span><span class="p">(</span><span class="n">cyl</span><span class="p">),</span><span class="w"> </span><span class="n">fill</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">factor</span><span class="p">(</span><span class="n">vs</span><span class="p">)))</span><span class="w"> </span><span class="o">+</span><span class="w">
+ </span><span class="n">geom_bar</span><span class="p">(</span><span class="n">position</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"dodge2"</span><span class="p">)</span><span class="w">
+
+</span><span class="c1"># By default, dodging with `position_dodge2()` preserves the total width of</span><span class="w">
+</span><span class="c1"># the elements. You can choose to preserve the width of each element with:</span><span class="w">
+</span><span class="n">ggplot</span><span class="p">(</span><span class="n">mtcars</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">factor</span><span class="p">(</span><span class="n">cyl</span><span class="p">),</span><span class="w"> </span><span class="n">fill</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">factor</span><span class="p">(</span><span class="n">vs</span><span class="p">)))</span><span class="w"> </span><span class="o">+</span><span class="w">
+ </span><span class="n">geom_bar</span><span class="p">(</span><span class="n">position</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">position_dodge2</span><span class="p">(</span><span class="n">preserve</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"single"</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<p>After playing around with <code class="language-plaintext highlighter-rouge">position_dodge</code> and <code class="language-plaintext highlighter-rouge">position_dodge2</code> and their various options, we might settle upon this</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">site</span><span class="p">,</span><span class="w"> </span><span class="n">fill</span><span class="o">=</span><span class="n">sex</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_bar</span><span class="p">(</span><span class="n">position</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">position_dodge</span><span class="p">())</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Number of male and female subjects at each center"</span><span class="p">,</span><span class="w">
+		</span><span class="n">x</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">y</span><span class="o">=</span><span class="s2">"Number of subjects"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">theme_classic</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/03_data_frames//unnamed-chunk-27-1.png" title="plot of chunk unnamed-chunk-27" alt="plot of chunk unnamed-chunk-27" width="504" /></p>
+
+<p>I’m not a fan of the default colors, having a legend title, or of the formatting of “female” and “male”. I’d rather use some different colors, leave out the legend title, and capitalize the first letter of the two sexes. Previously, we set the color of the diagnosis groups using <code class="language-plaintext highlighter-rouge">scale_color_manual</code>. We can do the same thing for our bar plot using <code class="language-plaintext highlighter-rouge">scale_fill_manual</code>. Can you see the difference?</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">site</span><span class="p">,</span><span class="w"> </span><span class="n">fill</span><span class="o">=</span><span class="n">sex</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_bar</span><span class="p">(</span><span class="n">position</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">position_dodge</span><span class="p">())</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">scale_fill_manual</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">values</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"lightgreen"</span><span class="p">,</span><span class="w"> </span><span class="s2">"purple"</span><span class="p">),</span><span class="w">
+		</span><span class="n">breaks</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"female"</span><span class="p">,</span><span class="w"> </span><span class="s2">"male"</span><span class="p">),</span><span class="w">
+		</span><span class="n">labels</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Female"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Male"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Number of male and female subjects at each center"</span><span class="p">,</span><span class="w">
+		</span><span class="n">x</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">y</span><span class="o">=</span><span class="s2">"Number of subjects"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">theme_classic</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/03_data_frames//unnamed-chunk-28-1.png" title="plot of chunk unnamed-chunk-28" alt="plot of chunk unnamed-chunk-28" width="504" /></p>
+
+<p>Nice, eh? Ok, so the colors aren’t amazing. Now let’s ask a different question, how are the three diagnosis groups distributed within each center? We can start simple</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">site</span><span class="p">,</span><span class="w"> </span><span class="n">fill</span><span class="o">=</span><span class="n">diagnosis</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_bar</span><span class="p">(</span><span class="n">position</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">position_dodge</span><span class="p">())</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Number of subjects with each diagnosis at each center"</span><span class="p">,</span><span class="w">
+		</span><span class="n">x</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">y</span><span class="o">=</span><span class="s2">"Number of subjects"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">theme_classic</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/03_data_frames//unnamed-chunk-29-1.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="504" /></p>
+
+<p>We can add our <code class="language-plaintext highlighter-rouge">scale_fill_manual</code> like we did earlier</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">site</span><span class="p">,</span><span class="w"> </span><span class="n">fill</span><span class="o">=</span><span class="n">diagnosis</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_bar</span><span class="p">(</span><span class="n">position</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">position_dodge</span><span class="p">())</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">scale_fill_manual</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">values</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"blue"</span><span class="p">,</span><span class="w"> </span><span class="s2">"red"</span><span class="p">,</span><span class="w"> </span><span class="s2">"black"</span><span class="p">),</span><span class="w">
+		</span><span class="n">breaks</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"cancer"</span><span class="p">),</span><span class="w">
+		</span><span class="n">labels</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Cancer"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Number of subjects with each diagnosis at each center"</span><span class="p">,</span><span class="w">
+		</span><span class="n">x</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">y</span><span class="o">=</span><span class="s2">"Number of subjects"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">theme_classic</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/03_data_frames//unnamed-chunk-30-1.png" title="plot of chunk unnamed-chunk-30" alt="plot of chunk unnamed-chunk-30" width="504" /></p>
+
+<h2 id="factors">Factors</h2>
+
+<p>You may notice that the order of the diagnosis labels is correct in the legend, but not along the x-axis. We can fix this problem by adding a line of code and reordering the colors in the line with the <code class="language-plaintext highlighter-rouge">values</code> argument.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">metadata</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">mutate</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">diagnosis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">factor</span><span class="p">(</span><span class="n">diagnosis</span><span class="p">,</span><span class="w"> </span><span class="n">levels</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"cancer"</span><span class="p">)))</span><span class="w">
+
+</span><span class="n">ggplot</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">site</span><span class="p">,</span><span class="w"> </span><span class="n">fill</span><span class="o">=</span><span class="n">diagnosis</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_bar</span><span class="p">(</span><span class="n">position</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">position_dodge</span><span class="p">())</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">scale_fill_manual</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">values</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"black"</span><span class="p">,</span><span class="w"> </span><span class="s2">"blue"</span><span class="p">,</span><span class="w"> </span><span class="s2">"red"</span><span class="p">),</span><span class="w">
+		</span><span class="n">breaks</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"cancer"</span><span class="p">),</span><span class="w">
+		</span><span class="n">labels</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Cancer"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Number of subjects with each diagnosis at each center"</span><span class="p">,</span><span class="w">
+		</span><span class="n">x</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">y</span><span class="o">=</span><span class="s2">"Number of subjects"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">theme_classic</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="assets/images/03_data_frames//unnamed-chunk-31-1.png" title="plot of chunk unnamed-chunk-31" alt="plot of chunk unnamed-chunk-31" width="504" /></p>
+
+<p>We turned <code class="language-plaintext highlighter-rouge">diagnosis</code> from an unordered categorical variable into an ordered categorical variable, an ordinal variable. In R these are called factors and we’ll talk about them more later. They’re one of the more frustrating parts of R for beginners and experts. You should also notice that we also put the colors in <code class="language-plaintext highlighter-rouge">scale_fill_manual</code> into the desired order.</p>
+
+<hr />
+
+<h3 id="activity-9">Activity 9</h3>
+<p>Create a bar plot that shows the number of people with and without a family history of colorectal cancer at each of the centers</p>
+
+<p><input type="button" class="hideshow" /></p>
+<div style="display:none;">
+
+  <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">site</span><span class="p">,</span><span class="w"> </span><span class="n">fill</span><span class="o">=</span><span class="n">family_history_of_crc</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_bar</span><span class="p">(</span><span class="n">position</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">position_dodge</span><span class="p">())</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">scale_fill_manual</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"Family history of CRC?"</span><span class="p">,</span><span class="w">
+		</span><span class="n">values</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"orange"</span><span class="p">,</span><span class="w"> </span><span class="s2">"blue"</span><span class="p">),</span><span class="w">
+		</span><span class="n">breaks</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="kc">TRUE</span><span class="p">,</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">),</span><span class="w">
+		</span><span class="n">labels</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Yes"</span><span class="p">,</span><span class="w"> </span><span class="s2">"No"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Number of subjects at each center with and without a history of CRC"</span><span class="p">,</span><span class="w">
+		</span><span class="n">x</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">y</span><span class="o">=</span><span class="s2">"Number of subjects"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">theme_classic</span><span class="p">()</span><span class="w">
+</span></code></pre></div>  </div>
+
+  <p><img src="assets/images/03_data_frames//unnamed-chunk-32-1.png" title="plot of chunk unnamed-chunk-32" alt="plot of chunk unnamed-chunk-32" width="504" /></p>
+</div>
+
+<hr />
+
+<h3 id="activity-10">Activity 10</h3>
+<p>Above we plotted the site along the x-axis with diagnosis as the secondary variable. Switch it so that diagnosis is plotted along the x-axis and the site is the secondary variable. Which version of the plot do you prefer? When would you chose one orientation over the other?</p>
+
+<p><input type="button" class="hideshow" /></p>
+<div style="display:none;">
+
+  <div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">diagnosis</span><span class="p">,</span><span class="w"> </span><span class="n">fill</span><span class="o">=</span><span class="n">site</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">geom_bar</span><span class="p">(</span><span class="n">position</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">position_dodge</span><span class="p">())</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">scale_x_discrete</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"cancer"</span><span class="p">),</span><span class="w">
+		</span><span class="n">labels</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Normal"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Adenoma"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Cancer"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">scale_fill_manual</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">values</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"orange"</span><span class="p">,</span><span class="w"> </span><span class="s2">"blue"</span><span class="p">,</span><span class="w"> </span><span class="s2">"green"</span><span class="p">,</span><span class="w"> </span><span class="s2">"black"</span><span class="p">),</span><span class="w">
+		</span><span class="n">breaks</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Dana Farber"</span><span class="p">,</span><span class="w"> </span><span class="s2">"MD Anderson"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Toronto"</span><span class="p">,</span><span class="w"> </span><span class="s2">"U Michigan"</span><span class="p">),</span><span class="w">
+		</span><span class="n">labels</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s2">"Dana Farber"</span><span class="p">,</span><span class="w"> </span><span class="s2">"MD Anderson"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Toronto"</span><span class="p">,</span><span class="w"> </span><span class="s2">"U Michigan"</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Number of subjects at each center with and without a history of CRC"</span><span class="p">,</span><span class="w">
+		</span><span class="n">x</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+		</span><span class="n">y</span><span class="o">=</span><span class="s2">"Number of subjects"</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+	</span><span class="n">theme_classic</span><span class="p">()</span><span class="w">
+</span></code></pre></div>  </div>
+
+  <p><img src="assets/images/03_data_frames//unnamed-chunk-33-1.png" title="plot of chunk unnamed-chunk-33" alt="plot of chunk unnamed-chunk-33" width="504" /></p>
+</div>
+:ET
