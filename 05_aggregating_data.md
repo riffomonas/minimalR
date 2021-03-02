@@ -741,7 +741,7 @@ meta_alpha %>%
 ## 3 cancer          29.1   6.76
 ```
 
-Alternatively, we might rather have a BMI category column. Instead of doing two mutates or having an even more complicated function, we can create a `get_bmi_category` function that calls `get_bmi` for us. This will be much easier than putting all of the code as an argument for `mutate`.
+Alternatively, we might rather have a BMI category column. Instead of doing two mutates or having an even more complicated function, we can create a `get_bmi_category` function that calls `get_bmi` for us. This will be much easier than putting all of the code as an argument for `mutate`. Notice that we can assign an `NA` character to any non-sensical values.
 
 
 ```r
@@ -751,11 +751,19 @@ get_bmi_category <- function(weight_kg, height_cm){
 	bmi_cat <- case_when(bmi >= 30 ~ "obese",
 			bmi >= 25 ~ "overweight",
  			bmi >= 18.5 ~ "normal",
-			is.na(bmi) ~ NA_character_,
-			TRUE ~ "underweight")
+			bmi > 0 ~ "underweight"
+			TRUE ~ NA_character_,
+			)
 
 	return(bmi_cat)
 }
+```
+
+```
+## Error: <text>:8:25: unexpected numeric constant
+## 7:                         bmi > 0 ~ "underweight"
+## 8:                         TRUE
+##                            ^
 ```
 
 Then I could do...
@@ -769,14 +777,9 @@ meta_alpha %>%
 ```
 
 ```
-## # A tibble: 5 x 4
-##   bmi_category mean_age sd_age     N
-##   <chr>           <dbl>  <dbl> <int>
-## 1 normal           59.6   13.4   163
-## 2 obese            58.8   11.9   120
-## 3 overweight       62.1   11.0   196
-## 4 underweight      52.4   10.1     9
-## 5 <NA>             64     21.2     2
+## Error: Problem with `mutate()` input `bmi_category`.
+## ✖ could not find function "get_bmi_category"
+## ℹ Input `bmi_category` is `get_bmi_category(weight_kg = weight, height_cm = height)`.
 ```
 
 
@@ -803,12 +806,9 @@ meta_alpha %>%
 ```
 
 ```
-## # A tibble: 3 x 4
-##   obese mean_shannon sd_shannon     N
-##   <lgl>        <dbl>      <dbl> <int>
-## 1 FALSE         3.60    0.445     368
-## 2 TRUE          3.45    0.473     120
-## 3 NA            3.15    0.00978     2
+## Error: Problem with `mutate()` input `obese`.
+## ✖ could not find function "get_bmi_category"
+## ℹ Input `obese` is `is_obese(weight_kg = weight, height_cm = height)`.
 ```
 </div>
 

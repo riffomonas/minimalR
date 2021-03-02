@@ -410,7 +410,7 @@ meta_alpha %>%
 	summarize(median_bmi = mean(bmi, na.rm=T), sd_bmi = sd(bmi, na.rm=T))
 ```
 
-Alternatively, we might rather have a BMI category column. Instead of doing two mutates or having an even more complicated function, we can create a `get_bmi_category` function that calls `get_bmi` for us. This will be much easier than putting all of the code as an argument for `mutate`.
+Alternatively, we might rather have a BMI category column. Instead of doing two mutates or having an even more complicated function, we can create a `get_bmi_category` function that calls `get_bmi` for us. This will be much easier than putting all of the code as an argument for `mutate`. Notice that we can assign an `NA` character to any non-sensical values.
 
 ```{r}
 get_bmi_category <- function(weight_kg, height_cm){
@@ -419,8 +419,9 @@ get_bmi_category <- function(weight_kg, height_cm){
 	bmi_cat <- case_when(bmi >= 30 ~ "obese",
 			bmi >= 25 ~ "overweight",
  			bmi >= 18.5 ~ "normal",
-			is.na(bmi) ~ NA_character_,
-			TRUE ~ "underweight")
+			bmi > 0 ~ "underweight"
+			TRUE ~ NA_character_,
+			)
 
 	return(bmi_cat)
 }
