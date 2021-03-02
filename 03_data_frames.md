@@ -680,7 +680,7 @@ metadata <- rename(.data=metadata,
 ---
 
 ### Activity 7
-As was mentioned, the "gender" column contains the sex of each individual ("f" or "m"). Change our `rename` function to also include code to change the name of that column.
+As was mentioned, the “gender” column contains the sex of each individual (“f” or “m”). Change our rename function to also include code to change the name of the gender column to sex
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
