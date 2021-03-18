@@ -30,7 +30,7 @@ opts_chunk$set("fig.width" = 7)
 
 You can follow along with a video that I made for installing these tools on windows and Mac OS X. The only difference is that in the video I put `raw_data` into `code_club` and you should put it into `minimalR`. Ideally that directory will live on the desktop while you are going through the exercises.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/D6CunpqF04E" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe style="margin: 0 auto;display:block;" width="560" height="315" src="https://www.youtube.com/embed/D6CunpqF04E" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ### Customizing RStudio
 There are many ways to customize RStudio. You can find the options by going to the Preferences window. If you are using windows you can get to the Preferences window by going Tools->Global Options. Here is a screenshot of how to do it for Mac OS X. The method should be pretty similar for people working on a Windows computer.
