@@ -23,7 +23,7 @@ output: markdown_document
 library(tidyverse)
 library(readxl)
 
-pcoa <- read_tsv(file="raw_data/baxter.thetayc.pcoa.axes")
+pcoa <- read_tsv(file="raw_data/baxter.braycurtis.pcoa.axes")
 metadata <- read_excel(path="raw_data/baxter.metadata.xlsx")
 metadata_pcoa <- inner_join(metadata, pcoa, by=c('sample'='group'))
 
@@ -34,7 +34,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	coord_fixed() +
-	labs(title="PCoA of ThetaYC Distances Between Stool Samples",
+	labs(title="PCoA of Bray-Curtis Distances Between Stool Samples",
 		x="PCo Axis 1",
 		y="PCo Axis 2") +
 	theme_classic()
@@ -103,7 +103,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	coord_fixed() +
-	labs(title="PCoA of ThetaYC Distances Between Stool Samples",
+	labs(title="PCoA of Bray-Curtis Distances Between Stool Samples",
 		x="PCo Axis 1",
 		y="PCo Axis 2") +
 	theme_classic()
@@ -132,7 +132,7 @@ ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2, color=Gender)) +
 		breaks=c("f", "m"),
 		labels=c("Female", "Male")) +
 	coord_fixed() +
-	labs(title="PCoA of ThetaYC Distances Between Stool Samples",
+	labs(title="PCoA of Bray-Curtis Distances Between Stool Samples",
 		x="PCo Axis 1",
 		y="PCo Axis 2") +
 	theme_classic()
@@ -253,7 +253,7 @@ ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2, color=dx)) +
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	coord_fixed() +
-	labs(title="PCoA of ThetaYC Distances Between Stool Samples",
+	labs(title="PCoA of Bray-Curtis Distances Between Stool Samples",
 		x="PCo Axis 1",
 		y="PCo Axis 2")
 ```
@@ -271,7 +271,7 @@ ggplot(data=metadata_pcoa, mapping=aes(x=axis1, y=axis2, color=dx)) +
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	coord_fixed() +
-	labs(title="PCoA of ThetaYC Distances Between Stool Samples",
+	labs(title="PCoA of Bray-Curtis Distances Between Stool Samples",
 		x="PCo Axis 1",
 		y="PCo Axis 2") +
 	theme_classic()
@@ -305,7 +305,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, size=axis3, color=dx)) +
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	coord_fixed() +
-	labs(title="PCoA of ThetaYC Distances Between Stool Samples",
+	labs(title="PCoA of Bray-Curtis Distances Between Stool Samples",
 		x="PCo Axis 1",
 		y="PCo Axis 2") +
 	theme_classic()
@@ -331,7 +331,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	coord_fixed() +
-	labs(title="PCoA of ThetaYC Distances Between Stool Samples",
+	labs(title="PCoA of Bray-Curtis Distances Between Stool Samples",
 		x="PCo Axis 1",
 		y="PCo Axis 2") +
 	theme_classic()
@@ -375,7 +375,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, fill=dx)) +
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	coord_fixed() +
-	labs(title="PCoA of ThetaYC Distances Between Stool Samples",
+	labs(title="PCoA of Bray-Curtis Distances Between Stool Samples",
 		x="PCo Axis 1",
 		y="PCo Axis 2") +
 	theme_classic()
@@ -394,7 +394,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, fill=dx)) +
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	coord_fixed() +
-	labs(title="PCoA of ThetaYC Distances Between Stool Samples",
+	labs(title="PCoA of Bray-Curtis Distances Between Stool Samples",
 		x="PCo Axis 1",
 		y="PCo Axis 2") +
 	theme_classic()
@@ -413,7 +413,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx, shape=Gender)) +
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	coord_fixed() +
-	labs(title="PCoA of ThetaYC Distances Between Stool Samples",
+	labs(title="PCoA of Bray-Curtis Distances Between Stool Samples",
 		x="PCo Axis 1",
 		y="PCo Axis 2") +
 	theme_classic()
@@ -436,7 +436,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx, shape=Gender)) +
 		breaks=c("f", "m"),
 		labels=c("Female", "Male")) +
 	coord_fixed() +
-	labs(title="PCoA of ThetaYC Distances Between Stool Samples",
+	labs(title="PCoA of Bray-Curtis Distances Between Stool Samples",
 		x="PCo Axis 1",
 		y="PCo Axis 2") +
 	theme_classic()
@@ -459,7 +459,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx, shape=dx)) +
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	coord_fixed() +
-	labs(title="PCoA of ThetaYC Distances Between Stool Samples",
+	labs(title="PCoA of Bray-Curtis Distances Between Stool Samples",
 		x="PCo Axis 1",
 		y="PCo Axis 2") +
 	theme_classic()
@@ -489,7 +489,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	coord_fixed() +
-	labs(title="PCoA of ThetaYC Distances Between Stool Samples",
+	labs(title="PCoA of Bray-Curtis Distances Between Stool Samples",
 		x="PCo Axis 1",
 		y="PCo Axis 2") +
 	theme_classic()
@@ -693,7 +693,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	coord_fixed() +
-	labs(title="PCoA of ThetaYC Distances Between Stool Samples",
+	labs(title="PCoA of Bray-Curtis Distances Between Stool Samples",
 		x="PCo Axis 1",
 		y="PCo Axis 2") +
 	theme_classic()
@@ -712,7 +712,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	coord_fixed() +
-	labs(title="PCoA of ThetaYC Distances Between Stool Samples",
+	labs(title="PCoA of Bray-Curtis Distances Between Stool Samples",
 		x="PCo Axis 1",
 		y="PCo Axis 2") +
 	theme_classic()
@@ -759,10 +759,22 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	coord_fixed() +
-	labs(title="PCoA of ThetaYC Distances Between Stool Samples",
+	labs(title="PCoA of Bray-Curtis Distances Between Stool Samples",
 		x="PCo Axis 1",
 		y="PCo Axis 2") +
 	theme_classic()
+```
+
+```
+##      checking for file ‘/private/var/folders/21/k_3p5hdj2x77jf0b6349r5gr0000gp/T/RtmphPt4so/remotes741f377c411/karthik-wesanderson-651c944/DESCRIPTION’ ...  ✔  checking for file ‘/private/var/folders/21/k_3p5hdj2x77jf0b6349r5gr0000gp/T/RtmphPt4so/remotes741f377c411/karthik-wesanderson-651c944/DESCRIPTION’
+##   ─  preparing ‘wesanderson’:
+##      checking DESCRIPTION meta-information ...  ✔  checking DESCRIPTION meta-information
+##   ─  checking for LF line-endings in source and make files and shell scripts
+##   ─  checking for empty or unneeded directories
+##      Removed empty directory ‘wesanderson/figure’
+##   ─  building ‘wesanderson_0.3.6.9000.tar.gz’
+##      
+## 
 ```
 
 <img src="assets/images/02_scatter_plots//unnamed-chunk-33-1.png" title="plot of chunk unnamed-chunk-33" alt="plot of chunk unnamed-chunk-33" width="504" />

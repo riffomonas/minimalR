@@ -22,7 +22,7 @@ If we compile all of the code in the last lesson, we now have this code chunk wh
 library(tidyverse)
 library(readxl)
 
-pcoa <- read_tsv(file="raw_data/baxter.thetayc.pcoa.axes",
+pcoa <- read_tsv(file="raw_data/baxter.braycurtis.pcoa.axes",
 		col_types=cols(group=col_character())
 	)
 
@@ -62,7 +62,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	coord_fixed() +
-	labs(title="PCoA of ThetaYC Distances Between Stool Samples",
+	labs(title="PCoA of Bray-Curtis Distances Between Stool Samples",
 		x="PCo Axis 1",
 		y="PCo Axis 2") +
 	theme_classic()
@@ -345,18 +345,18 @@ select(pcoa, group, axis1, axis2, axis3)
 
 ```
 ## # A tibble: 490 x 4
-##    group      axis1   axis2   axis3
-##    <chr>      <dbl>   <dbl>   <dbl>
-##  1 2003650 -0.109    0.0279 -0.200 
-##  2 2005650 -0.222    0.169  -0.0667
-##  3 2007660 -0.189   -0.0389 -0.147 
-##  4 2009650 -0.161   -0.0237 -0.155 
-##  5 2013660  0.319    0.0136 -0.0494
-##  6 2015650 -0.225    0.172  -0.0871
-##  7 2017660  0.00846 -0.155  -0.0670
-##  8 2019651  0.171   -0.0903  0.0112
-##  9 2023680 -0.299    0.122  -0.144 
-## 10 2025653  0.333    0.0280  0.0304
+##    group    axis1    axis2   axis3
+##    <chr>    <dbl>    <dbl>   <dbl>
+##  1 2003650  0.281 -0.0575  -0.0517
+##  2 2005650  0.309  0.00522 -0.0664
+##  3 2007660  0.154  0.0622  -0.0178
+##  4 2009650  0.293 -0.0153   0.0703
+##  5 2013660 -0.223 -0.137   -0.0403
+##  6 2015650  0.280  0.00598 -0.187 
+##  7 2017660  0.111 -0.0704   0.110 
+##  8 2019651  0.107 -0.224    0.0411
+##  9 2023680  0.260  0.0965  -0.0790
+## 10 2025653 -0.144 -0.169    0.0271
 ## # … with 480 more rows
 ```
 
@@ -369,18 +369,18 @@ select(pcoa, -axis1)
 
 ```
 ## # A tibble: 490 x 490
-##    group   axis2   axis3    axis4    axis5    axis6   axis7   axis8   axis9
-##    <chr>   <dbl>   <dbl>    <dbl>    <dbl>    <dbl>   <dbl>   <dbl>   <dbl>
-##  1 2003…  0.0279 -0.200  -0.199    0.0891   0.00139 -0.0142 -0.116   0.0842
-##  2 2005…  0.169  -0.0667  0.00512 -0.0816  -0.0478   0.118   0.0840  0.0326
-##  3 2007… -0.0389 -0.147   0.00898 -0.00153 -0.0361   0.136   0.0885 -0.0284
-##  4 2009… -0.0237 -0.155  -0.0321  -0.0882   0.109    0.151  -0.119   0.0830
-##  5 2013…  0.0136 -0.0494  0.00922 -0.0757  -0.240   -0.0645  0.104  -0.0361
-##  6 2015…  0.172  -0.0871 -0.185    0.374   -0.0999  -0.0331  0.0943 -0.118 
-##  7 2017… -0.155  -0.0670 -0.0939  -0.0938   0.0298  -0.154  -0.0244 -0.279 
-##  8 2019… -0.0903  0.0112 -0.0738   0.0538   0.159   -0.209   0.198   0.172 
-##  9 2023…  0.122  -0.144  -0.117    0.114    0.0295   0.231   0.0778 -0.0352
-## 10 2025…  0.0280  0.0304  0.113    0.0410   0.0774   0.161  -0.0367 -0.182 
+##    group    axis2   axis3   axis4    axis5    axis6    axis7    axis8   axis9
+##    <chr>    <dbl>   <dbl>   <dbl>    <dbl>    <dbl>    <dbl>    <dbl>   <dbl>
+##  1 2003… -0.0575  -0.0517 -0.0901  0.00955 -0.0599  -0.0529  -0.0391   0.0263
+##  2 2005…  0.00522 -0.0664  0.0715 -0.00733 -0.0449   0.0400  -0.0223  -0.0268
+##  3 2007…  0.0622  -0.0178  0.0953 -0.122   -0.0935   0.00763  0.0370  -0.0398
+##  4 2009… -0.0153   0.0703  0.0351 -0.0176  -0.00318  0.0437  -0.0827  -0.0478
+##  5 2013… -0.137   -0.0403  0.0344 -0.0115  -0.0400   0.107    0.233    0.0274
+##  6 2015…  0.00598 -0.187  -0.0383  0.0653  -0.131   -0.164    0.0603   0.0522
+##  7 2017… -0.0704   0.110  -0.104   0.0389   0.0439   0.0993   0.0709  -0.0981
+##  8 2019… -0.224    0.0411 -0.103  -0.00765  0.0902  -0.107    0.00435  0.0413
+##  9 2023…  0.0965  -0.0790  0.0406 -0.0554  -0.108   -0.0646  -0.0755  -0.0423
+## 10 2025… -0.169    0.0271  0.108  -0.0600  -0.109    0.0316  -0.0612  -0.166 
 ## # … with 480 more rows, and 481 more variables: axis10 <dbl>, axis11 <dbl>,
 ## #   axis12 <dbl>, axis13 <dbl>, axis14 <dbl>, axis15 <dbl>, axis16 <dbl>,
 ## #   axis17 <dbl>, axis18 <dbl>, axis19 <dbl>, axis20 <dbl>, axis21 <dbl>,
@@ -719,7 +719,7 @@ ggplot(um_metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	coord_fixed() +
-	labs(title="PCoA of ThetaYC Distances Between Stool Samples\nCollected at the University of Michigan",
+	labs(title="PCoA of Bray-Curtis Distances Between Stool Samples\nCollected at the University of Michigan",
 		x="PCo Axis 1",
 		y="PCo Axis 2") +
 	theme_classic()
@@ -918,16 +918,16 @@ alpha
 ## # A tibble: 490 x 5
 ##    group    sobs shannon invsimpson coverage
 ##    <chr>   <dbl>   <dbl>      <dbl>    <dbl>
-##  1 2005650  291.    3.98       26.6    0.990
-##  2 2003650  262.    4.02       35.6    0.991
-##  3 2009650  324.    4.16       30.1    0.991
-##  4 2013660  133.    3.33       17.4    0.997
-##  5 2015650  233.    3.74       20.8    0.993
-##  6 2017660  238.    3.98       28.6    0.994
-##  7 2019651  191.    3.69       20.1    0.996
-##  8 2023680  300.    4.01       28.9    0.992
-##  9 2025653  179.    3.39       14.6    0.995
-## 10 2027653  127.    3.54       19.2    0.998
+##  1 2003650  262.    4.02       35.6    0.991
+##  2 2005650  292.    3.98       26.6    0.990
+##  3 2007660  283.    3.91       26.7    0.992
+##  4 2009650  324.    4.16       30.1    0.991
+##  5 2013660  133.    3.33       17.4    0.997
+##  6 2015650  233.    3.74       20.8    0.993
+##  7 2017660  238.    3.98       28.6    0.994
+##  8 2019651  191.    3.69       20.1    0.996
+##  9 2023680  300.    4.01       28.9    0.992
+## 10 2025653  179.    3.39       14.5    0.995
 ## # … with 480 more rows
 ```
 
@@ -998,7 +998,7 @@ With our new found piping skillz, rewrite the code from the end of the last tuto
 <div markdown="1" style="display:none;">
 
 ```r
-read_tsv(file="raw_data/baxter.thetayc.pcoa.axes", col_types=cols(group=col_character())) %>%
+read_tsv(file="raw_data/baxter.braycurtis.pcoa.axes", col_types=cols(group=col_character())) %>%
 	inner_join(metadata, ., by=c('sample'='group')) %>%
 	ggplot(aes(x=axis1, y=axis2, color=diagnosis)) +
 		geom_point(shape=19, size=2) +
@@ -1007,7 +1007,7 @@ read_tsv(file="raw_data/baxter.thetayc.pcoa.axes", col_types=cols(group=col_char
 			breaks=c("normal", "adenoma", "cancer"),
 			labels=c("Normal", "Adenoma", "Cancer")) +
 		coord_fixed() +
-		labs(title="PCoA of ThetaYC Distances Between Stool Samples",
+		labs(title="PCoA of Bray-Curtis Distances Between Stool Samples",
 			x="PCo Axis 1",
 			y="PCo Axis 2") +
 		theme_classic()

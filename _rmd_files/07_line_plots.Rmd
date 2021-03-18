@@ -100,8 +100,9 @@ get_bmi_category <- function(weight_kg, height_cm){
 	bmi_cat <- case_when(bmi >= 30 ~ "obese",
 			bmi >= 25 ~ "overweight",
  			bmi >= 18.5 ~ "normal",
-			is.na(bmi) ~ NA_character_,
-			TRUE ~ "underweight")
+			bmi > 0 ~ "underweight",
+			TRUE ~ NA_character_
+		)
 
 	return(bmi_cat)
 }
@@ -216,7 +217,7 @@ This code would go into `code/plot_ordination.R`. Note that the the `library(tid
 ```{r, echo=FALSE}
 x <- 'source("code/baxter.R")
 
-pcoa <- read_tsv(file="raw_data/baxter.thetayc.pcoa.axes",
+pcoa <- read_tsv(file="raw_data/baxter.braycurtis.pcoa.axes",
 		col_types=cols(group=col_character())
 	)
 
@@ -230,7 +231,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=diagnosis)) +
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	coord_fixed() +
-	labs(title="PCoA of ThetaYC Distances Between Stool Samples",
+	labs(title="PCoA of Bray-Curtis Distances Between Stool Samples",
 		x="PCo Axis 1",
 		y="PCo Axis 2") +
 	theme_classic()

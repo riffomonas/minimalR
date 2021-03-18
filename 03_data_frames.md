@@ -23,7 +23,7 @@ Let's revisit the chunk of code that we started out with at the beginning of the
 library(tidyverse)
 library(readxl)
 
-pcoa <- read_tsv(file="raw_data/baxter.thetayc.pcoa.axes")
+pcoa <- read_tsv(file="raw_data/baxter.braycurtis.pcoa.axes")
 metadata <- read_excel(path="raw_data/baxter.metadata.xlsx")
 metadata_pcoa <- inner_join(metadata, pcoa, by=c('sample'='group'))
 
@@ -34,7 +34,7 @@ ggplot(metadata_pcoa, aes(x=axis1, y=axis2, color=dx)) +
 		breaks=c("normal", "adenoma", "cancer"),
 		labels=c("Normal", "Adenoma", "Cancer")) +
 	coord_fixed() +
-	labs(title="PCoA of ThetaYC Distances Between Stool Samples",
+	labs(title="PCoA of Bray-Curtis Distances Between Stool Samples",
 		x="PCo Axis 1",
 		y="PCo Axis 2") +
 	theme_classic()
@@ -48,7 +48,7 @@ ggsave("ordination.pdf")
 After loading the `tidyverse` and `readxl` packages, there are two lines where we read in data:
 
 ```R
-pcoa <- read_tsv(file="raw_data/baxter.thetayc.pcoa.axes")
+pcoa <- read_tsv(file="raw_data/baxter.braycurtis.pcoa.axes")
 metadata <- read_excel(path="raw_data/baxter.metadata.xlsx")
 ```
 
@@ -148,7 +148,7 @@ This is the documentation for four `readr` commands: `read_delim`, `read_csv`, `
 
 ```R
 # Don't run this!
-pcoa <- read_tsv(file="raw_data/baxter.thetayc.pcoa.axes", col_names=FALSE)
+pcoa <- read_tsv(file="raw_data/baxter.braycurtis.pcoa.axes", col_names=FALSE)
 ```
 
 These reading functions are pretty smart and can generally figure out the type of data that is in each column.
@@ -680,7 +680,7 @@ metadata <- rename(.data=metadata,
 ---
 
 ### Activity 7
-As was mentioned, the "gender" column contains the sex of each individual ("f" or "m"). Change our `rename` function to also include code to change the name of that column.
+As was mentioned, the “gender” column contains the sex of each individual (“f” or “m”). Change our rename function to also include code to change the name of the gender column to sex
 
 <input type="button" class="hideshow">
 <div markdown="1" style="display:none;">
@@ -724,7 +724,7 @@ This throws an error. It is complaining because the "group" column in our `pcoa`
 <div markdown="1" style="display:none;">
 
 ```r
-pcoa <- read_tsv(file="raw_data/baxter.thetayc.pcoa.axes",
+pcoa <- read_tsv(file="raw_data/baxter.braycurtis.pcoa.axes",
 		col_types=cols(group=col_character()))
 
 metadata_pcoa <- inner_join(metadata, pcoa, by=c('sample'='group'))
