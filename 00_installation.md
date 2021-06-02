@@ -14,7 +14,7 @@ output: markdown_document
 ## What you need to do these tutorials...
 * [R](https://cloud.r-project.org/): These materials have been tested using R version 4.0.4 (2021-02-15)
 * [RStudio](https://www.rstudio.com/products/rstudio/download/#download): These materials have been tested using RStudio version 1.3.1093
-* [Raw data files](https://github.com/riffomonas/raw_data/archive/0.1.zip). This will download a directory called `raw_data-X.X` where the "X.X" is the version number. Make sure the directory is uncompressed and remove the `-X.X` so that you now have a directory called `raw_data`. ***This is super important!***
+* [Raw data files](https://github.com/riffomonas/raw_data/archive/refs/tags/0.3.zip). This will download a directory called `raw_data-X.X` where the "X.X" is the version number. Make sure the directory is uncompressed and remove the `-X.X` so that you now have a directory called `raw_data`. ***This is super important!***
 
 You can follow along with a video that I made for installing these tools on windows and Mac OS X. The only difference is that in the video I put `raw_data` into `code_club` and you should put it into `minimalR`. Ideally that directory will live on the desktop while you are going through the exercises.
 
