@@ -95,7 +95,7 @@ library(tidyverse)
 
 r_version <- R.version$version.string
 
-read_csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/comma-survey/comma-survey.csv") %>%
+read_csv("https://raw.githubusercontent.com/riffomonas/data/main/comma-survey.csv") %>%
 	rename(data=`How would you write the following sentence?`) %>%
 	mutate(data=recode(data,
 		`Some experts say it's important to drink milk, but the data are inconclusive.` = "Plural",
